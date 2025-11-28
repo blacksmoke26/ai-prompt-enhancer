@@ -6,8 +6,12 @@ export const promptRequestSchema = Joi.object({
   systemPrompt: Joi.string().optional().max(2000),
   temperature: Joi.number().optional().min(0).max(2).default(0.7),
   maxTokens: Joi.number().optional().min(1).max(8000).default(2000),
-  enhancementType: Joi.string().optional().valid('correct', 'enhance', 'proofread', 'optimize', 'creative', 'technical', 'concise', 'structured').default('enhance'),
+  enhancementType: Joi.string().optional().valid('correct', 'enhance', 'proofread', 'optimize', 'creative', 'technical', 'concise', 'structured', 'audience', 'tone', 'length', 'simplify', 'expand', 'format').default('enhance'),
   userRole: Joi.string().optional().valid('general', 'developer', 'writer', 'researcher', 'marketer', 'educator', 'business', 'designer').default('general'),
+  targetAudience: Joi.string().optional().max(500),
+  tone: Joi.string().optional().valid('formal', 'casual', 'professional', 'friendly', 'academic', 'creative', 'technical').max(100),
+  responseLength: Joi.string().optional().valid('short', 'medium', 'long', 'custom'),
+  customInstructions: Joi.string().optional().max(1000),
 });
 
 export const configUpdateSchema = Joi.object({
