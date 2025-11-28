@@ -1,21 +1,23 @@
 import React from 'react';
-import { cn } from '../../utils/helpers';
+import ReactSelect from 'react-select';
+import {useTheme} from '../ThemeProvider';
 
 /**
- * Props for the Select component.
- * @extends React.SelectHTMLAttributes<HTMLSelectElement>
+ * Interface for select options
+ * @description Defines the structure of individual options in the select dropdown
  */
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  /** Optional label displayed above the select input */
-  label?: string;
-  /** Optional error message displayed below the select input */
-  error?: string;
-  /** Array of options to populate the select */
-  options: Array<{ value: string; label: string; disabled?: boolean }>;
-}
+ export interface SelectOption {
+   /** The value of the option, used for identification */
+   value: string;
+   /** The display label for the option */
+   label: string;
+   /** Whether the option is disabled */
+   disabled?: boolean;
+ }
 
 /**
- * A customizable select dropdown component with label, error, and styling support.
+ * Interface for Select component props
+ * @description Defines all available props for the Select component
  *
  * @example
  * ```tsx
@@ -25,47 +27,283 @@ interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
  *     { value: 'apple', label: 'Apple' },
  *     { value: 'banana', label: 'Banana', disabled: true },
  *   ]}
- *   onChange={(e) => console.log(e.target.value)}
+ *   onChange={(value) => console.log(value)}
  * />
  * ```
  *
  * @developer
- * - Uses Tailwind CSS for styling
- * - Combines default styles with any additional className via cn utility
- * - Automatically applies error styling when error prop is provided
- * - Supports all standard HTML select attributes
+ * - Uses react-select for enhanced dropdown functionality
+ * - Automatically applies theme colors (light/dark)
+ * - Supports all react-select props
  */
-export const Select: React.FC<SelectProps> = ({
-  className,
-  label,
-  error,
-  options,
-  ...props
-}) => {
+export interface SelectProps {
+  /** Optional label displayed above the select input */
+  label?: string;
+  /** Optional error message displayed below the select input */
+  error?: string;
+  /** Array of options to populate the select */
+  options: SelectOption[];
+  /** The value of the select */
+  value?: string | string[];
+  /** Callback function when value changes */
+  onChange?: (value: string | string[]) => void;
+  /** Placeholder text */
+  placeholder?: string;
+  /** Whether the select is disabled */
+  isDisabled?: boolean;
+  /** Whether the select is searchable */
+  isSearchable?: boolean;
+  /** Whether the select allows multi-selection */
+  isMulti?: boolean;
+  /** Whether the select allows clearing the value */
+  isClearable?: boolean;
+  /** Custom class name */
+  className?: string;
+  /** Custom class names for different parts of the select */
+  classNamePrefix?: string;
+  /** Whether to show the dropdown indicator */
+  showDropdownIndicator?: boolean;
+  /** Custom styles */
+  styles?: any;
+  /** Custom components */
+  components?: any;
+  /** Whether to show the label */
+  showLabel?: boolean;
+  /** Width of the select */
+  width?: string;
+  /** Height of the select */
+  height?: string;
+
+  /** Additional props to pass to the react-select component */
+  [key: string]: any;
+}
+
+// Theme-based styles
+const themeStyles = ({showDropdownIndicator}: { showDropdownIndicator: boolean }) => ({
+  light: {
+    control: (provided: any) => ({
+      ...provided,
+      backgroundColor: 'white',
+      borderColor: '#e2e8f0',
+      borderRadius: '0.375rem',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: '#cbd5e1',
+      },
+      '&:focus-within': {
+        borderColor: '#3b82f6',
+        boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+      },
+    }),
+    menu: (provided: any) => ({
+      ...provided,
+      backgroundColor: 'white',
+      borderRadius: '0.375rem',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      marginTop: '0.25rem',
+      zIndex: 50,
+    }),
+    option: (provided: any, state: any) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#f1f5f9' : 'white',
+      color: state.isSelected ? 'white' : '#1e293b',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: '#f1f5f9',
+      },
+    }),
+    singleValue: (provided: any) => ({
+      ...provided,
+      color: '#1e293b',
+    }),
+    placeholder: (provided: any) => ({
+      ...provided,
+      color: '#94a3b8',
+    }),
+    indicatorSeparator: (provided: any) => ({
+      ...provided,
+      display: showDropdownIndicator ? 'block' : 'none',
+    }),
+    dropdownIndicator: (provided: any) => ({
+      ...provided,
+      color: '#64748b',
+      '&:hover': {
+        color: '#334155',
+      },
+    }),
+    clearIndicator: (provided: any) => ({
+      ...provided,
+      color: '#64748b',
+      '&:hover': {
+        color: '#334155',
+      },
+    }),
+  },
+  dark: {
+    control: (provided: any) => ({
+      ...provided,
+      backgroundColor: '#1e293b',
+      borderColor: '#334155',
+      borderRadius: '0.375rem',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: '#475569',
+      },
+      '&:focus-within': {
+        borderColor: '#3b82f6',
+        boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.1)',
+      },
+    }),
+    menu: (provided: any) => ({
+      ...provided,
+      backgroundColor: '#1e293b',
+      borderRadius: '0.375rem',
+      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+      marginTop: '0.25rem',
+      zIndex: 50,
+    }),
+    option: (provided: any, state: any) => ({
+      ...provided,
+      backgroundColor: state.isSelected ? '#3b82f6' : state.isFocused ? '#334155' : '#1e293b',
+      color: state.isSelected ? 'white' : '#f1f5f9',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: '#334155',
+      },
+    }),
+    input: (provided: any) => ({
+      ...provided,
+      // Change the color of the text the user types
+      color: '#bbbfc5',
+    }),
+    singleValue: (provided: any) => ({
+      ...provided,
+      color: '#f1f5f9',
+    }),
+    placeholder: (provided: any) => ({
+      ...provided,
+      color: '#78889f',
+    }),
+    indicatorSeparator: (provided: any) => ({
+      ...provided,
+      display: showDropdownIndicator ? 'block' : 'none',
+    }),
+    dropdownIndicator: (provided: any) => ({
+      ...provided,
+      color: '#94a3b8',
+      '&:hover': {
+        color: '#f1f5f9',
+      },
+    }),
+    clearIndicator: (provided: any) => ({
+      ...provided,
+      color: '#94a3b8',
+      '&:hover': {
+        color: '#f1f5f9',
+      },
+    }),
+  },
+});
+
+/**
+ * A customizable select dropdown component using react-select with theme support.
+ *
+ * @example
+ * ```tsx
+ * <Select
+ *   label="Choose a fruit"
+ *   options={[
+ *     { value: 'apple', label: 'Apple' },
+ *     { value: 'banana', label: 'Banana', disabled: true },
+ *   ]}
+ *   onChange={(value) => console.log(value)}
+ * />
+ * ```
+ *
+ * @developer
+ * - Uses react-select for enhanced dropdown functionality
+ * - Automatically applies theme colors (light/dark)
+ * - Supports all react-select props
+ */
+export const Select: React.FC<SelectProps> = (props) => {
+  const {
+    className,
+    label,
+    error,
+    options,
+    value,
+    onChange,
+    placeholder = 'Choose',
+    isDisabled = false,
+    isSearchable = false,
+    isMulti = false,
+    isClearable = true,
+    showDropdownIndicator = true,
+    showLabel = true,
+    width = 'full',
+    height = 'auto',
+    styles: customStyles,
+    components: customComponents,
+    ...restProps
+  } = props || {};
+  const {resolvedTheme} = useTheme();
+
+  // Merge custom styles with theme styles
+  const styles = {
+    ...themeStyles({showDropdownIndicator})[resolvedTheme],
+    ...customStyles,
+  };
+
+  // Handle change event
+  const handleChange = (selectedOption: SelectOption | SelectOption[]) => {
+    if (isMulti && Array.isArray(selectedOption)) {
+      const values = selectedOption ? selectedOption.map((option: any) => option.value) : [];
+      onChange?.(values);
+    } else if (!Array.isArray(selectedOption)) {
+      onChange?.(selectedOption?.value ?? '');
+    }
+  };
+
+  // Convert options to react-select format
+  const selectOptions = options.map((option) => ({
+    value: option.value,
+    label: option.label,
+    disabled: option.disabled || false,
+  }));
+
+  // Get the current value in react-select format
+  const currentValue = isMulti
+    ? value && Array.isArray(value)
+      ? selectOptions.filter((option: any) => value.includes(option.value))
+      : []
+    : value && typeof value === 'string'
+      ? selectOptions.find((option: any) => option.value === value) || null
+      : null;
+
   return (
-    <div className="space-y-2">
-      {label && (
-        <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+    <div className={`space-y-2 ${className || ''}`}>
+      {showLabel && label && (
+        <label
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
           {label}
         </label>
       )}
-      <select
-        className={cn(
-          'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',
-          error && 'border-destructive',
-          className
-        )}
-        {...props}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value} disabled={option.disabled}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-      {error && (
-        <p className="text-sm text-destructive">{error}</p>
-      )}
+      <div className={width === 'full' ? 'w-full' : `w-[${width}]`}>
+        <ReactSelect
+          {...restProps}
+          options={selectOptions}
+          value={currentValue}
+          onChange={(value) => handleChange(value as SelectOption | SelectOption[])}
+          placeholder={placeholder}
+          isDisabled={isDisabled}
+          isSearchable={isSearchable}
+          isMulti={isMulti}
+          isClearable={isClearable}
+          styles={styles}
+          classNamePrefix="select"
+        />
+      </div>
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 };
