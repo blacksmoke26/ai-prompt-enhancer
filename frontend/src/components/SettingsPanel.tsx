@@ -227,8 +227,9 @@ export const SettingsPanel: React.FC = () => {
           <div>
             <label className="text-sm font-medium">Default Model</label>
             <Select
+              isSearchable
               value={localConfig.defaultModel}
-              onChange={(e) => setLocalConfig(prev => ({ ...prev, defaultModel: e.target.value }))}
+              onChange={(e) => setLocalConfig(prev => ({ ...prev, defaultModel: e as string }))}
               options={models.map(model => ({
                 value: model.id,
                 label: `${model.name} (${model.provider})`

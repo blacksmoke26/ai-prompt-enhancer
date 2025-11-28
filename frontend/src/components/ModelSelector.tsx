@@ -10,10 +10,10 @@ interface ModelSelectorProps {
 }
 
 export const ModelSelector: React.FC<ModelSelectorProps> = ({ className }) => {
-  const { 
-    models, 
-    providers, 
-    selectedModel, 
+  const {
+    models,
+    providers,
+    selectedModel,
     setSelectedModel,
     enhancementTypes,
     userRoles,
@@ -62,8 +62,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ className }) => {
         {/* Model Selection */}
         <div>
           <Select
+            isSearchable
             value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
+            onChange={(e) => setSelectedModel(e as string)}
             options={modelOptions}
             label="AI Model"
           />
@@ -89,8 +90,9 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ className }) => {
         {/* Enhancement Type */}
         <div>
           <Select
+            isSearchable={true}
             value={selectedEnhancementType}
-            onChange={(e) => setSelectedEnhancementType(e.target.value)}
+            onChange={(e) => setSelectedEnhancementType(e as string)}
             options={enhancementOptions}
             label="Enhancement Type"
           />
@@ -104,8 +106,11 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ className }) => {
         {/* User Role */}
         <div>
           <Select
+            isSearchable
             value={selectedUserRole}
-            onChange={(e) => setSelectedUserRole(e.target.value)}
+            onChange={(e) => {
+              setSelectedUserRole(e as string);
+            }}
             options={roleOptions}
             label="User Role"
           />
@@ -123,7 +128,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ className }) => {
             {providers.map((provider) => (
               <div key={provider.name} className="flex items-center justify-between">
                 <span className="text-sm capitalize">{provider.name}</span>
-                <Badge 
+                <Badge
                   variant={provider.isConfigured ? 'default' : 'destructive'}
                   className="text-xs"
                 >
