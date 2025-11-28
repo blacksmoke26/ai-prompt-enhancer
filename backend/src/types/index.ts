@@ -84,12 +84,37 @@ export interface PromptRequest {
    * Type of enhancement to apply to the prompt
    * @example "enhance"
    */
-  enhancementType?: 'correct' | 'enhance' | 'proofread' | 'optimize';
-  /**
-   * User role that determines the context for the AI response
-   * @example "developer"
-   */
-  userRole?: string;
+  enhancementType?: 'correct' | 'enhance' | 'proofread' | 'optimize' | 'creative' | 'technical' | 'concise' | 'structured' | 'audience' | 'tone' | 'length' | 'simplify' | 'expand' | 'format';
+   /**
+    * User role that determines the context for the AI response
+    * @developerNotes Sets the professional context for the AI's response based on user's background
+    * @example "developer"
+    */
+   userRole?: string;
+   /**
+    * Target audience for the response
+    * @developerNotes Helps the AI tailor the content for specific audience understanding
+    * @example "technical-experts"
+    */
+   targetAudience?: string;
+   /**
+    * Desired tone for the AI response
+    * @developerNotes Controls the emotional and stylistic approach of the response
+    * @example "professional"
+    */
+   tone?: string;
+   /**
+    * Preferred length of the response
+    * @developerNotes Determines how detailed or concise the response should be
+    * @example "medium"
+    */
+   responseLength?: 'short' | 'medium' | 'long' | 'custom';
+   /**
+    * Additional user instructions for the AI
+    * @developerNotes Allows for specific formatting or content requirements beyond standard options
+    * @example "Include code examples"
+    */
+   customInstructions?: string;
 }
 
 /**
