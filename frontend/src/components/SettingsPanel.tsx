@@ -6,16 +6,16 @@ import { Textarea } from './ui/Textarea';
 import { Select } from './ui/Select';
 import { Badge } from './ui/Badge';
 import { Alert, AlertDescription } from './ui/Alert';
-import { 
-  Save, 
-  Download, 
-  Upload, 
-  RotateCcw, 
-  TestTube, 
-  RefreshCw, 
+import {
+  Save,
+  Download,
+  Upload,
+  RotateCcw,
+  TestTube,
+  RefreshCw,
   Trash2,
   Settings as SettingsIcon,
-  Eye, 
+  Eye,
   EyeOff
 } from 'lucide-react';
 import { useAppStore } from '../stores/appStore';
@@ -24,18 +24,30 @@ import { promptService } from '../utils/promptService';
 import { cn } from '../utils/helpers';
 import { AppConfig } from '../types';
 
+/**
+ * Type definition for available settings tabs
+ * @example
+ * const activeTab: SettingsTab = 'general';
+ * @developer Note: Add new tabs here and update the renderTabContent function
+ */
 type SettingsTab = 'general' | 'providers' | 'enhancement' | 'data' | 'advanced';
 
+/**
+ * Main settings panel component for configuring the AI Prompt Enhancer
+ * @example
+ * <SettingsPanel />
+ * @developer Note: This component uses Zustand for state management and handles multiple settings categories
+ */
 export const SettingsPanel: React.FC = () => {
-  const { 
-    config, 
-    setConfig, 
-    theme, 
+  const {
+    config,
+    setConfig,
+    theme,
     setTheme,
     models,
     providers
   } = useAppStore();
-  
+
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [localConfig, setLocalConfig] = useState<AppConfig>(config);
   const [testingProvider, setTestingProvider] = useState<string | null>(null);
@@ -48,6 +60,10 @@ export const SettingsPanel: React.FC = () => {
     setLocalConfig(config);
   }, [config]);
 
+  /**
+   * Configuration for settings tabs with icons and labels
+   * @developer Note: Update this array when adding new tabs
+   */
   const tabs = [
     { id: 'general' as SettingsTab, label: 'General', icon: SettingsIcon },
     { id: 'providers' as SettingsTab, label: 'AI Providers', icon: TestTube },
@@ -56,6 +72,12 @@ export const SettingsPanel: React.FC = () => {
     { id: 'advanced' as SettingsTab, label: 'Advanced', icon: SettingsIcon },
   ];
 
+  /**
+   * Saves current configuration settings to storage
+   * @example
+   * handleSave(); // Saves all settings
+   * @developer Note: Updates both local and global config state
+   */
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -63,7 +85,7 @@ export const SettingsPanel: React.FC = () => {
       setConfig(localConfig);
       setSaveMessage('Settings saved successfully!');
       setTimeout(() => setSaveMessage(null), 3000);
-    } catch (error: any) {
+    } catch (error) {
       setSaveMessage('Failed to save settings');
       setTimeout(() => setSaveMessage(null), 3000);
     } finally {
@@ -71,6 +93,12 @@ export const SettingsPanel: React.FC = () => {
     }
   };
 
+  /**
+   * Resets all settings to their default values
+   * @example
+   * handleReset(); // Requires user confirmation
+   * @developer Note: This is a destructive action that cannot be undone
+   */
   const handleReset = async () => {
     if (confirm('Are you sure you want to reset all settings to defaults?')) {
       try {
@@ -80,24 +108,36 @@ export const SettingsPanel: React.FC = () => {
         setLocalConfig(newConfig);
         setSaveMessage('Settings reset to defaults');
         setTimeout(() => setSaveMessage(null), 3000);
-      } catch (error: any) {
+      } catch (error) {
         setSaveMessage('Failed to reset settings');
         setTimeout(() => setSaveMessage(null), 3000);
       }
     }
   };
 
+  /**
+   * Exports current configuration as a downloadable file
+   * @example
+   * handleExport(); // Downloads config.json
+   * @developer Note: Uses the configService to handle file download
+   */
   const handleExport = async () => {
     try {
       await configService.exportConfig();
       setSaveMessage('Configuration exported');
       setTimeout(() => setSaveMessage(null), 3000);
-    } catch (error: any) {
+    } catch (error) {
       setSaveMessage('Failed to export configuration');
       setTimeout(() => setSaveMessage(null), 3000);
     }
   };
 
+  /**
+   * Imports configuration from a selected JSON file
+   * @example
+   * handleImport(); // Opens file picker dialog
+   * @developer Note: Validates JSON structure and updates config
+   */
   const handleImport = async () => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -113,7 +153,7 @@ export const SettingsPanel: React.FC = () => {
           setLocalConfig(newConfig);
           setSaveMessage('Configuration imported successfully');
           setTimeout(() => setSaveMessage(null), 3000);
-        } catch (error: any) {
+        } catch (error) {
           setSaveMessage('Failed to import configuration');
           setTimeout(() => setSaveMessage(null), 3000);
         }
@@ -122,22 +162,42 @@ export const SettingsPanel: React.FC = () => {
     input.click();
   };
 
+  /**
+   * Tests connection to an AI provider
+   * @param providerName - Name of the provider to test
+   * @example
+   * testProvider('openai'); // Tests OpenAI connection
+   * @developer Note: Updates testResults state with outcome
+   */
   const testProvider = async (providerName: string) => {
     setTestingProvider(providerName);
     try {
       const result = await promptService.testProvider(providerName);
       setTestResults(prev => ({ ...prev, [providerName]: result.available }));
-    } catch (error: any) {
+    } catch (error) {
       setTestResults(prev => ({ ...prev, [providerName]: false }));
     } finally {
       setTestingProvider(null);
     }
   };
 
+  /**
+   * Toggles visibility of API keys in password fields
+   * @param provider - Provider whose API key visibility to toggle
+   * @example
+   * toggleApiKeyVisibility('openai'); // Shows/hides OpenAI API key
+   * @developer Note: Useful for verifying key input without compromising security
+   */
   const toggleApiKeyVisibility = (provider: string) => {
     setShowApiKeys(prev => ({ ...prev, [provider]: !prev[provider] }));
   };
 
+  /**
+   * Renders general settings including theme, defaults, and behavior options
+   * @example
+   * renderGeneralSettings(); // Returns JSX for general tab
+   * @developer Note: Organized into subsections for better UX
+   */
   const renderGeneralSettings = () => (
     <div className="space-y-6">
       <div>
@@ -175,7 +235,7 @@ export const SettingsPanel: React.FC = () => {
               }))}
             />
           </div>
-          
+
           <div>
             <label className="text-sm font-medium">Default System Prompt</label>
             <Textarea
@@ -203,15 +263,15 @@ export const SettingsPanel: React.FC = () => {
               {localConfig.autoSave ? 'Enabled' : 'Disabled'}
             </Button>
           </div>
-          
+
           <div>
             <label className="text-sm font-medium">Max History Items</label>
             <Input
               type="number"
               value={localConfig.maxHistoryItems}
-              onChange={(e) => setLocalConfig(prev => ({ 
-                ...prev, 
-                maxHistoryItems: parseInt(e.target.value) || 1000 
+              onChange={(e) => setLocalConfig(prev => ({
+                ...prev,
+                maxHistoryItems: parseInt(e.target.value) || 1000
               }))}
               min="10"
               max="10000"
@@ -222,6 +282,12 @@ export const SettingsPanel: React.FC = () => {
     </div>
   );
 
+  /**
+   * Renders AI provider configuration settings
+   * @example
+   * renderProviderSettings(); // Shows provider forms and test buttons
+   * @developer Note: Each provider has its own configuration section
+   */
   const renderProviderSettings = () => (
     <div className="space-y-6">
       <div>
@@ -231,28 +297,28 @@ export const SettingsPanel: React.FC = () => {
             <label className="text-sm font-medium">Server URL</label>
             <Input
               value={localConfig.ollama.url}
-              onChange={(e) => setLocalConfig(prev => ({ 
-                ...prev, 
-                ollama: { ...prev.ollama, url: e.target.value } 
+              onChange={(e) => setLocalConfig(prev => ({
+                ...prev,
+                ollama: { ...prev.ollama, url: e.target.value }
               }))}
               placeholder="http://localhost:11434"
             />
           </div>
-          
+
           <div>
             <label className="text-sm font-medium">Timeout (ms)</label>
             <Input
               type="number"
               value={localConfig.ollama.timeout}
-              onChange={(e) => setLocalConfig(prev => ({ 
-                ...prev, 
-                ollama: { ...prev.ollama, timeout: parseInt(e.target.value) || 30000 } 
+              onChange={(e) => setLocalConfig(prev => ({
+                ...prev,
+                ollama: { ...prev.ollama, timeout: parseInt(e.target.value) || 30000 }
               }))}
               min="5000"
               max="300000"
             />
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Button
               onClick={() => testProvider('ollama')}
@@ -266,7 +332,7 @@ export const SettingsPanel: React.FC = () => {
               )}
               Test Connection
             </Button>
-            
+
             {testResults['ollama'] !== undefined && (
               <Badge variant={testResults['ollama'] ? 'default' : 'destructive'}>
                 {testResults['ollama'] ? 'Connected' : 'Failed'}
@@ -285,9 +351,9 @@ export const SettingsPanel: React.FC = () => {
               <Input
                 type={showApiKeys.openai ? 'text' : 'password'}
                 value={localConfig.openai?.apiKey || ''}
-                onChange={(e) => setLocalConfig(prev => ({ 
-                ...prev, 
-                openai: { ...(prev.openai || {}), apiKey: e.target.value || '' } 
+                onChange={(e) => setLocalConfig(prev => ({
+                ...prev,
+                openai: { ...(prev.openai || {}), apiKey: e.target.value || '' }
               }))}
                 placeholder="sk-..."
                 className="flex-1"
@@ -301,19 +367,19 @@ export const SettingsPanel: React.FC = () => {
               </Button>
             </div>
           </div>
-          
+
           <div>
             <label className="text-sm font-medium">Base URL (optional)</label>
             <Input
               value={localConfig.openai?.baseUrl || ''}
-              onChange={(e) => setLocalConfig(prev => ({ 
-                ...prev, 
-                openai: { ...(prev.openai || {}), baseUrl: e.target.value || '' } 
+              onChange={(e) => setLocalConfig(prev => ({
+                ...prev,
+                openai: { ...(prev.openai || {}), baseUrl: e.target.value || '' }
               }))}
               placeholder="https://api.openai.com/v1"
             />
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Button
               onClick={() => testProvider('openai')}
@@ -327,7 +393,7 @@ export const SettingsPanel: React.FC = () => {
               )}
               Test Connection
             </Button>
-            
+
             {testResults['openai'] !== undefined && (
               <Badge variant={testResults['openai'] ? 'default' : 'destructive'}>
                 {testResults['openai'] ? 'Connected' : 'Failed'}
@@ -346,9 +412,9 @@ export const SettingsPanel: React.FC = () => {
               <Input
                 type={showApiKeys.openrouter ? 'text' : 'password'}
                 value={localConfig.openrouter?.apiKey || ''}
-                onChange={(e) => setLocalConfig(prev => ({ 
-                  ...prev, 
-                  openrouter: { ...(prev.openrouter || {}), apiKey: e.target.value || '' } 
+                onChange={(e) => setLocalConfig(prev => ({
+                  ...prev,
+                  openrouter: { ...(prev.openrouter || {}), apiKey: e.target.value || '' }
                 }))}
                 placeholder="sk-or-..."
                 className="flex-1"
@@ -362,7 +428,7 @@ export const SettingsPanel: React.FC = () => {
               </Button>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Button
               onClick={() => testProvider('openrouter')}
@@ -376,7 +442,7 @@ export const SettingsPanel: React.FC = () => {
               )}
               Test Connection
             </Button>
-            
+
             {testResults['openrouter'] !== undefined && (
               <Badge variant={testResults['openrouter'] ? 'default' : 'destructive'}>
                 {testResults['openrouter'] ? 'Connected' : 'Failed'}
@@ -395,9 +461,9 @@ export const SettingsPanel: React.FC = () => {
               <Input
                 type={showApiKeys.deepseek ? 'text' : 'password'}
                 value={localConfig.deepseek?.apiKey || ''}
-                onChange={(e) => setLocalConfig(prev => ({ 
-                  ...prev, 
-                  deepseek: { ...(prev.deepseek || {}), apiKey: e.target.value || '' } 
+                onChange={(e) => setLocalConfig(prev => ({
+                  ...prev,
+                  deepseek: { ...(prev.deepseek || {}), apiKey: e.target.value || '' }
                 }))}
                 placeholder="sk-..."
                 className="flex-1"
@@ -411,7 +477,7 @@ export const SettingsPanel: React.FC = () => {
               </Button>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Button
               onClick={() => testProvider('deepseek')}
@@ -425,7 +491,7 @@ export const SettingsPanel: React.FC = () => {
               )}
               Test Connection
             </Button>
-            
+
             {testResults['deepseek'] !== undefined && (
               <Badge variant={testResults['deepseek'] ? 'default' : 'destructive'}>
                 {testResults['deepseek'] ? 'Connected' : 'Failed'}
@@ -437,6 +503,12 @@ export const SettingsPanel: React.FC = () => {
     </div>
   );
 
+  /**
+   * Renders enhancement types and user roles configuration
+   * @example
+   * renderEnhancementSettings(); // Shows enhancement options grid
+   * @developer Note: Currently displays info cards - can be expanded for configuration
+   */
   const renderEnhancementSettings = () => (
     <div className="space-y-6">
       <div>
@@ -483,6 +555,12 @@ export const SettingsPanel: React.FC = () => {
     </div>
   );
 
+  /**
+   * Renders data management settings including export and storage options
+   * @example
+   * renderDataSettings(); // Shows history export and storage info
+   * @developer Note: Export buttons trigger API endpoints for file download
+   */
   const renderDataSettings = () => (
     <div className="space-y-6">
       <div>
@@ -493,7 +571,7 @@ export const SettingsPanel: React.FC = () => {
               Your prompt history is stored locally in your browser. You can export it for backup or migrate to another device.
             </AlertDescription>
           </Alert>
-          
+
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => window.open('/api/history/export?format=json')}>
               <Download className="h-4 w-4 mr-2" />
@@ -521,9 +599,9 @@ export const SettingsPanel: React.FC = () => {
               <p>Configuration: {localStorage.getItem('prompt-enhancer-storage') ? 'Stored' : 'Default'}</p>
             </div>
           </div>
-          
-          <Button 
-            variant="destructive" 
+
+          <Button
+            variant="destructive"
             onClick={() => {
               if (confirm('Are you sure you want to clear all local data? This action cannot be undone.')) {
                 localStorage.clear();
@@ -539,6 +617,12 @@ export const SettingsPanel: React.FC = () => {
     </div>
   );
 
+  /**
+   * Renders advanced settings including configuration management and debug info
+   * @example
+   * renderAdvancedSettings(); // Shows config import/export and system details
+   * @developer Note: System information helps with troubleshooting
+   */
   const renderAdvancedSettings = () => (
     <div className="space-y-6">
       <div>
@@ -569,12 +653,12 @@ export const SettingsPanel: React.FC = () => {
             <div className="text-sm font-mono space-y-1">
               <p>User Agent: {navigator.userAgent}</p>
               <p>Language: {navigator.language}</p>
-              <p>Platform: {navigator.platform}</p>
+              <p>Platform: {navigator.userAgent.includes('Win') ? 'Windows' : navigator.userAgent.includes('Mac') ? 'macOS' : 'Other'}</p>
               <p>Cookie Enabled: {navigator.cookieEnabled}</p>
               <p>Local Storage: {localStorage ? 'Available' : 'Not Available'}</p>
             </div>
           </div>
-          
+
           <div className="p-4 bg-muted/50 rounded-lg">
             <h4 className="font-medium mb-2">Application Status</h4>
             <div className="text-sm font-mono space-y-1">
@@ -589,6 +673,12 @@ export const SettingsPanel: React.FC = () => {
     </div>
   );
 
+  /**
+   * Renders content for the currently active settings tab
+   * @example
+   * renderTabContent(); // Returns appropriate JSX for active tab
+   * @developer Note: Add new tab renderers here when expanding functionality
+   */
   const renderTabContent = () => {
     switch (activeTab) {
       case 'general':
@@ -614,7 +704,7 @@ export const SettingsPanel: React.FC = () => {
           <h1 className="text-2xl font-bold">Settings</h1>
           <p className="text-muted-foreground">Configure your AI Prompt Enhancer</p>
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {saveMessage && (
             <Alert className={cn(
@@ -624,7 +714,7 @@ export const SettingsPanel: React.FC = () => {
               <AlertDescription>{saveMessage}</AlertDescription>
             </Alert>
           )}
-          
+
           <Button onClick={handleSave} disabled={saving}>
             {saving ? (
               <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
