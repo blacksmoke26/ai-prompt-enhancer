@@ -128,6 +128,7 @@ export const Dashboard: React.FC = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar>
         <div className="space-y-4">
+          {/* Navigation Tabs */}
           <div className="space-y-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -150,10 +151,12 @@ export const Dashboard: React.FC = () => {
         </div>
       </Sidebar>
 
+      {/* Main Content - Fixed Layout */}
       <div className={cn(
         "flex-1 flex flex-col transition-all duration-300",
-        sidebarOpen ? "lg:ml-0" : "lg:ml-0"
+        sidebarOpen ? "lg:ml-64" : "lg:ml-0"
       )}>
+        {/* Mobile Tab Bar */}
         <div className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-background">
           <h1 className="text-lg font-semibold">AI Prompt Enhancer</h1>
           <div className="flex space-x-2">
@@ -174,14 +177,18 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
 
+        {/* Content Area */}
         <div className="flex-1 overflow-auto">
           <div className="container mx-auto px-4 py-6 lg:py-8">
-            <div className="mx-auto">
+            <div className="max-w-6xl mx-auto">
               {activeTab === 'enhancer' && (
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                  {/* Main Editor Area */}
                   <div className="xl:col-span-8">
                     <PromptEnhancer />
                   </div>
+
+                  {/* Sidebar Content */}
                   <div className="xl:col-span-4">
                     <div className="sticky top-6 space-y-6">
                       <div className="hidden xl:block">
