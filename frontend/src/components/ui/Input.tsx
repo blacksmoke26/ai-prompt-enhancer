@@ -1,11 +1,34 @@
 import React from 'react';
 import { cn } from '../../utils/helpers';
 
+/**
+ * Input component props extending HTML input attributes
+ */
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  /** Optional label text displayed above the input */
   label?: string;
+  /** Error message displayed below the input */
   error?: string;
 }
 
+/**
+ * Customizable input field with optional label and error states
+ *
+ * @example
+ * <Input
+ *   label="Email"
+ *   type="email"
+ *   placeholder="Enter your email"
+ *   error="Invalid email format"
+ *   className="w-full"
+ * />
+ *
+ * @developer_notes
+ * - Uses Tailwind CSS for styling with focus and disabled states
+ * - Error state adds destructive border color and shows error message
+ * - Supports all standard HTML input attributes
+ * - Combines custom className with default styles using cn utility
+ */
 export const Input: React.FC<InputProps> = ({
   className,
   type = 'text',

@@ -1,9 +1,32 @@
 import React from 'react';
 import { cn } from '../../utils/helpers';
 
+/**
+ * Textarea component with optional label and error display.
+ *
+ * @example
+ * <Textarea
+ *   label="Message"
+ *   placeholder="Type your message here..."
+ *   error="This field is required"
+ *   className="max-w-md"
+ * />
+ *
+ * @developerNotes
+ * - Extends all standard textarea HTML attributes
+ * - Automatically applies error styling when error prop is provided
+ * - Uses Tailwind's cn utility for conditional class merging
+ * - Label and error message are optional and render conditionally
+ */
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+  /** Optional label text displayed above the textarea */
   label?: string;
+  /** Error message to display below the textarea */
   error?: string;
+  /** Additional CSS classes to apply to the textarea */
+  className?: string;
+  /** Ref for direct DOM manipulation */
+  ref?: any;
 }
 
 export const Textarea: React.FC<TextareaProps> = ({

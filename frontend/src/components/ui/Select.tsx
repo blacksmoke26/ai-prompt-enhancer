@@ -1,12 +1,40 @@
 import React from 'react';
 import { cn } from '../../utils/helpers';
 
+/**
+ * Props for the Select component.
+ * @extends React.SelectHTMLAttributes<HTMLSelectElement>
+ */
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+  /** Optional label displayed above the select input */
   label?: string;
+  /** Optional error message displayed below the select input */
   error?: string;
+  /** Array of options to populate the select */
   options: Array<{ value: string; label: string; disabled?: boolean }>;
 }
 
+/**
+ * A customizable select dropdown component with label, error, and styling support.
+ *
+ * @example
+ * ```tsx
+ * <Select
+ *   label="Choose a fruit"
+ *   options={[
+ *     { value: 'apple', label: 'Apple' },
+ *     { value: 'banana', label: 'Banana', disabled: true },
+ *   ]}
+ *   onChange={(e) => console.log(e.target.value)}
+ * />
+ * ```
+ *
+ * @developer
+ * - Uses Tailwind CSS for styling
+ * - Combines default styles with any additional className via cn utility
+ * - Automatically applies error styling when error prop is provided
+ * - Supports all standard HTML select attributes
+ */
 export const Select: React.FC<SelectProps> = ({
   className,
   label,

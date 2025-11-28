@@ -1,11 +1,35 @@
 import React from 'react';
 import { cn } from '../../utils/helpers';
 
+/**
+ * Type for Badge variants
+ * @default 'default'
+ */
+type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline';
+
+/**
+ * Props for the Badge component
+ * @extends React.HTMLAttributes<HTMLDivElement>
+ */
 interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: 'default' | 'secondary' | 'destructive' | 'outline';
+  /** Visual variant of the badge */
+  variant?: BadgeVariant;
+  /** Content to be rendered inside the badge */
   children: React.ReactNode;
 }
 
+/**
+ * A flexible badge component for displaying small status indicators or labels.
+ *
+ * @example
+ * <Badge variant="destructive">Error</Badge>
+ * <Badge variant="secondary">New</Badge>
+ *
+ * @developer.notes
+ * - Uses CSS variables for theming (primary, secondary, destructive)
+ * - Fully focusable with keyboard navigation
+ * - Responsive to parent text size scaling
+ */
 export const Badge: React.FC<BadgeProps> = ({
   className,
   variant = 'default',
