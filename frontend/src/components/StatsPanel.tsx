@@ -3,26 +3,31 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
 import { HistoryStats } from '../types';
 import { formatDuration } from '../utils/helpers';
 
+/**
+ * Props for the StatsPanel component.
+ * @developer-notes Ensure stats is properly validated before passing to avoid null reference errors.
+ */
 interface StatsPanelProps {
+  /** Statistics data to display, or null if no data is available. */
   stats: HistoryStats | null;
 }
 
+/**
+ * A panel component displaying usage statistics in a card layout.
+ * @example
+ * ```tsx
+ * const stats = {
+ *   totalItems: 100,
+ *   averageProcessingTime: 1500,
+ *   totalTokensUsed: 50000,
+ *   mostUsedModel: 'GPT-4',
+ *   mostUsedEnhancementType: 'summarize'
+ * };
+ * <StatsPanel stats={stats} />
+ * ```
+ * @developer-notes The component gracefully handles null stats by displaying zeros or fallback values.
+ */
 export const StatsPanel: React.FC<StatsPanelProps> = ({ stats }) => {
-  if (!stats) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Statistics</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8 text-muted-foreground">
-            No data available
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -32,13 +37,13 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats }) => {
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-3 bg-muted/50 rounded-lg">
             <div className="text-2xl font-bold text-primary">
-              {stats.totalItems.toLocaleString()}
+              {stats?.totalItems?.toLocaleString?.() ?? 0}
             </div>
             <div className="text-sm text-muted-foreground">Total Prompts</div>
           </div>
           <div className="text-center p-3 bg-muted/50 rounded-lg">
             <div className="text-2xl font-bold text-primary">
-              {formatDuration(stats.averageProcessingTime)}
+              {formatDuration(stats?.averageProcessingTime ?? 0)}
             </div>
             <div className="text-sm text-muted-foreground">Avg. Time</div>
           </div>
@@ -48,21 +53,21 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats }) => {
           <div>
             <div className="text-sm font-medium mb-1">Total Tokens Used</div>
             <div className="text-lg font-bold text-primary">
-              {stats.totalTokensUsed.toLocaleString()}
+              {stats?.totalTokensUsed?.toLocaleString?.() ?? 0}
             </div>
           </div>
 
           <div>
             <div className="text-sm font-medium mb-1">Most Used Model</div>
             <div className="text-lg font-bold text-primary">
-              {stats.mostUsedModel}
+              {stats?.mostUsedModel ?? 0}
             </div>
           </div>
 
           <div>
             <div className="text-sm font-medium mb-1">Most Used Enhancement</div>
             <div className="text-lg font-bold text-primary capitalize">
-              {stats.mostUsedEnhancementType}
+              {stats?.mostUsedEnhancementType ?? 0}
             </div>
           </div>
         </div>
