@@ -13,8 +13,12 @@ export interface PromptRequest {
   systemPrompt?: string;
   temperature?: number;
   maxTokens?: number;
-  enhancementType?: 'correct' | 'enhance' | 'proofread' | 'optimize' | 'creative' | 'technical' | 'concise' | 'structured';
+  enhancementType?: 'correct' | 'enhance' | 'proofread' | 'optimize' | 'creative' | 'technical' | 'concise' | 'structured' | 'audience' | 'tone' | 'length' | 'simplify' | 'expand' | 'format';
   userRole?: string;
+  targetAudience?: string;
+  tone?: string;
+  responseLength?: 'short' | 'medium' | 'long' | 'custom';
+  customInstructions?: string;
 }
 
 export interface PromptResponse {
