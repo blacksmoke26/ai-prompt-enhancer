@@ -513,7 +513,7 @@ export const SettingsPanel: React.FC = () => {
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold mb-4">Enhancement Types</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             { id: 'correct', name: 'Correct', desc: 'Fix grammar, spelling, and clarity' },
             { id: 'enhance', name: 'Enhance', desc: 'Add details and specificity' },
@@ -523,6 +523,12 @@ export const SettingsPanel: React.FC = () => {
             { id: 'technical', name: 'Technical', desc: 'Add technical precision' },
             { id: 'concise', name: 'Concise', desc: 'Remove unnecessary words' },
             { id: 'structured', name: 'Structured', desc: 'Add clear formatting' },
+            { id: 'audience', name: 'Target Audience', desc: 'Tailor for specific audience' },
+            { id: 'tone', name: 'Adjust Tone', desc: 'Modify communication tone' },
+            { id: 'length', name: 'Optimize Length', desc: 'Adjust for optimal processing' },
+            { id: 'simplify', name: 'Simplify', desc: 'Make easier to understand' },
+            { id: 'expand', name: 'Expand', desc: 'Add context and details' },
+            { id: 'format', name: 'Format & Style', desc: 'Improve presentation' },
           ].map((type) => (
             <Card key={type.id} className="p-4">
               <h4 className="font-medium">{type.name}</h4>
@@ -534,7 +540,7 @@ export const SettingsPanel: React.FC = () => {
 
       <div>
         <h3 className="text-lg font-semibold mb-4">User Roles</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
             { id: 'general', name: 'General', desc: 'Everyday enhancement needs' },
             { id: 'developer', name: 'Developer', desc: 'Programming and technical' },
