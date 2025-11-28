@@ -14,8 +14,18 @@ import { useHistoryStore } from '../stores/historyStore';
 import { useAppStore } from '../stores/appStore';
 import { cn } from '../utils/helpers';
 
+/**
+ * Represents the available dashboard tabs
+ * @example 'enhancer' - Main prompt enhancement interface
+ * @developer notes: Use these exact values when referencing tab states
+ */
 type TabType = 'enhancer' | 'history' | 'stats' | 'settings';
 
+/**
+ * Main dashboard component managing tab navigation and layout
+ * @example <Dashboard />
+ * @developer notes: Handles global state management and responsive layout
+ */
 export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('enhancer');
   const { loading, error, refreshData } = useAppData();
@@ -23,20 +33,27 @@ export const Dashboard: React.FC = () => {
   const { stats, setStats } = useHistoryStore();
   const { sidebarOpen } = useAppStore();
 
+  /**
+   * Loads user history on component mount
+   * @example useEffect(() => loadHistory(), []);
+   * @developer notes: Consider adding error handling for failed loads
+   */
   useEffect(() => {
     loadHistory();
   }, []);
 
+  /**
+   * Calculates and updates statistics based on history changes
+   * @example useEffect(() => loadStats(), [history]);
+   * @developer notes: Stats calculation could be optimized for large histories
+   */
   useEffect(() => {
-    // Load stats when history changes
     const loadStats = async () => {
-      // This would typically call an API endpoint
-      // For now, we'll calculate basic stats from history
       if (history.length > 0) {
         const totalItems = history.length;
         const totalTokensUsed = history.reduce((sum, item) => sum + (item.tokensUsed || 0), 0);
         const averageProcessingTime = history.reduce((sum, item) => sum + item.processingTime, 0) / totalItems;
-        
+
         const modelCounts = history.reduce((acc, item) => {
           acc[item.model] = (acc[item.model] || 0) + 1;
           return acc;
@@ -60,6 +77,11 @@ export const Dashboard: React.FC = () => {
     loadStats();
   }, [history, setStats]);
 
+  /**
+   * Navigation tab configuration with icons
+   * @example { id: 'enhancer', label: 'Enhancer', icon: Sparkles }
+   * @developer notes: Icons should be from lucide-react library
+   */
   const tabs = [
     { id: 'enhancer' as TabType, label: 'Enhancer', icon: Sparkles },
     { id: 'history' as TabType, label: 'History', icon: History },
@@ -67,6 +89,11 @@ export const Dashboard: React.FC = () => {
     { id: 'settings' as TabType, label: 'Settings', icon: Settings },
   ];
 
+  /**
+   * Loading state display with spinner animation
+   * @example Shows when loading === true
+   * @developer notes: Consider adding skeleton loaders for better UX
+   */
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -78,6 +105,11 @@ export const Dashboard: React.FC = () => {
     );
   }
 
+  /**
+   * Error state display with retry option
+   * @example Shows when error is not null
+   * @developer notes: Should log errors to monitoring service
+   */
   if (error) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -96,7 +128,6 @@ export const Dashboard: React.FC = () => {
     <div className="min-h-screen bg-background flex">
       <Sidebar>
         <div className="space-y-4">
-          {/* Navigation Tabs */}
           <div className="space-y-1">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -119,12 +150,10 @@ export const Dashboard: React.FC = () => {
         </div>
       </Sidebar>
 
-      {/* Main Content - Fixed Layout */}
       <div className={cn(
         "flex-1 flex flex-col transition-all duration-300",
-        sidebarOpen ? "lg:ml-64" : "lg:ml-0"
+        sidebarOpen ? "lg:ml-0" : "lg:ml-0"
       )}>
-        {/* Mobile Tab Bar */}
         <div className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-background">
           <h1 className="text-lg font-semibold">AI Prompt Enhancer</h1>
           <div className="flex space-x-2">
@@ -145,18 +174,14 @@ export const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Content Area */}
         <div className="flex-1 overflow-auto">
           <div className="container mx-auto px-4 py-6 lg:py-8">
-            <div className="max-w-6xl mx-auto">
+            <div className="mx-auto">
               {activeTab === 'enhancer' && (
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                  {/* Main Editor Area */}
                   <div className="xl:col-span-8">
                     <PromptEnhancer />
                   </div>
-                  
-                  {/* Sidebar Content */}
                   <div className="xl:col-span-4">
                     <div className="sticky top-6 space-y-6">
                       <div className="hidden xl:block">
@@ -166,7 +191,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'history' && (
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
                   <div className="xl:col-span-8">
@@ -185,7 +210,7 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </div>
               )}
-              
+
               {activeTab === 'stats' && <StatsPanel stats={stats} />}
               {activeTab === 'settings' && <SettingsPanel />}
             </div>
