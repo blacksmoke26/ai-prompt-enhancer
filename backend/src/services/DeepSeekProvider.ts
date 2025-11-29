@@ -1,12 +1,39 @@
 import {BaseAIProvider} from './BaseAIProvider';
 import {AIModel, PromptRequest, PromptResponse} from '../types';
 
+/**
+ * DeepSeek AI provider for prompt enhancement and model management.
+ * @example
+ * ```typescript
+ * const provider = new DeepSeekProvider('your-api-key');
+ * const response = await provider.enhancePrompt({
+ *   text: 'Explain quantum computing',
+ *   model: 'deepseek-chat',
+ *   enhancementType: 'enhance'
+ * });
+ * ```
+ * @developerNote Ensure valid API key is provided for all operations.
+ */
 export class DeepSeekProvider extends BaseAIProvider {
+  /**
+   * Creates a new DeepSeek provider instance.
+   * @param apiKey - DeepSeek API authentication key
+   */
   constructor(apiKey: string) {
     super('DeepSeek', 'https://api.deepseek.com');
     this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
   }
 
+  /**
+   * Retrieves available DeepSeek models.
+   * @returns Promise resolving to array of AI models
+   * @example
+   * ```typescript
+   * const models = await provider.getModels();
+   * console.log(models[0].name); // 'DeepSeek Chat'
+   * ```
+   * @developerNote Currently returns static models. Consider updating to fetch from API.
+   */
   async getModels(): Promise<AIModel[]> {
     try {
       return [
@@ -33,6 +60,21 @@ export class DeepSeekProvider extends BaseAIProvider {
     }
   }
 
+  /**
+   * Enhances a prompt using DeepSeek's language models.
+   * @param request - Prompt enhancement request parameters
+   * @returns Promise resolving to enhanced prompt response
+   * @example
+   * ```typescript
+   * const response = await provider.enhancePrompt({
+   *   text: 'Explain photosynthesis',
+   *   model: 'deepseek-chat',
+   *   enhancementType: 'enhance'
+   * });
+   * console.log(response.enhancedPrompt);
+   * ```
+   * @developerNote Handles rate limiting and token counting automatically.
+   */
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
@@ -65,6 +107,17 @@ export class DeepSeekProvider extends BaseAIProvider {
     }
   }
 
+  /**
+   * Checks if DeepSeek service is available.
+   * @returns Promise resolving to boolean indicating availability
+   * @example
+   * ```typescript
+   * if (await provider.isAvailable()) {
+   *   console.log('DeepSeek is ready');
+   * }
+   * ```
+   * @developerNote Uses minimal request to check API connectivity.
+   */
   async isAvailable(): Promise<boolean> {
     try {
       const response = await this.client.post('/chat/completions', {
@@ -78,6 +131,19 @@ export class DeepSeekProvider extends BaseAIProvider {
     }
   }
 
+  /**
+   * Builds system prompt based on request parameters.
+   * @param request - Prompt request containing enhancement type and user role
+   * @returns System prompt string
+   * @example
+   * ```typescript
+   * const prompt = provider.buildSystemPrompt({
+   *   enhancementType: 'correct',
+   *   userRole: 'writer'
+   * });
+   * ```
+   * @developerNote Combines role and enhancement prompts for optimal results.
+   */
   private buildSystemPrompt(request: PromptRequest): string {
     const enhancementPrompts = {
       correct: 'You are a grammar and spelling expert. Correct any grammatical errors, spelling mistakes, and improve the clarity of the given prompt while preserving the original intent.',

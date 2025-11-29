@@ -12,9 +12,17 @@ import { promptRoutes } from './controllers/promptController';
 import { historyRoutes } from './controllers/historyController';
 import { configRoutes } from './controllers/configController';
 
-// Load environment variables
+// Load environment variables from .env file
 dotenv.config();
 
+/**
+ * Creates and configures a Fastify server instance with plugins, routes, and WebSocket support.
+ * @returns A configured Fastify server instance ready to start.
+ * @example
+ * const server = await createServer();
+ * await server.listen({ port: 3000 });
+ * @developer-note Ensure all environment variables are properly configured before calling this function.
+ */
 async function createServer() {
   const fastify = Fastify({
     logger: {
@@ -58,14 +66,23 @@ async function createServer() {
   const providerManager = new AIProviderManager(configManager);
   const historyManager = new HistoryManager();
 
-  // Health check endpoint
+  /**
+   * Health check endpoint to verify server status.
+   * @route GET /health
+   * @returns {object} Server status and current timestamp.
+   * @example
+   * // Response
+   * { "status": "ok", "timestamp": "2023-01-01T00:00:00.000Z" }
+   */
   fastify.get('/health', async (request, reply) => {
     return { status: 'ok', timestamp: new Date().toISOString() };
   });
 
   /**
+   * Handles HEAD requests for all routes.
    * @route HEAD *
-   * Allow head for all routes
+   * @returns {204} No Content
+   * @developer-note Useful for health checks and CORS preflight requests.
    */
   fastify.head('*', (_req, reply) => reply.send(204));
 
@@ -74,7 +91,17 @@ async function createServer() {
   fastify.register(historyRoutes, { prefix: '/api/history', historyManager });
   fastify.register(configRoutes, { prefix: '/api/config', configManager });
 
-  // WebSocket connection for real-time updates
+  /**
+   * WebSocket connection handler for real-time updates.
+   * @route GET /ws
+   * @param {object} connection - WebSocket connection instance.
+   * @param {object} req - HTTP upgrade request.
+   * @example
+   * // Client connection
+   * const ws = new WebSocket('ws://localhost:3000/ws');
+   * ws.send(JSON.stringify({ type: 'ping' }));
+   * @developer-note Add authentication and authorization as needed.
+   */
   fastify.register(async function (fastify) {
     fastify.get('/ws', { websocket: true }, (connection, req) => {
       console.log('WebSocket client connected');
@@ -123,7 +150,17 @@ async function createServer() {
     });
   });
 
-  // Error handler
+  /**
+   * Global error handler for the Fastify server.
+   * @param {Error} error - Error object.
+   * @param {object} request - Fastify request object.
+   * @param {object} reply - Fastify reply object.
+   * @returns {void}
+   * @example
+   * // Validation error response
+   * { "error": "Validation Error", "details": [...] }
+   * @developer-note Customize error messages based on environment for security.
+   */
   fastify.setErrorHandler((error, _request, reply) => {
     fastify.log.error(error);
 
@@ -144,6 +181,14 @@ async function createServer() {
   return fastify;
 }
 
+/**
+ * Starts the Fastify server and listens on configured port and host.
+ * @returns {Promise<void>}
+ * @example
+ * await start();
+ * console.log('Server started successfully');
+ * @developer-note Ensure proper error handling and graceful shutdown.
+ */
 async function start() {
   try {
     const server = await createServer();

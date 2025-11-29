@@ -1,5 +1,12 @@
 import Joi from 'joi';
 
+/**
+ * Validates prompt request parameters for AI model interactions.
+ * @example
+ * { text: "Hello world", model: "gpt-4", enhancementType: "enhance" }
+ * @developer_note
+ * Use this schema to validate user input before sending to AI models.
+ */
 export const promptRequestSchema = Joi.object({
   text: Joi.string().required().min(1).max(10000),
   model: Joi.string().required(),
@@ -14,6 +21,13 @@ export const promptRequestSchema = Joi.object({
   customInstructions: Joi.string().optional().max(1000),
 });
 
+/**
+ * Validates configuration update requests for various AI providers and app settings.
+ * @example
+ * { ollama: { url: "http://localhost:11434" }, theme: "dark" }
+ * @developer_note
+ * Only include fields that need to be updated in the request.
+ */
 export const configUpdateSchema = Joi.object({
   ollama: Joi.object({
     url: Joi.string().uri().optional(),
@@ -36,11 +50,25 @@ export const configUpdateSchema = Joi.object({
   defaultSystemPrompt: Joi.string().max(2000).optional(),
 });
 
+/**
+ * Validates history item updates including ratings and notes.
+ * @example
+ * { rating: 5, notes: "Excellent response" }
+ * @developer_note
+ * All fields are optional - send only those you want to update.
+ */
 export const historyUpdateSchema = Joi.object({
   rating: Joi.number().min(1).max(5).optional(),
   notes: Joi.string().max(1000).optional(),
 });
 
+/**
+ * Validates export request parameters for data export functionality.
+ * @example
+ * { format: "json", limit: 100 }
+ * @developer_note
+ * If no limit is provided, all items will be exported.
+ */
 export const exportSchema = Joi.object({
   format: Joi.string().valid('json', 'csv', 'txt').default('json'),
   limit: Joi.number().min(1).max(10000).optional(),
