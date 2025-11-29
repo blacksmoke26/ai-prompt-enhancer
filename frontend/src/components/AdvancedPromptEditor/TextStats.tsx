@@ -1,6 +1,5 @@
 import React from 'react';
-import { Badge } from '~/components/ui/Badge';
-import { Save, RefreshCw, CheckCircle } from 'lucide-react';
+import {Save, RefreshCw, CheckCircle} from 'lucide-react';
 
 /**
  * Props for the TextStats component
@@ -42,33 +41,66 @@ export interface TextStatsProps {
  * - Uses lucide-react icons for save status indicators
  * - Responsive design with flexbox layout
  * - Status icons change color and animation based on state
- * - Currently uses dots for visual separation (could be enhanced with proper separators)
+ * - Properly implements all declared props including unused ones
  */
-const TextStats: React.FC<TextStatsProps> = ({
-  wordCount,
-  charCount,
-  readingTime,
-  tokenEstimate,
-  autoSaveStatus,
-  lastSaved,
-  maxLength
-}) => {
+const TextStats: React.FC<TextStatsProps> = (props) => {
+  const {wordCount, charCount, readingTime, tokenEstimate, autoSaveStatus, lastSaved, maxLength} = props;
+
+  // Format the last saved timestamp if available
+  const formattedLastSaved = lastSaved ? lastSaved.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : null;
+
   return (
-    <div className="flex items-center justify-between text-xs text-muted-foreground bg-background px-2 py-2 mt-1 rounded">
-      <div className="flex items-center space-x-2">
-        <span>{charCount}</span>
-        <span className="text-muted-foreground">/</span>
-        <span>{maxLength}</span>
-        <span>•</span>
-        <span>{tokenEstimate} tokens</span>
-      </div>
-      <div className="flex items-center space-x-1">
-        <span className="text-xs">Reading time: {readingTime} min</span>
-        <div className="w-px h-px bg-muted-foreground mx-2 rounded"/>
+    <div
+      className="flex items-center justify-between text-xs text-muted-foreground bg-background px-3 py-2 mt-1 rounded-md border">
+      <div className="flex items-center space-x-3">
         <div className="flex items-center space-x-1">
-          {autoSaveStatus === 'saving' && <RefreshCw className="h-3 w-3 animate-spin"/>}
-          {autoSaveStatus === 'saved' && <CheckCircle className="h-3 w-3 text-green-500"/>}
-          {autoSaveStatus === 'idle' && <Save className="h-3 w-3"/>}
+          <span className="font-medium">Chars:</span>
+          <span>{charCount}</span>
+          <span className="text-muted-foreground">/</span>
+          <span>{maxLength}</span>
+        </div>
+        <div className="w-px h-4 bg-muted-foreground mx-2 rounded"></div>
+        <div className="flex items-center space-x-1">
+          <span className="font-medium">Words:</span>
+          <span>{wordCount}</span>
+        </div>
+        <div className="w-px h-4 bg-muted-foreground mx-2 rounded"></div>
+        <div className="flex items-center space-x-1">
+          <span className="font-medium">Tokens:</span>
+          <span>{tokenEstimate}</span>
+        </div>
+      </div>
+
+      <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-1">
+          <span className="font-medium">Reading:</span>
+          <span>{readingTime} min</span>
+        </div>
+        <div className="w-px h-4 bg-muted-foreground mx-2 rounded"></div>
+        <div className="flex items-center space-x-1">
+          {autoSaveStatus === 'saving' && (
+            <div className="flex items-center space-x-1 text-blue-500">
+              <RefreshCw className="h-3 w-3 animate-spin"/>
+              <span>Saving...</span>
+            </div>
+          )}
+          {autoSaveStatus === 'saved' && (
+            <div className="flex items-center space-x-1 text-green-500">
+              <CheckCircle className="h-3 w-3"/>
+              <span>Saved</span>
+            </div>
+          )}
+          {autoSaveStatus === 'idle' && (
+            <div className="flex items-center space-x-1 text-muted-foreground">
+              <Save className="h-3 w-3"/>
+              <span>Auto-save</span>
+            </div>
+          )}
+          {lastSaved && (
+            <div className="text-xs text-muted-foreground">
+              {formattedLastSaved}
+            </div>
+          )}
         </div>
       </div>
     </div>
