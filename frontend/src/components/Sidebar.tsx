@@ -31,7 +31,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ children }) => {
           'lg:translate-x-0 lg:static lg:z-0'
         )}
       >
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-[100vh]">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h1 className="text-lg font-semibold">AI Prompt Enhancer</h1>
