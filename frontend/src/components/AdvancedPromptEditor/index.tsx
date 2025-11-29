@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Textarea } from '~/components/ui/Textarea';
-import { Card, CardContent, CardHeader } from '~/components/ui/Card';
-import { cn, copyToClipboard, downloadFile } from '~/utils/helpers';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {Textarea} from '~/components/ui/Textarea';
+import {Card, CardContent, CardHeader} from '~/components/ui/Card';
+import {cn, copyToClipboard, downloadFile} from '~/utils/helpers';
 
 // types
-import type { PromptResponse } from '~/types';
+import type {PromptResponse} from '~/types';
 
 // ui components
 import FormattingToolbar from './FormattingToolbar';
@@ -28,8 +28,10 @@ import AutoSaveIndicator from './AutoSaveIndicator';
 export interface AdvancedPromptEditorProps {
   /** Current prompt text value */
   value: string;
+
   /** Callback for prompt text changes */
   onChange(value: string): void;
+
   /** Placeholder text for empty textarea */
   placeholder?: string;
   /** Optional label for the editor */
@@ -44,66 +46,78 @@ export interface AdvancedPromptEditorProps {
   response?: PromptResponse | null;
   /** Additional CSS classes */
   className?: string;
+
   /** Custom key press handler */
   onKeyPress?(e: React.KeyboardEvent): void;
+
   /** Show statistics panel */
   showStats?: boolean;
   /** Maximum character limit */
   maxLength?: number;
   /** Show template selection */
   showTemplates?: boolean;
+
   /** Prompt enhancement callback */
   onEnhance?(prompt: string): void;
+
   /** Show formatting toolbar */
   showFormatting?: boolean;
   /** Show preview panel */
   showPreview?: boolean;
+  /** Show word cloud visualization */
+  showWordCloud?: boolean;
   /** Enable auto-save functionality */
   autoSave?: boolean;
+
   /** Auto-save callback function */
   onAutoSave?(prompt: string): void;
+
+  /** Word count to display (overrides auto-calculated) */
+  wordCount?: number;
+  /** Line count to display (overrides auto-calculated) */
+  lineCount?: number;
 }
 
 /**
  * Interface for component state management
  */
- interface EditorState {
-   /** Whether the editor is currently focused */
-   isFocused: boolean;
-   /** Total number of words in the editor */
-   wordCount: number;
-   /** Total number of characters in the editor */
-   charCount: number;
-   /** Number of lines in the editor content */
-   lineCount: number;
-   /** Estimated reading time in minutes (200 words/min) */
-   readingTime: number;
-   /** Approximate token count estimation (4 chars/token) */
-   tokenEstimate: number;
-   /** Whether fullscreen mode is active */
-   isFullscreen: boolean;
-   /** Whether word cloud visualization is shown */
-   showWordCloud: boolean;
-   /** Timestamp of last auto-save operation */
-   lastSaved: Date | null;
-   /** Current auto-save operation status */
-   autoSaveStatus: 'idle' | 'saving' | 'saved';
-   /** Currently selected text in the editor */
-   selectedText: string;
-   /** Text formatting options and styles */
-   formatting: {
-     /** Bold text formatting */
-     bold: boolean;
-     /** Italic text formatting */
-     italic: boolean;
-     /** Underline text formatting */
-     underline: boolean;
-     /** Text alignment setting */
-     alignment: 'left' | 'center' | 'right';
-     /** List style type */
-     listType: 'none' | 'bullet' | 'numbered';
-   };
- }
+interface EditorState {
+  /** Whether the editor is currently focused */
+  isFocused: boolean;
+  /** Total number of words in the editor */
+  wordCount: number;
+  /** Total number of characters in the editor */
+  charCount: number;
+  /** Number of lines in the editor content */
+  lineCount: number;
+  /** Estimated reading time in minutes (200 words/min) */
+  readingTime: number;
+  /** Approximate token count estimation (4 chars/token) */
+  tokenEstimate: number;
+  /** Whether fullscreen mode is active */
+  isFullscreen: boolean;
+  /** Whether word cloud visualization is shown */
+  showWordCloud: boolean;
+  /** Timestamp of last auto-save operation */
+  lastSaved: Date | null;
+  /** Current auto-save operation status */
+  autoSaveStatus: 'idle' | 'saving' | 'saved';
+  /** Currently selected text in the editor */
+  selectedText: string;
+  /** Text formatting options and styles */
+  formatting: {
+    /** Bold text formatting */
+    bold: boolean;
+    /** Italic text formatting */
+    italic: boolean;
+    /** Underline text formatting */
+    underline: boolean;
+    /** Text alignment setting */
+    alignment: 'left' | 'center' | 'right';
+    /** List style type */
+    listType: 'none' | 'bullet' | 'numbered';
+  };
+}
 
 /**
  * Advanced prompt editor with auto-save, formatting, and AI enhancement capabilities
@@ -131,6 +145,7 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
     showPreview = false,
     autoSave = false,
     onAutoSave,
+    showWordCloud = false,
   } = props;
 
   const [state, setState] = useState<EditorState>({
@@ -141,7 +156,7 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
     readingTime: 0,
     tokenEstimate: 0,
     isFullscreen: false,
-    showWordCloud: false,
+    showWordCloud,
     lastSaved: null,
     autoSaveStatus: 'idle',
     selectedText: '',
@@ -189,7 +204,7 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
         }));
         onAutoSave(value);
         setTimeout(() => {
-          setState(prev => ({ ...prev, autoSaveStatus: 'saved' }));
+          setState(prev => ({...prev, autoSaveStatus: 'saved'}));
         }, 1000);
       }
     }
@@ -208,47 +223,47 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
             e.preventDefault();
             setState(prev => ({
               ...prev,
-              formatting: { ...prev.formatting, bold: !prev.formatting.bold }
+              formatting: {...prev.formatting, bold: !prev.formatting.bold},
             }));
             break;
           case 'i':
             e.preventDefault();
             setState(prev => ({
               ...prev,
-              formatting: { ...prev.formatting, italic: !prev.formatting.italic }
+              formatting: {...prev.formatting, italic: !prev.formatting.italic},
             }));
             break;
           case 'u':
             e.preventDefault();
             setState(prev => ({
               ...prev,
-              formatting: { ...prev.formatting, underline: !prev.formatting.underline }
+              formatting: {...prev.formatting, underline: !prev.formatting.underline},
             }));
             break;
           case 'l':
             e.preventDefault();
             setState(prev => ({
               ...prev,
-              formatting: { ...prev.formatting, alignment: 'left' }
+              formatting: {...prev.formatting, alignment: 'left'},
             }));
             break;
           case 'e':
             e.preventDefault();
             setState(prev => ({
               ...prev,
-              formatting: { ...prev.formatting, alignment: 'center' }
+              formatting: {...prev.formatting, alignment: 'center'},
             }));
             break;
           case 'r':
             e.preventDefault();
             setState(prev => ({
               ...prev,
-              formatting: { ...prev.formatting, alignment: 'right' }
+              formatting: {...prev.formatting, alignment: 'right'},
             }));
             break;
           case 'f11':
             e.preventDefault();
-            setState(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
+            setState(prev => ({...prev, isFullscreen: !prev.isFullscreen}));
             break;
         }
       }
@@ -358,6 +373,10 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
 
   const wordFrequency = getWordFrequency();
 
+  // Use provided wordCount/lineCount if available, otherwise use calculated values
+  const displayWordCount = props.wordCount ?? state.wordCount;
+  const displayLineCount = props.lineCount ?? state.lineCount;
+
   return (
     <div className={cn('w-full', className)}>
       <Card className="border-2 border-border/50">
@@ -365,22 +384,17 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <h1 className="text-lg font-semibold">{label || 'Advanced Prompt Editor'}</h1>
-              {autoSave && <AutoSaveIndicator autoSaveStatus={state.autoSaveStatus} lastSaved={state.lastSaved} />}
+              {autoSave && <AutoSaveIndicator autoSaveStatus={state.autoSaveStatus} lastSaved={state.lastSaved}/>}
             </div>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-4">
           {showFormatting && (
-            <FormattingToolbar formatting={state.formatting} setFormatting={(formatting) => setState(prev => ({ ...prev, formatting: formatting as EditorState['formatting'] }))} />
-          )}
-
-          {state.showWordCloud && (
-            <WordCloud
-              wordFrequency={wordFrequency}
-              showWordCloud={state.showWordCloud}
-              setShowWordCloud={(show) => setState(prev => ({ ...prev, showWordCloud: Boolean(show) }))}
-            />
+            <FormattingToolbar formatting={state.formatting} setFormatting={(formatting) => setState(prev => ({
+              ...prev,
+              formatting: formatting as EditorState['formatting'],
+            }))}/>
           )}
 
           <div className={cn(
@@ -409,41 +423,65 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
                 state.formatting.listType === 'numbered' && 'list-decimal',
               )}
               onKeyDown={handleKeyDown}
-              onFocus={() => setState(prev => ({ ...prev, isFocused: true }))}
-              onBlur={() => setState(prev => ({ ...prev, isFocused: false }))}
+              onFocus={() => setState(prev => ({...prev, isFocused: true}))}
+              onBlur={() => setState(prev => ({...prev, isFocused: false}))}
               style={{
                 textAlign: state.formatting.alignment as any,
                 listStyleType: state.formatting.listType === 'numbered' ? 'decimal' : state.formatting.listType === 'bullet' ? 'disc' : 'none',
               }}
             />
 
-            <TextStats
-              wordCount={state.wordCount}
-              charCount={state.charCount}
-              readingTime={state.readingTime}
-              tokenEstimate={state.tokenEstimate}
-              autoSaveStatus={state.autoSaveStatus}
-              lastSaved={state.lastSaved}
-              maxLength={maxLength}
-            />
+            {showStats && (
+              <TextStats
+                wordCount={displayWordCount}
+                charCount={state.charCount}
+                readingTime={state.readingTime}
+                tokenEstimate={state.tokenEstimate}
+                autoSaveStatus={state.autoSaveStatus}
+                lastSaved={state.lastSaved}
+                maxLength={maxLength}
+              />
+            )}
           </div>
 
+          {state.showWordCloud && (
+            <WordCloud
+              wordFrequency={wordFrequency}
+              showWordCloud={state.showWordCloud}
+              setShowWordCloud={(show) => setState(prev => ({...prev, showWordCloud: Boolean(show)}))}
+            />
+          )}
+
+          {showTemplates && (
+            <div className="p-4 border border-border rounded-lg">
+              <h3 className="font-medium mb-2">Templates</h3>
+              <p className="text-sm text-muted-foreground">Template selection would appear here</p>
+            </div>
+          )}
+
+          {showPreview && (
+            <div className="p-4 border border-border rounded-lg">
+              <h3 className="font-medium mb-2">Preview</h3>
+              <p className="text-sm text-muted-foreground">Prompt preview would appear here</p>
+            </div>
+          )}
+
           {response && (
-            <EnhancedPrompt response={response} originalPrompt={value} />
+            <EnhancedPrompt response={response} originalPrompt={value}/>
           )}
         </CardContent>
 
-          <ActionButtons
-            value={value}
-            handleCopy={handleCopy}
-            handleDownload={handleDownload}
-            handleShare={handleShare}
-            handleClear={handleClear}
-            handleEnhance={handleEnhance}
-            onEnhance={onEnhance}
-            disabled={disabled}
-            showActions={showActions}
-          />
+        <ActionButtons
+          value={value}
+          handleCopy={handleCopy}
+          handleDownload={handleDownload}
+          handleShare={handleShare}
+          handleClear={handleClear}
+          handleEnhance={handleEnhance}
+          onEnhance={onEnhance}
+          disabled={disabled}
+          showActions={showActions}
+        />
       </Card>
     </div>
   );
