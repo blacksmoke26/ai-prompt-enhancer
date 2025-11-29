@@ -9,9 +9,9 @@ export class OpenAIProvider extends BaseAIProvider {
 
   async getModels(): Promise<AIModel[]> {
     try {
-      const response = await this.client.get('/models');
+      const response = await this.client.get<{data: AIModel[]}>('/models');
       const models = response.data.data || [];
-      
+
       return models
         .filter((model: any) => model.id.includes('gpt'))
         .map((model: any) => ({
@@ -21,7 +21,7 @@ export class OpenAIProvider extends BaseAIProvider {
           description: model.owned_by,
           contextLength: this.getContextLength(model.id),
           maxTokens: this.getMaxTokens(model.id),
-        }));
+        })).sort((a, b) => a.id.localeCompare(b.id));;
     } catch (error: any) {
       console.error('Failed to fetch OpenAI models:', error);
       return [];
@@ -30,10 +30,10 @@ export class OpenAIProvider extends BaseAIProvider {
 
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
-    
+
     try {
       const systemPrompt = this.buildSystemPrompt(request);
-      
+
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
@@ -45,7 +45,7 @@ export class OpenAIProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = response.data.choices[0]?.message?.content?.trim() || request.text;
-      
+
       return {
         enhancedPrompt,
         originalPrompt: request.text,
@@ -88,8 +88,8 @@ export class OpenAIProvider extends BaseAIProvider {
       designer: 'You are a professional designer.',
     };
 
-    const systemPrompt = request.systemPrompt || 
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] || 
+    const systemPrompt = request.systemPrompt ||
+      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ||
       enhancementPrompts.enhance;
 
     const rolePrompt = rolePrompts[request.userRole as keyof typeof rolePrompts] || rolePrompts.general;

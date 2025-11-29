@@ -1,5 +1,5 @@
-import { BaseAIProvider } from './BaseAIProvider';
-import { PromptRequest, PromptResponse, AIModel } from '../types';
+import {BaseAIProvider} from './BaseAIProvider';
+import {AIModel, PromptRequest, PromptResponse} from '../types';
 
 export class DeepSeekProvider extends BaseAIProvider {
   constructor(apiKey: string) {
@@ -9,7 +9,7 @@ export class DeepSeekProvider extends BaseAIProvider {
 
   async getModels(): Promise<AIModel[]> {
     try {
-      const models: AIModel[] = [
+      return [
         {
           id: 'deepseek-chat',
           name: 'DeepSeek Chat',
@@ -27,8 +27,6 @@ export class DeepSeekProvider extends BaseAIProvider {
           maxTokens: 4096,
         },
       ];
-      
-      return models;
     } catch (error: any) {
       console.error('Failed to fetch DeepSeek models:', error);
       return [];
@@ -37,10 +35,10 @@ export class DeepSeekProvider extends BaseAIProvider {
 
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
-    
+
     try {
       const systemPrompt = this.buildSystemPrompt(request);
-      
+
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
@@ -52,7 +50,7 @@ export class DeepSeekProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = response.data.choices[0]?.message?.content?.trim() || request.text;
-      
+
       return {
         enhancedPrompt,
         originalPrompt: request.text,
@@ -99,8 +97,8 @@ export class DeepSeekProvider extends BaseAIProvider {
       designer: 'You are a professional designer.',
     };
 
-    const systemPrompt = request.systemPrompt || 
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] || 
+    const systemPrompt = request.systemPrompt ||
+      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ||
       enhancementPrompts.enhance;
 
     const rolePrompt = rolePrompts[request.userRole as keyof typeof rolePrompts] || rolePrompts.general;
