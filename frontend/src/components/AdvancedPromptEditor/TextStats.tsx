@@ -54,7 +54,7 @@ const TextStats: React.FC<TextStatsProps> = ({
   maxLength
 }) => {
   return (
-    <div className="flex items-center justify-between text-xs text-muted-foreground bg-background px-2 py-2 rounded">
+    <div className="flex items-center justify-between text-xs text-muted-foreground bg-background px-2 py-2 mt-1 rounded">
       <div className="flex items-center space-x-2">
         <span>{charCount}</span>
         <span className="text-muted-foreground">/</span>
