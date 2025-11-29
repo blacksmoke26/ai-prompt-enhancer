@@ -1,11 +1,17 @@
 import React, {useState} from 'react';
 import {AlertCircle, Play, RefreshCw} from 'lucide-react';
-import {Button} from './ui/Button';
-import {AdvancedPromptEditor} from './AdvancedPromptEditor';
-import {Card, CardContent, CardHeader, CardTitle} from './ui/Card';
-import {Alert, AlertDescription} from './ui/Alert';
-import {usePromptEnhancer} from '~/hooks/usePromptEnhancer.ts';
+
+// hooks
 import {useAppStore} from '~/stores/appStore.ts';
+import {usePromptEnhancer} from '~/hooks/usePromptEnhancer.ts';
+
+// components
+import {Button} from '~/components/ui/Button';
+import {Alert, AlertDescription} from '~/components/ui/Alert';
+import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
+import {AdvancedPromptEditor} from '~/components/AdvancedPromptEditor';
+
+// types
 import type {PromptResponse} from '~/types';
 
 /**
@@ -29,7 +35,7 @@ import type {PromptResponse} from '~/types';
  * - Statistics are shown in a responsive grid layout that adapts to screen size
  * - All actions are disabled during loading states to prevent race conditions
  */
-export const PromptEnhancer: React.FC = () => {
+const PromptEnhancer: React.FC = () => {
   /**
    * State management for the user's input prompt
    * @type {string} - The current prompt text being edited
@@ -228,3 +234,5 @@ export const PromptEnhancer: React.FC = () => {
     </div>
   );
 };
+
+export default PromptEnhancer;

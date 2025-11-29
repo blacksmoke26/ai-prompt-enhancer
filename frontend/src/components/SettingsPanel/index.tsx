@@ -1,11 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Card } from './ui/Card';
-import { Button } from './ui/Button';
-import { Input } from './ui/Input';
-import { Textarea } from './ui/Textarea';
-import { Select } from './ui/Select';
-import { Badge } from './ui/Badge';
-import { Alert, AlertDescription } from './ui/Alert';
+import React, {useState, useEffect} from 'react';
+
 import {
   Save,
   Download,
@@ -16,13 +10,30 @@ import {
   Trash2,
   Settings as SettingsIcon,
   Eye,
-  EyeOff
+  EyeOff,
 } from 'lucide-react';
-import { useAppStore } from '~/stores/appStore.ts';
-import { configService } from '~/utils/configService.ts';
-import { promptService } from '~/utils/promptService.ts';
-import { cn } from '~/utils/helpers.ts';
-import type { AppConfig } from '~/types';
+
+// hooks
+import {useAppStore} from '~/stores/appStore.ts';
+import {configService} from '~/utils/configService.ts';
+
+// services
+import {promptService} from '~/utils/promptService.ts';
+
+// helpers
+import {cn} from '~/utils/helpers.ts';
+
+// components
+import {Card} from '~/components/ui/Card';
+import {Badge} from '~/components/ui/Badge';
+import {Input} from '~/components/ui/Input';
+import {Select} from '~/components/ui/Select';
+import {Button} from '~/components/ui/Button';
+import {Textarea} from '~/components/ui/Textarea';
+import {Alert, AlertDescription} from '~/components/ui/Alert';
+
+// types
+import type {AppConfig} from '~/types';
 
 /**
  * Type definition for available settings tabs
@@ -33,19 +44,31 @@ import type { AppConfig } from '~/types';
 type SettingsTab = 'general' | 'providers' | 'enhancement' | 'data' | 'advanced';
 
 /**
+ * Configuration for settings tabs with icons and labels
+ * @developer Note: Update this array when adding new tabs
+ */
+const SETTINGS_TABS = [
+  {id: 'general' as SettingsTab, label: 'General', icon: SettingsIcon},
+  {id: 'providers' as SettingsTab, label: 'AI Providers', icon: TestTube},
+  {id: 'enhancement' as SettingsTab, label: 'Enhancement', icon: SettingsIcon},
+  {id: 'data' as SettingsTab, label: 'Data Management', icon: SettingsIcon},
+  {id: 'advanced' as SettingsTab, label: 'Advanced', icon: SettingsIcon},
+];
+
+/**
  * Main settings panel component for configuring the AI Prompt Enhancer
  * @example
  * <SettingsPanel />
  * @developer Note: This component uses Zustand for state management and handles multiple settings categories
  */
-export const SettingsPanel: React.FC = () => {
+const SettingsPanel: React.FC = () => {
   const {
     config,
     setConfig,
     theme,
     setTheme,
     models,
-    providers
+    providers,
   } = useAppStore();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
@@ -59,18 +82,6 @@ export const SettingsPanel: React.FC = () => {
   useEffect(() => {
     setLocalConfig(config);
   }, [config]);
-
-  /**
-   * Configuration for settings tabs with icons and labels
-   * @developer Note: Update this array when adding new tabs
-   */
-  const tabs = [
-    { id: 'general' as SettingsTab, label: 'General', icon: SettingsIcon },
-    { id: 'providers' as SettingsTab, label: 'AI Providers', icon: TestTube },
-    { id: 'enhancement' as SettingsTab, label: 'Enhancement', icon: SettingsIcon },
-    { id: 'data' as SettingsTab, label: 'Data Management', icon: SettingsIcon },
-    { id: 'advanced' as SettingsTab, label: 'Advanced', icon: SettingsIcon },
-  ];
 
   /**
    * Saves current configuration settings to storage
@@ -173,9 +184,9 @@ export const SettingsPanel: React.FC = () => {
     setTestingProvider(providerName);
     try {
       const result = await promptService.testProvider(providerName);
-      setTestResults(prev => ({ ...prev, [providerName]: result.available }));
+      setTestResults(prev => ({...prev, [providerName]: result.available}));
     } catch (error) {
-      setTestResults(prev => ({ ...prev, [providerName]: false }));
+      setTestResults(prev => ({...prev, [providerName]: false}));
     } finally {
       setTestingProvider(null);
     }
@@ -189,7 +200,7 @@ export const SettingsPanel: React.FC = () => {
    * @developer Note: Useful for verifying key input without compromising security
    */
   const toggleApiKeyVisibility = (provider: string) => {
-    setShowApiKeys(prev => ({ ...prev, [provider]: !prev[provider] }));
+    setShowApiKeys(prev => ({...prev, [provider]: !prev[provider]}));
   };
 
   /**
@@ -229,10 +240,10 @@ export const SettingsPanel: React.FC = () => {
             <Select
               isSearchable
               value={localConfig.defaultModel}
-              onChange={(e) => setLocalConfig(prev => ({ ...prev, defaultModel: e as string }))}
+              onChange={(e) => setLocalConfig(prev => ({...prev, defaultModel: e as string}))}
               options={models.map(model => ({
                 value: model.id,
-                label: `${model.name} (${model.provider})`
+                label: `${model.name} (${model.provider})`,
               }))}
             />
           </div>
@@ -241,7 +252,7 @@ export const SettingsPanel: React.FC = () => {
             <label className="text-sm font-medium">Default System Prompt</label>
             <Textarea
               value={localConfig.defaultSystemPrompt}
-              onChange={(e) => setLocalConfig(prev => ({ ...prev, defaultSystemPrompt: e.target.value }))}
+              onChange={(e) => setLocalConfig(prev => ({...prev, defaultSystemPrompt: e.target.value}))}
               placeholder="Enter default system prompt..."
               rows={3}
             />
@@ -259,7 +270,7 @@ export const SettingsPanel: React.FC = () => {
             </div>
             <Button
               variant={localConfig.autoSave ? 'default' : 'outline'}
-              onClick={() => setLocalConfig(prev => ({ ...prev, autoSave: !prev.autoSave }))}
+              onClick={() => setLocalConfig(prev => ({...prev, autoSave: !prev.autoSave}))}
             >
               {localConfig.autoSave ? 'Enabled' : 'Disabled'}
             </Button>
@@ -272,7 +283,7 @@ export const SettingsPanel: React.FC = () => {
               value={localConfig.maxHistoryItems}
               onChange={(e) => setLocalConfig(prev => ({
                 ...prev,
-                maxHistoryItems: parseInt(e.target.value) || 1000
+                maxHistoryItems: parseInt(e.target.value) || 1000,
               }))}
               min="10"
               max="10000"
@@ -300,7 +311,7 @@ export const SettingsPanel: React.FC = () => {
               value={localConfig.ollama.url}
               onChange={(e) => setLocalConfig(prev => ({
                 ...prev,
-                ollama: { ...prev.ollama, url: e.target.value }
+                ollama: {...prev.ollama, url: e.target.value},
               }))}
               placeholder="http://localhost:11434"
             />
@@ -313,7 +324,7 @@ export const SettingsPanel: React.FC = () => {
               value={localConfig.ollama.timeout}
               onChange={(e) => setLocalConfig(prev => ({
                 ...prev,
-                ollama: { ...prev.ollama, timeout: parseInt(e.target.value) || 30000 }
+                ollama: {...prev.ollama, timeout: parseInt(e.target.value) || 30000},
               }))}
               min="5000"
               max="300000"
@@ -327,9 +338,9 @@ export const SettingsPanel: React.FC = () => {
               variant="outline"
             >
               {testingProvider === 'ollama' ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
               ) : (
-                <TestTube className="h-4 w-4 mr-2" />
+                <TestTube className="h-4 w-4 mr-2"/>
               )}
               Test Connection
             </Button>
@@ -353,9 +364,9 @@ export const SettingsPanel: React.FC = () => {
                 type={showApiKeys.openai ? 'text' : 'password'}
                 value={localConfig.openai?.apiKey || ''}
                 onChange={(e) => setLocalConfig(prev => ({
-                ...prev,
-                openai: { ...(prev.openai || {}), apiKey: e.target.value || '' }
-              }))}
+                  ...prev,
+                  openai: {...(prev.openai || {}), apiKey: e.target.value || ''},
+                }))}
                 placeholder="sk-..."
                 className="flex-1"
               />
@@ -364,7 +375,7 @@ export const SettingsPanel: React.FC = () => {
                 size="icon"
                 onClick={() => toggleApiKeyVisibility('openai')}
               >
-                {showApiKeys.openai ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showApiKeys.openai ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
               </Button>
             </div>
           </div>
@@ -375,7 +386,7 @@ export const SettingsPanel: React.FC = () => {
               value={localConfig.openai?.baseUrl || ''}
               onChange={(e) => setLocalConfig(prev => ({
                 ...prev,
-                openai: { ...(prev.openai || {}), baseUrl: e.target.value || '' }
+                openai: {...(prev.openai || {}), baseUrl: e.target.value || ''},
               }))}
               placeholder="https://api.openai.com/v1"
             />
@@ -388,9 +399,9 @@ export const SettingsPanel: React.FC = () => {
               variant="outline"
             >
               {testingProvider === 'openai' ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
               ) : (
-                <TestTube className="h-4 w-4 mr-2" />
+                <TestTube className="h-4 w-4 mr-2"/>
               )}
               Test Connection
             </Button>
@@ -415,7 +426,7 @@ export const SettingsPanel: React.FC = () => {
                 value={localConfig.openrouter?.apiKey || ''}
                 onChange={(e) => setLocalConfig(prev => ({
                   ...prev,
-                  openrouter: { ...(prev.openrouter || {}), apiKey: e.target.value || '' }
+                  openrouter: {...(prev.openrouter || {}), apiKey: e.target.value || ''},
                 }))}
                 placeholder="sk-or-..."
                 className="flex-1"
@@ -425,7 +436,7 @@ export const SettingsPanel: React.FC = () => {
                 size="icon"
                 onClick={() => toggleApiKeyVisibility('openrouter')}
               >
-                {showApiKeys.openrouter ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showApiKeys.openrouter ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
               </Button>
             </div>
           </div>
@@ -437,9 +448,9 @@ export const SettingsPanel: React.FC = () => {
               variant="outline"
             >
               {testingProvider === 'openrouter' ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
               ) : (
-                <TestTube className="h-4 w-4 mr-2" />
+                <TestTube className="h-4 w-4 mr-2"/>
               )}
               Test Connection
             </Button>
@@ -464,7 +475,7 @@ export const SettingsPanel: React.FC = () => {
                 value={localConfig.deepseek?.apiKey || ''}
                 onChange={(e) => setLocalConfig(prev => ({
                   ...prev,
-                  deepseek: { ...(prev.deepseek || {}), apiKey: e.target.value || '' }
+                  deepseek: {...(prev.deepseek || {}), apiKey: e.target.value || ''},
                 }))}
                 placeholder="sk-..."
                 className="flex-1"
@@ -474,7 +485,7 @@ export const SettingsPanel: React.FC = () => {
                 size="icon"
                 onClick={() => toggleApiKeyVisibility('deepseek')}
               >
-                {showApiKeys.deepseek ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showApiKeys.deepseek ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
               </Button>
             </div>
           </div>
@@ -486,9 +497,9 @@ export const SettingsPanel: React.FC = () => {
               variant="outline"
             >
               {testingProvider === 'deepseek' ? (
-                <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
               ) : (
-                <TestTube className="h-4 w-4 mr-2" />
+                <TestTube className="h-4 w-4 mr-2"/>
               )}
               Test Connection
             </Button>
@@ -516,20 +527,20 @@ export const SettingsPanel: React.FC = () => {
         <h3 className="text-lg font-semibold mb-4">Enhancement Types</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
-            { id: 'correct', name: 'Correct', desc: 'Fix grammar, spelling, and clarity' },
-            { id: 'enhance', name: 'Enhance', desc: 'Add details and specificity' },
-            { id: 'proofread', name: 'Proofread', desc: 'Review for effectiveness' },
-            { id: 'optimize', name: 'Optimize', desc: 'Optimize for AI models' },
-            { id: 'creative', name: 'Creative', desc: 'Add imaginative elements' },
-            { id: 'technical', name: 'Technical', desc: 'Add technical precision' },
-            { id: 'concise', name: 'Concise', desc: 'Remove unnecessary words' },
-            { id: 'structured', name: 'Structured', desc: 'Add clear formatting' },
-            { id: 'audience', name: 'Target Audience', desc: 'Tailor for specific audience' },
-            { id: 'tone', name: 'Adjust Tone', desc: 'Modify communication tone' },
-            { id: 'length', name: 'Optimize Length', desc: 'Adjust for optimal processing' },
-            { id: 'simplify', name: 'Simplify', desc: 'Make easier to understand' },
-            { id: 'expand', name: 'Expand', desc: 'Add context and details' },
-            { id: 'format', name: 'Format & Style', desc: 'Improve presentation' },
+            {id: 'correct', name: 'Correct', desc: 'Fix grammar, spelling, and clarity'},
+            {id: 'enhance', name: 'Enhance', desc: 'Add details and specificity'},
+            {id: 'proofread', name: 'Proofread', desc: 'Review for effectiveness'},
+            {id: 'optimize', name: 'Optimize', desc: 'Optimize for AI models'},
+            {id: 'creative', name: 'Creative', desc: 'Add imaginative elements'},
+            {id: 'technical', name: 'Technical', desc: 'Add technical precision'},
+            {id: 'concise', name: 'Concise', desc: 'Remove unnecessary words'},
+            {id: 'structured', name: 'Structured', desc: 'Add clear formatting'},
+            {id: 'audience', name: 'Target Audience', desc: 'Tailor for specific audience'},
+            {id: 'tone', name: 'Adjust Tone', desc: 'Modify communication tone'},
+            {id: 'length', name: 'Optimize Length', desc: 'Adjust for optimal processing'},
+            {id: 'simplify', name: 'Simplify', desc: 'Make easier to understand'},
+            {id: 'expand', name: 'Expand', desc: 'Add context and details'},
+            {id: 'format', name: 'Format & Style', desc: 'Improve presentation'},
           ].map((type) => (
             <Card key={type.id} className="p-4">
               <h4 className="font-medium">{type.name}</h4>
@@ -543,14 +554,14 @@ export const SettingsPanel: React.FC = () => {
         <h3 className="text-lg font-semibold mb-4">User Roles</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[
-            { id: 'general', name: 'General', desc: 'Everyday enhancement needs' },
-            { id: 'developer', name: 'Developer', desc: 'Programming and technical' },
-            { id: 'writer', name: 'Writer', desc: 'Creative writing and content' },
-            { id: 'researcher', name: 'Researcher', desc: 'Academic and research' },
-            { id: 'marketer', name: 'Marketer', desc: 'Marketing and promotional' },
-            { id: 'educator', name: 'Educator', desc: 'Educational content' },
-            { id: 'business', name: 'Business', desc: 'Corporate communication' },
-            { id: 'designer', name: 'Designer', desc: 'Design and visual prompts' },
+            {id: 'general', name: 'General', desc: 'Everyday enhancement needs'},
+            {id: 'developer', name: 'Developer', desc: 'Programming and technical'},
+            {id: 'writer', name: 'Writer', desc: 'Creative writing and content'},
+            {id: 'researcher', name: 'Researcher', desc: 'Academic and research'},
+            {id: 'marketer', name: 'Marketer', desc: 'Marketing and promotional'},
+            {id: 'educator', name: 'Educator', desc: 'Educational content'},
+            {id: 'business', name: 'Business', desc: 'Corporate communication'},
+            {id: 'designer', name: 'Designer', desc: 'Design and visual prompts'},
           ].map((role) => (
             <Card key={role.id} className="p-4">
               <h4 className="font-medium">{role.name}</h4>
@@ -581,15 +592,15 @@ export const SettingsPanel: React.FC = () => {
 
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => window.open('/api/history/export?format=json')}>
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="h-4 w-4 mr-2"/>
               Export as JSON
             </Button>
             <Button variant="outline" onClick={() => window.open('/api/history/export?format=csv')}>
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="h-4 w-4 mr-2"/>
               Export as CSV
             </Button>
             <Button variant="outline" onClick={() => window.open('/api/history/export?format=txt')}>
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="h-4 w-4 mr-2"/>
               Export as TXT
             </Button>
           </div>
@@ -616,7 +627,7 @@ export const SettingsPanel: React.FC = () => {
               }
             }}
           >
-            <Trash2 className="h-4 w-4 mr-2" />
+            <Trash2 className="h-4 w-4 mr-2"/>
             Clear All Local Data
           </Button>
         </div>
@@ -637,15 +648,15 @@ export const SettingsPanel: React.FC = () => {
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="h-4 w-4 mr-2"/>
               Export Config
             </Button>
             <Button variant="outline" onClick={handleImport}>
-              <Upload className="h-4 w-4 mr-2" />
+              <Upload className="h-4 w-4 mr-2"/>
               Import Config
             </Button>
             <Button variant="outline" onClick={handleReset}>
-              <RotateCcw className="h-4 w-4 mr-2" />
+              <RotateCcw className="h-4 w-4 mr-2"/>
               Reset to Defaults
             </Button>
           </div>
@@ -715,8 +726,8 @@ export const SettingsPanel: React.FC = () => {
         <div className="flex items-center space-x-2">
           {saveMessage && (
             <Alert className={cn(
-              "max-w-md",
-              saveMessage.includes('success') ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"
+              'max-w-md',
+              saveMessage.includes('success') ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50',
             )}>
               <AlertDescription>{saveMessage}</AlertDescription>
             </Alert>
@@ -724,9 +735,9 @@ export const SettingsPanel: React.FC = () => {
 
           <Button onClick={handleSave} disabled={saving}>
             {saving ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
             ) : (
-              <Save className="h-4 w-4 mr-2" />
+              <Save className="h-4 w-4 mr-2"/>
             )}
             {saving ? 'Saving...' : 'Save Changes'}
           </Button>
@@ -736,15 +747,15 @@ export const SettingsPanel: React.FC = () => {
       {/* Tab Navigation */}
       <div className="border-b border-border">
         <nav className="flex space-x-8">
-          {tabs.map((tab) => (
+          {SETTINGS_TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={cn(
-                "py-2 px-1 border-b-2 font-medium text-sm transition-colors",
+                'py-2 px-1 border-b-2 font-medium text-sm transition-colors',
                 activeTab === tab.id
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground',
               )}
             >
               {tab.label}
@@ -760,3 +771,5 @@ export const SettingsPanel: React.FC = () => {
     </div>
   );
 };
+
+export default SettingsPanel;

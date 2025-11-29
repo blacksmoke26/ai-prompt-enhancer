@@ -1,17 +1,21 @@
 import React from 'react';
-import {Select} from './ui/Select';
-import {Card, CardContent, CardHeader, CardTitle} from './ui/Card';
-import {Badge} from './ui/Badge';
+
+// store
 import {useAppStore} from '~/stores/appStore';
 
+// components
+import {Badge} from '~/components/ui/Badge';
+import {Select} from '~/components/ui/Select';
+import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
+
 // types
-import {AIModel} from '~/types';
+import type {AIModel} from '~/types';
 
 /**
  * Props for the ModelSelector component
  * @interface ModelSelectorProps
  */
-interface ModelSelectorProps {
+export interface ModelSelectorProps {
   /** Optional CSS class name for styling */
   className?: string;
 }
@@ -27,7 +31,7 @@ interface ModelSelectorProps {
  * - Displays provider connection status
  * - Includes descriptions for enhancement types and user roles
  */
-export const ModelSelector: React.FC<ModelSelectorProps> = ({className}) => {
+const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
   const {
     models,
     providers,
@@ -188,3 +192,5 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({className}) => {
     </Card>
   );
 };
+
+export default ModelSelector;
