@@ -1,18 +1,22 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {Textarea} from '~/components/ui/Textarea';
-import {Card, CardContent, CardHeader} from '~/components/ui/Card';
+
+// helpers
 import {cn, copyToClipboard, downloadFile} from '~/utils/helpers';
 
-// types
-import type {PromptResponse} from '~/types';
-
 // ui components
+import {Textarea} from '~/components/ui/Textarea';
+import {Card, CardContent, CardHeader} from '~/components/ui/Card';
+
+// components
 import FormattingToolbar from './FormattingToolbar';
 import TextStats from './TextStats';
 import WordCloud from './WordCloud';
 import EnhancedPrompt from './EnhancedPrompt';
 import ActionButtons from './ActionButtons';
 import AutoSaveIndicator from './AutoSaveIndicator';
+
+// types
+import type {PromptResponse} from '~/types';
 
 /**
  * Configuration props for the Advanced Prompt Editor component
