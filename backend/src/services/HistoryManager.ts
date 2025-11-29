@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
-import { PromptHistory } from '../types';
+
+// types
+import type { PromptHistory } from '~/types';
 
 /**
  * Manages prompt history with CRUD operations and export capabilities.

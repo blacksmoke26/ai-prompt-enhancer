@@ -1,10 +1,12 @@
-import { ConfigManager } from '../config/ConfigManager';
+import { ConfigManager } from '~/config/ConfigManager';
 import { OllamaProvider } from './OllamaProvider';
 import { OpenAIProvider } from './OpenAIProvider';
 import { OpenRouterProvider } from './OpenRouterProvider';
 import { DeepSeekProvider } from './DeepSeekProvider';
 import { BaseAIProvider } from './BaseAIProvider';
-import { AIModel, AIProvider } from '../types';
+
+// types
+import type { AIModel, AIProvider } from '~/types';
 
 /**
  * Manages AI providers and their configurations.

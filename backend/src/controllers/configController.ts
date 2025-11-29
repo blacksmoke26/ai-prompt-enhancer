@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
-import { ConfigManager } from '../config/ConfigManager';
-import { configUpdateSchema } from '../utils/validation';
-import { enhancementTypes, userRoles } from '../config/constants';
+import { ConfigManager } from '~/config/ConfigManager';
+import { configUpdateSchema } from '~/utils/validation';
+import { enhancementTypes, userRoles } from '~/config/constants';
 
 /**
  * Registers configuration management routes for Fastify.

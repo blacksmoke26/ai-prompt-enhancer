@@ -1,5 +1,5 @@
 import { FastifyRequest, FastifyReply } from 'fastify';
-import { promptRequestSchema } from '../utils/validation';
+import { promptRequestSchema } from '~/utils/validation';
 
 export const validatePromptRequest = async (request: FastifyRequest, reply: FastifyReply) => {
   try {

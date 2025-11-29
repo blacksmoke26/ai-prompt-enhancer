@@ -1,5 +1,7 @@
 import axios, { AxiosInstance } from 'axios';
-import { PromptRequest, PromptResponse, AIModel } from '../types';
+
+// types
+import type { PromptRequest, PromptResponse, AIModel } from '~/types';
 
 /**
  * Abstract base class for AI provider implementations.

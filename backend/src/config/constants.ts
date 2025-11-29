@@ -1,4 +1,5 @@
-import { AppConfig } from '../types';
+// types
+import type { AppConfig } from '~/types';
 
 /**
  * Default application configuration

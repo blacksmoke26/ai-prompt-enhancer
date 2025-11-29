@@ -1,5 +1,7 @@
 import { BaseAIProvider } from './BaseAIProvider';
-import { PromptRequest, PromptResponse, AIModel } from '../types';
+
+// types
+import type { PromptRequest, PromptResponse, AIModel } from '~/types';
 
 /**
  * OpenAI provider implementation for AI model interactions.

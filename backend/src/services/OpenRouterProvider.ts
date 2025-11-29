@@ -1,5 +1,7 @@
 import { BaseAIProvider } from './BaseAIProvider';
-import { PromptRequest, PromptResponse, AIModel } from '../types';
+
+// types
+import type { PromptRequest, PromptResponse, AIModel } from '~/types';
 
 /**
  * OpenRouter API provider for prompt enhancement services

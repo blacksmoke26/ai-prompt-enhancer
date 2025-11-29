@@ -1,7 +1,7 @@
 import { FastifyInstance } from 'fastify';
-import { PromptRequest, PromptResponse } from '../types';
-import { AIProviderManager } from '../services/AIProviderManager';
-import { HistoryManager } from '../services/HistoryManager';
+import { PromptRequest } from '~/types';
+import { AIProviderManager } from '~/services/AIProviderManager';
+import { HistoryManager } from '~/services/HistoryManager';
 
 /**
  * Registers prompt enhancement routes for the Fastify instance

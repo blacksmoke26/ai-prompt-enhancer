@@ -1,5 +1,7 @@
 import {BaseAIProvider} from './BaseAIProvider';
-import {AIModel, PromptRequest, PromptResponse} from '../types';
+
+// types
+import type {AIModel, PromptRequest, PromptResponse} from '~/types';
 
 /**
  * DeepSeek AI provider for prompt enhancement and model management.

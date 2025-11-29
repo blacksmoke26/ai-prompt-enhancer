@@ -1,7 +1,9 @@
 import fs from 'fs';
 import path from 'path';
-import { AppConfig } from '../types';
 import { defaultConfig } from './constants';
+
+// types
+import type { AppConfig } from '~/types';
 
 /**
  * Manages application configuration loading, saving, and manipulation.

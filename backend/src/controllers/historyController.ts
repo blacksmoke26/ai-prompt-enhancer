@@ -1,6 +1,6 @@
 import { FastifyInstance } from 'fastify';
-import { HistoryManager } from '../services/HistoryManager';
-import { exportSchema, historyUpdateSchema } from '../utils/validation';
+import { HistoryManager } from '~/services/HistoryManager';
+import { exportSchema, historyUpdateSchema } from '~/utils/validation';
 
 /**
  * Registers history-related routes for managing prompt history
