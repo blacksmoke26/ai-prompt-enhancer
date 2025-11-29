@@ -25,7 +25,7 @@ import AutoSaveIndicator from './AutoSaveIndicator';
  *   onAutoSave={savePrompt}
  * />
  */
-export interface PromptEditorProps {
+export interface AdvancedPromptEditorProps {
   /** Current prompt text value */
   value: string;
   /** Callback for prompt text changes */
@@ -65,12 +65,53 @@ export interface PromptEditorProps {
 }
 
 /**
+ * Interface for component state management
+ */
+ interface EditorState {
+   /** Whether the editor is currently focused */
+   isFocused: boolean;
+   /** Total number of words in the editor */
+   wordCount: number;
+   /** Total number of characters in the editor */
+   charCount: number;
+   /** Number of lines in the editor content */
+   lineCount: number;
+   /** Estimated reading time in minutes (200 words/min) */
+   readingTime: number;
+   /** Approximate token count estimation (4 chars/token) */
+   tokenEstimate: number;
+   /** Whether fullscreen mode is active */
+   isFullscreen: boolean;
+   /** Whether word cloud visualization is shown */
+   showWordCloud: boolean;
+   /** Timestamp of last auto-save operation */
+   lastSaved: Date | null;
+   /** Current auto-save operation status */
+   autoSaveStatus: 'idle' | 'saving' | 'saved';
+   /** Currently selected text in the editor */
+   selectedText: string;
+   /** Text formatting options and styles */
+   formatting: {
+     /** Bold text formatting */
+     bold: boolean;
+     /** Italic text formatting */
+     italic: boolean;
+     /** Underline text formatting */
+     underline: boolean;
+     /** Text alignment setting */
+     alignment: 'left' | 'center' | 'right';
+     /** List style type */
+     listType: 'none' | 'bullet' | 'numbered';
+   };
+ }
+
+/**
  * Advanced prompt editor with auto-save, formatting, and AI enhancement capabilities
  * @developer Notes: Component uses React hooks extensively for state management and side effects.
  * Keyboard shortcuts are handled globally - ensure no conflicts with parent components.
  * Token estimation is approximate (4 chars per token) and may vary by model.
  */
-export const AdvancedPromptEditor: React.FC<PromptEditorProps> = (props) => {
+export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
   const {
     value,
     onChange,
@@ -92,23 +133,25 @@ export const AdvancedPromptEditor: React.FC<PromptEditorProps> = (props) => {
     onAutoSave,
   } = props;
 
-  const [isFocused, setIsFocused] = useState(false);
-  const [wordCount, setWordCount] = useState(0);
-  const [charCount, setCharCount] = useState(0);
-  const [lineCount, setLineCount] = useState(0);
-  const [readingTime, setReadingTime] = useState(0);
-  const [tokenEstimate, setTokenEstimate] = useState(0);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showWordCloud, setShowWordCloud] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
-  const [selectedText, setSelectedText] = useState('');
-  const [formatting, setFormatting] = useState({
-    bold: false,
-    italic: false,
-    underline: false,
-    alignment: 'left' as 'left' | 'center' | 'right',
-    listType: 'none' as 'none' | 'bullet' | 'numbered',
+  const [state, setState] = useState<EditorState>({
+    isFocused: false,
+    wordCount: 0,
+    charCount: 0,
+    lineCount: 0,
+    readingTime: 0,
+    tokenEstimate: 0,
+    isFullscreen: false,
+    showWordCloud: false,
+    lastSaved: null,
+    autoSaveStatus: 'idle',
+    selectedText: '',
+    formatting: {
+      bold: false,
+      italic: false,
+      underline: false,
+      alignment: 'left',
+      listType: 'none',
+    },
   });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -122,28 +165,35 @@ export const AdvancedPromptEditor: React.FC<PromptEditorProps> = (props) => {
     const chars = value.length;
     const lines = value.split('\n').length;
 
-    setWordCount(words);
-    setCharCount(chars);
-    setLineCount(lines);
-
     const readingMinutes = Math.ceil(words / 200);
-    setReadingTime(readingMinutes);
-
     const tokens = Math.ceil(chars / 4);
-    setTokenEstimate(tokens);
+
+    setState(prev => ({
+      ...prev,
+      wordCount: words,
+      charCount: chars,
+      lineCount: lines,
+      readingTime: readingMinutes,
+      tokenEstimate: tokens,
+    }));
 
     // Auto-save functionality
     if (autoSave && onAutoSave && value.trim()) {
       const now = new Date();
-      if (value !== selectedText) {
-        setAutoSaveStatus('saving');
+      if (value !== state.selectedText) {
+        setState(prev => ({
+          ...prev,
+          autoSaveStatus: 'saving',
+          lastSaved: now,
+          selectedText: value,
+        }));
         onAutoSave(value);
-        setLastSaved(now);
-        setTimeout(() => setAutoSaveStatus('saved'), 1000);
+        setTimeout(() => {
+          setState(prev => ({ ...prev, autoSaveStatus: 'saved' }));
+        }, 1000);
       }
-      setSelectedText(value);
     }
-  }, [value, autoSave, onAutoSave, selectedText]);
+  }, [value, autoSave, onAutoSave, state.selectedText]);
 
   /**
    * Sets up keyboard shortcuts for formatting and fullscreen
@@ -156,31 +206,49 @@ export const AdvancedPromptEditor: React.FC<PromptEditorProps> = (props) => {
         switch (e.key) {
           case 'b':
             e.preventDefault();
-            setFormatting(prev => ({...prev, bold: !prev.bold}));
+            setState(prev => ({
+              ...prev,
+              formatting: { ...prev.formatting, bold: !prev.formatting.bold }
+            }));
             break;
           case 'i':
             e.preventDefault();
-            setFormatting(prev => ({...prev, italic: !prev.italic}));
+            setState(prev => ({
+              ...prev,
+              formatting: { ...prev.formatting, italic: !prev.formatting.italic }
+            }));
             break;
           case 'u':
             e.preventDefault();
-            setFormatting(prev => ({...prev, underline: !prev.underline}));
+            setState(prev => ({
+              ...prev,
+              formatting: { ...prev.formatting, underline: !prev.formatting.underline }
+            }));
             break;
           case 'l':
             e.preventDefault();
-            setFormatting(prev => ({...prev, alignment: 'left'}));
+            setState(prev => ({
+              ...prev,
+              formatting: { ...prev.formatting, alignment: 'left' }
+            }));
             break;
           case 'e':
             e.preventDefault();
-            setFormatting(prev => ({...prev, alignment: 'center'}));
+            setState(prev => ({
+              ...prev,
+              formatting: { ...prev.formatting, alignment: 'center' }
+            }));
             break;
           case 'r':
             e.preventDefault();
-            setFormatting(prev => ({...prev, alignment: 'right'}));
+            setState(prev => ({
+              ...prev,
+              formatting: { ...prev.formatting, alignment: 'right' }
+            }));
             break;
           case 'f11':
             e.preventDefault();
-            setIsFullscreen(prev => !prev);
+            setState(prev => ({ ...prev, isFullscreen: !prev.isFullscreen }));
             break;
         }
       }
@@ -297,27 +365,27 @@ export const AdvancedPromptEditor: React.FC<PromptEditorProps> = (props) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <h1 className="text-lg font-semibold">{label || 'Advanced Prompt Editor'}</h1>
-              {autoSave && <AutoSaveIndicator autoSaveStatus={autoSaveStatus} lastSaved={lastSaved} />}
+              {autoSave && <AutoSaveIndicator autoSaveStatus={state.autoSaveStatus} lastSaved={state.lastSaved} />}
             </div>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-4">
           {showFormatting && (
-            <FormattingToolbar formatting={formatting} setFormatting={setFormatting} />
+            <FormattingToolbar formatting={state.formatting} setFormatting={(formatting) => setState(prev => ({ ...prev, formatting: formatting as EditorState['formatting'] }))} />
           )}
 
-          {showWordCloud && (
+          {state.showWordCloud && (
             <WordCloud
               wordFrequency={wordFrequency}
-              showWordCloud={showWordCloud}
-              setShowWordCloud={setShowWordCloud}
+              showWordCloud={state.showWordCloud}
+              setShowWordCloud={(show) => setState(prev => ({ ...prev, showWordCloud: Boolean(show) }))}
             />
           )}
 
           <div className={cn(
             'relative',
-            isFullscreen && 'fixed inset-0 z-50 bg-background p-8',
+            state.isFullscreen && 'fixed inset-0 z-50 bg-background p-8',
           )}>
             <Textarea
               ref={textareaRef}
@@ -329,33 +397,33 @@ export const AdvancedPromptEditor: React.FC<PromptEditorProps> = (props) => {
               maxLength={maxLength}
               className={cn(
                 'min-h-[400px] resize-none font-mono text-sm leading-relaxed transition-all duration-200',
-                isFocused && 'ring-2 ring-ring ring-offset-2',
+                state.isFocused && 'ring-2 ring-ring ring-offset-2',
                 disabled && 'opacity-50 cursor-not-allowed',
-                isFullscreen && 'min-h-screen',
-                formatting.bold && 'font-bold',
-                formatting.italic && 'italic',
-                formatting.underline && 'underline',
-                formatting.alignment === 'center' && 'text-center',
-                formatting.alignment === 'right' && 'text-right',
-                formatting.listType === 'bullet' && 'list-disc',
-                formatting.listType === 'numbered' && 'list-decimal',
+                state.isFullscreen && 'min-h-screen',
+                state.formatting.bold && 'font-bold',
+                state.formatting.italic && 'italic',
+                state.formatting.underline && 'underline',
+                state.formatting.alignment === 'center' && 'text-center',
+                state.formatting.alignment === 'right' && 'text-right',
+                state.formatting.listType === 'bullet' && 'list-disc',
+                state.formatting.listType === 'numbered' && 'list-decimal',
               )}
               onKeyDown={handleKeyDown}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
+              onFocus={() => setState(prev => ({ ...prev, isFocused: true }))}
+              onBlur={() => setState(prev => ({ ...prev, isFocused: false }))}
               style={{
-                textAlign: formatting.alignment as any,
-                listStyleType: formatting.listType === 'numbered' ? 'decimal' : formatting.listType === 'bullet' ? 'disc' : 'none',
+                textAlign: state.formatting.alignment as any,
+                listStyleType: state.formatting.listType === 'numbered' ? 'decimal' : state.formatting.listType === 'bullet' ? 'disc' : 'none',
               }}
             />
 
             <TextStats
-              wordCount={wordCount}
-              charCount={charCount}
-              readingTime={readingTime}
-              tokenEstimate={tokenEstimate}
-              autoSaveStatus={autoSaveStatus}
-              lastSaved={lastSaved}
+              wordCount={state.wordCount}
+              charCount={state.charCount}
+              readingTime={state.readingTime}
+              tokenEstimate={state.tokenEstimate}
+              autoSaveStatus={state.autoSaveStatus}
+              lastSaved={state.lastSaved}
               maxLength={maxLength}
             />
           </div>
