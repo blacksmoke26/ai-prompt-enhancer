@@ -1,25 +1,34 @@
-import React, { useState, useEffect } from 'react';
-import { Sidebar } from '~/components/Sidebar';
-import { PromptEnhancer } from '~/components/PromptEnhancer';
-import { SettingsPanel } from '~/components/SettingsPanel';
-import { HistoryPanel } from '~/components/HistoryPanel';
-import { StatsPanel } from '~/components/StatsPanel';
-import { ModelSelector } from '~/components/ModelSelector';
-import { Button } from '~/components/ui/Button';
-import { Card, CardContent } from '~/components/ui/Card';
-import { History, BarChart3, Settings, Sparkles } from 'lucide-react';
-import { useAppData } from '~/hooks/useAppData';
-import { useHistory } from '~/hooks/useHistory';
-import { useHistoryStore } from '~/stores/historyStore';
-import { useAppStore } from '~/stores/appStore';
-import { cn } from '~/utils/helpers';
+import React, {useState, useEffect} from 'react';
+import {History, BarChart3, Settings, Sparkles} from 'lucide-react';
+
+// hooks
+import {useAppData} from '~/hooks/useAppData';
+import {useHistory} from '~/hooks/useHistory';
+import {useHistoryStore} from '~/stores/historyStore';
+import {useAppStore} from '~/stores/appStore';
+
+// helpers
+import {cn} from '~/utils/helpers';
+
+// ui-components
+import {Button} from '~/components/ui/Button';
+import {Card, CardContent} from '~/components/ui/Card';
+
+// components
+import Sidebar from '~/components/Sidebar';
+import StatsPanel from '~/components/StatsPanel';
+import HistoryPanel from '~/components/HistoryPanel';
+import SettingsPanel from '~/components/SettingsPanel';
+import ModelSelector from '~/components/ModelSelector';
+import PromptEnhancer from '~/components/PromptEnhancer';
+
 
 /**
  * Represents the available dashboard tabs
  * @example 'enhancer' - Main prompt enhancement interface
  * @developer notes: Use these exact values when referencing tab states
  */
-type TabType = 'enhancer' | 'history' | 'stats' | 'settings';
+export type TabType = 'enhancer' | 'history' | 'stats' | 'settings';
 
 /**
  * Main dashboard component managing tab navigation and layout
@@ -28,10 +37,10 @@ type TabType = 'enhancer' | 'history' | 'stats' | 'settings';
  */
 export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('enhancer');
-  const { loading, error, refreshData } = useAppData();
-  const { history, loadHistory, deleteItem, updateItem, clearHistory, exportHistory } = useHistory();
-  const { stats, setStats } = useHistoryStore();
-  const { sidebarOpen } = useAppStore();
+  const {loading, error, refreshData} = useAppData();
+  const {history, loadHistory, deleteItem, updateItem, clearHistory, exportHistory} = useHistory();
+  const {stats, setStats} = useHistoryStore();
+  const {sidebarOpen} = useAppStore();
 
   /**
    * Loads user history on component mount
@@ -69,8 +78,8 @@ export const Dashboard: React.FC = () => {
           totalItems,
           totalTokensUsed,
           averageProcessingTime: Math.round(averageProcessingTime),
-          mostUsedModel: Object.entries(modelCounts).sort(([,a], [,b]) => b - a)[0]?.[0] || 'N/A',
-          mostUsedEnhancementType: Object.entries(typeCounts).sort(([,a], [,b]) => b - a)[0]?.[0] || 'N/A',
+          mostUsedModel: Object.entries(modelCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A',
+          mostUsedEnhancementType: Object.entries(typeCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A',
         });
       }
     };
@@ -84,10 +93,10 @@ export const Dashboard: React.FC = () => {
    * @developer notes: Icons should be from lucide-react library
    */
   const tabs = [
-    { id: 'enhancer' as TabType, label: 'Enhancer', icon: Sparkles },
-    { id: 'history' as TabType, label: 'History', icon: History },
-    { id: 'stats' as TabType, label: 'Statistics', icon: BarChart3 },
-    { id: 'settings' as TabType, label: 'Settings', icon: Settings },
+    {id: 'enhancer' as TabType, label: 'Enhancer', icon: Sparkles},
+    {id: 'history' as TabType, label: 'History', icon: History},
+    {id: 'stats' as TabType, label: 'Statistics', icon: BarChart3},
+    {id: 'settings' as TabType, label: 'Settings', icon: Settings},
   ];
 
   /**
@@ -139,11 +148,11 @@ export const Dashboard: React.FC = () => {
                   variant={activeTab === tab.id ? 'default' : 'ghost'}
                   className={cn(
                     'w-full justify-start',
-                    activeTab === tab.id && 'bg-primary text-primary-foreground'
+                    activeTab === tab.id && 'bg-primary text-primary-foreground',
                   )}
                   onClick={() => setActiveTab(tab.id)}
                 >
-                  <Icon className="h-4 w-4 mr-2" />
+                  <Icon className="h-4 w-4 mr-2"/>
                   {tab.label}
                 </Button>
               );
@@ -171,7 +180,7 @@ export const Dashboard: React.FC = () => {
                   className="h-8 w-8"
                   onClick={() => setActiveTab(tab.id)}
                 >
-                  <Icon className="h-4 w-4" />
+                  <Icon className="h-4 w-4"/>
                 </Button>
               );
             })}
@@ -186,14 +195,14 @@ export const Dashboard: React.FC = () => {
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
                   {/* Main Editor Area */}
                   <div className="xl:col-span-8">
-                    <PromptEnhancer />
+                    <PromptEnhancer/>
                   </div>
 
                   {/* Sidebar Content */}
                   <div className="xl:col-span-4">
                     <div className="sticky top-6 space-y-6">
                       <div className="hidden xl:block">
-                        <ModelSelector />
+                        <ModelSelector/>
                       </div>
                     </div>
                   </div>
@@ -213,14 +222,14 @@ export const Dashboard: React.FC = () => {
                   </div>
                   <div className="xl:col-span-4">
                     <div className="hidden xl:block sticky top-6">
-                      <StatsPanel stats={stats} />
+                      <StatsPanel stats={stats}/>
                     </div>
                   </div>
                 </div>
               )}
 
-              {activeTab === 'stats' && <StatsPanel stats={stats} />}
-              {activeTab === 'settings' && <SettingsPanel />}
+              {activeTab === 'stats' && <StatsPanel stats={stats}/>}
+              {activeTab === 'settings' && <SettingsPanel/>}
             </div>
           </div>
         </div>
