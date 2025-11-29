@@ -1,13 +1,19 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
-import { HistoryStats } from '~/types';
-import { formatDuration } from '~/utils/helpers.ts';
+
+// helpers
+import {formatDuration} from '~/utils/helpers.ts';
+
+// components
+import {Card, CardContent, CardHeader, CardTitle} from './ui/Card';
+
+// types
+import type {HistoryStats} from '~/types';
 
 /**
  * Props for the StatsPanel component.
  * @developer-notes Ensure stats is properly validated before passing to avoid null reference errors.
  */
-interface StatsPanelProps {
+export interface StatsPanelProps {
   /** Statistics data to display, or null if no data is available. */
   stats: HistoryStats | null;
 }
@@ -27,7 +33,7 @@ interface StatsPanelProps {
  * ```
  * @developer-notes The component gracefully handles null stats by displaying zeros or fallback values.
  */
-export const StatsPanel: React.FC<StatsPanelProps> = ({ stats }) => {
+const StatsPanel: React.FC<StatsPanelProps> = ({stats}) => {
   return (
     <Card>
       <CardHeader>
@@ -75,3 +81,5 @@ export const StatsPanel: React.FC<StatsPanelProps> = ({ stats }) => {
     </Card>
   );
 };
+
+export default StatsPanel;

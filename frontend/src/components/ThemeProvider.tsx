@@ -1,18 +1,41 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useAppStore } from '~/stores/appStore.ts';
+import React, {createContext, useContext, useEffect, useState} from 'react';
+import {useAppStore} from '~/stores/appStore.ts';
 
-type Theme = 'light' | 'dark' | 'system';
+/** Available theme options for the application */
+export type Theme = 'light' | 'dark' | 'system';
 
-interface ThemeContextType {
+/** Theme context interface providing theme state and controls */
+export interface ThemeContextType {
+  /** Currently selected theme preference */
   theme: Theme;
-  setTheme: (theme: Theme) => void;
+
+  /** Function to update the theme preference */
+  setTheme(theme: Theme): void;
+
+  /** Resolved theme after considering system preference */
   resolvedTheme: 'light' | 'dark';
 }
 
+/** Context for sharing theme state throughout the application */
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { theme, setTheme } = useAppStore();
+/**
+ * Provider component that manages theme state and DOM updates
+ * @param children - React components that will receive theme context
+ * @returns Theme provider component
+ * @example
+ * ```tsx
+ * <ThemeProvider>
+ *   <App />
+ * </ThemeProvider>
+ * ```
+ * @developer-notes
+ * - Listens to system theme changes when 'system' theme is selected
+ * - Updates DOM classes for CSS-based theming
+ * - Persists theme preference via app store
+ */
+export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
+  const {theme, setTheme} = useAppStore();
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
 
   useEffect(() => {
@@ -59,6 +82,18 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 };
 
+/**
+ * Hook to access theme context state and controls
+ * @returns Theme context object with theme state and setters
+ * @example
+ * ```tsx
+ * const { theme, setTheme, resolvedTheme } = useTheme();
+ * setTheme('dark');
+ * ```
+ * @developer-notes
+ * - Must be used within a ThemeProvider component
+ * - Throws error if used outside provider context
+ */
 // eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => {
   const context = useContext(ThemeContext);
