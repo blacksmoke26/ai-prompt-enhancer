@@ -157,9 +157,11 @@ const PromptEnhancer: React.FC = () => {
         onKeyPress={handleKeyPress}
         showStats={true}
         maxLength={10000}
-        showTemplates={true}
+        showTemplates={false}
         showFormatting={true}
         autoSave={true}
+        showWordCloud={true}
+        showPreview={false}
         onEnhance={handleEnhance}
         className="mb-6"
       />
