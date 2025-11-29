@@ -1,5 +1,5 @@
-import React from 'react';
-import ReactSelect from 'react-select';
+import React, {ReactNode} from 'react';
+import ReactSelect, {FormatOptionLabelMeta} from 'react-select';
 import {useTheme} from '../ThemeProvider';
 
 /**
@@ -7,6 +7,8 @@ import {useTheme} from '../ThemeProvider';
  * @description Defines the structure of individual options in the select dropdown
  */
  export interface SelectOption {
+  /** Additional properties to be passed */
+  [key: string]: any;
    /** The value of the option, used for identification */
    value: string;
    /** The display label for the option */
@@ -73,6 +75,12 @@ export interface SelectProps {
   width?: string;
   /** Height of the select */
   height?: string;
+  /** Function to get the label from an option */
+  getOptionLabel? (option: SelectOption): string;
+  /** Function to get the value from an option */
+  getOptionValue?(option: SelectOption): string;
+  /** Custom function to format the option label in the dropdown */
+  formatOptionLabel?(data: SelectOption, context: FormatOptionLabelMeta<SelectOption>): ReactNode;
 
   /** Additional props to pass to the react-select component */
   [key: string]: any;
@@ -244,6 +252,9 @@ export const Select: React.FC<SelectProps> = (props) => {
     height = 'auto',
     styles: customStyles,
     components: customComponents,
+    getOptionLabel,
+    getOptionValue,
+    formatOptionLabel,
     ...restProps
   } = props || {};
   const {resolvedTheme} = useTheme();
@@ -257,17 +268,18 @@ export const Select: React.FC<SelectProps> = (props) => {
   // Handle change event
   const handleChange = (selectedOption: SelectOption | SelectOption[]) => {
     if (isMulti && Array.isArray(selectedOption)) {
-      const values = selectedOption ? selectedOption.map((option: any) => option.value) : [];
+      const values = selectedOption ? selectedOption.map((option: any) => getOptionValue ? getOptionValue(option) : option.value) : [];
       onChange?.(values);
     } else if (!Array.isArray(selectedOption)) {
-      onChange?.(selectedOption?.value ?? '');
+      onChange?.(selectedOption ? (getOptionValue ? getOptionValue(selectedOption) : selectedOption.value) : '');
     }
   };
 
   // Convert options to react-select format
   const selectOptions = options.map((option) => ({
-    value: option.value,
-    label: option.label,
+    ...option,
+    label: getOptionLabel ? getOptionLabel(option) : option.label,
+    value: getOptionValue ? getOptionValue(option) : option.value,
     disabled: option.disabled || false,
   }));
 
@@ -301,6 +313,9 @@ export const Select: React.FC<SelectProps> = (props) => {
           isClearable={isClearable}
           styles={styles}
           classNamePrefix="select"
+          getOptionLabel={getOptionLabel}
+          getOptionValue={getOptionValue}
+          formatOptionLabel={formatOptionLabel}
         />
       </div>
       {error && <p className="text-sm text-destructive">{error}</p>}
