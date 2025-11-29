@@ -1,9 +1,9 @@
 import { ConfigManager } from '~/config/ConfigManager';
-import { OllamaProvider } from './OllamaProvider';
-import { OpenAIProvider } from './OpenAIProvider';
-import { OpenRouterProvider } from './OpenRouterProvider';
-import { DeepSeekProvider } from './DeepSeekProvider';
-import { BaseAIProvider } from './BaseAIProvider';
+import { OllamaProvider } from '~/providers/OllamaProvider';
+import { OpenAIProvider } from '~/providers/OpenAIProvider';
+import { OpenRouterProvider } from '~/providers/OpenRouterProvider';
+import { DeepSeekProvider } from '~/providers/DeepSeekProvider';
+import { BaseAIProvider } from '~/base/BaseAIProvider';
 
 // types
 import type { AIModel, AIProvider } from '~/types';

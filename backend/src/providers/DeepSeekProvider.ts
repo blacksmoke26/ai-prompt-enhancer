@@ -1,4 +1,4 @@
-import {BaseAIProvider} from './BaseAIProvider';
+import {BaseAIProvider} from '~/base/BaseAIProvider';
 
 // types
 import type {AIModel, PromptRequest, PromptResponse} from '~/types';
