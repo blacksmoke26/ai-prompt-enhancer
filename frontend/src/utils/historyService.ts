@@ -1,5 +1,5 @@
-import api from '../utils/api';
-import { PromptHistory, HistoryStats } from '../types';
+import api from '~/utils/api';
+import { PromptHistory, HistoryStats } from '~/types';
 
 export const historyService = {
   // Get history
@@ -7,7 +7,7 @@ export const historyService = {
     const params = new URLSearchParams();
     if (limit) params.append('limit', limit.toString());
     if (search) params.append('search', search);
-    
+
     const response = await api.get(`/history${params.toString() ? `?${params.toString()}` : ''}`);
     return response.data;
   },
@@ -41,11 +41,11 @@ export const historyService = {
     const params = new URLSearchParams();
     params.append('format', format);
     if (limit) params.append('limit', limit.toString());
-    
+
     const response = await api.get(`/history/export?${params.toString()}`, {
       responseType: 'blob',
     });
-    
+
     // Create download link
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');

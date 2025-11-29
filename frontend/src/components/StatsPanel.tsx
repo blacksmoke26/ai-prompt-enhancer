@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
-import { HistoryStats } from '../types';
-import { formatDuration } from '../utils/helpers';
+import { HistoryStats } from '~/types';
+import { formatDuration } from '~/utils/helpers.ts';
 
 /**
  * Props for the StatsPanel component.

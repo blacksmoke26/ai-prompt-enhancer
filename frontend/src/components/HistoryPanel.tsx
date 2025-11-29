@@ -4,8 +4,8 @@ import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 import { Badge } from './ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
-import { PromptHistory } from '../types';
-import { formatDate, formatDuration, truncateText } from '../utils/helpers';
+import { PromptHistory } from '~/types';
+import { formatDate, formatDuration, truncateText } from '~/utils/helpers';
 
 interface HistoryPanelProps {
   history: PromptHistory[];
@@ -170,7 +170,7 @@ export const HistoryPanel: React.FC<HistoryPanelProps> = ({
                       {truncateText(item.originalPrompt, 100)}
                     </p>
                   </div>
-                  
+
                   {selectedItem === item.id && (
                     <div>
                       <span className="text-xs font-medium">Enhanced:</span>

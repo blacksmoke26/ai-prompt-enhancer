@@ -27,8 +27,8 @@ import {Button} from './ui/Button';
 import {Textarea} from './ui/Textarea';
 import {Badge} from './ui/Badge';
 import {Card, CardContent, CardHeader} from './ui/Card';
-import {cn, copyToClipboard, downloadFile} from '../utils/helpers';
-import {PromptResponse} from '../types';
+import {cn, copyToClipboard, downloadFile} from '~/utils/helpers';
+import {PromptResponse} from '~/types';
 
 interface PromptEditorProps {
   value: string;

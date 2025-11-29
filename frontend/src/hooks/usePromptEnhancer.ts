@@ -1,20 +1,20 @@
 import { useState, useCallback } from 'react';
-import { useAppStore } from '../stores/appStore';
-import { useHistoryStore } from '../stores/historyStore';
-import { promptService } from '../utils/promptService';
-import { PromptRequest } from '../types';
+import { useAppStore } from '~/stores/appStore.ts';
+import { useHistoryStore } from '~/stores/historyStore.ts';
+import { promptService } from '~/utils/promptService.ts';
+import { PromptRequest } from '~/types';
 
 export const usePromptEnhancer = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const { 
-    selectedModel, 
-    selectedEnhancementType, 
+
+  const {
+    selectedModel,
+    selectedEnhancementType,
     selectedUserRole,
-    config 
+    config
   } = useAppStore();
-  
+
   const { addToHistory } = useHistoryStore();
 
   const enhancePrompt = useCallback(async (text: string) => {
@@ -43,7 +43,7 @@ export const usePromptEnhancer = () => {
       };
 
       const response = await promptService.enhancePrompt(request);
-      
+
       // Add to history
       addToHistory({
         ...response,

@@ -2,10 +2,10 @@ import React from 'react';
 import {Select} from './ui/Select';
 import {Card, CardContent, CardHeader, CardTitle} from './ui/Card';
 import {Badge} from './ui/Badge';
-import {useAppStore} from '../stores/appStore';
+import {useAppStore} from '~/stores/appStore';
 
 // types
-import {AIModel} from '../types';
+import {AIModel} from '~/types';
 
 /**
  * Props for the ModelSelector component

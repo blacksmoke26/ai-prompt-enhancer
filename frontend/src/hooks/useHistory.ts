@@ -1,24 +1,24 @@
 import { useState } from 'react';
-import { useHistoryStore } from '../stores/historyStore';
-import { historyService } from '../utils/historyService';
+import { useHistoryStore } from '~/stores/historyStore.ts';
+import { historyService } from '~/utils/historyService.ts';
 
 export const useHistory = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
-  const { 
-    history, 
-    setHistory, 
-    updateHistoryItem, 
-    deleteHistoryItem, 
-    clearHistory: clearLocalHistory 
+
+  const {
+    history,
+    setHistory,
+    updateHistoryItem,
+    deleteHistoryItem,
+    clearHistory: clearLocalHistory
   } = useHistoryStore();
 
   const loadHistory = async (limit?: number, search?: string) => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const historyData = await historyService.getHistory(limit, search);
       setHistory(historyData);
     } catch (err) {

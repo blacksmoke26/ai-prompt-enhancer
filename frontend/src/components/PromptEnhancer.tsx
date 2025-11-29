@@ -4,9 +4,9 @@ import {Button} from './ui/Button';
 import {AdvancedPromptEditor} from './AdvancedPromptEditor';
 import {Card, CardContent, CardHeader, CardTitle} from './ui/Card';
 import {Alert, AlertDescription} from './ui/Alert';
-import {usePromptEnhancer} from '../hooks/usePromptEnhancer';
-import {useAppStore} from '../stores/appStore';
-import {PromptResponse} from '../types';
+import {usePromptEnhancer} from '~/hooks/usePromptEnhancer.ts';
+import {useAppStore} from '~/stores/appStore.ts';
+import type {PromptResponse} from '~/types';
 
 /**
  * PromptEnhancer Component

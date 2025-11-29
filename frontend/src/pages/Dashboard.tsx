@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Sidebar } from '../components/Sidebar';
-import { PromptEnhancer } from '../components/PromptEnhancer';
-import { SettingsPanel } from '../components/SettingsPanel';
-import { HistoryPanel } from '../components/HistoryPanel';
-import { StatsPanel } from '../components/StatsPanel';
-import { ModelSelector } from '../components/ModelSelector';
-import { Button } from '../components/ui/Button';
-import { Card, CardContent } from '../components/ui/Card';
+import { Sidebar } from '~/components/Sidebar';
+import { PromptEnhancer } from '~/components/PromptEnhancer';
+import { SettingsPanel } from '~/components/SettingsPanel';
+import { HistoryPanel } from '~/components/HistoryPanel';
+import { StatsPanel } from '~/components/StatsPanel';
+import { ModelSelector } from '~/components/ModelSelector';
+import { Button } from '~/components/ui/Button';
+import { Card, CardContent } from '~/components/ui/Card';
 import { History, BarChart3, Settings, Sparkles } from 'lucide-react';
-import { useAppData } from '../hooks/useAppData';
-import { useHistory } from '../hooks/useHistory';
-import { useHistoryStore } from '../stores/historyStore';
-import { useAppStore } from '../stores/appStore';
-import { cn } from '../utils/helpers';
+import { useAppData } from '~/hooks/useAppData';
+import { useHistory } from '~/hooks/useHistory';
+import { useHistoryStore } from '~/stores/historyStore';
+import { useAppStore } from '~/stores/appStore';
+import { cn } from '~/utils/helpers';
 
 /**
  * Represents the available dashboard tabs

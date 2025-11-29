@@ -1,5 +1,5 @@
-import api from '../utils/api';
-import { PromptRequest, PromptResponse, AIModel, AIProvider } from '../types';
+import api from '~/utils/api';
+import { PromptRequest, PromptResponse, AIModel, AIProvider } from '~/types';
 
 export const promptService = {
   // Enhance a prompt

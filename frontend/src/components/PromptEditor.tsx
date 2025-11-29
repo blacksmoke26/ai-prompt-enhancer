@@ -4,8 +4,8 @@ import { Button } from './ui/Button';
 import { Textarea } from './ui/Textarea';
 import { Badge } from './ui/Badge';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
-import { cn, copyToClipboard, downloadFile } from '../utils/helpers';
-import { PromptResponse } from '../types';
+import { cn, copyToClipboard, downloadFile } from '~/utils/helpers';
+import { PromptResponse } from '~/types';
 
 interface PromptEditorProps {
   value: string;
@@ -79,7 +79,7 @@ export const PromptEditor: React.FC<PromptEditorProps> = ({
       const end = e.currentTarget.selectionEnd;
       const newValue = value.substring(0, start) + '  ' + value.substring(end);
       onChange(newValue);
-      
+
       // Restore cursor position
       setTimeout(() => {
         if (textareaRef.current) {
@@ -121,7 +121,7 @@ export const PromptEditor: React.FC<PromptEditorProps> = ({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
           />
-          
+
           {/* Character count indicator */}
           <div className="absolute bottom-2 right-2 text-xs text-muted-foreground bg-background px-1 rounded">
             {charCount}/10000

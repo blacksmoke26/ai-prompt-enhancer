@@ -2,8 +2,8 @@ import React from 'react';
 import { X, Sun, Moon, Monitor, Menu } from 'lucide-react';
 import { Button } from './ui/Button';
 import { useTheme } from './ThemeProvider';
-import { useAppStore } from '../stores/appStore';
-import { cn } from '../utils/helpers';
+import { useAppStore } from '~/stores/appStore.ts';
+import { cn } from '~/utils/helpers.ts';
 
 interface SidebarProps {
   children: React.ReactNode;

@@ -1,5 +1,5 @@
-import api from '../utils/api';
-import { AppConfig, EnhancementType, UserRole } from '../types';
+import api from '~/utils/api';
+import { AppConfig, EnhancementType, UserRole } from '~/types';
 
 export const configService = {
   // Get config
@@ -25,7 +25,7 @@ export const configService = {
     const response = await api.get('/config/export', {
       responseType: 'blob',
     });
-    
+
     // Create download link
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');

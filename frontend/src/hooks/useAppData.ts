@@ -1,18 +1,18 @@
 import { useEffect, useState } from 'react';
-import { useAppStore } from '../stores/appStore';
-import { promptService } from '../utils/promptService';
-import { configService } from '../utils/configService';
+import { useAppStore } from '~/stores/appStore.ts';
+import { promptService } from '~/utils/promptService.ts';
+import { configService } from '~/utils/configService.ts';
 
 export const useAppData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
-  const { 
-    setModels, 
-    setProviders, 
-    setEnhancementTypes, 
+
+  const {
+    setModels,
+    setProviders,
+    setEnhancementTypes,
     setUserRoles,
-    setConfig 
+    setConfig
   } = useAppStore();
 
   useEffect(() => {

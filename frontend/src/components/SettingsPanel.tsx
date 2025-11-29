@@ -18,11 +18,11 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { useAppStore } from '../stores/appStore';
-import { configService } from '../utils/configService';
-import { promptService } from '../utils/promptService';
-import { cn } from '../utils/helpers';
-import { AppConfig } from '../types';
+import { useAppStore } from '~/stores/appStore.ts';
+import { configService } from '~/utils/configService.ts';
+import { promptService } from '~/utils/promptService.ts';
+import { cn } from '~/utils/helpers.ts';
+import type { AppConfig } from '~/types';
 
 /**
  * Type definition for available settings tabs

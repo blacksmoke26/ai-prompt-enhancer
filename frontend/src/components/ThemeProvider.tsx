@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useAppStore } from '../stores/appStore';
+import { useAppStore } from '~/stores/appStore.ts';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -18,15 +18,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     const updateTheme = () => {
       let newResolvedTheme: 'light' | 'dark';
-      
+
       if (theme === 'system') {
         newResolvedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       } else {
         newResolvedTheme = theme;
       }
-      
+
       setResolvedTheme(newResolvedTheme);
-      
+
       // Update DOM
       const root = document.documentElement;
       root.classList.remove('light', 'dark');
@@ -39,7 +39,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (theme === 'system') {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       mediaQuery.addEventListener('change', updateTheme);
-      
+
       return () => {
         mediaQuery.removeEventListener('change', updateTheme);
       };
