@@ -1,15 +1,33 @@
 import React from 'react';
-import { Select } from './ui/Select';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/Card';
-import { Badge } from './ui/Badge';
-import { useAppStore } from '../stores/appStore';
-import { AIModel } from '../types';
+import {Select} from './ui/Select';
+import {Card, CardContent, CardHeader, CardTitle} from './ui/Card';
+import {Badge} from './ui/Badge';
+import {useAppStore} from '../stores/appStore';
 
+// types
+import {AIModel} from '../types';
+
+/**
+ * Props for the ModelSelector component
+ * @interface ModelSelectorProps
+ */
 interface ModelSelectorProps {
+  /** Optional CSS class name for styling */
   className?: string;
 }
 
-export const ModelSelector: React.FC<ModelSelectorProps> = ({ className }) => {
+/**
+ * AI Configuration selector component for models, enhancements, and roles
+ * @component
+ * @example
+ * <ModelSelector className="w-full max-w-md" />
+ * @developerNotes
+ * - Uses Zustand store for state management
+ * - Groups models by provider for better organization
+ * - Displays provider connection status
+ * - Includes descriptions for enhancement types and user roles
+ */
+export const ModelSelector: React.FC<ModelSelectorProps> = ({className}) => {
   const {
     models,
     providers,
@@ -20,9 +38,13 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ className }) => {
     selectedEnhancementType,
     setSelectedEnhancementType,
     selectedUserRole,
-    setSelectedUserRole
+    setSelectedUserRole,
   } = useAppStore();
 
+  /**
+   * Groups AI models by their provider for organized display
+   * @returns {Record<string, AIModel[]>} Models grouped by provider name
+   */
   const groupedModels = models.reduce((acc, model) => {
     if (!acc[model.provider]) {
       acc[model.provider] = [];
@@ -31,22 +53,36 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ className }) => {
     return acc;
   }, {} as Record<string, AIModel[]>);
 
+  /**
+   * Generates select options with provider headers and model entries
+   * @returns {Array<{value: string, label: string, disabled?: boolean}>}
+   */
   const modelOptions = Object.entries(groupedModels).flatMap(([provider, providerModels]) => [
-    { value: '', label: `--- ${provider.toUpperCase()} ---`, disabled: true },
+    {value: '', label: `--- ${provider.toUpperCase()} ---`, disabled: true},
     ...providerModels.map(model => ({
       value: model.id,
       label: `${model.name} ${model.description ? `• ${model.description}` : ''}`,
     })),
   ]);
 
+  /**
+   * Enhancement type options with descriptions
+   * @returns {Array<{value: string, label: string, description: string}>}
+   */
   const enhancementOptions = enhancementTypes.map(type => ({
     value: type.id,
     label: type.name,
+    description: type.description,
   }));
 
+  /**
+   * User role options with descriptions
+   * @returns {Array<{value: string, label: string, description: string}>}
+   */
   const roleOptions = userRoles.map(role => ({
     value: role.id,
     label: role.name,
+    description: role.description,
   }));
 
   const selectedModelData = models.find(model => model.id === selectedModel);
@@ -95,6 +131,11 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ className }) => {
             onChange={(e) => setSelectedEnhancementType(e as string)}
             options={enhancementOptions}
             label="Enhancement Type"
+            formatOptionLabel={(option, context) => {
+              return context?.context === 'menu'
+                ? <div>{option.label}<p className="text-xs">{option.description}</p></div>
+                : option.label;
+            }}
           />
           {selectedEnhancementData && (
             <p className="mt-1 text-xs text-muted-foreground">
@@ -113,6 +154,11 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({ className }) => {
             }}
             options={roleOptions}
             label="User Role"
+            formatOptionLabel={(option, context) => {
+              return context?.context === 'menu'
+                ? <div>{option.label}<p className="text-xs">{option.description}</p></div>
+                : option.label;
+            }}
           />
           {selectedRoleData && (
             <p className="mt-1 text-xs text-muted-foreground">
