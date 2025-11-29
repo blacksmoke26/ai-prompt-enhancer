@@ -1,6 +1,48 @@
 import { BaseAIProvider } from './BaseAIProvider';
 import { PromptRequest, PromptResponse, AIModel } from '../types';
 
+/**
+ * Interface representing an Ollama model's metadata and configuration details.
+ * This interface defines the structure of model information returned by the Ollama API.
+ */
+export interface OllamaModel {
+  /** The full name of the model including version tag (e.g., 'mxbai-embed-large:latest') */
+  readonly name: string;
+
+  /** The model identifier (typically same as name) */
+  readonly model: string;
+
+  /** ISO timestamp of when the model was last modified */
+  readonly modified_at: string;
+
+  /** Size of the model in bytes */
+  readonly size: number;
+
+  /** SHA256 digest hash of the model for integrity verification */
+  readonly digest: string;
+
+  /** Detailed configuration and metadata about the model */
+  readonly details: {
+    /** Parent model if this is a fine-tuned version */
+    readonly parent_model: string;
+
+    /** Model format (e.g., 'gguf' for GPT-Generated Unified Format) */
+    readonly format: string;
+
+    /** Primary model family/architecture (e.g., 'bert', 'llama') */
+    readonly family: string;
+
+    /** Array of all model families this model belongs to */
+    readonly families: string[];
+
+    /** Parameter size as string (e.g., '334M' for 334 million parameters) */
+    readonly parameter_size: string;
+
+    /** Quantization level for model compression (e.g., 'F16' for 16-bit float) */
+    readonly quantization_level: string;
+  };
+}
+
 export class OllamaProvider extends BaseAIProvider {
   constructor(url: string = 'http://localhost:11434') {
     super('Ollama', url);
@@ -8,16 +50,16 @@ export class OllamaProvider extends BaseAIProvider {
 
   async getModels(): Promise<AIModel[]> {
     try {
-      const response = await this.client.get('/api/tags');
+      const response = await this.client.get<{models: OllamaModel[]}>('/api/tags');
       const models = response.data.models || [];
-      
+
       return models.map((model: any) => ({
         id: model.name,
         name: model.name.split(':')[0],
         provider: 'Ollama',
         description: `${model.size} • ${model.digest.substring(0, 12)}`,
         contextLength: model.details?.context_length || 4096,
-      }));
+      })).sort((a, b) => a.name.localeCompare(b.name));
     } catch (error: any) {
       console.error('Failed to fetch Ollama models:', error);
       return [];
@@ -26,7 +68,7 @@ export class OllamaProvider extends BaseAIProvider {
 
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
-    
+
     try {
       const systemPrompt = this.buildSystemPrompt(request);
       const fullPrompt = `${systemPrompt}\n\nOriginal prompt: ${request.text}\n\nEnhanced prompt:`;
@@ -42,7 +84,7 @@ export class OllamaProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = response.data.response?.trim() || request.text;
-      
+
       return {
         enhancedPrompt,
         originalPrompt: request.text,
@@ -85,8 +127,8 @@ export class OllamaProvider extends BaseAIProvider {
       designer: 'You are a professional designer.',
     };
 
-    const systemPrompt = request.systemPrompt || 
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] || 
+    const systemPrompt = request.systemPrompt ||
+      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ||
       enhancementPrompts.enhance;
 
     const rolePrompt = rolePrompts[request.userRole as keyof typeof rolePrompts] || rolePrompts.general;
