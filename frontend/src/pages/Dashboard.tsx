@@ -40,6 +40,7 @@ export const Dashboard: React.FC = () => {
    */
   useEffect(() => {
     loadHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**

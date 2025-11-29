@@ -117,7 +117,7 @@ export const AdvancedPromptEditor: React.FC<PromptEditorProps> = ({
       }
       setSelectedText(value);
     }
-  }, [value, autoSave, onAutoSave]);
+  }, [value, autoSave, onAutoSave, selectedText]);
 
   // Keyboard shortcuts
   useEffect(() => {
