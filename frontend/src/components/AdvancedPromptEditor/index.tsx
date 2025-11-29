@@ -76,6 +76,8 @@ export interface AdvancedPromptEditorProps {
   wordCount?: number;
   /** Line count to display (overrides auto-calculated) */
   lineCount?: number;
+  /** Display line count in stats panel */
+  displayLineCount?: boolean;
 }
 
 /**
@@ -440,6 +442,8 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
                 autoSaveStatus={state.autoSaveStatus}
                 lastSaved={state.lastSaved}
                 maxLength={maxLength}
+                displayLineCount={props.displayLineCount}
+                lineCount={displayLineCount}
               />
             )}
           </div>

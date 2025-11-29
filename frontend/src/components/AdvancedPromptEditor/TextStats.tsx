@@ -20,6 +20,10 @@ export interface TextStatsProps {
   lastSaved: Date | null;
   /** Maximum allowed character count */
   maxLength: number;
+  /** Display line count in stats panel */
+  displayLineCount?: boolean;
+  /** Line count to display */
+  lineCount?: number;
 }
 
 /**
@@ -44,7 +48,7 @@ export interface TextStatsProps {
  * - Properly implements all declared props including unused ones
  */
 const TextStats: React.FC<TextStatsProps> = (props) => {
-  const {wordCount, charCount, readingTime, tokenEstimate, autoSaveStatus, lastSaved, maxLength} = props;
+  const {wordCount, charCount, readingTime, tokenEstimate, autoSaveStatus, lastSaved, maxLength, displayLineCount, lineCount} = props;
 
   // Format the last saved timestamp if available
   const formattedLastSaved = lastSaved ? lastSaved.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'}) : null;
@@ -64,6 +68,15 @@ const TextStats: React.FC<TextStatsProps> = (props) => {
           <span className="font-medium">Words:</span>
           <span>{wordCount}</span>
         </div>
+        {displayLineCount !== false && (
+          <>
+            <div className="w-px h-4 bg-muted-foreground mx-2 rounded"></div>
+            <div className="flex items-center space-x-1">
+              <span className="font-medium">Lines:</span>
+              <span>{lineCount ?? 0}</span>
+            </div>
+          </>
+        )}
         <div className="w-px h-4 bg-muted-foreground mx-2 rounded"></div>
         <div className="flex items-center space-x-1">
           <span className="font-medium">Tokens:</span>
