@@ -1,3 +1,9 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
 
@@ -46,6 +52,8 @@ export interface AppState {
   // UI State
   /** Currently selected model ID */
   selectedModel: string;
+  /** Currently selected provider ID */
+  selectedProvider: string;
   /** Currently selected enhancement type */
   selectedEnhancementType: string;
   /** Currently selected user role */
@@ -53,6 +61,9 @@ export interface AppState {
 
   /** Updates the selected model */
   setSelectedModel(model: string): void;
+
+  /** Updates the selected provider */
+  setSelectedProvider(provider: string): void;
 
   /** Updates the selected enhancement type */
   setSelectedEnhancementType(type: string): void;
@@ -114,9 +125,11 @@ export const useAppStore = create<AppState>()(
 
       // UI State
       selectedModel: '',
+      selectedProvider: '',
       selectedEnhancementType: 'enhance',
       selectedUserRole: 'general',
       setSelectedModel: (model) => set({selectedModel: model}),
+      setSelectedProvider: (provider) => set({selectedProvider: provider}),
       setSelectedEnhancementType: (type) => set({selectedEnhancementType: type}),
       setSelectedUserRole: (role) => set({selectedUserRole: role}),
 
@@ -134,6 +147,7 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         config: state.config,
         selectedModel: state.selectedModel,
+        selectedProvider: state.selectedProvider,
         selectedEnhancementType: state.selectedEnhancementType,
         selectedUserRole: state.selectedUserRole,
         theme: state.theme,
