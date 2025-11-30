@@ -37,6 +37,7 @@ export const usePromptEnhancer = () => {
   const [error, setError] = useState<string | null>(null);
 
   const {
+    selectedProvider,
     selectedModel,
     selectedEnhancementType,
     selectedUserRole,
@@ -81,6 +82,7 @@ export const usePromptEnhancer = () => {
       const request: PromptRequest = {
         text: text.trim(),
         model: selectedModel,
+        provider: selectedProvider,
         enhancementType: selectedEnhancementType,
         userRole: selectedUserRole,
         systemPrompt: config.defaultSystemPrompt,
@@ -108,7 +110,7 @@ export const usePromptEnhancer = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedModel, selectedEnhancementType, selectedUserRole, config.defaultSystemPrompt, addToHistory]);
+  }, [selectedProvider, selectedModel, selectedEnhancementType, selectedUserRole, config.defaultSystemPrompt, addToHistory]);
 
   /**
    * Refines an enhanced prompt with additional context.
@@ -130,6 +132,7 @@ export const usePromptEnhancer = () => {
       const request: PromptRequest = {
         text: `${enhancedText}\n\nAdditional context: ${additionalContext}`,
         model: selectedModel,
+        provider: selectedProvider,
         enhancementType: 'refine',
         userRole: selectedUserRole,
         systemPrompt: config.defaultSystemPrompt,
@@ -156,7 +159,7 @@ export const usePromptEnhancer = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedModel, selectedUserRole, config.defaultSystemPrompt, addToHistory]);
+  }, [selectedProvider, selectedModel, selectedUserRole, config.defaultSystemPrompt, addToHistory]);
 
   /**
    * Combines multiple enhanced prompts into a single prompt.
@@ -178,6 +181,7 @@ export const usePromptEnhancer = () => {
 
       const request: PromptRequest = {
         text: combinedText,
+        provider: selectedProvider,
         model: selectedModel,
         enhancementType: 'combine',
         userRole: selectedUserRole,
@@ -205,7 +209,7 @@ export const usePromptEnhancer = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedModel, selectedUserRole, config.defaultSystemPrompt, addToHistory]);
+  }, [selectedProvider, selectedModel, selectedUserRole, config.defaultSystemPrompt, addToHistory]);
 
   /**
    * Reverts a prompt to its original state from history.
