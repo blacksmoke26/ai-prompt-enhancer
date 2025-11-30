@@ -1,4 +1,10 @@
 /**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
+/**
  * This interface defines the structure for an AI model
  * that can be used for prompt processing. It includes essential information
  * such as model identifier, name, provider, and optional metadata like
@@ -60,6 +66,11 @@ export interface PromptRequest {
    * @example "Explain quantum computing in simple terms"
    */
   text: string;
+  /**
+   * Identifier of the AI model provider (e.g., "Openai", "Ollama")
+   * @example "Openai"
+   */
+  provider: string;
   /**
    * Identifier of the AI model to use for processing
    * @example "gpt-4-turbo"
