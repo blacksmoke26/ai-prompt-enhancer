@@ -1,21 +1,44 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React, {ReactNode} from 'react';
 import ReactSelect, {FormatOptionLabelMeta} from 'react-select';
-import {useTheme} from '../ThemeProvider';
+
+// hooks
+import {useTheme} from '~/components/ThemeProvider';
 
 /**
  * Interface for select options
  * @description Defines the structure of individual options in the select dropdown
  */
- export interface SelectOption {
+export interface SelectOption {
   /** Additional properties to be passed */
   [key: string]: any;
-   /** The value of the option, used for identification */
-   value: string;
-   /** The display label for the option */
-   label: string;
-   /** Whether the option is disabled */
-   disabled?: boolean;
- }
+
+  /** The value of the option, used for identification */
+  value: string;
+  /** The display label for the option */
+  label: string;
+  /** Whether the option is disabled */
+  disabled?: boolean;
+}
+
+/**
+ * Interface for grouped select options
+ * @description Defines the structure of grouped options in the select dropdown
+ */
+export interface GroupedOption {
+  /** Additional properties to be passed */
+  [key: string]: any;
+
+  /** The display label for the option */
+  label: string;
+  /** List of select options */
+  options?: SelectOption[];
+}
 
 /**
  * Interface for Select component props
@@ -40,11 +63,11 @@ import {useTheme} from '../ThemeProvider';
  */
 export interface SelectProps {
   /** Optional label displayed above the select input */
-  label?: string;
+  label?: string | React.ReactNode;
   /** Optional error message displayed below the select input */
   error?: string;
   /** Array of options to populate the select */
-  options: SelectOption[];
+  options: (GroupedOption | SelectOption)[];
   /** The value of the select */
   value?: string | string[];
   /** Callback function when value changes */
@@ -75,10 +98,13 @@ export interface SelectProps {
   width?: string;
   /** Height of the select */
   height?: string;
+
   /** Function to get the label from an option */
-  getOptionLabel? (option: SelectOption): string;
+  getOptionLabel?(option: SelectOption): string;
+
   /** Function to get the value from an option */
   getOptionValue?(option: SelectOption): string;
+
   /** Custom function to format the option label in the dropdown */
   formatOptionLabel?(data: SelectOption, context: FormatOptionLabelMeta<SelectOption>): ReactNode;
 
@@ -276,21 +302,40 @@ export const Select: React.FC<SelectProps> = (props) => {
   };
 
   // Convert options to react-select format
-  const selectOptions = options.map((option) => ({
-    ...option,
-    label: getOptionLabel ? getOptionLabel(option) : option.label,
-    value: getOptionValue ? getOptionValue(option) : option.value,
-    disabled: option.disabled || false,
-  }));
+  const selectOptions = options.map((selectOptions) => {
+    const option = selectOptions as SelectOption;
+    return ({
+      ...option,
+      label: getOptionLabel ? getOptionLabel(option) : option.label,
+      value: getOptionValue ? getOptionValue(option) : option.value,
+      disabled: option.disabled || false,
+    });
+  });
 
   // Get the current value in react-select format
-  const currentValue = isMulti
-    ? value && Array.isArray(value)
-      ? selectOptions.filter((option: any) => value.includes(option.value))
-      : []
-    : value && typeof value === 'string'
-      ? selectOptions.find((option: any) => option.value === value) || null
-      : null;
+  let currentValue: (SelectOption | SelectOption[]) | null;
+
+  if (isMulti) {
+    currentValue = value && Array.isArray(value)
+      ? selectOptions.filter((option: SelectOption) => value.includes(option.value))
+      : [];
+  } else {
+    if (value && typeof value === 'string') {
+      currentValue = selectOptions.find((option: SelectOption | GroupedOption) => {
+        if (!Array.isArray(option?.options)) {
+          return option.value === value;
+        } else {
+          return option.options.filter(option => option.value === value).length;
+        }
+      }) || null;
+
+      if (currentValue && Array.isArray(currentValue?.options)) {
+        currentValue = currentValue.options.find(option => option.value === value) || null;
+      }
+    } else {
+      currentValue = null;
+    }
+  }
 
   return (
     <div className={`space-y-2 ${className || ''}`}>
