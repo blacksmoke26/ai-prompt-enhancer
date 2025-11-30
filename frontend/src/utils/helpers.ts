@@ -1,10 +1,21 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import {twMerge} from 'tailwind-merge';
+import {type ClassValue, clsx} from 'clsx';
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+// types
+import type {GroupedOption} from '~/components/ui/Select';
 
+/**
+ * Merges class names using clsx and tailwind-merge.
+ * @example cn('px-2', 'py-1', 'bg-blue-500') // Returns merged Tailwind classes
+ * @developer-note Ensure clsx and tailwind-merge are installed as dependencies.
+ */
+export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
+
+/**
+ * Formats a date string or Date object into a localized string.
+ * @example formatDate(new Date()) // Returns "Jan 1, 2023, 12:00 AM"
+ * @developer-note Adjust locale or options as needed for different date formats.
+ */
 export function formatDate(date: string | Date): string {
   const d = new Date(date);
   return d.toLocaleDateString('en-US', {
@@ -16,7 +27,12 @@ export function formatDate(date: string | Date): string {
   });
 }
 
-export function formatBytes(bytes: number): string {
+/**
+ * Converts bytes into a human-readable string with appropriate units.
+ * @example formatBytes(1024) // Returns "1 KB"
+ * @developer-note Supports up to GB; extend sizes array for larger units.
+ */
+export const formatBytes = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
 
   const k = 1024;
@@ -24,28 +40,43 @@ export function formatBytes(bytes: number): string {
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
+};
 
-export function formatDuration(ms: number): string {
+/**
+ * Formats milliseconds into a readable duration string.
+ * @example formatDuration(1500) // Returns "1.5s"
+ * @developer-note Adjust thresholds for different precision requirements.
+ */
+export const formatDuration = (ms: number): string => {
   if (ms < 1000) return `${ms}ms`;
   if (ms < 60000) return `${(ms / 1000).toFixed(1)}s`;
   return `${(ms / 60000).toFixed(1)}m`;
-}
+};
 
-export function debounce<T extends (...args: any[]) => any>(
+/**
+ * Creates a debounced version of a function that delays execution.
+ * @example debounce(() => console.log('Hello'), 300) // Logs after 300ms delay
+ * @developer-note Useful for limiting API calls during rapid events like typing.
+ */
+export const debounce = <T extends (...args: any[]) => any>(
   func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
+  wait: number,
+): (...args: Parameters<T>) => void => {
   let timeout: NodeJS.Timeout;
 
   return (...args: Parameters<T>) => {
     clearTimeout(timeout);
     timeout = setTimeout(() => func(...args), wait);
   };
-}
+};
 
-export function downloadFile(content: string, filename: string, contentType: string = 'text/plain'): void {
-  const blob = new Blob([content], { type: contentType });
+/**
+ * Downloads a file with given content and filename.
+ * @example downloadFile('Hello, world!', 'greeting.txt') // Triggers file download
+ * @developer-note Ensure proper MIME type for non-text files (e.g., 'application/json').
+ */
+export const downloadFile = (content: string, filename: string, contentType: string = 'text/plain'): void => {
+  const blob = new Blob([content], {type: contentType});
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
@@ -54,9 +85,14 @@ export function downloadFile(content: string, filename: string, contentType: str
   link.click();
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
-}
+};
 
-export function copyToClipboard(text: string): Promise<void> {
+/**
+ * Copies text to the clipboard using modern or fallback methods.
+ * @example copyToClipboard('Copy me') // Copies text to clipboard
+ * @developer-note Fallback uses deprecated execCommand; update when Clipboard API is unsupported.
+ */
+export const copyToClipboard = (text: string): Promise<void> => {
   if (navigator.clipboard && window.isSecureContext) {
     return navigator.clipboard.writeText(text);
   } else {
@@ -74,22 +110,55 @@ export function copyToClipboard(text: string): Promise<void> {
       textArea.remove();
     });
   }
-}
+};
 
-export function truncateText(text: string, maxLength: number): string {
+/**
+ * Truncates text to a specified length and appends ellipsis.
+ * @example truncateText('Hello, world!', 5) // Returns "Hello..."
+ * @developer-note Consider using CSS text-overflow for UI truncation instead.
+ */
+export const truncateText = (text: string, maxLength: number): string => {
   if (text.length <= maxLength) return text;
   return text.slice(0, maxLength) + '...';
-}
+};
 
-export function generateId(): string {
-  return Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
+/**
+ * Generates a unique ID using timestamp and random string.
+ * @example generateId() // Returns "1b2c3d4e5f6g7h8i9j0k"
+ * @developer-note Replace with crypto.randomUUID() for more secure IDs.
+ */
+export const generateId = (): string => Date.now().toString(36) + Math.random().toString(36).substr(2);
 
-export function isValidUrl(string: string): boolean {
+/**
+ * Validates if a string is a properly formatted URL.
+ * @example isValidUrl('https://example.com') // Returns true
+ * @developer-note Only checks syntax; does not verify URL reachability.
+ */
+export const isValidUrl = (string: string): boolean => {
   try {
     new URL(string);
     return true;
   } catch {
     return false;
   }
-}
+};
+
+/**
+ * Converts a flat list into grouped options for a select component.
+ * @example toSelectGroupedOptions([{id: '1', name: 'Option 1', category: 'A'}]) // Returns grouped options
+ * @developer-note Customize categoryField/descriptionField for different data structures.
+ */
+export const toSelectGroupedOptions = (list: { id: string; name: string; description?: string; [key: string]: any; }[], categoryField: string = 'category', descriptionField: string = 'description'): GroupedOption[] => {
+  const mapped: Record<string, { label: string; value: string; description?: string; }[]> = {};
+
+  for (const data of list) {
+    const option = {label: data.name, value: data.id, description: data[descriptionField], category: data[categoryField]};
+    if (Object.prototype.hasOwnProperty.call(mapped, data[categoryField])) {
+      mapped[data[categoryField]].push(option);
+    } else {
+      mapped[data[categoryField]] = [option];
+    }
+  }
+
+  return Object.entries(mapped).map(([label, options]) => ({label, options}));
+};
