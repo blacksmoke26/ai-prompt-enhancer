@@ -1,5 +1,13 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React, {createContext, useContext, useEffect, useState} from 'react';
-import {useAppStore} from '~/stores/appStore.ts';
+
+// store
+import {useAppStore} from '~/stores/appStore';
 
 /** Available theme options for the application */
 export type Theme = 'light' | 'dark' | 'system';

@@ -1,12 +1,20 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React from 'react';
 import {X, Sun, Moon, Monitor, Menu} from 'lucide-react';
 
 // hooks
 import {useTheme} from './ThemeProvider';
-import {useAppStore} from '~/stores/appStore.ts';
+
+// store
+import {useAppStore} from '~/stores/appStore';
 
 // helpers
-import {cn} from '~/utils/helpers.ts';
+import {cn} from '~/utils/helpers';
 
 // components
 import {Button} from './ui/Button';
