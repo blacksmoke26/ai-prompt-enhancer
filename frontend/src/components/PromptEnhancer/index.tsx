@@ -1,14 +1,24 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React, {useState} from 'react';
 import {AlertCircle, Play, RefreshCw} from 'lucide-react';
 
-// hooks
-import {useAppStore} from '~/stores/appStore.ts';
-import {usePromptEnhancer} from '~/hooks/usePromptEnhancer.ts';
+// store
+import {useAppStore} from '~/stores/appStore';
 
-// components
+// hooks
+import {usePromptEnhancer} from '~/hooks/usePromptEnhancer';
+
+// ui components
 import {Button} from '~/components/ui/Button';
 import {Alert, AlertDescription} from '~/components/ui/Alert';
 import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
+
+// components
 import {AdvancedPromptEditor} from '~/components/AdvancedPromptEditor';
 
 // types
