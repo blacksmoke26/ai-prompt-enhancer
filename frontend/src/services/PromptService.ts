@@ -44,17 +44,6 @@ export default abstract class PromptService {
   private static readonly HEALTH_CHECK_TIMEOUT = 15000;
 
   /**
-   * Array of permissible status values for AI providers.
-   * These status classifications indicate the operational state of providers:
-   * - 'active': Provider is fully operational and accepting requests
-   * - 'inactive': Provider is temporarily disabled or not configured
-   * - 'degraded': Provider is functioning but with limited capacity or performance
-   * @type {string[]}
-   * @readonly
-   */
-  private static readonly VALID_PROVIDER_STATUSES = ['active', 'inactive', 'degraded'];
-
-  /**
    * Regular expression pattern for validating provider name formats.
    * Ensures provider names contain only URL-safe characters suitable for API paths
    * and endpoint construction. The pattern allows:
@@ -136,7 +125,7 @@ export default abstract class PromptService {
    */
   static async getProviders(): Promise<AIProvider[]> {
     try {
-      const response = await api.get('/prompts/providers', {
+      const response = await api.get<AIProvider[]>('/prompts/providers', {
         timeout: this.DEFAULT_TIMEOUT,
       });
 
@@ -278,8 +267,7 @@ export default abstract class PromptService {
     return !!(
       provider &&
       typeof provider.name === 'string' &&
-      provider.name.length > 0 &&
-      this.VALID_PROVIDER_STATUSES.includes(provider.status)
+      provider.name.length > 0
     );
   };
 
