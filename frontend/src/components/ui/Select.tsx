@@ -71,7 +71,7 @@ export interface SelectProps {
   /** The value of the select */
   value?: string | string[];
   /** Callback function when value changes */
-  onChange?: (value: string | string[]) => void;
+  onChange?: (value: string | string[], option: SelectOption | SelectOption[]) => void;
   /** Placeholder text */
   placeholder?: string;
   /** Whether the select is disabled */
@@ -295,9 +295,9 @@ export const Select: React.FC<SelectProps> = (props) => {
   const handleChange = (selectedOption: SelectOption | SelectOption[]) => {
     if (isMulti && Array.isArray(selectedOption)) {
       const values = selectedOption ? selectedOption.map((option: any) => getOptionValue ? getOptionValue(option) : option.value) : [];
-      onChange?.(values);
+      onChange?.(values, selectedOption);
     } else if (!Array.isArray(selectedOption)) {
-      onChange?.(selectedOption ? (getOptionValue ? getOptionValue(selectedOption) : selectedOption.value) : '');
+      onChange?.(selectedOption ? (getOptionValue ? getOptionValue(selectedOption) : selectedOption.value) : '', selectedOption);
     }
   };
 
