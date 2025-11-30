@@ -28,16 +28,15 @@ export async function promptRoutes(fastify: FastifyInstance, options: { provider
       const promptRequest = request.body as PromptRequest;
 
       // Extract provider name from model ID
-      const [providerName] = promptRequest.model.split(':');
-      const provider = providerManager.getProvider(providerName);
+      const provider = providerManager.getProvider(promptRequest.provider);
 
       if (!provider) {
-        return reply.code(400).send({ error: `Provider ${providerName} not found` });
+        return reply.code(400).send({ error: `Provider ${promptRequest.provider} not found` });
       }
 
       // Check if provider is available
       if (!(await provider.isAvailable())) {
-        return reply.code(503).send({ error: `Provider ${providerName} is not available` });
+        return reply.code(503).send({ error: `Provider ${promptRequest.provider} is not available` });
       }
 
       // Enhance the prompt
