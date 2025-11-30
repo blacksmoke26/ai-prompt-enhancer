@@ -9,7 +9,49 @@ import api from '~/utils/api';
 // types
 import type { PromptHistory, HistoryStats } from '~/types';
 
-export const historyService = {
+/**
+ * History service class for managing prompt history operations
+ */
+export default abstract class HistoryService {
+  /**
+   * Validates and sanitizes a date range
+   * @param dateRange - Date range to validate
+   * @returns Sanitized date range or null if invalid
+   * @example
+   * const range = HistoryService.validateDateRange({ start: "2023-01-01", end: "2023-12-31" });
+   * @developerNote Converts dates to ISO format for API consistency
+   */
+  private static validateDateRange(dateRange?: { start: string; end: string }): { start: string; end: string } | null {
+    if (!dateRange) return null;
+
+    const startDate = new Date(dateRange.start);
+    const endDate = new Date(dateRange.end);
+
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+      return null;
+    }
+
+    return {
+      start: startDate.toISOString(),
+      end: endDate.toISOString()
+    };
+  }
+
+  /**
+   * Validates and sanitizes a string input
+   * @param input - String to validate
+   * @param maxLength - Maximum allowed length
+   * @returns Sanitized string or null if invalid
+   * @example
+   * const cleaned = HistoryService.validateString("  hello  ", 10);
+   * @developerNote Trims whitespace and enforces length limits
+   */
+  private static validateString(input?: string, maxLength: number = 100): string | null {
+    if (!input || typeof input !== 'string') return null;
+    const trimmed = input.trim();
+    return trimmed.length > 0 ? trimmed.substring(0, maxLength) : null;
+  }
+
   /**
    * Retrieves prompt history with optional filtering
    * @param limit - Maximum number of items to return
@@ -20,15 +62,10 @@ export const historyService = {
    * @param sortOrder - Optional sort order (asc|desc)
    * @returns Array of prompt history items
    * @example
-   * // Get last 10 items
-   * const recent = await historyService.getHistory(10);
-   * // Search for specific prompts
-   * const results = await historyService.getHistory(50, "weather");
-   * // Filter by date range
-   * const filtered = await historyService.getHistory(undefined, undefined, { start: "2023-01-01", end: "2023-12-31" });
+   * const recent = await HistoryService.getHistory(10);
    * @developerNote Results are returned in descending order by creation date by default
    */
-  async getHistory(
+  static async getHistory(
     limit?: number,
     search?: string,
     dateRange?: { start: string; end: string },
@@ -40,29 +77,23 @@ export const historyService = {
       const params = new URLSearchParams();
 
       if (limit && limit > 0) {
-        params.append('limit', Math.min(limit, 1000).toString()); // Cap at 1000 to prevent excessive requests
+        params.append('limit', Math.min(limit, 1000).toString());
       }
 
-      if (search && search.trim()) {
-        params.append('search', search.trim().substring(0, 100)); // Limit search term length
+      const searchTerm = this.validateString(search, 100);
+      if (searchTerm) {
+        params.append('search', searchTerm);
       }
 
-      if (dateRange?.start) {
-        const startDate = new Date(dateRange.start);
-        if (!isNaN(startDate.getTime())) {
-          params.append('start', startDate.toISOString());
-        }
+      const validDateRange = this.validateDateRange(dateRange);
+      if (validDateRange) {
+        params.append('start', validDateRange.start);
+        params.append('end', validDateRange.end);
       }
 
-      if (dateRange?.end) {
-        const endDate = new Date(dateRange.end);
-        if (!isNaN(endDate.getTime())) {
-          params.append('end', endDate.toISOString());
-        }
-      }
-
-      if (category && category.trim()) {
-        params.append('category', category.trim());
+      const categoryTerm = this.validateString(category, 50);
+      if (categoryTerm) {
+        params.append('category', categoryTerm);
       }
 
       if (sortBy) {
@@ -85,27 +116,40 @@ export const historyService = {
       console.error('Failed to retrieve history:', error);
       throw new Error('Unable to fetch history. Please try again later.');
     }
-  },
+  }
 
   /**
    * Retrieves aggregated statistics about prompt history
    * @param refreshCache - Force refresh of cached statistics
    * @returns Object containing usage statistics
    * @example
-   * const stats = await historyService.getStats();
-   * console.log(`Total prompts: ${stats.total}`);
+   * const stats = await HistoryService.getStats();
    * @developerNote Includes counts by category and most used prompts
    */
-  async getStats(refreshCache: boolean = false): Promise<HistoryStats> {
+  static async getStats(refreshCache: boolean = false): Promise<HistoryStats> {
     try {
       const params = refreshCache ? '?refresh=true' : '';
-      const {data} = await api.get<HistoryStats>(`/history/stats${params}`);
+      const { data } = await api.get<HistoryStats>(`/history/stats${params}`);
       return data;
     } catch (error) {
       console.error('Failed to retrieve statistics:', error);
       throw new Error('Unable to fetch statistics. Please try again later.');
     }
-  },
+  }
+
+  /**
+   * Validates a history item ID
+   * @param id - ID to validate
+   * @returns Validated ID or null
+   * @example
+   * const validId = HistoryService.validateId("abc-123");
+   * @developerNote Ensures ID is non-empty string after trimming
+   */
+  private static validateId(id: string): string | null {
+    if (!id || typeof id !== 'string') return null;
+    const trimmed = id.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  }
 
   /**
    * Permanently deletes a specific history item
@@ -113,11 +157,12 @@ export const historyService = {
    * @param confirmDelete - Confirmation flag to prevent accidental deletion
    * @returns Success status of the operation
    * @example
-   * await historyService.deleteHistoryItem("abc-123", true);
+   * await HistoryService.deleteHistoryItem("abc-123", true);
    * @developerNote This action is irreversible
    */
-  async deleteHistoryItem(id: string, confirmDelete: boolean = false): Promise<{ success: boolean; message?: string }> {
-    if (!id || typeof id !== 'string' || id.trim().length === 0) {
+  static async deleteHistoryItem(id: string, confirmDelete: boolean = false): Promise<{ success: boolean; message?: string }> {
+    const validId = this.validateId(id);
+    if (!validId) {
       return { success: false, message: 'Invalid history item ID' };
     }
 
@@ -126,7 +171,7 @@ export const historyService = {
     }
 
     try {
-      const response = await api.delete(`/history/${encodeURIComponent(id.trim())}`);
+      const response = await api.delete(`/history/${encodeURIComponent(validId)}`);
 
       if (response.data?.success) {
         return { success: true, message: 'History item deleted successfully' };
@@ -137,7 +182,40 @@ export const historyService = {
       console.error('Failed to delete history item:', error);
       throw new Error('Unable to delete history item. Please try again later.');
     }
-  },
+  }
+
+  /**
+   * Validates and sanitizes update fields
+   * @param updates - Updates to validate
+   * @returns Sanitized updates or null if invalid
+   * @example
+   * const valid = HistoryService.validateUpdates({ rating: 5, notes: "Great" });
+   * @developerNote Enforces rating range (1-5) and string length limits
+   */
+  private static validateUpdates(updates: { rating?: number; notes?: string; category?: string }): { rating?: number; notes?: string; category?: string } | null {
+    const sanitized: { rating?: number; notes?: string; category?: string } = {};
+
+    if (updates.rating !== undefined) {
+      if (typeof updates.rating !== 'number' || updates.rating < 1 || updates.rating > 5) {
+        return null;
+      }
+      sanitized.rating = Math.round(updates.rating);
+    }
+
+    if (updates.notes !== undefined) {
+      const notes = this.validateString(updates.notes, 500);
+      if (notes === null) return null;
+      sanitized.notes = notes;
+    }
+
+    if (updates.category !== undefined) {
+      const category = this.validateString(updates.category, 50);
+      if (category === null) return null;
+      sanitized.category = category;
+    }
+
+    return Object.keys(sanitized).length > 0 ? sanitized : null;
+  }
 
   /**
    * Updates rating or notes for a history item
@@ -145,46 +223,25 @@ export const historyService = {
    * @param updates - Object containing fields to update
    * @returns Success status of the operation
    * @example
-   * await historyService.updateHistoryItem("abc-123", { rating: 5 });
+   * await HistoryService.updateHistoryItem("abc-123", { rating: 5 });
    * @developerNote Only provided fields will be updated
    */
-  async updateHistoryItem(
+  static async updateHistoryItem(
     id: string,
     updates: { rating?: number; notes?: string; category?: string }
   ): Promise<{ success: boolean; message?: string; data?: PromptHistory }> {
-    if (!id || typeof id !== 'string' || id.trim().length === 0) {
+    const validId = this.validateId(id);
+    if (!validId) {
       return { success: false, message: 'Invalid history item ID' };
     }
 
-    const sanitizedUpdates: any = {};
-
-    if (updates.rating !== undefined) {
-      if (typeof updates.rating !== 'number' || updates.rating < 1 || updates.rating > 5) {
-        return { success: false, message: 'Rating must be between 1 and 5' };
-      }
-      sanitizedUpdates.rating = Math.round(updates.rating);
-    }
-
-    if (updates.notes !== undefined) {
-      if (typeof updates.notes !== 'string') {
-        return { success: false, message: 'Notes must be a string' };
-      }
-      sanitizedUpdates.notes = updates.notes.trim().substring(0, 500); // Limit note length
-    }
-
-    if (updates.category !== undefined) {
-      if (typeof updates.category !== 'string' || updates.category.trim().length === 0) {
-        return { success: false, message: 'Category must be a non-empty string' };
-      }
-      sanitizedUpdates.category = updates.category.trim().substring(0, 50); // Limit category length
-    }
-
-    if (Object.keys(sanitizedUpdates).length === 0) {
+    const sanitizedUpdates = this.validateUpdates(updates);
+    if (!sanitizedUpdates) {
       return { success: false, message: 'No valid fields to update' };
     }
 
     try {
-      const response = await api.put(`/history/${encodeURIComponent(id.trim())}`, sanitizedUpdates);
+      const response = await api.put(`/history/${encodeURIComponent(validId)}`, sanitizedUpdates);
 
       if (response.data?.success) {
         return {
@@ -199,17 +256,17 @@ export const historyService = {
       console.error('Failed to update history item:', error);
       throw new Error('Unable to update history item. Please try again later.');
     }
-  },
+  }
 
   /**
    * Permanently removes all items from history
    * @param confirmation - Confirmation string to prevent accidental deletion
    * @returns Success status of the operation
    * @example
-   * await historyService.clearHistory("DELETE_ALL_HISTORY");
+   * await HistoryService.clearHistory("DELETE_ALL_HISTORY");
    * @developerNote This action cannot be undone and affects all users in shared environments
    */
-  async clearHistory(confirmation?: string): Promise<{ success: boolean; message?: string }> {
+  static async clearHistory(confirmation?: string): Promise<{ success: boolean; message?: string }> {
     if (confirmation !== "DELETE_ALL_HISTORY") {
       return { success: false, message: 'Invalid confirmation. Use "DELETE_ALL_HISTORY" to confirm' };
     }
@@ -226,7 +283,27 @@ export const historyService = {
       console.error('Failed to clear history:', error);
       throw new Error('Unable to clear history. Please try again later.');
     }
-  },
+  }
+
+  /**
+   * Triggers a file download in the browser
+   * @param blob - Data to download
+   * @param filename - Name of the file
+   * @param format - File format
+   * @example
+   * HistoryService.triggerDownload(blob, "export", "json");
+   * @developerNote Creates temporary download link and cleans up after
+   */
+  private static triggerDownload(blob: Blob, filename: string, format: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${filename}.${format}`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  }
 
   /**
    * Exports prompt history in specified format
@@ -234,13 +311,10 @@ export const historyService = {
    * @param limit - Maximum number of items to export
    * @param filters - Optional filters for export
    * @example
-   * // Export all as CSV
-   * await historyService.exportHistory('csv');
-   * // Export last 100 as JSON
-   * await historyService.exportHistory('json', 100);
+   * await HistoryService.exportHistory('csv');
    * @developerNote Triggers browser download with filename containing current date
    */
-  async exportHistory(
+  static async exportHistory(
     format: 'json' | 'csv' | 'txt' = 'json',
     limit?: number,
     filters?: {
@@ -265,47 +339,33 @@ export const historyService = {
         params.append('limit', limit.toString());
       }
 
-      if (filters?.search) {
-        params.append('search', filters.search.trim().substring(0, 100));
+      const searchTerm = this.validateString(filters?.search, 100);
+      if (searchTerm) {
+        params.append('search', searchTerm);
       }
 
-      if (filters?.dateRange?.start) {
-        const startDate = new Date(filters.dateRange.start);
-        if (!isNaN(startDate.getTime())) {
-          params.append('start', startDate.toISOString());
-        }
+      const validDateRange = this.validateDateRange(filters?.dateRange);
+      if (validDateRange) {
+        params.append('start', validDateRange.start);
+        params.append('end', validDateRange.end);
       }
 
-      if (filters?.dateRange?.end) {
-        const endDate = new Date(filters.dateRange.end);
-        if (!isNaN(endDate.getTime())) {
-          params.append('end', endDate.toISOString());
-        }
-      }
-
-      if (filters?.category) {
-        params.append('category', filters.category.trim());
+      const categoryTerm = this.validateString(filters?.category, 50);
+      if (categoryTerm) {
+        params.append('category', categoryTerm);
       }
 
       const response = await api.get(`/history/export?${params.toString()}`, {
         responseType: 'blob',
-        timeout: 30000, // 30 second timeout for large exports
+        timeout: 30000,
       });
 
       if (!response.data) {
         throw new Error('No data received from export endpoint');
       }
 
-      // Create download link
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-      link.setAttribute('download', `prompt-history-${timestamp}.${format}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      this.triggerDownload(response.data, `prompt-history-${timestamp}`, format);
     } catch (error) {
       console.error('Failed to export history:', error);
       if (error instanceof Error) {
@@ -313,5 +373,5 @@ export const historyService = {
       }
       throw new Error('Unable to export history. Please try again later.');
     }
-  },
-};
+  }
+}
