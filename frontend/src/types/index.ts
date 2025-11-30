@@ -48,6 +48,8 @@ export interface AIModel {
 export interface PromptRequest {
   /** The original prompt text to enhance */
   text: string;
+  /** The AI model provider name */
+  provider: string;
   /** The AI model to use for enhancement */
   model: string;
   /** Optional system prompt to guide the AI */
