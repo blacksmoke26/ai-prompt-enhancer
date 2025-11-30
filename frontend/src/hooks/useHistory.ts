@@ -1,10 +1,16 @@
-import { useState } from 'react';
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
+import {useState} from 'react';
 
 // store
-import { useHistoryStore } from '~/stores/historyStore.ts';
+import {useHistoryStore} from '~/stores/historyStore';
 
 // services
-import { historyService } from '~/utils/historyService.ts';
+import {historyService} from '~/utils/historyService';
 
 /**
  * Custom hook for managing user history data with loading states and error handling.
@@ -24,7 +30,7 @@ export const useHistory = () => {
     setHistory,
     updateHistoryItem,
     deleteHistoryItem,
-    clearHistory: clearLocalHistory
+    clearHistory: clearLocalHistory,
   } = useHistoryStore();
 
   /**

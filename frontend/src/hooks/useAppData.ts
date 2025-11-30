@@ -1,11 +1,17 @@
-import { useEffect, useState } from 'react';
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
+import {useEffect, useState} from 'react';
 
 // store
-import { useAppStore } from '~/stores/appStore.ts';
+import {useAppStore} from '~/stores/appStore';
 
 // utils
-import { promptService } from '~/utils/promptService.ts';
-import { configService } from '~/utils/configService.ts';
+import {promptService} from '~/utils/promptService';
+import {configService} from '~/utils/configService';
 
 /**
  * Custom hook for managing application data loading and state.
@@ -30,7 +36,7 @@ export const useAppData = () => {
     setProviders,
     setEnhancementTypes,
     setUserRoles,
-    setConfig
+    setConfig,
   } = useAppStore();
 
   useEffect(() => {
