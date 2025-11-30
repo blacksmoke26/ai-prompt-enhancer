@@ -9,7 +9,7 @@ import {toSelectGroupedOptions} from '~/utils/helpers';
 
 // components
 import {Badge} from '~/components/ui/Badge';
-import {Select} from '~/components/ui/Select';
+import {Select, SelectOption} from '~/components/ui/Select';
 import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
 
 /**
@@ -38,6 +38,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
     providers,
     selectedModel,
     setSelectedModel,
+    setSelectedProvider,
     enhancementTypes,
     userRoles,
     selectedEnhancementType,
@@ -60,7 +61,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
           <Select
             isSearchable
             value={selectedModel}
-            onChange={(e) => setSelectedModel(e as string)}
+            onChange={(e, option) => {
+              setSelectedProvider((option as SelectOption).category as string);
+              setSelectedModel(e as string);
+            }}
             options={toSelectGroupedOptions(models, 'provider')}
             label={<strong><Puzzle className="inline-flex" size="16" /> AI Model</strong>}
             formatOptionLabel={(option, context) => {
