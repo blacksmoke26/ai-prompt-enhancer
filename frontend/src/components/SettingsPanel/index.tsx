@@ -10,10 +10,10 @@ import {RefreshCw, Save} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
-import {configService} from '~/utils/configService';
 
 // services
-import {promptService} from '~/utils/promptService';
+import ConfigService from '~/services/ConfigService';
+import PromptService from '~/services/PromptService';
 
 // ui components
 import {Button} from '~/components/ui/Button';
@@ -75,7 +75,7 @@ const SettingsPanel: React.FC = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await configService.updateConfig(localConfig);
+      await ConfigService.updateConfig(localConfig);
       setConfig(localConfig);
       setSaveMessage('Settings saved successfully!');
       setTimeout(() => setSaveMessage(null), 3000);
@@ -96,8 +96,8 @@ const SettingsPanel: React.FC = () => {
   const handleReset = async () => {
     if (confirm('Are you sure you want to reset all settings to defaults?')) {
       try {
-        await configService.resetConfig();
-        const newConfig = await configService.getConfig();
+        await ConfigService.resetConfig();
+        const newConfig = await ConfigService.getConfig();
         setConfig(newConfig);
         setLocalConfig(newConfig);
         setSaveMessage('Settings reset to defaults');
@@ -117,7 +117,7 @@ const SettingsPanel: React.FC = () => {
    */
   const handleExport = async () => {
     try {
-      await configService.exportConfig();
+      await ConfigService.exportConfig();
       setSaveMessage('Configuration exported');
       setTimeout(() => setSaveMessage(null), 3000);
     } catch (error) {
@@ -141,8 +141,8 @@ const SettingsPanel: React.FC = () => {
       if (file) {
         try {
           const text = await file.text();
-          await configService.importConfig(text);
-          const newConfig = await configService.getConfig();
+          await ConfigService.importConfig(text);
+          const newConfig = await ConfigService.getConfig();
           setConfig(newConfig);
           setLocalConfig(newConfig);
           setSaveMessage('Configuration imported successfully');
@@ -166,7 +166,7 @@ const SettingsPanel: React.FC = () => {
   const testProvider = async (providerName: string) => {
     setTestingProvider(providerName);
     try {
-      const result = await promptService.testProvider(providerName);
+      const result = await PromptService.testProvider(providerName);
       setTestResults(prev => ({...prev, [providerName]: result.available}));
     } catch (error) {
       setTestResults(prev => ({...prev, [providerName]: false}));

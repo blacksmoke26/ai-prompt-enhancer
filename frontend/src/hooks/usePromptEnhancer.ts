@@ -11,7 +11,7 @@ import {useAppStore} from '~/stores/appStore';
 import {useHistoryStore} from '~/stores/historyStore';
 
 // services
-import {promptService} from '~/utils/promptService';
+import PromptService from '~/services/PromptService';
 
 // types
 import type {PromptRequest} from '~/types';
@@ -88,7 +88,7 @@ export const usePromptEnhancer = () => {
         maxTokens: 2000,
       };
 
-      const response = await promptService.enhancePrompt(request);
+      const response = await PromptService.enhancePrompt(request);
 
       // Add to history
       addToHistory({
@@ -137,7 +137,7 @@ export const usePromptEnhancer = () => {
         maxTokens: 2000,
       };
 
-      const response = await promptService.enhancePrompt(request);
+      const response = await PromptService.enhancePrompt(request);
 
       addToHistory({
         ...response,
@@ -186,7 +186,7 @@ export const usePromptEnhancer = () => {
         maxTokens: 2500,
       };
 
-      const response = await promptService.enhancePrompt(request);
+      const response = await PromptService.enhancePrompt(request);
 
       addToHistory({
         ...response,

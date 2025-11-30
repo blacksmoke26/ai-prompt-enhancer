@@ -9,9 +9,9 @@ import {useEffect, useState} from 'react';
 // store
 import {useAppStore} from '~/stores/appStore';
 
-// utils
-import {promptService} from '~/utils/promptService';
-import {configService} from '~/utils/configService';
+// services
+import PromptService from '~/services/PromptService';
+import ConfigService from '~/services/ConfigService';
 
 /**
  * Custom hook for managing application data loading and state.
@@ -59,11 +59,11 @@ export const useAppData = () => {
 
       // Load all data in parallel
       const [models, providers, enhancementTypes, userRoles, appConfig] = await Promise.all([
-        promptService.getModels(),
-        promptService.getProviders(),
-        configService.getEnhancementTypes(),
-        configService.getUserRoles(),
-        configService.getConfig(),
+        PromptService.getModels(),
+        PromptService.getProviders(),
+        ConfigService.getEnhancementTypes(),
+        ConfigService.getUserRoles(),
+        ConfigService.getConfig(),
       ]);
 
       setModels(models);

@@ -10,7 +10,7 @@ import {useState} from 'react';
 import {useHistoryStore} from '~/stores/historyStore';
 
 // services
-import {historyService} from '~/utils/historyService';
+import HistoryService from '~/services/HistoryService';
 
 /**
  * Custom hook for managing user history data with loading states and error handling.
@@ -46,7 +46,7 @@ export const useHistory = () => {
       setLoading(true);
       setError(null);
 
-      const historyData = await historyService.getHistory(limit, search);
+      const historyData = await HistoryService.getHistory(limit, search);
       setHistory(historyData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load history');
@@ -65,7 +65,7 @@ export const useHistory = () => {
   const deleteItem = async (id: string) => {
     try {
       setError(null);
-      await historyService.deleteHistoryItem(id);
+      await HistoryService.deleteHistoryItem(id);
       deleteHistoryItem(id);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to delete item');
@@ -83,7 +83,7 @@ export const useHistory = () => {
   const updateItem = async (id: string, updates: { rating?: number; notes?: string }) => {
     try {
       setError(null);
-      await historyService.updateHistoryItem(id, updates);
+      await HistoryService.updateHistoryItem(id, updates);
       updateHistoryItem(id, updates);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update item');
@@ -99,7 +99,7 @@ export const useHistory = () => {
   const clearHistory = async () => {
     try {
       setError(null);
-      await historyService.clearHistory();
+      await HistoryService.clearHistory();
       clearLocalHistory();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to clear history');
@@ -117,7 +117,7 @@ export const useHistory = () => {
   const exportHistory = async (format: 'json' | 'csv' | 'txt' = 'json', limit?: number) => {
     try {
       setError(null);
-      await historyService.exportHistory(format, limit);
+      await HistoryService.exportHistory(format, limit);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to export history');
     }
