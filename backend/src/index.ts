@@ -1,9 +1,16 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
+import 'dotenv/config';
+
 import Fastify from 'fastify';
 import cors, {FastifyCorsOptions} from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import websocket from '@fastify/websocket';
-import dotenv from 'dotenv';
 
 import { ConfigManager } from './config/ConfigManager';
 import { AIProviderManager } from './services/AIProviderManager';
@@ -11,9 +18,6 @@ import { HistoryManager } from './services/HistoryManager';
 import { promptRoutes } from './controllers/promptController';
 import { historyRoutes } from './controllers/historyController';
 import { configRoutes } from './controllers/configController';
-
-// Load environment variables from .env file
-dotenv.config();
 
 /**
  * Creates and configures a Fastify server instance with plugins, routes, and WebSocket support.
@@ -103,7 +107,7 @@ async function createServer() {
    * @developer-note Add authentication and authorization as needed.
    */
   fastify.register(async function (fastify) {
-    fastify.get('/ws', { websocket: true }, (connection, req) => {
+    fastify.get('/ws', { websocket: true }, (connection, _req) => {
       console.log('WebSocket client connected');
 
       connection.on('message', (message: string) => {
@@ -161,7 +165,7 @@ async function createServer() {
    * { "error": "Validation Error", "details": [...] }
    * @developer-note Customize error messages based on environment for security.
    */
-  fastify.setErrorHandler((error, _request, reply) => {
+  fastify.setErrorHandler((error: any, _request, reply) => {
     fastify.log.error(error);
 
     if (error.validation) {
