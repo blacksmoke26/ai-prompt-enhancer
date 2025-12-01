@@ -27,6 +27,7 @@ build
 # misc
 .DS_Store
 *.pem
+.trash
 
 # debug
 npm-debug.log*
