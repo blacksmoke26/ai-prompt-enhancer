@@ -1,6 +1,15 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React from 'react';
-import { Badge } from '~/components/ui/Badge';
-import { Sparkles, Target, Clock, Zap, TrendingUp } from 'lucide-react';
+import Markdown from 'react-markdown';
+import {Sparkles, Target, Clock, Zap, TrendingUp} from 'lucide-react';
+
+// ui components
+import {Badge} from '~/components/ui/Badge';
 
 /**
  * Represents the response from an enhanced prompt generation request
@@ -13,16 +22,16 @@ import { Sparkles, Target, Clock, Zap, TrendingUp } from 'lucide-react';
  *   tokensUsed: 256
  * }
  */
- export interface EnhancedPromptResponse {
-   /** The enhanced and detailed version of the original prompt */
-   enhancedPrompt: string;
-   /** The AI model used to generate the enhanced prompt (e.g., "gpt-4") */
-   model: string;
-   /** Time taken in milliseconds to process and enhance the prompt */
-   processingTime: number;
-   /** Optional: Number of tokens used during the enhancement process */
-   tokensUsed?: number;
- }
+export interface EnhancedPromptResponse {
+  /** The enhanced and detailed version of the original prompt */
+  enhancedPrompt: string;
+  /** The AI model used to generate the enhanced prompt (e.g., "gpt-4") */
+  model: string;
+  /** Time taken in milliseconds to process and enhance the prompt */
+  processingTime: number;
+  /** Optional: Number of tokens used during the enhancement process */
+  tokensUsed?: number;
+}
 
 /**
  * Props for the EnhancedPrompt component
@@ -33,12 +42,12 @@ import { Sparkles, Target, Clock, Zap, TrendingUp } from 'lucide-react';
  *   originalPrompt="Simple prompt text"
  * />
  */
- export interface EnhancedPromptProps {
-   /** The enhanced prompt response containing metadata and the enhanced text */
-   response: EnhancedPromptResponse | null;
-   /** The original prompt text for comparison */
-   originalPrompt: string;
- }
+export interface EnhancedPromptProps {
+  /** The enhanced prompt response containing metadata and the enhanced text */
+  response: EnhancedPromptResponse | null;
+  /** The original prompt text for comparison */
+  originalPrompt: string;
+}
 
 /**
  * Displays an enhanced prompt with metadata and comparison stats
@@ -50,7 +59,7 @@ import { Sparkles, Target, Clock, Zap, TrendingUp } from 'lucide-react';
  * />
  * @note Returns null if no response is provided
  */
-const EnhancedPrompt: React.FC<EnhancedPromptProps> = ({ response, originalPrompt }) => {
+const EnhancedPrompt: React.FC<EnhancedPromptProps> = ({response, originalPrompt}) => {
   if (!response) return null;
 
   const originalLength = originalPrompt.length;
@@ -85,10 +94,10 @@ const EnhancedPrompt: React.FC<EnhancedPromptProps> = ({ response, originalPromp
           </Badge>
         </div>
       </div>
-      <div className="bg-muted/50 rounded-md p-4">
-        <pre className="whitespace-pre-wrap text-sm font-mono leading-relaxed max-h-96 overflow-y-auto">
-          {response.enhancedPrompt}
-        </pre>
+      <div className="rounded-md p-4 max-h-96 overflow-y-auto">
+        <Markdown>
+        {String(response.enhancedPrompt || '')?.replace(/\\n/ig, `\n`)}
+        </Markdown>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-muted-foreground">
