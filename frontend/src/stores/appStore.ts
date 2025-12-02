@@ -8,7 +8,7 @@ import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
 
 // types
-import type {AppConfig, AIModel, AIProvider, EnhancementType, UserRole} from '~/types';
+import type {AppConfig, AIModel, AIProvider, EnhancementType, UserRole} from '~/types/index';
 
 /**
  * Application state interface for managing app configuration and UI state

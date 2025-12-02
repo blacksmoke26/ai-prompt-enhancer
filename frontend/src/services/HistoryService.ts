@@ -7,7 +7,7 @@
 import api from '~/utils/api';
 
 // types
-import type { PromptHistory, HistoryStats } from '~/types';
+import type { PromptHistory, HistoryStats } from '~/types/index';
 
 /**
  * History service class for managing prompt history operations

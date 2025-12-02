@@ -13,7 +13,7 @@ import {formatDuration} from '~/utils/helpers';
 import {Card, CardContent, CardHeader, CardTitle} from './ui/Card';
 
 // types
-import type {HistoryStats} from '~/types';
+import type {HistoryStats} from '~/types/index';
 
 /**
  * Props for the StatsPanel component.

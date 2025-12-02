@@ -7,7 +7,7 @@
 import api from '~/utils/api';
 
 // types
-import type { PromptRequest, PromptResponse, AIModel, AIProvider } from '~/types';
+import type { PromptRequest, PromptResponse, AIModel, AIProvider } from '~/types/index';
 
 /**
  * Service for handling AI prompt enhancement and provider management.

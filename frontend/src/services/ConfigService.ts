@@ -7,7 +7,7 @@
 import api from '~/utils/api';
 
 // types
-import type { AppConfig, EnhancementType, UserRole } from '~/types';
+import type { AppConfig, EnhancementType, UserRole } from '~/types/index';
 
 export default abstract class ConfigService {
   /**

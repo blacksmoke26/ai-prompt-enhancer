@@ -11,7 +11,7 @@ import {Button} from '~/components/ui/Button';
 import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
 
 // types
-import type {PromptHistory} from '~/types';
+import type {PromptHistory} from '~/types/index';
 
 /**
  * Props for the HistoryPanel component

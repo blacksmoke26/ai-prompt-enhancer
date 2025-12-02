@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 
 // types
-import type {PromptHistory, HistoryStats} from '~/types';
+import type {PromptHistory, HistoryStats, } from '~/types/index';
 
 /**
  * Interface defining the shape and actions of the history state management store.

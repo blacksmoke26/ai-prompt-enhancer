@@ -161,7 +161,7 @@ export interface AIProvider {
   /** List of available models from this provider */
   models: AIModel[];
   /** Whether the provider is properly configured */
-  isConfigured: boolean;
+  isConfigured?: boolean;
   /** Provider-specific configuration settings */
   config?: Record<string, any>;
 }
@@ -180,30 +180,6 @@ export interface AIProvider {
  * Provider configs are optional to allow selective configuration.
  */
 export interface AppConfig {
-  /** Configuration for Ollama provider */
-  ollama: {
-    /** URL of the Ollama server */
-    url: string;
-    /** Timeout for requests in milliseconds */
-    timeout: number;
-  };
-  /** Configuration for OpenAI provider */
-  openai?: {
-    /** OpenAI API key */
-    apiKey?: string;
-    /** Custom base URL for OpenAI API */
-    baseUrl?: string;
-  };
-  /** Configuration for OpenRouter provider */
-  openrouter?: {
-    /** OpenRouter API key */
-    apiKey?: string;
-  };
-  /** Configuration for DeepSeek provider */
-  deepseek?: {
-    /** DeepSeek API key */
-    apiKey?: string;
-  };
   /** Theme preference for the UI */
   theme: 'light' | 'dark' | 'system';
   /** Whether to automatically save history */
@@ -214,6 +190,80 @@ export interface AppConfig {
   defaultModel: string;
   /** Default system prompt to use */
   defaultSystemPrompt: string;
+
+  // Provider specific configuration objects
+  ollama?: {
+    url?: string;
+    timeout?: number;
+  };
+  openai?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  openrouter?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  deepseek?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  coze?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  qianfan?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  gemini?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  kimi?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  groq?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  anthropic?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  mistral?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  nvidia?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  cohere?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  cody?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  xai?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  huggingface?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  siliconflow?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
+  glm?: {
+    apiKey?: string;
+    baseUrl?: string;
+  };
 }
 
 /**
