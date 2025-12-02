@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import {Settings as SettingsIcon, TestTube} from 'lucide-react';
+import {User2, WandSparkles ,Settings as SettingsIcon, TestTube} from 'lucide-react';
 
 // helpers
 import {cn} from '~/utils/helpers';
@@ -38,7 +38,8 @@ const SettingsTabNavigation: React.FC<SettingsTabNavigationProps> = ({activeTab,
   const SETTINGS_TABS: { id: SettingsTab; label: string; icon: any; }[] = [
     {id: 'general', label: 'General', icon: SettingsIcon},
     {id: 'providers', label: 'AI Providers', icon: TestTube},
-    {id: 'enhancement', label: 'Enhancement', icon: SettingsIcon},
+    {id: 'enhancement', label: 'Enhancement', icon: WandSparkles},
+    {id: 'user-role', label: 'User Role', icon: User2},
     {id: 'data', label: 'Data Management', icon: SettingsIcon},
     {id: 'advanced', label: 'Advanced', icon: SettingsIcon},
   ];
