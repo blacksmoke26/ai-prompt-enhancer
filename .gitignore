@@ -52,3 +52,4 @@ test
 prompt
 
 server.log
+backend/history.json
