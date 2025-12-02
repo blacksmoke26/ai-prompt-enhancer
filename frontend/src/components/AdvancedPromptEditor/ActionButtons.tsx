@@ -1,6 +1,13 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React from 'react';
-import { Button } from '~/components/ui/Button';
-import { Copy, Download, Share2, Eye, Trash2, Zap } from 'lucide-react';
+import {Button} from '@radix-ui/themes';
+import {Copy, Download, Share2, Trash2, Zap} from 'lucide-react';
+
 
 /**
  * Props for the ActionButtons component
@@ -73,67 +80,52 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
     <div className="flex items-center justify-between py-6 px-4 border-t border-border">
       <div className="flex items-center space-x-2">
         <Button
-          variant="outline"
-          size="sm"
+          variant="ghost"
+          color="gray"
           onClick={handleCopy}
           disabled={!value.trim()}
         >
-          <Copy className="h-4 w-4 mr-2"/>
+          <Copy className="h-4 w-4 mr-1"/>
           Copy
         </Button>
         <Button
-          variant="outline"
-          size="sm"
+          variant="ghost"
+          color="gray"
           onClick={handleDownload}
           disabled={!value.trim()}
         >
-          <Download className="h-4 w-4 mr-2"/>
+          <Download className="h-4 w-4 mr-1"/>
           Download
         </Button>
         <Button
-          variant="outline"
-          size="sm"
+          variant="ghost"
+          color="gray"
           onClick={handleShare}
           disabled={!value.trim()}
         >
-          <Share2 className="h-4 w-4 mr-2"/>
+          <Share2 className="h-4 w-4 mr-1"/>
           Share
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            const textarea = document.querySelector('textarea');
-            if (textarea) {
-              textarea.select();
-            }
-          }}
-          disabled={!value.trim()}
-        >
-          <Eye className="h-4 w-4 mr-2"/>
-          Select
         </Button>
       </div>
 
       <div className="flex items-center space-x-2">
         <Button
-          variant="destructive"
-          size="sm"
+          variant="ghost"
+          color="red"
           onClick={handleClear}
           disabled={!value.trim()}
         >
-          <Trash2 className="h-4 w-4 mr-2"/>
+          <Trash2 className="h-4 w-4 mr-1"/>
           Clear
         </Button>
 
         {onEnhance && (
           <Button
-            variant="default"
-            size="sm"
+            variant="ghost"
             onClick={handleEnhance}
             disabled={!value.trim() || disabled}
           >
-            <Zap className="h-4 w-4 mr-2"/>
+            <Zap className="h-4 w-4 mr-1"/>
             Enhance
           </Button>
         )}
