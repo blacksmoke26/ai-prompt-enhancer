@@ -271,6 +271,90 @@ export const defaultConfig: AppConfig = {
      systemPrompt: 'You are a scalability expert. Enhance the given prompt with scalability considerations, growth strategies, and flexible design principles.',
      category: 'Technical'
    },
+   {
+     id: 'simplify',
+     name: 'Simplify Complex Concepts',
+     description: 'Break down complex ideas into simple terms',
+     systemPrompt: 'You are an expert in simplification. Transform complex concepts into clear, simple, and easy-to-understand language while preserving accuracy.',
+     category: 'Writing'
+   },
+   {
+     id: 'emoji',
+     name: 'Add Emojis',
+     description: 'Enhance with appropriate emojis and visual cues',
+     systemPrompt: 'You are an expert in digital communication. Enhance the prompt with appropriate emojis and visual elements that improve engagement and clarity.',
+     category: 'Tone'
+   },
+   {
+     id: 'metaphor',
+     name: 'Add Metaphors',
+     description: 'Include metaphors and analogies for better understanding',
+     systemPrompt: 'You are an expert in metaphorical thinking. Enhance the prompt with relevant metaphors and analogies that make complex concepts easier to understand.',
+     category: 'Writing'
+   },
+   {
+     id: 'time',
+     name: 'Time-Sensitive',
+     description: 'Add urgency and time-based elements',
+     systemPrompt: 'You are an expert in time management. Enhance the prompt with time-sensitive elements, deadlines, and temporal context to create urgency.',
+     category: 'Business'
+   },
+   {
+     id: 'cultural',
+     name: 'Cultural Context',
+     description: 'Add cultural awareness and global perspective',
+     systemPrompt: 'You are a cultural expert. Enhance the prompt with cultural sensitivity, global perspectives, and cross-cultural understanding.',
+     category: 'Personal'
+   },
+   {
+     id: 'interactive',
+     name: 'Make Interactive',
+     description: 'Add interactive elements and engagement prompts',
+     systemPrompt: 'You are an expert in interactive design. Transform the prompt to include interactive elements, engagement prompts, and participatory features.',
+     category: 'Writing'
+   },
+   {
+     id: 'local',
+     name: 'Localize Content',
+     description: 'Adapt content for local context and relevance',
+     systemPrompt: 'You are a localization expert. Adapt the prompt to include local context, regional references, and culturally appropriate elements.',
+     category: 'Language'
+   },
+   {
+     id: 'emoji-free',
+     name: 'Remove Emojis',
+     description: 'Clean up text by removing emojis and symbols',
+     systemPrompt: 'You are an expert in formal communication. Remove emojis, excessive symbols, and informal elements to create cleaner, more professional text.',
+     category: 'Writing'
+   },
+   {
+     id: 'universal',
+     name: 'Universal Design',
+     description: 'Make content universally accessible and clear',
+     systemPrompt: 'You are a universal design expert. Enhance the prompt to be universally accessible, culturally neutral, and clear to diverse audiences.',
+     category: 'Professional'
+   },
+   {
+     id: 'trendy',
+     name: 'Add Trendy Elements',
+     description: 'Incorporate current trends and popular references',
+     systemPrompt: 'You are a trend expert. Enhance the prompt with current trends, popular references, and contemporary language that resonates with modern audiences.',
+     category: 'Tone'
+   },
+   {
+     id: 'retro',
+     name: 'Vintage Style',
+     description: 'Add vintage or retro elements to the prompt',
+     systemPrompt: 'You are an expert in vintage styles. Transform the prompt with retro language, classic references, and nostalgic elements.',
+     category: 'Tone'
+   },
+   {
+     id: 'minimal',
+     name: 'Minimalist Approach',
+     description: 'Strip down to essential elements only',
+     systemPrompt: 'You are a minimalism expert. Reduce the prompt to its essential elements, removing all non-critical information while maintaining clarity.',
+     category: 'Writing'
+   },
  ];
 
  /**
