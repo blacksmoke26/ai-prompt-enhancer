@@ -177,18 +177,11 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
           'min-h-[400px] resize-none text-sm leading-relaxed transition-all duration-200',
           isFocused && 'ring-2 ring-ring ring-offset-2',
           disabled && 'opacity-50 cursor-not-allowed',
-          isFullscreen && 'min-h-screen',
-          formatting.bold && 'font-bold',
-          formatting.italic && 'italic',
-          formatting.underline && 'underline',
-          formatting.alignment === 'center' && 'text-center',
-          formatting.alignment === 'right' && 'text-right',
-          formatting.listType === 'bullet' && 'list-disc',
-          formatting.listType === 'numbered' && 'list-decimal',
         )}
         onKeyDown={onKeyDown}
         onFocus={onFocus}
         onBlur={onBlur}
+        autoFocus
         ref={ref}
       />
       {error && <p className="text-sm text-destructive">{error}</p>}
