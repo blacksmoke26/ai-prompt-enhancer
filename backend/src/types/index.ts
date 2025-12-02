@@ -5,12 +5,8 @@
  */
 
 /**
- * This interface defines the structure for an AI model
- * that can be used for prompt processing. It includes essential information
- * such as model identifier, name, provider, and optional metadata like
- * context length and maximum tokens. This interface is used to represent
- * available models in the system and their capabilities.
- *
+ * Defines the structure for an AI model used in prompt processing.
+ * @developerNotes Represents available models and their capabilities in the system.
  * @example
  * ```typescript
  * const model: AIModel = {
@@ -57,8 +53,17 @@ export interface AIModel {
 }
 
 /**
- * @developerNotes This interface defines the structure for a prompt request
- * that can be sent to an AI model for processing.
+ * Defines the structure for a prompt request sent to an AI model.
+ * @developerNotes Contains all necessary data for AI processing including context and parameters.
+ * @example
+ * ```typescript
+ * const request: PromptRequest = {
+ *   text: "Explain quantum computing",
+ *   provider: "openai",
+ *   model: "gpt-4-turbo",
+ *   enhancementType: "enhance"
+ * };
+ * ```
  */
 export interface PromptRequest {
   /**
@@ -96,40 +101,51 @@ export interface PromptRequest {
    * @example "enhance"
    */
   enhancementType?: 'correct' | 'enhance' | 'proofread' | 'optimize' | 'creative' | 'technical' | 'concise' | 'structured' | 'audience' | 'tone' | 'length' | 'simplify' | 'expand' | 'format';
-   /**
-    * User role that determines the context for the AI response
-    * @developerNotes Sets the professional context for the AI's response based on user's background
-    * @example "developer"
-    */
-   userRole?: string;
-   /**
-    * Target audience for the response
-    * @developerNotes Helps the AI tailor the content for specific audience understanding
-    * @example "technical-experts"
-    */
-   targetAudience?: string;
-   /**
-    * Desired tone for the AI response
-    * @developerNotes Controls the emotional and stylistic approach of the response
-    * @example "professional"
-    */
-   tone?: string;
-   /**
-    * Preferred length of the response
-    * @developerNotes Determines how detailed or concise the response should be
-    * @example "medium"
-    */
-   responseLength?: 'short' | 'medium' | 'long' | 'custom';
-   /**
-    * Additional user instructions for the AI
-    * @developerNotes Allows for specific formatting or content requirements beyond standard options
-    * @example "Include code examples"
-    */
-   customInstructions?: string;
+  /**
+   * User role that determines the context for the AI response
+   * @developerNotes Sets the professional context for the AI's response based on user's background
+   * @example "developer"
+   */
+  userRole?: string;
+  /**
+   * Target audience for the response
+   * @developerNotes Helps the AI tailor the content for specific audience understanding
+   * @example "technical-experts"
+   */
+  targetAudience?: string;
+  /**
+   * Desired tone for the AI response
+   * @developerNotes Controls the emotional and stylistic approach of the response
+   * @example "professional"
+   */
+  tone?: string;
+  /**
+   * Preferred length of the response
+   * @developerNotes Determines how detailed or concise the response should be
+   * @example "medium"
+   */
+  responseLength?: 'short' | 'medium' | 'long' | 'custom';
+  /**
+   * Additional user instructions for the AI
+   * @developerNotes Allows for specific formatting or content requirements beyond standard options
+   * @example "Include code examples"
+   */
+  customInstructions?: string;
 }
 
 /**
- * @developerNotes Response from an AI prompt processing request
+ * Represents the response from an AI prompt processing request.
+ * @developerNotes Contains the processed prompt along with metadata about the operation.
+ * @example
+ * ```typescript
+ * const response: PromptResponse = {
+ *   enhancedPrompt: "Explain quantum computing in simple terms...",
+ *   originalPrompt: "Explain quantum computing",
+ *   model: "gpt-4-turbo",
+ *   timestamp: new Date(),
+ *   processingTime: 1250
+ * };
+ * ```
  */
 export interface PromptResponse {
   /**
@@ -165,7 +181,16 @@ export interface PromptResponse {
 }
 
 /**
- * @developerNotes Represents a message in a chat conversation
+ * Represents a message in a chat conversation.
+ * @developerNotes Used to maintain conversational context between user and AI.
+ * @example
+ * ```typescript
+ * const message: ChatMessage = {
+ *   role: "user",
+ *   content: "Hello, how can you help me?",
+ *   timestamp: new Date()
+ * };
+ * ```
  */
 export interface ChatMessage {
   /**
@@ -186,7 +211,19 @@ export interface ChatMessage {
 }
 
 /**
- * @developerNotes Stores a history of prompt processing operations
+ * Stores a history of prompt processing operations.
+ * @developerTracks All prompt enhancements with metadata for analysis and review.
+ * @example
+ * ```typescript
+ * const history: PromptHistory = {
+ *   id: "prompt-12345",
+ *   originalPrompt: "Explain quantum computing",
+ *   enhancedPrompt: "Explain quantum computing in simple terms...",
+ *   model: "gpt-4-turbo",
+ *   enhancementType: "enhance",
+ *   timestamp: new Date()
+ * };
+ * ```
  */
 export interface PromptHistory {
   /**
@@ -252,7 +289,17 @@ export interface PromptHistory {
 }
 
 /**
- * @developerNotes Represents an AI provider with its configuration
+ * Represents an AI provider with its configuration.
+ * @developerNotes Manages provider settings and available models for AI services.
+ * @example
+ * ```typescript
+ * const provider: AIProvider = {
+ *   name: "OpenAI",
+ *   models: [model1, model2],
+ *   isConfigured: true,
+ *   config: { apiKey: "sk-..." }
+ * };
+ * ```
  */
 export interface AIProvider {
   /**
@@ -278,7 +325,17 @@ export interface AIProvider {
 }
 
 /**
- * @developerNotes Application configuration settings
+ * Application configuration settings.
+ * @developerNotes Central configuration for all app features including AI providers and UI preferences.
+ * @example
+ * ```typescript
+ * const config: AppConfig = {
+ *   ollama: { url: "http://localhost:11434", timeout: 30000 },
+ *   theme: "dark",
+ *   autoSave: true,
+ *   maxHistoryItems: 100
+ * };
+ * ```
  */
 export interface AppConfig {
   /**
@@ -315,7 +372,7 @@ export interface AppConfig {
   };
   /**
    * Configuration for OpenRouter provider (optional)
-   * @example { apiKey: "sk-...abc" }
+   * @example { apiKey: "sk-...abc", baseUrl: "https://openrouter.ai/api/v1" }
    */
   openrouter?: {
     /**
@@ -323,10 +380,15 @@ export interface AppConfig {
      * @example "sk-...abc"
      */
     apiKey: string;
+    /**
+     * Base URL for OpenRouter API (optional)
+     * @example "https://openrouter.ai/api/v1"
+     */
+    baseUrl?: string;
   };
   /**
    * Configuration for DeepSeek provider (optional)
-   * @example { apiKey: "sk-...abc" }
+   * @example { apiKey: "sk-...abc", baseUrl: "https://api.deepseek.com" }
    */
   deepseek?: {
     /**
@@ -334,10 +396,239 @@ export interface AppConfig {
      * @example "sk-...abc"
      */
     apiKey: string;
+    /**
+     * Base URL for DeepSeek API (optional)
+     * @example "https://api.deepseek.com"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for Coze provider (optional)
+   * @example { apiKey: "coze-...abc" }
+   */
+  coze?: {
+    /**
+     * API key for Coze
+     * @example "coze-...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for Coze API (optional)
+     * @example "https://api.coze.cn"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for Qianfan provider (optional)
+   * @example { apiKey: "sk-...abc", baseUrl: "https://aip.baidubce.com" }
+   */
+  qianfan?: {
+    /**
+     * API key for Qianfan
+     * @example "sk-...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for Qianfan API (optional)
+     * @example "https://aip.baidubce.com"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for Gemini provider (optional)
+   * @example { apiKey: "AIza...abc" }
+   */
+  gemini?: {
+    /**
+     * API key for Gemini
+     * @example "AIza...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for Gemini API (optional)
+     * @example "https://generativelanguage.googleapis.com/v1beta"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for Kimi provider (optional)
+   * @example { apiKey: "sk-...abc", baseUrl: "https://api.moonshot.cn" }
+   */
+  kimi?: {
+    /**
+     * API key for Kimi
+     * @example "sk-...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for Kimi API (optional)
+     * @example "https://api.moonshot.cn"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for Groq provider (optional)
+   * @example { apiKey: "gsk_...abc" }
+   */
+  groq?: {
+    /**
+     * API key for Groq
+     * @example "gsk_...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for Groq API (optional)
+     * @example ""
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for Anthropic provider (optional)
+   * @example { apiKey: "sk-ant-...abc", baseUrl: "https://api.anthropic.com" }
+   */
+  anthropic?: {
+    /**
+     * API key for Anthropic
+     * @example "sk-ant-...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for Anthropic API (optional)
+     * @example "https://api.anthropic.com"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for Mistral provider (optional)
+   * @example { apiKey: "Ms-...abc", baseUrl: "https://api.mistral.ai" }
+   */
+  mistral?: {
+    /**
+     * API key for Mistral
+     * @example "Ms-...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for Mistral API (optional)
+     * @example "https://api.mistral.ai"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for NVIDIA provider (optional)
+   * @example { apiKey: "nvapi-...abc", baseUrl: "https://api.nvidia.com" }
+   */
+  nvidia?: {
+    /**
+     * API key for NVIDIA
+     * @example "nvapi-...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for NVIDIA API (optional)
+     * @example "https://api.nvidia.com"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for Cohere provider (optional)
+   * @example { apiKey: "cohere-...abc", baseUrl: "https://api.cohere.ai" }
+   */
+  cohere?: {
+    /**
+     * API key for Cohere
+     * @example "cohere-...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for Cohere API (optional)
+     * @example "https://api.cohere.ai"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for Cody provider (optional)
+   * @example { apiKey: "sgp-...abc", baseUrl: "https://sourcegraph.com" }
+   */
+  cody?: {
+    /**
+     * API key for Cody
+     * @example "sgp-...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for Cody API (optional)
+     * @example "https://sourcegraph.com"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for xAI provider (optional)
+   * @example { apiKey: "xai-...abc", baseUrl: "https://api.x.ai" }
+   */
+  xai?: {
+    /**
+     * API key for xAI
+     * @example "xai-...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for xAI API (optional)
+     * @example "https://api.x.ai"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for HuggingFace provider (optional)
+   * @example { apiKey: "hf_...abc" }
+   */
+  huggingface?: {
+    /**
+     * API key for HuggingFace
+     * @example "hf_...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for HuggingFace API (optional)
+     * @example "https://api-inference.huggingface.co/models"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for SiliconFlow provider (optional)
+   * @example { apiKey: "sk-...abc", baseUrl: "https://api.siliconflow.cn" }
+   */
+  siliconflow?: {
+    /**
+     * API key for SiliconFlow
+     * @example "sk-...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for SiliconFlow API (optional)
+     * @example "https://api.siliconflow.cn"
+     */
+    baseUrl?: string;
+  };
+  /**
+   * Configuration for Zhipu AI provider (optional)
+   * @example { apiKey: "glm-...abc", baseUrl: "https://open.bigmodel.cn" }
+   */
+  zhipu?: {
+    /**
+     * API key for Zhipu AI
+     * @example "glm-...abc"
+     */
+    apiKey: string;
+    /**
+     * Base URL for Zhipu AI API (optional)
+     * @example "https://open.bigmodel.cn"
+     */
+    baseUrl?: string;
   };
   /**
    * Configuration for Qwen provider (optional)
-   * @example { apiKey: "sk-...abc" }
+   * @example { apiKey: "sk-...abc", baseUrl: "https://dashscope.aliyuncs.com" }
    */
   qwen?: {
     /**
@@ -345,6 +636,11 @@ export interface AppConfig {
      * @example "sk-...abc"
      */
     apiKey: string;
+    /**
+     * Base URL for Qwen API (optional)
+     * @example "https://dashscope.aliyuncs.com"
+     */
+    baseUrl?: string;
   };
   /**
    * UI theme preference
@@ -374,7 +670,17 @@ export interface AppConfig {
 }
 
 /**
- * @developerNotes Represents a type of enhancement that can be applied to prompts
+ * Represents a type of enhancement that can be applied to prompts.
+ * @developerNotes Defines available enhancement operations with their system prompts.
+ * @example
+ * ```typescript
+ * const enhancement: EnhancementType = {
+ *   id: "enhance",
+ *   name: "Enhance",
+ *   description: "Improve the clarity and structure of the prompt",
+ *   systemPrompt: "You are a helpful assistant that enhances prompts..."
+ * };
+ * ```
  */
 export interface EnhancementType {
   /**
@@ -400,7 +706,17 @@ export interface EnhancementType {
 }
 
 /**
- * @developerNotes Represents a user role that can be assigned to prompts
+ * Represents a user role that can be assigned to prompts.
+ * @developerNotes Defines user personas that influence AI response context and style.
+ * @example
+ * ```typescript
+ * const role: UserRole = {
+ *   id: "developer",
+ *   name: "Developer",
+ *   description: "Technical expert who understands code and systems",
+ *   systemPrompt: "You are a helpful assistant that understands technical concepts..."
+ * };
+ * ```
  */
 export interface UserRole {
   /**
