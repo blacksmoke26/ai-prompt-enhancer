@@ -59,10 +59,24 @@ const ProviderTabNavigation: React.FC<ProviderTabNavigationProps> = (props) => {
    * @developer Note: Update this array when adding new tabs
    */
   const tabs: { id: string; label: string; }[] = [
-    {id: 'ollama', label: 'Ollama (Local)'},
+    {id: 'ollama', label: 'Ollama'},
     {id: 'openai', label: 'OpenAI'},
     {id: 'openrouter', label: 'OpenRouter'},
     {id: 'deepseek', label: 'DeepSeek'},
+    {id: 'coze', label: 'Coze'},
+    {id: 'qianfan', label: 'QianFan'},
+    {id: 'gemini', label: 'Gemini'},
+    {id: 'kimi', label: 'Kimi'},
+    {id: 'groq', label: 'Groq'},
+    {id: 'anthropic', label: 'Anthropic'},
+    {id: 'mistral', label: 'Mistral'},
+    {id: 'nvidia', label: 'Nvidia'},
+    {id: 'cohere', label: 'Cohere'},
+    {id: 'cody', label: 'Cody'},
+    {id: 'xai', label: 'xAI'},
+    {id: 'huggingface', label: 'HuggingFace'},
+    {id: 'siliconflow', label: 'SiliconFlow'},
+    {id: 'glm', label: 'Zhipu'},
   ];
 
   return (
