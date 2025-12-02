@@ -1,3 +1,9 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React from 'react';
 import {Save, RefreshCw, CheckCircle} from 'lucide-react';
 
@@ -55,7 +61,7 @@ const TextStats: React.FC<TextStatsProps> = (props) => {
 
   return (
     <div
-      className="flex items-center justify-between text-xs text-muted-foreground bg-background px-3 py-2 mt-1 rounded-md border">
+      className="flex items-center justify-between text-xs text-muted-foreground bg-background px-3 py-2 mt-1 mb-2 rounded-md border">
       <div className="flex items-center space-x-3">
         <div className="flex items-center space-x-1">
           <span className="font-medium">Chars:</span>
