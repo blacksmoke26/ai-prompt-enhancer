@@ -11,7 +11,7 @@ import {Card, CardContent, CardHeader} from '~/components/ui/Card';
 import FormattingToolbar from './FormattingToolbar';
 import TextStats from './TextStats';
 import WordCloud from './WordCloud';
-import EnhancedPrompt from './EnhancedPrompt';
+import EnhancedPrompt, {EnhancedPromptResponse} from './EnhancedPrompt';
 import ActionButtons from './ActionButtons';
 import AutoSaveIndicator from './AutoSaveIndicator';
 
@@ -477,7 +477,7 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
           )}
 
           {response && (
-            <EnhancedPrompt response={response} originalPrompt={value}/>
+            <EnhancedPrompt response={response as EnhancedPromptResponse} originalPrompt={value}/>
           )}
         </CardContent>
 
