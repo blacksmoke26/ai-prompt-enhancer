@@ -29,6 +29,7 @@ import AdvancedSettingsPanel from './AdvancedSettingsPanel';
 
 // types
 import type {AppConfig} from '~/types';
+import UserRoleSettingsPanel from '~/components/SettingsPanel/UserRoleSettingsPanel.tsx';
 
 /**
  * Type definition for available settings tabs
@@ -36,7 +37,7 @@ import type {AppConfig} from '~/types';
  * const activeTab: SettingsTab = 'general';
  * @developer Note: Add new tabs here and update the renderTabContent function
  */
-export type SettingsTab = 'general' | 'providers' | 'enhancement' | 'data' | 'advanced';
+export type SettingsTab = 'general' | 'providers' | 'enhancement' | 'user-role' | 'data' | 'advanced';
 
 /**
  * Main settings panel component for configuring the AI Prompt Enhancer
@@ -210,6 +211,13 @@ const SettingsPanel: React.FC = () => {
       case 'enhancement':
         return (
           <EnhancementSettingsPanel
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+          />
+        );
+      case 'user-role':
+        return (
+          <UserRoleSettingsPanel
             localConfig={localConfig}
             setLocalConfig={setLocalConfig}
           />
