@@ -7,6 +7,8 @@
 import {ConfigManager} from '~/config/ConfigManager';
 import {BaseAIProvider} from '~/base/BaseAIProvider';
 
+import env from '@junaidatari/env-binder';
+
 // provider imports
 import {OllamaProvider} from '~/providers/OllamaProvider';
 import {OpenAIProvider} from '~/providers/OpenAIProvider';
@@ -84,11 +86,17 @@ export class AIProviderManager {
       this.providers.set('ollama', new OllamaProvider(config.ollama.url));
     }
 
+    const availableProviders: string[] = env.getStringArray('AVAILABLE_PROVIDERS', []);
+
     for (const [key, ctor] of Object.entries(providers)) {
+      if (availableProviders.length && !availableProviders.includes(key)) continue;
+
       const providerName = key as keyof AppConfig;
       const providerConfig = config?.[providerName] as Record<string, any>;
       this.providers.set(key, new ctor(providerConfig?.apiKey, providerConfig?.baseUrl));
     }
+
+    console.log('this.providers:', this.providers);
   }
 
   /**
