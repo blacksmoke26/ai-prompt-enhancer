@@ -160,7 +160,7 @@ const PromptEnhancer: React.FC = () => {
         value={prompt}
         onChange={setPrompt}
         label="Enter Your Prompt"
-        placeholder="Type your prompt here and press Ctrl+Enter to enhance..."
+        placeholder="Type your prompt here..."
         error={error || undefined}
         disabled={loading}
         response={response}
