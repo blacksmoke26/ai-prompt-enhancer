@@ -10,18 +10,15 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {cn, copyToClipboard, downloadFile} from '~/utils/helpers';
 
 // ui components
-import {MdxEditor} from '~/components/ui/MdxEditor';
 import {Card, CardContent, CardHeader} from '~/components/ui/Card';
 
 // components
-import TextStats from './TextStats';
-import WordCloud from './WordCloud';
-import EnhancedPrompt, {type EnhancedPromptResponse} from './EnhancedPrompt';
 import ActionButtons from './ActionButtons';
 import AutoSaveIndicator from './AutoSaveIndicator';
 
 // types
 import type {PromptResponse} from '~/types';
+import EditorContent, {MDXEditorMethods} from '~/components/AdvancedPromptEditor/EditorContent.tsx';
 
 /**
  * Configuration props for the Advanced Prompt Editor component
@@ -181,7 +178,7 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
       listType: 'none',
     },
   });
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<MDXEditorMethods>(null);
 
   /**
    * Calculates text statistics and handles auto-save
@@ -283,6 +280,9 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
    * Clears all text content from the editor
    */
   const handleClear = () => {
+    if (textareaRef.current) {
+      textareaRef.current.setMarkdown('');
+    }
     onChange('');
   };
 
@@ -293,31 +293,6 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
   const handleEnhance = () => {
     if (onEnhance) {
       onEnhance(value);
-    }
-  };
-
-  /**
-   * Handles custom keyboard interactions in textarea
-   * @developer Notes: Inserts 2 spaces for Tab key to maintain formatting.
-   * Calls external key handler if provided.
-   */
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Tab') {
-      e.preventDefault();
-      const start = e.currentTarget.selectionStart;
-      const end = e.currentTarget.selectionEnd;
-      const newValue = value.substring(0, start) + '  ' + value.substring(end);
-      onChange(newValue);
-
-      setTimeout(() => {
-        if (textareaRef.current) {
-          textareaRef.current.selectionStart = textareaRef.current.selectionEnd = start + 2;
-        }
-      }, 0);
-    }
-
-    if (onKeyPress) {
-      onKeyPress(e);
     }
   };
 
@@ -340,75 +315,35 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
         </CardHeader>
 
         <CardContent className="space-y-4 p-3">
-          <div className={cn(
-            'relative',
-            state.isFullscreen && 'fixed inset-0 z-50 bg-background p-8',
-          )}>
-            <MdxEditor
-              value={value}
-              onChange={(content) => onChange(content)}
-              onFocus={() => setState(prev => ({...prev, isFocused: true}))}
-              onBlur={() => setState(prev => ({...prev, isFocused: false}))}
-              readOnly={disabled}
-              placeholder={placeholder}
-              showFormatting={showFormatting}
-              className={cn(
-                'min-h-[400px] resize-none text-sm leading-relaxed transition-all duration-200',
-                state.isFocused && 'ring-2 ring-ring ring-offset-2',
-                disabled && 'opacity-50 cursor-not-allowed',
-                state.isFullscreen && 'min-h-screen',
-                state.formatting.bold && 'font-bold',
-                state.formatting.italic && 'italic',
-                state.formatting.underline && 'underline',
-                state.formatting.alignment === 'center' && 'text-center',
-                state.formatting.alignment === 'right' && 'text-right',
-                state.formatting.listType === 'bullet' && 'list-disc',
-                state.formatting.listType === 'numbered' && 'list-decimal',
-              )}/>
-            {error && (
-              <p className="text-sm text-destructive">{error}</p>
-            )}
-
-            {showStats && (
-              <TextStats
-                wordCount={displayWordCount}
-                charCount={state.charCount}
-                readingTime={state.readingTime}
-                tokenEstimate={state.tokenEstimate}
-                autoSaveStatus={state.autoSaveStatus}
-                lastSaved={state.lastSaved}
-                maxLength={maxLength}
-                displayLineCount={props.displayLineCount ?? true}
-                lineCount={displayLineCount}
-              />
-            )}
-          </div>
-
-          {state.showWordCloud && (
-            <WordCloud
-              wordFrequency={wordFrequency}
-              showWordCloud={state.showWordCloud}
-              setShowWordCloud={(show) => setState(prev => ({...prev, showWordCloud: Boolean(show)}))}
-            />
-          )}
-
-          {showTemplates && (
-            <div className="p-4 border border-border rounded-lg">
-              <h3 className="font-medium mb-2">Templates</h3>
-              <p className="text-sm text-muted-foreground">Template selection would appear here</p>
-            </div>
-          )}
-
-          {showPreview && (
-            <div className="p-4 border border-border rounded-lg">
-              <h3 className="font-medium mb-2">Preview</h3>
-              <p className="text-sm text-muted-foreground">Prompt preview would appear here</p>
-            </div>
-          )}
-
-          {response && (
-            <EnhancedPrompt response={response as EnhancedPromptResponse} originalPrompt={value}/>
-          )}
+          <EditorContent
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            disabled={disabled}
+            error={error}
+            showFormatting={showFormatting}
+            formatting={state.formatting}
+            isFocused={state.isFocused}
+            isFullscreen={state.isFullscreen}
+            showWordCloud={state.showWordCloud}
+            wordFrequency={wordFrequency}
+            setShowWordCloud={(show) => setState(prev => ({...prev, showWordCloud: Boolean(show)}))}
+            showTemplates={showTemplates}
+            showPreview={showPreview}
+            response={response}
+            originalPrompt={value}
+            wordCount={displayWordCount}
+            charCount={state.charCount}
+            readingTime={state.readingTime}
+            tokenEstimate={state.tokenEstimate}
+            autoSaveStatus={state.autoSaveStatus}
+            lastSaved={state.lastSaved}
+            maxLength={maxLength}
+            displayLineCount={props.displayLineCount ?? true}
+            lineCount={displayLineCount}
+            showStats={showStats}
+            ref={textareaRef}
+          />
         </CardContent>
 
         <ActionButtons
