@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+.mdxeditor {
+    min-height: 350px;
+    max-height: 400px;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
