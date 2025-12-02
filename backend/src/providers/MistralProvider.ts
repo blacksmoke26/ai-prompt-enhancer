@@ -6,6 +6,9 @@
 
 import { BaseAIProvider } from '~/base/BaseAIProvider';
 
+// utils
+import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
+
 // types
 import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 
@@ -164,27 +167,8 @@ export class MistralProvider extends BaseAIProvider {
    * - Supports custom system prompts override
    */
   private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = {
-      correct:
-        'You are a grammar and spelling expert. Correct any grammatical errors, spelling mistakes, and improve the clarity of the given prompt while preserving the original intent.',
-      enhance:
-        'You are a prompt engineering expert. Enhance the given prompt by adding relevant details, making it more specific, and improving its effectiveness while maintaining the core intent.',
-      proofread:
-        'You are a professional proofreader. Review and refine the given prompt to make it more effective, clear, and likely to produce high-quality results.',
-      optimize:
-        'You are an AI prompt optimization specialist. Optimize the given prompt to work best with AI models, adding structure, context, and clarity as needed.',
-    };
-
-    const rolePrompts = {
-      general: 'You are a helpful AI assistant.',
-      developer: 'You are an expert software developer and prompt engineer.',
-      writer: 'You are a professional writer and editor.',
-      researcher: 'You are an experienced researcher and academic.',
-      marketer: 'You are a marketing expert.',
-      educator: 'You are an experienced educator.',
-      business: 'You are a business professional.',
-      designer: 'You are a professional designer.',
-    };
+    const enhancementPrompts = toEnhancementTypes();
+    const rolePrompts = toUserRoles();
 
     const systemPrompt =
       request.systemPrompt ??

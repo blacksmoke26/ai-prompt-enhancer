@@ -1,4 +1,13 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import { BaseAIProvider } from '~/base/BaseAIProvider';
+
+// utils
+import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
 import type { PromptRequest, PromptResponse, AIModel } from '~/types';
@@ -225,29 +234,20 @@ export class OllamaProvider extends BaseAIProvider {
    * Falls back to 'enhance' type and 'general' role if invalid values provided.
    */
   private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = {
-      correct: 'You are a grammar and spelling expert. Correct any grammatical errors, spelling mistakes, and improve the clarity of the given prompt while preserving the original intent.',
-      enhance: 'You are a prompt engineering expert. Enhance the given prompt by adding relevant details, making it more specific, and improving its effectiveness while maintaining the core intent.',
-      proofread: 'You are a professional proofreader. Review and refine the given prompt to make it more effective, clear, and likely to produce high-quality results.',
-      optimize: 'You are an AI prompt optimization specialist. Optimize the given prompt to work best with AI models, adding structure, context, and clarity as needed.',
-    };
+    const enhancementPrompts = toEnhancementTypes();
 
-    const rolePrompts = {
-      general: 'You are a helpful AI assistant.',
-      developer: 'You are an expert software developer and prompt engineer.',
-      writer: 'You are a professional writer and editor.',
-      researcher: 'You are an experienced researcher and academic.',
-      marketer: 'You are a marketing expert.',
-      educator: 'You are an experienced educator.',
-      business: 'You are a business professional.',
-      designer: 'You are a professional designer.',
-    };
+    const rolePrompts = toUserRoles();
 
     const systemPrompt = request.systemPrompt ||
       enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ||
       enhancementPrompts.enhance;
 
     const rolePrompt = rolePrompts[request.userRole as keyof typeof rolePrompts] || rolePrompts.general;
+
+    console.log({
+      systemPrompt,
+      rolePrompt
+    });
 
     return `${rolePrompt} ${systemPrompt}`;
   }
