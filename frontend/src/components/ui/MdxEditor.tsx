@@ -20,10 +20,10 @@ import '@mdxeditor/editor/style.css';
  */
 export interface MdxEditorProps extends Partial<MDXEditorProps> {
   /** Current MDX content to be displayed and edited */
-  value: string;
+  value?: string;
 
   /** Callback fired when content changes with the new MDX content */
-  onChange(value: string): void;
+  onChange?(value: string): void;
 
   /** Whether to show formatting toolbar controls (default: true) */
   showFormatting?: boolean;
@@ -89,9 +89,9 @@ export const MdxEditor: React.FC<MdxEditorProps> = (props) => {
    */
   return (
     <MDXEditor
-      markdown={value}
+      markdown={value ?? ''}
       plugins={plugins}
-      onChange={content => onChange(content)}
+      onChange={content => typeof onChange === 'function' && onChange(content)}
       {...rest}
     />
   );
