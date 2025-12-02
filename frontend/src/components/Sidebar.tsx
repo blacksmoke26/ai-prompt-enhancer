@@ -64,10 +64,10 @@ const Sidebar: React.FC<SidebarProps> = ({children}) => {
         className={cn(
           'fixed left-0 top-0 h-full w-64 bg-background border-r border-border z-50 transform transition-transform duration-300 ease-in-out',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-          'lg:translate-x-0 lg:static lg:z-0',
+          'lg:translate-x-0 lg:static lg:z-0 lg:h-screen',
         )}
       >
-        <div className="flex flex-col h-[100vh]">
+        <div className="flex flex-col h-full">
           {/* Header section with title and close button */}
           <div className="flex items-center justify-between p-4 border-b border-border">
             <h1 className="text-lg font-semibold">AI Prompt Enhancer</h1>
