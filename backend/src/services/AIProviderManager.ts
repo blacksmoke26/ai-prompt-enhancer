@@ -87,10 +87,7 @@ export class AIProviderManager {
     for (const [key, ctor] of Object.entries(providers)) {
       const providerName = key as keyof AppConfig;
       const providerConfig = config?.[providerName] as Record<string, any>;
-
-      if (providerConfig?.apiKey) {
-        this.providers.set(key, new ctor(providerConfig.apiKey, providerConfig.baseUrl));
-      }
+      this.providers.set(key, new ctor(providerConfig?.apiKey, providerConfig?.baseUrl));
     }
   }
 
@@ -240,7 +237,8 @@ export class AIProviderManager {
    * ```
    */
   public async testProvider(providerName: string): Promise<boolean> {
-    const provider = this.getProvider(providerName);
+    const provider = this.getProvider(providerName.toLowerCase());
+    console.log('provider:', provider, this);
     if (!provider) return false;
     try {
       return await provider.isAvailable();
