@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useRef} from 'react';
+import React from 'react';
 
 // helpers
 import {cn} from '~/utils/helpers';
@@ -167,23 +167,23 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
         isFullscreen && 'fixed inset-0 z-50 bg-background p-8',
       )}
     >
-      <MdxEditor
-        value={value}
-        onChange={onChange}
-        readOnly={disabled}
-        placeholder={placeholder}
-        showFormatting={showFormatting}
-        className={cn(
-          'min-h-[400px] resize-none text-sm leading-relaxed transition-all duration-200',
-          isFocused && 'ring-2 ring-ring ring-offset-2',
-          disabled && 'opacity-50 cursor-not-allowed',
-        )}
-        onKeyDown={onKeyDown}
-        onFocus={onFocus}
-        onBlur={onBlur}
-        autoFocus
-        ref={ref}
-      />
+        <MdxEditor
+          value={value}
+          onChange={onChange}
+          contentEditableClassName="mdxeditor resize-none text-sm leading-relaxed transition-all duration-200"
+          readOnly={disabled}
+          placeholder={placeholder}
+          showFormatting={showFormatting}
+          className={cn(
+            isFocused && 'ring-2 ring-ring ring-offset-2',
+            disabled && 'opacity-50 cursor-not-allowed',
+          )}
+          onKeyDown={onKeyDown}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          autoFocus
+          ref={ref}
+        />
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {showStats && (
