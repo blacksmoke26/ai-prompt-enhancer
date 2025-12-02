@@ -18,16 +18,22 @@ import type {AIModel, PromptRequest, PromptResponse} from '~/types';
  */
 export class DeepSeekProvider extends BaseAIProvider {
   /**
-   * Creates a new DeepSeek provider instance.
+   * Creates a new DeepSeek provider instance with authentication.
    * @param apiKey - DeepSeek API authentication key
+   * @param baseURL - Optional custom base URL for API requests
+   * @example
+   * ```typescript
+   * const provider = new DeepSeekProvider('api-key', 'https://custom.url');
+   * ```
+   * @developerNote API key is stored in headers for all subsequent requests.
    */
-  constructor(apiKey: string) {
-    super('DeepSeek', 'https://api.deepseek.com');
+  constructor(apiKey: string, baseURL?: string) {
+    super('DeepSeek', baseURL || 'https://api.deepseek.com');
     this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
   }
 
   /**
-   * Retrieves available DeepSeek models.
+   * Retrieves available DeepSeek AI models with their specifications.
    * @returns Promise resolving to array of AI models
    * @example
    * ```typescript
@@ -63,7 +69,7 @@ export class DeepSeekProvider extends BaseAIProvider {
   }
 
   /**
-   * Enhances a prompt using DeepSeek's language models.
+   * Enhances a prompt using DeepSeek's language models with context-aware optimization.
    * @param request - Prompt enhancement request parameters
    * @returns Promise resolving to enhanced prompt response
    * @example
@@ -110,7 +116,7 @@ export class DeepSeekProvider extends BaseAIProvider {
   }
 
   /**
-   * Checks if DeepSeek service is available.
+   * Checks DeepSeek service availability with minimal API request.
    * @returns Promise resolving to boolean indicating availability
    * @example
    * ```typescript
@@ -134,7 +140,7 @@ export class DeepSeekProvider extends BaseAIProvider {
   }
 
   /**
-   * Builds system prompt based on request parameters.
+   * Builds system prompt by combining role and enhancement type contexts.
    * @param request - Prompt request containing enhancement type and user role
    * @returns System prompt string
    * @example

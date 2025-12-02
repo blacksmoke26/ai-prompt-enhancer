@@ -1,33 +1,71 @@
-import { ConfigManager } from '~/config/ConfigManager';
-import { OllamaProvider } from '~/providers/OllamaProvider';
-import { OpenAIProvider } from '~/providers/OpenAIProvider';
-import { OpenRouterProvider } from '~/providers/OpenRouterProvider';
-import { DeepSeekProvider } from '~/providers/DeepSeekProvider';
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
+import {ConfigManager} from '~/config/ConfigManager';
+import {BaseAIProvider} from '~/base/BaseAIProvider';
+
+// provider imports
+import {OllamaProvider} from '~/providers/OllamaProvider';
+import {OpenAIProvider} from '~/providers/OpenAIProvider';
+import {OpenRouterProvider} from '~/providers/OpenRouterProvider';
+import {DeepSeekProvider} from '~/providers/DeepSeekProvider';
+import {CozeProvider} from '~/providers/CozeProvider';
+import {QianFanProvider} from '~/providers/QianFanProvider';
+import {GeminiProvider} from '~/providers/GeminiProvider';
+import {KimiProvider} from '~/providers/KimiProvider';
+import {GroqProvider} from '~/providers/GroqProvider';
+import {AnthropicProvider} from '~/providers/AnthropicProvider';
+import {MistralProvider} from '~/providers/MistralProvider';
+import {NvidiaProvider} from '~/providers/NvidiaProvider';
+import {CohereProvider} from '~/providers/CohereProvider';
+import {CodyProvider} from '~/providers/CodyProvider';
+import {XAIProvider} from '~/providers/XAIProvider';
+import {HuggingFaceProvider} from '~/providers/HuggingFaceProvider';
+import {SiliconFlowProvider} from '~/providers/SiliconFlowProvider';
+import {ZhipuProvider} from '~/providers/ZhipuProvider';
 
 // types
-import type { AIModel, AIProvider } from '~/types';
+import type {AIModel, AIProvider, AppConfig} from '~/types';
+
+const providers: Record<string, new (...args: any[]) => BaseAIProvider> = {
+  openai: OpenAIProvider,
+  openrouter: OpenRouterProvider,
+  deepseek: DeepSeekProvider,
+  coze: CozeProvider,
+  qianfan: QianFanProvider,
+  gemini: GeminiProvider,
+  kimi: KimiProvider,
+  groq: GroqProvider,
+  anthropic: AnthropicProvider,
+  mistral: MistralProvider,
+  nvidia: NvidiaProvider,
+  cohere: CohereProvider,
+  cody: CodyProvider,
+  xai: XAIProvider,
+  huggingface: HuggingFaceProvider,
+  siliconflow: SiliconFlowProvider,
+  zhipu: ZhipuProvider,
+};
 
 /**
- * Manages AI providers and their configurations.
- * Provides centralized access to multiple AI providers and their models.
- *
+ * Manages initialization and access to multiple AI provider implementations.
  * @example
  * ```typescript
  * const manager = new AIProviderManager(configManager);
  * const providers = await manager.getAllProviders();
+ * const models = await manager.getAllModels();
  * ```
- *
- * @developerNote
- * Supports dynamic provider initialization based on configuration.
- * Handles provider availability checks and model retrieval.
+ * @devnote Ensure provider credentials are properly configured before initialization.
  */
 export class AIProviderManager {
   private configManager: ConfigManager;
   private providers: Map<string, BaseAIProvider> = new Map();
 
   /**
-   * Initializes the provider manager with configuration.
+   * Creates an instance of AIProviderManager.
    * @param configManager - The configuration manager instance.
    */
   constructor(configManager: ConfigManager) {
@@ -36,37 +74,29 @@ export class AIProviderManager {
   }
 
   /**
-   * Initializes all available providers based on configuration.
-   * Sets up providers that have valid configuration values.
+   * Initializes all available AI providers based on configuration.
+   * @devnote Providers are only added if their required config is present.
    */
   private initializeProviders(): void {
     const config = this.configManager.getConfig();
 
-    // Initialize Ollama (always available if URL is configured)
-    if (config.ollama.url) {
+    if (config.ollama?.url) {
       this.providers.set('ollama', new OllamaProvider(config.ollama.url));
     }
 
-    // Initialize OpenAI if API key is provided
-    if (config.openai?.apiKey) {
-      this.providers.set('openai', new OpenAIProvider(config.openai.apiKey, config.openai.baseUrl));
-    }
+    for (const [key, ctor] of Object.entries(providers)) {
+      const providerName = key as keyof AppConfig;
+      const providerConfig = config?.[providerName] as Record<string, any>;
 
-    // Initialize OpenRouter if API key is provided
-    if (config.openrouter?.apiKey) {
-      this.providers.set('openrouter', new OpenRouterProvider(config.openrouter.apiKey));
-    }
-
-    // Initialize DeepSeek if API key is provided
-    if (config.deepseek?.apiKey) {
-      this.providers.set('deepseek', new DeepSeekProvider(config.deepseek.apiKey));
+      if (providerConfig?.apiKey) {
+        this.providers.set(key, new ctor(providerConfig.apiKey, providerConfig.baseUrl));
+      }
     }
   }
 
   /**
-   * Retrieves all configured providers with their status.
-   * @returns Promise resolving to array of provider information.
-   *
+   * Retrieves all configured providers with their availability status and models.
+   * @returns Promise resolving to an array of provider information.
    * @example
    * ```typescript
    * const providers = await manager.getAllProviders();
@@ -75,11 +105,9 @@ export class AIProviderManager {
    */
   public async getAllProviders(): Promise<AIProvider[]> {
     const providers: AIProvider[] = [];
-
     for (const [key, provider] of this.providers) {
       const isAvailable = await provider.isAvailable();
       const models = isAvailable ? await provider.getModels() : [];
-
       providers.push({
         name: key,
         models,
@@ -87,23 +115,16 @@ export class AIProviderManager {
         config: this.getProviderConfig(key),
       });
     }
-
     return providers;
   }
 
   /**
-   * Gets all available models from all configured providers.
-   * @returns Promise resolving to array of all available models.
-   *
-   * @example
-   * ```typescript
-   * const models = await manager.getAllModels();
-   * const modelNames = models.map(m => m.name);
-   * ```
+   * Retrieves all available models from all configured providers.
+   * @returns Promise resolving to an array of all available AI models.
+   * @devnote Errors are logged but don't prevent other providers from being processed.
    */
   public async getAllModels(): Promise<AIModel[]> {
     const allModels: AIModel[] = [];
-
     for (const provider of this.providers.values()) {
       try {
         if (await provider.isAvailable()) {
@@ -114,22 +135,28 @@ export class AIProviderManager {
         console.error('Failed to get models from provider:', error);
       }
     }
-
     return allModels;
   }
 
   /**
-   * Retrieves a specific provider by name.
+   * Gets a specific provider instance by name.
    * @param providerName - The name of the provider to retrieve.
    * @returns The provider instance or undefined if not found.
+   * @example
+   * ```typescript
+   * const openai = manager.getProvider('openai');
+   * if (openai) {
+   *   const models = await openai.getModels();
+   * }
+   * ```
    */
   public getProvider(providerName: string): BaseAIProvider | undefined {
     return this.providers.get(providerName.toLowerCase());
   }
 
   /**
-   * Refreshes all providers by reinitializing them.
-   * Useful after configuration changes.
+   * Refreshes all providers by clearing and reinitializing them.
+   * @devnote Useful after configuration changes.
    */
   public async refreshProviders(): Promise<void> {
     this.providers.clear();
@@ -137,9 +164,10 @@ export class AIProviderManager {
   }
 
   /**
-   * Gets configuration details for a specific provider.
+   * Retrieves the configuration for a specific provider.
    * @param providerName - The name of the provider.
-   * @returns The provider configuration or undefined.
+   * @returns The provider configuration or undefined if not found.
+   * @devnote This is a private helper method.
    */
   private getProviderConfig(providerName: string): Record<string, any> | undefined {
     const config = this.configManager.getConfig();
@@ -153,34 +181,67 @@ export class AIProviderManager {
         return config.openrouter;
       case 'deepseek':
         return config.deepseek;
+      case 'coze':
+        return config.coze;
+      case 'qianfan':
+        return config.qianfan;
+      case 'gemini':
+        return config.gemini;
+      case 'kimi':
+        return config.kimi;
+      case 'groq':
+        return config.groq;
+      case 'anthropic':
+        return config.anthropic;
+      case 'mistral':
+        return config.mistral;
+      case 'nvidia':
+        return config.nvidia;
+      case 'cohere':
+        return config.cohere;
+      case 'cody':
+        return config.cody;
+      case 'xai':
+        return config.xai;
+      case 'huggingface':
+        return config.huggingface;
+      case 'siliconflow':
+        return config.siliconflow;
+      case 'zhipu':
+        return config.zhipu;
       default:
         return undefined;
     }
   }
 
   /**
-   * Gets list of all available provider names.
-   * @returns Array of provider names.
+   * Gets the names of all available providers.
+   * @returns An array of provider names.
+   * @example
+   * ```typescript
+   * const names = manager.getAvailableProviderNames();
+   * console.log('Available providers:', names);
+   * ```
    */
   public getAvailableProviderNames(): string[] {
     return Array.from(this.providers.keys());
   }
 
   /**
-   * Tests if a provider is available and responsive.
+   * Tests if a provider is available and properly configured.
    * @param providerName - The name of the provider to test.
-   * @returns Promise resolving to true if provider is available.
-   *
+   * @returns Promise resolving to true if the provider is available.
    * @example
    * ```typescript
    * const isWorking = await manager.testProvider('openai');
-   * if (isWorking) console.log('OpenAI provider is available');
+   * if (isWorking) {
+   *   console.log('OpenAI is available');
+   * }
    * ```
    */
   public async testProvider(providerName: string): Promise<boolean> {
     const provider = this.getProvider(providerName);
     if (!provider) return false;
-
     try {
       return await provider.isAvailable();
     } catch {
