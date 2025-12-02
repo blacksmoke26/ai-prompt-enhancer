@@ -1,17 +1,22 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 // helpers
 import {cn, copyToClipboard, downloadFile} from '~/utils/helpers';
 
 // ui components
-import {Textarea} from '~/components/ui/Textarea';
+import {MdxEditor} from '~/components/ui/MdxEditor';
 import {Card, CardContent, CardHeader} from '~/components/ui/Card';
 
 // components
-import FormattingToolbar from './FormattingToolbar';
 import TextStats from './TextStats';
 import WordCloud from './WordCloud';
-import EnhancedPrompt, {EnhancedPromptResponse} from './EnhancedPrompt';
+import EnhancedPrompt, {type EnhancedPromptResponse} from './EnhancedPrompt';
 import ActionButtons from './ActionButtons';
 import AutoSaveIndicator from './AutoSaveIndicator';
 
@@ -89,7 +94,7 @@ export interface AdvancedPromptEditorProps {
 /**
  * Interface for component state management
  */
-interface EditorState {
+export interface EditorState {
   /** Whether the editor is currently focused */
   isFocused: boolean;
   /** Total number of words in the editor */
@@ -219,69 +224,6 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
   }, [value, autoSave, onAutoSave, state.selectedText]);
 
   /**
-   * Sets up keyboard shortcuts for formatting and fullscreen
-   * @developer Notes: Shortcuts use Ctrl/Meta key combinations to avoid browser conflicts.
-   * F11 toggles fullscreen mode but may conflict with browser's native fullscreen.
-   */
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        switch (e.key) {
-          case 'b':
-            e.preventDefault();
-            setState(prev => ({
-              ...prev,
-              formatting: {...prev.formatting, bold: !prev.formatting.bold},
-            }));
-            break;
-          case 'i':
-            e.preventDefault();
-            setState(prev => ({
-              ...prev,
-              formatting: {...prev.formatting, italic: !prev.formatting.italic},
-            }));
-            break;
-          case 'u':
-            e.preventDefault();
-            setState(prev => ({
-              ...prev,
-              formatting: {...prev.formatting, underline: !prev.formatting.underline},
-            }));
-            break;
-          case 'l':
-            e.preventDefault();
-            setState(prev => ({
-              ...prev,
-              formatting: {...prev.formatting, alignment: 'left'},
-            }));
-            break;
-          case 'e':
-            e.preventDefault();
-            setState(prev => ({
-              ...prev,
-              formatting: {...prev.formatting, alignment: 'center'},
-            }));
-            break;
-          case 'r':
-            e.preventDefault();
-            setState(prev => ({
-              ...prev,
-              formatting: {...prev.formatting, alignment: 'right'},
-            }));
-            break;
-          case 'f11':
-            e.preventDefault();
-            setState(prev => ({...prev, isFullscreen: !prev.isFullscreen}));
-            break;
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  /**
    * Analyzes word frequency in the prompt text
    * @returns Array of top 10 most frequent words with counts
    * @developer Notes: Filters out words shorter than 4 characters for meaningful analysis.
@@ -397,28 +339,21 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
-          {showFormatting && (
-            <FormattingToolbar formatting={state.formatting} setFormatting={(formatting) => setState(prev => ({
-              ...prev,
-              formatting: formatting as EditorState['formatting'],
-            }))}/>
-          )}
-
+        <CardContent className="space-y-4 p-3">
           <div className={cn(
             'relative',
             state.isFullscreen && 'fixed inset-0 z-50 bg-background p-8',
           )}>
-            <Textarea
-              ref={textareaRef}
+            <MdxEditor
               value={value}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(content) => onChange(content)}
+              onFocus={() => setState(prev => ({...prev, isFocused: true}))}
+              onBlur={() => setState(prev => ({...prev, isFocused: false}))}
+              readOnly={disabled}
               placeholder={placeholder}
-              error={error}
-              disabled={disabled}
-              maxLength={maxLength}
+              showFormatting={showFormatting}
               className={cn(
-                'min-h-[400px] resize-none font-mono text-sm leading-relaxed transition-all duration-200',
+                'min-h-[400px] resize-none text-sm leading-relaxed transition-all duration-200',
                 state.isFocused && 'ring-2 ring-ring ring-offset-2',
                 disabled && 'opacity-50 cursor-not-allowed',
                 state.isFullscreen && 'min-h-screen',
@@ -429,15 +364,10 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
                 state.formatting.alignment === 'right' && 'text-right',
                 state.formatting.listType === 'bullet' && 'list-disc',
                 state.formatting.listType === 'numbered' && 'list-decimal',
-              )}
-              onKeyDown={handleKeyDown}
-              onFocus={() => setState(prev => ({...prev, isFocused: true}))}
-              onBlur={() => setState(prev => ({...prev, isFocused: false}))}
-              style={{
-                textAlign: state.formatting.alignment as any,
-                listStyleType: state.formatting.listType === 'numbered' ? 'decimal' : state.formatting.listType === 'bullet' ? 'disc' : 'none',
-              }}
-            />
+              )}/>
+            {error && (
+              <p className="text-sm text-destructive">{error}</p>
+            )}
 
             {showStats && (
               <TextStats
