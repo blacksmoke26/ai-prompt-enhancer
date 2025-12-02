@@ -1,13 +1,7 @@
-/**
- * @author Junaid Atari <mj.atari@gmail.com>
- * @copyright 2025 Junaid Atari
- * @see https://github.com/blacksmoke26
- */
-
 import React, { useState } from 'react';
 
 // types
-import type {AppConfig} from '~/types';
+import type { AppConfig } from '~/types';
 
 // components
 import ProviderTabNavigation from './Providers/ProviderTabNavigation';
@@ -17,6 +11,20 @@ import OllamaProviderSettings from './Providers/OllamaProviderSettings';
 import OpenAIProviderSettings from './Providers/OpenAIProviderSettings';
 import OpenRouterProviderSettings from './Providers/OpenRouterProviderSettings';
 import DeepSeekProviderSettings from './Providers/DeepSeekProviderSettings';
+import CozeProviderSettings from './Providers/CozeProviderSettings';
+import QianFanProviderSettings from './Providers/QianFanProviderSettings';
+import GeminiProviderSettings from './Providers/GeminiProviderSettings';
+import KimiProviderSettings from './Providers/KimiProviderSettings';
+import GroqProviderSettings from './Providers/GroqProviderSettings';
+import AnthropicProviderSettings from './Providers/AnthropicProviderSettings';
+import MistralProviderSettings from './Providers/MistralProviderSettings';
+import NvidiaProviderSettings from './Providers/NvidiaProviderSettings';
+import CohereProviderSettings from './Providers/CohereProviderSettings';
+import CodyProviderSettings from './Providers/CodyProviderSettings';
+import XAIProviderSettings from './Providers/XAIProviderSettings';
+import HuggingFaceProviderSettings from './Providers/HuggingFaceProviderSettings';
+import SiliconFlowProviderSettings from './Providers/SiliconFlowProviderSettings';
+import GLMProviderSettings from './Providers/GLMProviderSettings';
 
 export interface ProviderSettingsPanelProps {
   /** Current configuration values */
@@ -47,35 +55,6 @@ export interface ProviderSettingsPanelProps {
   testProvider(providerName: string): void;
 }
 
-/**
- * ProviderSettingsPanel component renders configuration settings for various AI providers.
- *
- * This component allows users to configure settings for Ollama, OpenAI, OpenRouter, and DeepSeek.
- * It includes input fields for API keys, server URLs, timeouts, and base URLs.
- * Users can test connections to each provider and toggle API key visibility.
- *
- * Example usage:
- * ```tsx
- * <ProviderSettingsPanel
- *   localConfig={config}
- *   setLocalConfig={setConfig}
- *   testingProvider={testingProvider}
- *   setTestingProvider={setTestingProvider}
- *   testResults={testResults}
- *   setTestResults={setTestResults}
- *   showApiKeys={showApiKeys}
- *   setShowApiKeys={setShowApiKeys}
- *   testProvider={testProvider}
- * />
- * ```
- *
- * Developer notes:
- * - The component handles state for multiple providers with consistent patterns
- * - API key visibility toggling uses a record of boolean values
- * - Test results are displayed using Badge components with appropriate variants
- * - Input validation and default values are handled in onChange handlers
- * - The testProvider function is called with provider names as arguments
- */
 const ProviderSettingsPanel: React.FC<ProviderSettingsPanelProps> = (props) => {
   const {
     localConfig,
@@ -148,6 +127,244 @@ const ProviderSettingsPanel: React.FC<ProviderSettingsPanelProps> = (props) => {
         <div>
           <h3 className="text-lg font-semibold mb-4">DeepSeek</h3>
           <DeepSeekProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'coze' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Coze</h3>
+          <CozeProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'qianfan' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">QianFan</h3>
+          <QianFanProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'gemini' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Gemini</h3>
+          <GeminiProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'kimi' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Kimi</h3>
+          <KimiProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'groq' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Groq</h3>
+          <GroqProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'anthropic' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Anthropic</h3>
+          <AnthropicProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'mistral' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Mistral</h3>
+          <MistralProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'nvidia' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Nvidia</h3>
+          <NvidiaProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'cohere' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Cohere</h3>
+          <CohereProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'cody' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Cody</h3>
+          <CodyProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'xai' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">xAI</h3>
+          <XAIProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'huggingface' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">HuggingFace</h3>
+          <HuggingFaceProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'siliconflow' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">SiliconFlow</h3>
+          <SiliconFlowProviderSettings
+            localConfig={localConfig}
+            setLocalConfig={setLocalConfig}
+            testingProvider={testingProvider}
+            setTestingProvider={setTestingProvider}
+            testResults={testResults}
+            setTestResults={setTestResults}
+            showApiKeys={showApiKeys}
+            setShowApiKeys={setShowApiKeys}
+            testProvider={testProvider}
+          />
+        </div>
+      )}
+
+      {activeTab === 'glm' && (
+        <div>
+          <h3 className="text-lg font-semibold mb-4">GLM (Zhipu)</h3>
+          <GLMProviderSettings
             localConfig={localConfig}
             setLocalConfig={setLocalConfig}
             testingProvider={testingProvider}
