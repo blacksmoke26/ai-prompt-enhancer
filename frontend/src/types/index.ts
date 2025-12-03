@@ -190,6 +190,10 @@ export interface AppConfig {
   defaultModel: string;
   /** Default system prompt to use */
   defaultSystemPrompt: string;
+  /** Temperature setting for randomness in output (0-1) */
+  temperature?: number;
+  /** Maximum tokens allowed in the response */
+  maxTokens?: number;
 
   // Provider specific configuration objects
   ollama?: {
@@ -329,7 +333,7 @@ export interface UserRole {
  *   mostUsedEnhancementType: "enhance"
  * };
  * @developerNote
- * Useful for analytics and tracking usage patterns over time.
+ * Useful for analytics and tracking usage patterns.
  */
 export interface HistoryStats {
   /** Total number of history items */

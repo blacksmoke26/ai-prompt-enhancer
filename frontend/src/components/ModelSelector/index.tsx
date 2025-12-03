@@ -17,7 +17,9 @@ import {toSelectGroupedOptions} from '~/utils/helpers';
 // components
 import {Badge} from '~/components/ui/Badge';
 import {Select} from '~/components/ui/Select';
+import {Input} from '~/components/ui/Input';
 import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
+import {Slider} from '@radix-ui/themes';
 
 /**
  * Props for the ModelSelector component
@@ -61,6 +63,8 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
     selectedUserRole,
     setSelectedUserRole,
     selectedProvider,
+    config,
+    setConfig,
   } = useAppStore();
 
   // Get selected model data
@@ -199,6 +203,38 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
               {selectedRoleData.description}
             </p>
           )}
+        </div>
+
+        {/* Temperature */}
+        <div>
+          <label className="text-sm font-medium">Temperature (0-1)</label>
+          <div className="flex items-center space-x-3 pt-1">
+            <Slider
+              min={0}
+              max={1}
+              step={0.01}
+              defaultValue={[config.temperature ?? 0.7]}
+              onValueChange={([value]) => setConfig({temperature: value})}
+              aria-label="Temperature slider"
+              className="w-full"
+            />
+            <span className="text-sm w-10">
+              {config.temperature?.toFixed(2)}
+            </span>
+          </div>
+        </div>
+
+        {/* Max Tokens */}
+        <div>
+          <label className="text-sm font-medium">Max Tokens</label>
+          <Input
+            type="number"
+            value={config.maxTokens ?? 256}
+            onChange={(e) => setConfig({maxTokens: parseInt(e.target.value, 10) || 0})}
+            min={1}
+            aria-label="Maximum number of tokens"
+            className="w-full"
+          />
         </div>
 
         {/* Provider Status */}
