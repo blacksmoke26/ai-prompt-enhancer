@@ -41,6 +41,7 @@ export default async function enhancePrompt(
 
     // Save to history
     historyManager.addToHistory({
+      provider: promptRequest.provider,
       originalPrompt: response.originalPrompt,
       enhancedPrompt: response.enhancedPrompt,
       model: response.model,
