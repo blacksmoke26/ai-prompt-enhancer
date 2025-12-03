@@ -56,6 +56,8 @@ export interface PromptHistory {
   enhancementType: string;
   /** The role or category of the user making the request (e.g., "developer", "content-writer") */
   userRole: string;
+  /** The system prompt used for the request */
+  systemPrompt?: string;
   /** Optional AI service provider name (e.g., "OpenAI", "Anthropic", "Google") */
   provider?: string;
   /** Exact date and time when the prompt was processed */
