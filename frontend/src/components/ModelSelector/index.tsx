@@ -6,7 +6,7 @@
 
 
 import React, {useMemo} from 'react';
-import {Puzzle, User2, WandSparkles} from 'lucide-react';
+import {Cloud, Puzzle, User2, WandSparkles} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -103,11 +103,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
               setSelectedModel('');
             }}
             options={providerOptions}
-            label={<strong><Puzzle className="inline-flex" size="16"/> AI Provider</strong>}
+            label={<strong><Cloud className="inline-flex" size="16"/> AI Provider</strong>}
             formatOptionLabel={(option, context) => {
               return context?.context === 'menu'
-                ? <div><Puzzle className="inline-flex" size="16"/> {option.label}</div>
-                : <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
+                ? <div><Cloud className="inline-flex" size="16"/> {option.label}</div>
+                : <div>{option.label}</div>;
             }}
           />
         </div>
@@ -117,7 +117,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
           <Select
             isSearchable
             value={selectedModel}
-            onChange={(e, option) => {
+            onChange={(e) => {
               setSelectedModel(e as string);
             }}
             options={toSelectGroupedOptions(filteredModels, 'provider')}
@@ -127,8 +127,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
                 ? <div><Puzzle className="inline-flex" size="16"/> {option.label} <span
                   className="text-xs">({option.value.replace(option.label + ':', '')})</span><p
                   className="text-xs pl-5 mt-1">{option.description}</p></div>
-                : <div>{option.label} <span className="text-xs">({option.value.replace(option.label + ':', '')})</span>
-                  <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
+                : (
+                  <div>
+                    {option.label} <span className="text-xs">({option.value.replace(option.label + ':', '')})</span>
+                  </div>
+                );
             }}
             disabled={!selectedProvider}
           />
