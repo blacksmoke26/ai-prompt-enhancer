@@ -52,4 +52,5 @@ test
 prompt
 
 server.log
-backend/history.json
+backend/history*.json
+backend/config*.json
