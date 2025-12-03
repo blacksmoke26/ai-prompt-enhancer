@@ -95,8 +95,6 @@ export class AIProviderManager {
       const providerConfig = config?.[providerName] as Record<string, any>;
       this.providers.set(key, new ctor(providerConfig?.apiKey, providerConfig?.baseUrl));
     }
-
-    console.log('this.providers:', this.providers);
   }
 
   /**
