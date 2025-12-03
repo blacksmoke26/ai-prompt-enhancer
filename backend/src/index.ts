@@ -12,12 +12,15 @@ import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import websocket from '@fastify/websocket';
 
+// classes
 import { ConfigManager } from './config/ConfigManager';
 import { AIProviderManager } from './services/AIProviderManager';
 import { HistoryManager } from './services/HistoryManager';
-import { promptRoutes } from './controllers/promptController';
-import { historyRoutes } from './controllers/historyController';
-import { configRoutes } from './controllers/configController';
+
+// controllers
+import promptController from './controllers/promptController';
+import historyController from './controllers/historyController';
+import configController from './controllers/configController';
 
 /**
  * Creates and configures a Fastify server instance with plugins, routes, and WebSocket support.
@@ -91,9 +94,9 @@ async function createServer() {
   fastify.head('*', (_req, reply) => reply.send(204));
 
   // Register routes
-  fastify.register(promptRoutes, { prefix: '/api/prompts', providerManager, historyManager });
-  fastify.register(historyRoutes, { prefix: '/api/history', historyManager });
-  fastify.register(configRoutes, { prefix: '/api/config', configManager });
+  fastify.register(promptController, { prefix: '/api/prompts', providerManager, historyManager });
+  fastify.register(historyController, { prefix: '/api/history', historyManager });
+  fastify.register(configController, { prefix: '/api/config', configManager });
 
   /**
    * WebSocket connection handler for real-time updates.
