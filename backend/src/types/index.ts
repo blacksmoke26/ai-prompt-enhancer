@@ -100,7 +100,7 @@ export interface PromptRequest {
    * Type of enhancement to apply to the prompt
    * @example "enhance"
    */
-  enhancementType?: 'correct' | 'enhance' | 'proofread' | 'optimize' | 'creative' | 'technical' | 'concise' | 'structured' | 'audience' | 'tone' | 'length' | 'simplify' | 'expand' | 'format';
+  enhancementType?: string;
   /**
    * User role that determines the context for the AI response
    * @developerNotes Sets the professional context for the AI's response based on user's background
