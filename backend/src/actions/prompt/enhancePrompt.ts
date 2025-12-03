@@ -51,6 +51,9 @@ export default async function enhancePrompt(
       timestamp: response.timestamp,
       tokensUsed: response.tokensUsed,
       processingTime: response.processingTime,
+      temperature: promptRequest.temperature,
+      maxTokens: promptRequest.maxTokens,
+
     });
 
     return response;

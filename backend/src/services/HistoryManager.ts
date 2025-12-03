@@ -66,6 +66,10 @@ export interface PromptHistory {
   tokensUsed?: number;
   /** Time taken to process the prompt in milliseconds */
   processingTime: number;
+  /** Temperature setting for randomness in output (0-1) */
+  temperature?: number;
+  /** Maximum tokens allowed in the response */
+  maxTokens?: number;
 }
 
 /**
