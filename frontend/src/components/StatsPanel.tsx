@@ -1,4 +1,5 @@
 /**
+ * @fileoverview Statistics panel component for displaying AI prompt usage metrics.
  * @author Junaid Atari <mj.atari@gmail.com>
  * @copyright 2025 Junaid Atari
  * @see https://github.com/blacksmoke26
@@ -12,29 +13,130 @@ import {formatDuration} from '~/utils/helpers';
 // components
 import {Card, CardContent, CardHeader, CardTitle} from './ui/Card';
 
-// types
-import type {HistoryStats} from '~/types/index';
+/**
+ * Represents a provider-model usage bucket.
+ * @example
+ * ```typescript
+ * const usage: ProviderUsage = {
+ *   provider: 'OpenAI',
+ *   model: 'gpt-4',
+ *   count: 42
+ * };
+ * ```
+ * @developerNotes Used to track how many times each provider/model combination was used
+ */
+export interface ProviderUsage {
+  /** The provider used for the prompt. */
+  provider: string;
+  /** The model used for the prompt. */
+  model: string;
+  /** The number of times this provider/model combination was used. */
+  count: number;
+}
+
+/**
+ * Represents a role usage bucket.
+ * @example
+ * ```typescript
+ * const role: RoleUsage = {
+ *   role: 'system',
+ *   count: 15
+ * };
+ * ```
+ * @developerNotes Tracks the frequency of different roles in prompts (system, user, assistant)
+ */
+export interface RoleUsage {
+  /** The role used for the prompt. */
+  role: string;
+  /** The number of times this role was used. */
+  count: number;
+}
+
+/**
+ * Comprehensive statistics shape returned by `HistoryManager.getStats`.
+ * @example
+ * ```typescript
+ * const stats: StatsPanelStats = {
+ *   totalItems: 100,
+ *   totalTokensUsed: 50000,
+ *   averageProcessingTime: 2.5,
+ *   mostUsedModel: 'gpt-4',
+ *   mostUsedEnhancementType: 'summary'
+ * };
+ * ```
+ * @developerNotes All numeric fields should be provided, optional fields may be omitted
+ */
+export interface StatsPanelStats {
+  /** Total number of processed items/prompts. */
+  totalItems: number;
+  /** Total number of tokens used across all items. */
+  totalTokensUsed: number;
+  /** Average processing time per item in seconds. */
+  averageProcessingTime: number;
+  /** The most frequently used model name. */
+  mostUsedModel: string;
+  /** The most frequently used enhancement type. */
+  mostUsedEnhancementType: string;
+  /** Array of provider-specific usage statistics. */
+  providerUsage?: ProviderUsage[];
+  /** Array of role usage statistics sorted by frequency. */
+  mostUsedRoles?: RoleUsage[];
+  /** Total word count across all processed text. */
+  totalWords?: number;
+  /** Total line count across all processed text. */
+  totalLines?: number;
+  /** Total character count across all processed text. */
+  totalChars?: number;
+}
 
 /**
  * Props for the StatsPanel component.
- * @developer-notes Ensure stats is properly validated before passing to avoid null reference errors.
+ * @remarks
+ * The component is resilient to missing fields – when optional
+ * statistics are not available a fallback of `0` or `"N/A"` is shown.
+ * @example
+ * ```typescript
+ * <StatsPanel stats={usageStats} />
+ * ```
+ * @developerNotes Pass null or undefined stats to show empty state with zeros
  */
-export interface StatsPanelProps {
+interface StatsPanelProps {
   /** Statistics data to display, or null if no data is available. */
-  stats: HistoryStats | null;
+  stats: StatsPanelStats | null;
 }
 
 /**
  * Utility for formatting numbers safely.
- * @param num Value to format; returns '0' for null/undefined.
+ * @param num Value to format; returns `'0'` for null/undefined.
+ * @example
+ * ```typescript
+ * formatNumber(1234.56); // "1,235"
+ * formatNumber(null); // "0"
+ * ```
+ * @developerNotes Handles NaN and null/undefined gracefully
  */
 const formatNumber = (num: number | undefined | null) => {
   if (num == null || isNaN(num)) return '0';
   return num.toLocaleString();
 };
 
+/**
+ * Statistics panel component displaying AI prompt usage metrics.
+ * @example
+ * ```typescript
+ * <StatsPanel
+ *   stats={{
+ *     totalItems: 50,
+ *     totalTokensUsed: 25000,
+ *     averageProcessingTime: 1.5,
+ *     mostUsedModel: 'gpt-3.5-turbo',
+ *     mostUsedEnhancementType: 'expand'
+ *   }}
+ * />
+ * ```
+ * @developerNotes Component automatically calculates derived metrics like averages and rates
+ */
 const StatsPanel: React.FC<StatsPanelProps> = ({stats}) => {
-  // Derived metrics
   const totalItems = stats?.totalItems ?? 0;
   const totalTokens = stats?.totalTokensUsed ?? 0;
   const avgProcessing = stats?.averageProcessingTime ?? 0;
@@ -145,13 +247,15 @@ const StatsPanel: React.FC<StatsPanelProps> = ({stats}) => {
               </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-              {(stats as any)?.providerUsage?.length ? (stats as any).providerUsage.map((pu: any, idx: number) => (
-                <tr key={idx}>
-                  <td className="px-2 py-1 whitespace-nowrap">{pu.provider}</td>
-                  <td className="px-2 py-1 whitespace-nowrap">{pu.model}</td>
-                  <td className="px-2 py-1 whitespace-nowrap">{pu.count}</td>
-                </tr>
-              )) : (
+              {stats?.providerUsage?.length ? (
+                stats.providerUsage.map((pu, idx) => (
+                  <tr key={idx}>
+                    <td className="px-2 py-1 whitespace-nowrap">{pu.provider}</td>
+                    <td className="px-2 py-1 whitespace-nowrap">{pu.model}</td>
+                    <td className="px-2 py-1 whitespace-nowrap">{pu.count}</td>
+                  </tr>
+                ))
+              ) : (
                 <tr>
                   <td className="px-2 py-1 text-sm" colSpan={3}>
                     No provider usage data available.
@@ -179,12 +283,14 @@ const StatsPanel: React.FC<StatsPanelProps> = ({stats}) => {
               </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-              {(stats as any)?.mostUsedRoles?.length ? (stats as any).mostUsedRoles.map((r: any, idx: number) => (
-                <tr key={idx}>
-                  <td className="px-2 py-1 whitespace-nowrap">{r.role}</td>
-                  <td className="px-2 py-1 whitespace-nowrap">{r.count}</td>
-                </tr>
-              )) : (
+              {stats?.mostUsedRoles?.length ? (
+                stats.mostUsedRoles.map((r, idx) => (
+                  <tr key={idx}>
+                    <td className="px-2 py-1 whitespace-nowrap">{r.role}</td>
+                    <td className="px-2 py-1 whitespace-nowrap">{r.count}</td>
+                  </tr>
+                ))
+              ) : (
                 <tr>
                   <td className="px-2 py-1 text-sm" colSpan={2}>
                     No role usage data available.
@@ -203,19 +309,19 @@ const StatsPanel: React.FC<StatsPanelProps> = ({stats}) => {
             <div>
               <div className="text-sm font-medium mb-1">Total Words</div>
               <div className="text-lg font-bold text-primary">
-                {(stats as any)?.totalWords ?? 0}
+                {stats?.totalWords ?? 0}
               </div>
             </div>
             <div>
               <div className="text-sm font-medium mb-1">Total Lines</div>
               <div className="text-lg font-bold text-primary">
-                {(stats as any)?.totalLines ?? 0}
+                {stats?.totalLines ?? 0}
               </div>
             </div>
             <div>
               <div className="text-sm font-medium mb-1">Total Chars</div>
               <div className="text-lg font-bold text-primary">
-                {(stats as any)?.totalChars ?? 0}
+                {stats?.totalChars ?? 0}
               </div>
             </div>
           </div>
