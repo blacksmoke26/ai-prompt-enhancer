@@ -1,4 +1,11 @@
-import React from 'react';
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
+
+import React, {useMemo} from 'react';
 import {Puzzle, User2, WandSparkles} from 'lucide-react';
 
 // store
@@ -9,7 +16,7 @@ import {toSelectGroupedOptions} from '~/utils/helpers';
 
 // components
 import {Badge} from '~/components/ui/Badge';
-import {Select, SelectOption} from '~/components/ui/Select';
+import {Select} from '~/components/ui/Select';
 import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
 
 /**
@@ -28,9 +35,17 @@ export interface ModelSelectorProps {
  * <ModelSelector className="w-full max-w-md" />
  * @developerNotes
  * - Uses Zustand store for state management
+ * - Split model selection into two dropdowns: provider and model
  * - Groups models by provider for better organization
  * - Displays provider connection status
  * - Includes descriptions for enhancement types and user roles
+ *
+ * @changes
+ * - Split AI Model selection into two dropdowns:
+ *   1. Provider selection dropdown
+ *   2. Model selection dropdown (filtered by selected provider)
+ * - Maintained all existing functionality for enhancement types and user roles
+ * - Preserved model display formatting with badges and context information
  */
 const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
   const {
@@ -45,10 +60,31 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
     setSelectedEnhancementType,
     selectedUserRole,
     setSelectedUserRole,
+    selectedProvider,
   } = useAppStore();
+
+  // Get selected model data
   const selectedModelData = models.find(model => model.id === selectedModel);
+
+  // Get enhancement and role data for display
   const selectedEnhancementData = enhancementTypes.find(type => type.id === selectedEnhancementType);
   const selectedRoleData = userRoles.find(role => role.id === selectedUserRole);
+
+  // Filter models by selected provider
+  const filteredModels = useMemo(() => {
+    if (!selectedProvider) return [];
+    return models.filter(model => model.provider === selectedProvider);
+  }, [models, selectedProvider]);
+
+  // Get provider options for the provider dropdown
+  const providerOptions = useMemo(() => {
+    const providerNames = Array.from(new Set(models.map(model => model.provider)));
+    return providerNames.map(provider => ({
+      value: provider,
+      label: provider,
+      category: provider,
+    }));
+  }, [models]);
 
   return (
     <Card className={className}>
@@ -56,22 +92,45 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
         <CardTitle className="text-lg">AI Configuration</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Provider Selection */}
+        <div>
+          <Select
+            isSearchable
+            value={selectedProvider}
+            onChange={(e) => {
+              setSelectedProvider(e as string);
+              // Reset selected model when provider changes
+              setSelectedModel('');
+            }}
+            options={providerOptions}
+            label={<strong><Puzzle className="inline-flex" size="16"/> AI Provider</strong>}
+            formatOptionLabel={(option, context) => {
+              return context?.context === 'menu'
+                ? <div><Puzzle className="inline-flex" size="16"/> {option.label}</div>
+                : <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
+            }}
+          />
+        </div>
+
         {/* Model Selection */}
         <div>
           <Select
             isSearchable
             value={selectedModel}
             onChange={(e, option) => {
-              setSelectedProvider((option as SelectOption).category as string);
               setSelectedModel(e as string);
             }}
-            options={toSelectGroupedOptions(models, 'provider')}
-            label={<strong><Puzzle className="inline-flex" size="16" /> AI Model</strong>}
+            options={toSelectGroupedOptions(filteredModels, 'provider')}
+            label={<strong><Puzzle className="inline-flex" size="16"/> AI Model</strong>}
             formatOptionLabel={(option, context) => {
               return context?.context === 'menu'
-                ? <div><Puzzle className="inline-flex" size="16" /> {option.label} <span className="text-xs">({option.value.replace(option.label + ':', '')})</span><p className="text-xs pl-5 mt-1">{option.description}</p></div>
-                : <div>{option.label} <span className="text-xs">({option.value.replace(option.label + ':', '')})</span> <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
+                ? <div><Puzzle className="inline-flex" size="16"/> {option.label} <span
+                  className="text-xs">({option.value.replace(option.label + ':', '')})</span><p
+                  className="text-xs pl-5 mt-1">{option.description}</p></div>
+                : <div>{option.label} <span className="text-xs">({option.value.replace(option.label + ':', '')})</span>
+                  <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
             }}
+            disabled={!selectedProvider}
           />
           {selectedModelData && (
             <div className="mt-2 flex flex-wrap gap-2">
@@ -100,10 +159,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
             onChange={(e) => setSelectedEnhancementType(e as string)}
             options={toSelectGroupedOptions(enhancementTypes)}
 
-            label={<strong><WandSparkles className="inline-flex" size="16" /> Enhancement Type</strong>}
+            label={<strong><WandSparkles className="inline-flex" size="16"/> Enhancement Type</strong>}
             formatOptionLabel={(option, context) => {
               return context?.context === 'menu'
-                ? <div><WandSparkles className="inline-flex" size="16" /> {option.label}<p className="text-xs pl-5 mt-1">{option.description}</p></div>
+                ? <div><WandSparkles className="inline-flex" size="16"/> {option.label}<p
+                  className="text-xs pl-5 mt-1">{option.description}</p></div>
                 : <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
             }}
           />
@@ -123,10 +183,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
               setSelectedUserRole(e as string);
             }}
             options={toSelectGroupedOptions(userRoles)}
-            label={<strong><User2 className="inline-flex" size="16" /> User Role</strong>}
+            label={<strong><User2 className="inline-flex" size="16"/> User Role</strong>}
             formatOptionLabel={(option, context) => {
               return context?.context === 'menu'
-                ? <div><User2 className="inline-flex" size="16" /> {option.label}<p className="text-xs pl-5 mt-1">{option.description}</p></div>
+                ? <div><User2 className="inline-flex" size="16"/> {option.label}<p
+                  className="text-xs pl-5 mt-1">{option.description}</p></div>
                 : <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
             }}
           />
