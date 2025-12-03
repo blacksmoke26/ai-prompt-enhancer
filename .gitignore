@@ -50,7 +50,7 @@ local-*
 dev.log
 test
 prompt
-
+.trash
 server.log
 backend/history*.json
 backend/config*.json
