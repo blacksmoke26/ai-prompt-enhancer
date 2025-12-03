@@ -1,7 +1,26 @@
-import { FastifyInstance } from 'fastify';
-import { ConfigManager } from '~/config/ConfigManager';
-import { configUpdateSchema } from '~/utils/validation';
-import { enhancementTypes, userRoles } from '~/config/constants';
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
+// classes
+import {ConfigManager} from '~/config/ConfigManager';
+
+// utils
+import {configUpdateSchema} from '~/utils/validation';
+
+// actions
+import getConfig from '~/actions/config/getConfig';
+import updateConfig from '~/actions/config/updateConfig';
+import resetConfig from '~/actions/config/resetConfig';
+import exportConfig from '~/actions/config/exportConfig';
+import importConfig from '~/actions/config/importConfig';
+import getEnhancementTypes from '~/actions/config/getEnhancementTypes';
+import getUserRoles from '~/actions/config/getUserRoles';
+
+// types
+import type {FastifyInstance} from 'fastify';
 
 /**
  * Registers configuration management routes for Fastify.
@@ -13,21 +32,21 @@ import { enhancementTypes, userRoles } from '~/config/constants';
  * ```
  * @developer-note Ensure configManager is properly initialized before registering routes
  */
-export async function configRoutes(fastify: FastifyInstance, options: { configManager: ConfigManager }) {
-  const { configManager } = options;
+export default async function configRoutes(fastify: FastifyInstance, options: { configManager: ConfigManager }) {
+  const {configManager} = options;
 
   /**
    * Retrieves the current application configuration.
    * @example GET /config
    * @developer-note Returns the full config object with all settings
    */
-  fastify.get('/', async (request, reply) => {
+  fastify.get('/', async (_request, reply) => {
     try {
-      const config = configManager.getConfig();
+      const config = await getConfig(configManager);
       return reply.code(200).send(config);
     } catch (error: any) {
       fastify.log.error('Failed to get config:', error);
-      return reply.code(500).send({ error: 'Failed to fetch config' });
+      return reply.code(500).send({error: 'Failed to fetch config'});
     }
   });
 
@@ -40,21 +59,19 @@ export async function configRoutes(fastify: FastifyInstance, options: { configMa
     try {
       const updates = request.body;
 
-      const { error, value } = configUpdateSchema.validate(updates);
+      const {error, value} = configUpdateSchema.validate(updates);
       if (error) {
         return reply.code(400).send({
           error: 'Validation failed',
-          details: error.details.map(detail => detail.message)
+          details: error.details.map(detail => detail.message),
         });
       }
 
-      configManager.updateConfig(value);
-      const updatedConfig = configManager.getConfig();
-
+      const updatedConfig = await updateConfig(configManager, value);
       return reply.code(200).send(updatedConfig);
     } catch (error: any) {
       fastify.log.error('Failed to update config:', error);
-      return reply.code(500).send({ error: 'Failed to update config' });
+      return reply.code(500).send({error: 'Failed to update config'});
     }
   });
 
@@ -63,14 +80,13 @@ export async function configRoutes(fastify: FastifyInstance, options: { configMa
    * @example POST /config/reset
    * @developer-note This action is irreversible - ensure user confirmation in UI
    */
-  fastify.post('/reset', async (request, reply) => {
+  fastify.post('/reset', async (_request, reply) => {
     try {
-      configManager.resetConfig();
-      const config = configManager.getConfig();
+      const config = await resetConfig(configManager);
       return reply.code(200).send(config);
     } catch (error: any) {
       fastify.log.error('Failed to reset config:', error);
-      return reply.code(500).send({ error: 'Failed to reset config' });
+      return reply.code(500).send({error: 'Failed to reset config'});
     }
   });
 
@@ -79,9 +95,9 @@ export async function configRoutes(fastify: FastifyInstance, options: { configMa
    * @example GET /config/export
    * @developer-note Response headers force file download with timestamp
    */
-  fastify.get('/export', async (request, reply) => {
+  fastify.get('/export', async (_request, reply) => {
     try {
-      const configJson = configManager.exportConfig();
+      const configJson = await exportConfig(configManager);
 
       reply.header('Content-Type', 'application/json');
       reply.header('Content-Disposition', `attachment; filename="prompt-enhancer-config-${new Date().toISOString().split('T')[0]}.json"`);
@@ -89,7 +105,7 @@ export async function configRoutes(fastify: FastifyInstance, options: { configMa
       return reply.code(200).send(configJson);
     } catch (error: any) {
       fastify.log.error('Failed to export config:', error);
-      return reply.code(500).send({ error: 'Failed to export config' });
+      return reply.code(500).send({error: 'Failed to export config'});
     }
   });
 
@@ -100,23 +116,19 @@ export async function configRoutes(fastify: FastifyInstance, options: { configMa
    */
   fastify.post('/import', async (request, reply) => {
     try {
-      const { configJson } = request.body as { configJson: string };
+      const {configJson} = request.body as { configJson: string };
 
-      if (!configJson) {
-        return reply.code(400).send({ error: 'configJson is required' });
-      }
-
-      const success = configManager.importConfig(configJson);
+      const success = await importConfig(configManager, configJson);
 
       if (!success) {
-        return reply.code(400).send({ error: 'Invalid config JSON' });
+        return reply.code(400).send({error: 'Invalid config JSON'});
       }
 
-      const config = configManager.getConfig();
+      const config = await getConfig(configManager);
       return reply.code(200).send(config);
     } catch (error: any) {
       fastify.log.error('Failed to import config:', error);
-      return reply.code(500).send({ error: 'Failed to import config' });
+      return reply.code(500).send({error: 'Failed to import config'});
     }
   });
 
@@ -125,12 +137,13 @@ export async function configRoutes(fastify: FastifyInstance, options: { configMa
    * @example GET /config/enhancement-types
    * @developer-note Used to populate dropdown options in UI
    */
-  fastify.get('/enhancement-types', async (request, reply) => {
+  fastify.get('/enhancement-types', async (_request, reply) => {
     try {
-      return reply.code(200).send(enhancementTypes);
+      const types = await getEnhancementTypes();
+      return reply.code(200).send(types);
     } catch (error: any) {
       fastify.log.error('Failed to get enhancement types:', error);
-      return reply.code(500).send({ error: 'Failed to fetch enhancement types' });
+      return reply.code(500).send({error: 'Failed to fetch enhancement types'});
     }
   });
 
@@ -139,12 +152,13 @@ export async function configRoutes(fastify: FastifyInstance, options: { configMa
    * @example GET /config/user-roles
    * @developer-note Used for role-based access control configurations
    */
-  fastify.get('/user-roles', async (request, reply) => {
+  fastify.get('/user-roles', async (_request, reply) => {
     try {
-      return reply.code(200).send(userRoles);
+      const roles = await getUserRoles();
+      return reply.code(200).send(roles);
     } catch (error: any) {
       fastify.log.error('Failed to get user roles:', error);
-      return reply.code(500).send({ error: 'Failed to fetch user roles' });
+      return reply.code(500).send({error: 'Failed to fetch user roles'});
     }
   });
 }
