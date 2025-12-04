@@ -125,6 +125,8 @@ export interface PromptHistory {
   enhancedPrompt: string;
   /** The AI model used for enhancement */
   model: string;
+  /** The AI provider used for enhancement */
+  provider: string;
   /** Type of enhancement applied */
   enhancementType: string;
   /** Role used during enhancement */
@@ -137,6 +139,10 @@ export interface PromptHistory {
   tokensUsed?: number;
   /** Time taken to process the request in seconds */
   processingTime: number;
+  /** Temperature setting for randomness in output (0-1) */
+  temperature?: number;
+  /** Maximum tokens allowed in the response */
+  maxTokens?: number;
   /** User rating for the enhancement (1-5) */
   rating?: number;
   /** User notes about the enhancement */
