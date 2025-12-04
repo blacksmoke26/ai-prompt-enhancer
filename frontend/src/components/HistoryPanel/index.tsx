@@ -53,6 +53,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   const [selectedModel, setSelectedModel] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [selectedEnhancementType, setSelectedEnhancementType] = useState<string>('');
+  const [selectedProvider, setSelectedProvider] = useState<string>('');
   const [ratingFilter, setRatingFilter] = useState(0);
   const [dateRange, setDateRange] = useState<[string | null, string | null]>([
     null,
@@ -77,6 +78,10 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
     () => Array.from(new Set(history.map((h) => h.enhancementType))),
     [history]
   );
+  const providers = useMemo(
+    () => Array.from(new Set(history.map((h) => h.provider))),
+    [history]
+  );
 
   const filteredHistory = useMemo(() => {
     return history.filter((item) => {
@@ -91,10 +96,11 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
         selectedEnhancementType
           ? item.enhancementType === selectedEnhancementType
           : true;
+      const matchesProvider =
+        selectedProvider ? item.provider === selectedProvider : true;
 
-      const matchesRating = ratingFilter
-        ? (item.rating ?? 0) >= ratingFilter
-        : true;
+      const matchesRating =
+        ratingFilter ? (item.rating ?? 0) >= ratingFilter : true;
 
       const itemDate = new Date(item.timestamp);
       const [start, end] = dateRange;
@@ -107,6 +113,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
         matchesModel &&
         matchesRole &&
         matchesEnhancement &&
+        matchesProvider &&
         matchesRating &&
         matchesDate
       );
@@ -117,6 +124,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
     selectedModel,
     selectedRole,
     selectedEnhancementType,
+    selectedProvider,
     ratingFilter,
     dateRange,
   ]);
@@ -182,6 +190,9 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
           enhancementTypes={enhancementTypes}
           selectedEnhancementType={selectedEnhancementType}
           setSelectedEnhancementType={setSelectedEnhancementType}
+          providers={providers}
+          selectedProvider={selectedProvider}
+          setSelectedProvider={setSelectedProvider}
         />
       </CardHeader>
       <CardContent>

@@ -1,9 +1,3 @@
-/**
- * @author Junaid Atari <mj.atari@gmail.com>
- * @copyright 2025 Junaid Atari
- * @see https://github.com/blacksmoke26
- */
-
 import React from 'react';
 
 // ui components
@@ -30,6 +24,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/Card';
  * @property enhancementTypes Array of distinct enhancement types for the type filter.
  * @property selectedEnhancementType Currently selected enhancement type filter.
  * @property setSelectedEnhancementType Setter for selected enhancement type.
+ * @property providers        Array of distinct providers for the provider filter.
+ * @property selectedProvider Currently selected provider filter.
+ * @property setSelectedProvider Setter for selected provider.
  */
 export interface FilterPanelProps {
   searchQuery: string;
@@ -47,6 +44,9 @@ export interface FilterPanelProps {
   enhancementTypes: string[];
   selectedEnhancementType: string;
   setSelectedEnhancementType: (type: string) => void;
+  providers: string[];
+  selectedProvider: string;
+  setSelectedProvider: (provider: string) => void;
 }
 
 /**
@@ -54,6 +54,7 @@ export interface FilterPanelProps {
  *
  * It includes:
  * - Text search
+ * - Provider selector
  * - Model selector
  * - User role selector
  * - Enhancement type selector
@@ -80,6 +81,9 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
   enhancementTypes,
   selectedEnhancementType,
   setSelectedEnhancementType,
+  providers,
+  selectedProvider,
+  setSelectedProvider,
 }) => {
   const [startDate, endDate] = dateRange;
 
@@ -98,6 +102,11 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
     ...enhancementTypes.map((t) => ({ value: t, label: t })),
   ];
 
+  const providerOptions = [
+    { value: '', label: 'All' },
+    ...providers.map((p) => ({ value: p, label: p })),
+  ];
+
   return (
     <Card className="mb-4">
       <CardHeader>
@@ -112,6 +121,17 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
             placeholder="Search prompts…"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
+
+        {/* Provider selector */}
+        <div>
+          <Label htmlFor="history-provider">Provider</Label>
+          <Select
+            id="history-provider"
+            options={providerOptions}
+            value={selectedProvider}
+            onChange={(value) => setSelectedProvider(value as string)}
           />
         </div>
 
