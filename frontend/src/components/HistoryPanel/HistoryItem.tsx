@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import {Eye, Trash2, Edit} from 'lucide-react';
+import {Eye, Trash2, Edit, Copy, Check} from 'lucide-react';
 
 // ui components
 import {Badge} from '~/components/ui/Badge';
@@ -35,6 +35,7 @@ import type {PromptHistory} from '~/types/index';
  * @property onNotesSave    Callback to save notes (triggers parent update).
  * @property onNotesCancel  Callback to cancel notes editing.
  * @property onEditNotes   Callback to initiate notes editing.
+ * @property onCopyPrompt   Callback to copy prompt to editor.
  */
 export interface HistoryItemProps {
   item: PromptHistory;
@@ -48,6 +49,7 @@ export interface HistoryItemProps {
   onNotesSave: () => void;
   onNotesCancel: () => void;
   onEditNotes: () => void;
+  onCopyPrompt: (prompt: string, isEnhanced: boolean) => void;
 }
 
 /**
@@ -69,14 +71,25 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
   onNotesSave,
   onNotesCancel,
   onEditNotes,
+  onCopyPrompt,
 }) => {
+  const [copied, setCopied] = React.useState<{ original?: boolean; enhanced?: boolean }>({});
+
+  const handleCopy = (prompt: string, isEnhanced: boolean) => {
+    navigator.clipboard.writeText(prompt);
+    setCopied(prev => ({ ...prev, [isEnhanced ? 'enhanced' : 'original']: true }));
+    setTimeout(() => {
+      setCopied(prev => ({ ...prev, [isEnhanced ? 'enhanced' : 'original']: false }));
+    }, 2000);
+  };
+
   return (
-    <div className="border border-border rounded-lg p-3 space-y-2 hover:bg-muted/50 transition-colors">
+    <div className="border border-border rounded-lg p-4 space-y-3 hover:bg-muted/50 transition-colors">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Badge variant="outline" className="text-xs">
-            {item.model}
+            {item.provider || item.model}
           </Badge>
           <Badge variant="secondary" className="text-xs">
             {item.enhancementType}
@@ -90,43 +103,99 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
             variant="ghost"
             size="icon"
             onClick={onToggleExpand}
-            className="h-6 w-6"
+            className="h-7 w-7"
             aria-label={isExpanded ? 'Collapse' : 'Expand'}
           >
-            <Eye className="h-3 w-3" />
+            <Eye className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={onDelete}
-            className="h-6 w-6 text-destructive hover:text-destructive"
+            className="h-7 w-7 text-destructive hover:text-destructive"
             aria-label="Delete"
           >
-            <Trash2 className="h-3 w-3" />
+            <Trash2 className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      {/* Meta */}
-      <div className="text-xs text-muted-foreground">
-        {formatDate(item.timestamp)} • {formatDuration(item.processingTime)}
-        {item.tokensUsed && ` • ${item.tokensUsed} tokens`}
-      </div>
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="bg-muted/50 rounded p-2">
+          <div className="text-muted-foreground">Tokens</div>
+          <div className="font-medium">{item.tokensUsed || 'N/A'}</div>
+        </div>
+        <div className="bg-muted/50 rounded p-2">
+          <div className="text-muted-foreground">Prompt Length</div>
+          <div className="font-medium">{item.originalPrompt.length} chars</div>
+        </div>
+        {item.temperature !== undefined && (
+          <div className="bg-muted/50 rounded p-2">
+            <div className="text-muted-foreground">Temperature</div>
+            <div className="font-medium">{item.temperature}</div>
+          </div>
+        )}
+        {item.maxTokens !== undefined && (
+          <div className="bg-muted/50 rounded p-2">
+            <div className="text-muted-foreground">Max Tokens</div>
+            <div className="font-medium">{item.maxTokens}</div>
+          </div>
+        )}
+        </div>
 
-      {/* Prompts */}
-      <div className="space-y-1">
-        <div>
-          <span className="text-xs font-medium">Original:</span>
-          <p className="text-sm text-muted-foreground">
-            {truncateText(item.originalPrompt, 100)}
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="bg-muted/50 rounded p-2">
+            <div className="text-muted-foreground">Created</div>
+            <div className="font-medium">{formatDate(item.timestamp)}</div>
+          </div>
+          <div className="bg-muted/50 rounded p-2">
+            <div className="text-muted-foreground">Duration</div>
+            <div className="font-medium">{formatDuration(item.processingTime)}</div>
+          </div>
+        </div>
+
+        {/* Prompts */}
+      <div className="space-y-3">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Original:</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleCopy(item.originalPrompt, false)}
+              className="h-7 px-2 text-xs"
+              aria-label="Copy original prompt"
+            >
+              {copied.original ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              <span className="ml-1">{copied.original ? 'Copied!' : 'Copy'}</span>
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground bg-muted/30 p-2 rounded">
+            {truncateText(item.originalPrompt, 200)}
           </p>
         </div>
 
         {isExpanded && (
-          <div>
-            <span className="text-xs font-medium">Enhanced:</span>
-            <p className="text-sm">
-              {truncateText(item.enhancedPrompt, 200)}
+          <div className="space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Enhanced:</span>
+              <div className="flex items-center space-x-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleCopy(item.enhancedPrompt, true)}
+                  className="h-7 px-2 text-xs"
+                  aria-label="Copy enhanced prompt"
+                >
+                  {copied.enhanced ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  <span className="ml-1">{copied.enhanced ? 'Copied!' : 'Copy'}</span>
+                </Button>
+              </div>
+            </div>
+            <p className="text-sm bg-muted/30 p-2 rounded">
+              {truncateText(item.enhancedPrompt, 400)}
             </p>
           </div>
         )}
@@ -135,7 +204,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
       {/* Rating */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <span className="text-xs font-medium">Rating:</span>
+          <span className="text-sm font-medium">Rating:</span>
           <RatingStars
             rating={item.rating ?? 0}
             id={item.id}
@@ -147,15 +216,15 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
       {/* Notes */}
       <div className="space-y-1">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium">Notes:</span>
+          <span className="text-sm font-medium">Notes:</span>
           <Button
             variant="ghost"
             size="icon"
             onClick={onEditNotes}
-            className="h-6 w-6"
+            className="h-7 w-7"
             aria-label="Edit notes"
           >
-            <Edit className="h-3 w-3" />
+            <Edit className="h-4 w-4" />
           </Button>
         </div>
 
