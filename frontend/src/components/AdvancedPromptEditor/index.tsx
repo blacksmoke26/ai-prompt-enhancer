@@ -313,6 +313,7 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
               {autoSave && <AutoSaveIndicator autoSaveStatus={state.autoSaveStatus} lastSaved={state.lastSaved}/>}
             </div>
           </div>
+          <p className="text-sm">Enter your prompt below and let AI enhance it for better results</p>
         </CardHeader>
 
         <CardContent className="space-y-4 p-3">
