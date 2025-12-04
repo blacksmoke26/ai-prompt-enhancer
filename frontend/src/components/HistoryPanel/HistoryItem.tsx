@@ -5,21 +5,23 @@
  */
 
 import React from 'react';
-import {Eye, Trash2, Edit, Copy, Check} from 'lucide-react';
+import { Eye, Trash2, Edit, Copy, Check, MessageSquare } from 'lucide-react';
+import * as Popover from '@radix-ui/react-popover';
+import ReactMarkdown from 'react-markdown';
 
 // ui components
-import {Badge} from '~/components/ui/Badge';
-import {Button} from '~/components/ui/Button';
+import { Badge } from '~/components/ui/Badge';
+import { Button } from '~/components/ui/Button';
 
 // utils
-import {formatDate, formatDuration, truncateText} from '~/utils/helpers';
+import { formatDate, formatDuration, truncateText } from '~/utils/helpers';
 
 // components
 import RatingStars from './RatingStars';
 import NotesEditor from './NotesEditor';
 
 // types
-import type {PromptHistory} from '~/types/index';
+import type { PromptHistory } from '~/types/index';
 
 /**
  * Props for the {@link HistoryItem} component.
@@ -120,11 +122,11 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Core Stats */}
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div className="bg-muted/50 rounded p-2">
           <div className="text-muted-foreground">Tokens</div>
-          <div className="font-medium">{item.tokensUsed || 'N/A'}</div>
+          <div className="font-medium">{item.tokensUsed ?? 'N/A'}</div>
         </div>
         <div className="bg-muted/50 rounded p-2">
           <div className="text-muted-foreground">Prompt Length</div>
@@ -142,21 +144,35 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
             <div className="font-medium">{item.maxTokens}</div>
           </div>
         )}
-        </div>
+      </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-2 text-xs">
+      {/* Additional Stats */}
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        {item.systemPrompt && (
           <div className="bg-muted/50 rounded p-2">
-            <div className="text-muted-foreground">Created</div>
-            <div className="font-medium">{formatDate(item.timestamp)}</div>
+            <div className="text-muted-foreground">System Prompt Length</div>
+            <div className="font-medium">{item.systemPrompt.length} chars</div>
           </div>
-          <div className="bg-muted/50 rounded p-2">
-            <div className="text-muted-foreground">Duration</div>
-            <div className="font-medium">{formatDuration(item.processingTime)}</div>
-          </div>
+        )}
+        <div className="bg-muted/50 rounded p-2">
+          <div className="text-muted-foreground">Enhanced Prompt Length</div>
+          <div className="font-medium">{item.enhancedPrompt.length} chars</div>
         </div>
+      </div>
 
-        {/* Prompts */}
+      {/* Time Stats */}
+      <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="bg-muted/50 rounded p-2">
+          <div className="text-muted-foreground">Created</div>
+          <div className="font-medium">{formatDate(item.timestamp)}</div>
+        </div>
+        <div className="bg-muted/50 rounded p-2">
+          <div className="text-muted-foreground">Duration</div>
+          <div className="font-medium">{formatDuration(item.processingTime)}</div>
+        </div>
+      </div>
+
+      {/* Prompts */}
       <div className="space-y-3">
         <div className="space-y-1">
           <div className="flex items-center justify-between">
@@ -192,6 +208,22 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                   {copied.enhanced ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   <span className="ml-1">{copied.enhanced ? 'Copied!' : 'Copy'}</span>
                 </Button>
+
+                <Popover.Root>
+                  <Popover.Trigger asChild>
+                    <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
+                      <MessageSquare className="h-4 w-4" />
+                      <span className="ml-1">View Full</span>
+                    </Button>
+                  </Popover.Trigger>
+                  <Popover.Content
+                    side="bottom"
+                    align="start"
+                    className="w-96 p-4 rounded bg-background shadow-lg z-50"
+                  >
+                    <ReactMarkdown>{item.enhancedPrompt}</ReactMarkdown>
+                  </Popover.Content>
+                </Popover.Root>
               </div>
             </div>
             <p className="text-sm bg-muted/30 p-2 rounded">
