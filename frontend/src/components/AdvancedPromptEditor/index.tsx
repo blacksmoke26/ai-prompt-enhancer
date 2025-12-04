@@ -19,6 +19,7 @@ import AutoSaveIndicator from './AutoSaveIndicator';
 // types
 import type {PromptResponse} from '~/types';
 import EditorContent, {MDXEditorMethods} from '~/components/AdvancedPromptEditor/EditorContent.tsx';
+import {WandSparkles} from 'lucide-react';
 
 /**
  * Configuration props for the Advanced Prompt Editor component
@@ -308,7 +309,7 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <h1 className="text-lg font-semibold">{label || 'Advanced Prompt Editor'}</h1>
+              <h1 className="text-lg font-semibold"><WandSparkles className="display-inline"/> {label || 'Advanced Prompt Editor'}</h1>
               {autoSave && <AutoSaveIndicator autoSaveStatus={state.autoSaveStatus} lastSaved={state.lastSaved}/>}
             </div>
           </div>

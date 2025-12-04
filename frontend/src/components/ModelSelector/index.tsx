@@ -6,7 +6,7 @@
 
 
 import React, {useMemo} from 'react';
-import {Cloud, Puzzle, User2, WandSparkles} from 'lucide-react';
+import {Brain, Cloud, Hash, Thermometer, Type, User2} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -107,7 +107,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
               setSelectedModel('');
             }}
             options={providerOptions}
-            label={<strong><Cloud className="inline-flex" size="16"/> AI Provider</strong>}
+            label={<strong><Cloud className="inline-flex display-inline" size="16"/> AI Provider</strong>}
             formatOptionLabel={(option, context) => {
               return context?.context === 'menu'
                 ? <div><Cloud className="inline-flex" size="16"/> {option.label}</div>
@@ -125,10 +125,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
               setSelectedModel(e as string);
             }}
             options={toSelectGroupedOptions(filteredModels, 'provider')}
-            label={<strong><Puzzle className="inline-flex" size="16"/> AI Model</strong>}
+            label={<strong><Brain className="inline-flex display-inline" size="16"/> AI Model</strong>}
             formatOptionLabel={(option, context) => {
               return context?.context === 'menu'
-                ? <div><Puzzle className="inline-flex" size="16"/> {option.label} <span
+                ? <div><Brain className="inline-flex" size="16"/> {option.label} <span
                   className="text-xs">({option.value.replace(option.label + ':', '')})</span><p
                   className="text-xs pl-5 mt-1">{option.description}</p></div>
                 : (
@@ -166,10 +166,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
             onChange={(e) => setSelectedEnhancementType(e as string)}
             options={toSelectGroupedOptions(enhancementTypes)}
 
-            label={<strong><WandSparkles className="inline-flex" size="16"/> Enhancement Type</strong>}
+            label={<strong><Type className="inline-flex display-inline" size="16"/> Enhancement Type</strong>}
             formatOptionLabel={(option, context) => {
               return context?.context === 'menu'
-                ? <div><WandSparkles className="inline-flex" size="16"/> {option.label}<p
+                ? <div><Type className="inline-flex" size="16"/> {option.label}<p
                   className="text-xs pl-5 mt-1">{option.description}</p></div>
                 : <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
             }}
@@ -190,7 +190,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
               setSelectedUserRole(e as string);
             }}
             options={toSelectGroupedOptions(userRoles)}
-            label={<strong><User2 className="inline-flex" size="16"/> User Role</strong>}
+            label={<strong><User2 className="inline-flex display-inline" size="16"/> User Role</strong>}
             formatOptionLabel={(option, context) => {
               return context?.context === 'menu'
                 ? <div><User2 className="inline-flex" size="16"/> {option.label}<p
@@ -207,7 +207,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
 
         {/* Temperature */}
         <div>
-          <label className="text-sm font-medium">Temperature (0-1)</label>
+          <label className="text-sm font-medium"><Thermometer size="16" className="display-inline"/> Temperature</label>
           <div className="flex items-center space-x-3 pt-1">
             <Slider
               min={0}
@@ -226,7 +226,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
 
         {/* Max Tokens */}
         <div>
-          <label className="text-sm font-medium">Max Tokens</label>
+          <label className="text-sm font-medium"><Hash size="16" className="display-inline"/> Max Tokens</label>
           <Input
             type="number"
             value={config.maxTokens ?? 256}
