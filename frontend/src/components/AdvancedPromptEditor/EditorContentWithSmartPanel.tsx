@@ -4,9 +4,9 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React from 'react';
+import React, {useState} from 'react';
 
-// helpers
+// utils
 import {cn} from '~/utils/helpers';
 
 // ui components
@@ -15,6 +15,7 @@ import {MdxEditor} from '~/components/ui/MdxEditor';
 // components
 import TextStats from './TextStats';
 import WordCloud from './WordCloud';
+import SmartSuggestionsTrigger from './SmartSuggestionsTrigger';
 import EnhancedPrompt, {type EnhancedPromptResponse} from './EnhancedPrompt';
 
 // types
@@ -43,14 +44,6 @@ export interface EditorContentProps {
   error?: string;
   /** Whether formatting toolbar is shown */
   showFormatting?: boolean;
-  /** Current text formatting state */
-  formatting: {
-    bold: boolean;
-    italic: boolean;
-    underline: boolean;
-    alignment: 'left' | 'center' | 'right';
-    listType: 'none' | 'bullet' | 'numbered';
-  };
   /** Whether editor has focus */
   isFocused: boolean;
   /** Whether editor is in fullscreen mode */
@@ -98,35 +91,11 @@ export interface EditorContentProps {
 
   /** Blur event handler */
   onBlur?(): void;
+
+  /** Whether to show the smart suggestion panel */
+  showSmartPanel?: boolean;
 }
 
-/**
- * Rich text editor component with statistics, word cloud, and formatting options
- * @example
- * ```tsx
- * <EditorContent
- *   value={content}
- *   onChange={setContent}
- *   isFocused={isFocused}
- *   isFullscreen={false}
- *   showWordCloud={false}
- *   wordFrequency={wordFreq}
- *   setShowWordCloud={toggleCloud}
- *   wordCount={words}
- *   charCount={chars}
- *   lineCount={lines}
- *   readingTime={readTime}
- *   tokenEstimate={tokens}
- *   autoSaveStatus="idle"
- *   lastSaved={lastSave}
- *   displayLineCount={true}
- *   showStats={true}
- * />
- * ```
- * @developerNote - Component conditionally renders multiple sections based on props
- * @developerNote - MdxEditor handles the core editing functionality
- * @developerNote - TextStats duplication of lineCount prop should be fixed
- */
 const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((props, ref) => {
   const {
     value,
@@ -135,7 +104,6 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
     disabled,
     error,
     showFormatting,
-    formatting,
     isFocused,
     isFullscreen,
     showWordCloud,
@@ -158,32 +126,30 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
     onKeyDown,
     onFocus,
     onBlur,
+    showSmartPanel = true,
   } = props;
 
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   return (
-    <div
-      className={cn(
-        'relative',
-        isFullscreen && 'fixed inset-0 z-50 bg-background p-8',
-      )}
-    >
-        <MdxEditor
-          value={value}
-          onChange={onChange}
-          contentEditableClassName="mdxeditor resize-none text-sm leading-relaxed transition-all duration-200"
-          readOnly={disabled}
-          placeholder={placeholder}
-          showFormatting={showFormatting}
-          className={cn(
-            isFocused && 'ring-2 ring-ring ring-offset-2',
-            disabled && 'opacity-50 cursor-not-allowed',
-          )}
-          onKeyDown={onKeyDown}
-          onFocus={onFocus}
-          onBlur={onBlur}
-          autoFocus
-          ref={ref}
-        />
+    <div className={cn('relative', isFullscreen && 'fixed inset-0 z-50 bg-background p-8')}>
+      <MdxEditor
+        value={value}
+        onChange={onChange}
+        contentEditableClassName="mdxeditor resize-none text-sm leading-relaxed transition-all duration-200"
+        readOnly={disabled}
+        placeholder={placeholder}
+        showFormatting={showFormatting}
+        className={cn(
+          isFocused && 'ring-2 ring-ring ring-offset-2',
+          disabled && 'opacity-50 cursor-not-allowed',
+        )}
+        onKeyDown={onKeyDown}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        autoFocus
+        ref={ref}
+      />
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {showStats && (
@@ -231,6 +197,18 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
           response={response as EnhancedPromptResponse}
           originalPrompt={originalPrompt ?? ''}
         />
+      )}
+
+      {/* Smart Suggestions Trigger */}
+      {showSmartPanel !== false && (
+        <div className="absolute top-2 right-2 z-10">
+          <SmartSuggestionsTrigger
+            prompt={value}
+            isVisible={showSuggestions}
+            onTogglePanel={() => setShowSuggestions(!showSuggestions)}
+            response={response}
+          />
+        </div>
       )}
     </div>
   );
