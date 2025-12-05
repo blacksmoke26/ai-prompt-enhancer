@@ -5,6 +5,7 @@
  */
 
 import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {WandSparkles} from 'lucide-react';
 
 // helpers
 import {cn, copyToClipboard, downloadFile} from '~/utils/helpers';
@@ -15,11 +16,10 @@ import {Card, CardContent, CardHeader} from '~/components/ui/Card';
 // components
 import ActionButtons from './ActionButtons';
 import AutoSaveIndicator from './AutoSaveIndicator';
+import EditorContentWithSmartPanel, {MDXEditorMethods} from '~/components/AdvancedPromptEditor/EditorContentWithSmartPanel.tsx';
 
 // types
 import type {PromptResponse} from '~/types';
-import EditorContent, {MDXEditorMethods} from '~/components/AdvancedPromptEditor/EditorContent.tsx';
-import {WandSparkles} from 'lucide-react';
 
 /**
  * Configuration props for the Advanced Prompt Editor component
@@ -115,19 +115,6 @@ export interface EditorState {
   autoSaveStatus: 'idle' | 'saving' | 'saved';
   /** Currently selected text in the editor */
   selectedText: string;
-  /** Text formatting options and styles */
-  formatting: {
-    /** Bold text formatting */
-    bold: boolean;
-    /** Italic text formatting */
-    italic: boolean;
-    /** Underline text formatting */
-    underline: boolean;
-    /** Text alignment setting */
-    alignment: 'left' | 'center' | 'right';
-    /** List style type */
-    listType: 'none' | 'bullet' | 'numbered';
-  };
 }
 
 /**
@@ -171,13 +158,6 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
     lastSaved: null,
     autoSaveStatus: 'idle',
     selectedText: '',
-    formatting: {
-      bold: false,
-      italic: false,
-      underline: false,
-      alignment: 'left',
-      listType: 'none',
-    },
   });
   const textareaRef = useRef<MDXEditorMethods>(null);
 
@@ -317,14 +297,13 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
         </CardHeader>
 
         <CardContent className="space-y-4 p-3">
-          <EditorContent
+          <EditorContentWithSmartPanel
             value={value}
             onChange={onChange}
             placeholder={placeholder}
             disabled={disabled}
             error={error}
             showFormatting={showFormatting}
-            formatting={state.formatting}
             isFocused={state.isFocused}
             isFullscreen={state.isFullscreen}
             showWordCloud={state.showWordCloud}
