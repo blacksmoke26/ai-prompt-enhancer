@@ -2,17 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.mdxeditor {
-    min-height: 350px;
-    max-height: 400px;
-}
-
-.display-inline {
-    display: inline-block;
-    position: relative;
-    top: -2px;
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -67,4 +56,74 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 6px;
+  border: 2px solid #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Dark mode scrollbar */
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #64748b;
+  border: 2px solid #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Editor-specific scrollbar */
+.mdxeditor::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.mdxeditor::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.mdxeditor::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 4px;
+  border: 1px solid #f1f5f9;
+}
+
+.mdxeditor::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Dark mode editor scrollbar */
+.dark .mdxeditor::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark .mdxeditor::-webkit-scrollbar-thumb {
+  background: #64748b;
+  border: 1px solid #1e293b;
+}
+
+.dark .mdxeditor::-webkit-scrollbar-thumb:hover {
+  background: #475569;
 }
