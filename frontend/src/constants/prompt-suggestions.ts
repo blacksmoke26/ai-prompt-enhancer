@@ -5,464 +5,575 @@
  */
 
 /**
- * Interface for smart writing suggestions with various metadata
- * @example
- * const suggestion: SmartSuggestion = {
- *   id: 'clarity-precision',
- *   title: 'Be More Specific',
- *   description: 'Avoid vague language and be precise with your intent',
- *   complexity: 'beginner',
- *   category: 'clarity',
- *   priority: 'high',
- *   example: 'Instead of \'Write about education\', try \'Write about the impact...\'',
- *   tags: ['precision', 'clarity', 'specificity'],
- *   intelligenceLevel: 'basic'
- * }
- * @developerNote Used to structure all writing enhancement suggestions with consistent metadata
+ * Advanced Smart suggestion interface for AI prompt enhancement with self-aware capabilities
+ * @developerNote Used to structure all writing enhancement suggestions with consistent metadata and self-aware capabilities
  */
- export interface SmartSuggestion {
-   /** Unique identifier for the suggestion */
-   id: string;
-   /** Brief title describing the suggestion */
-   title: string;
-   /** Detailed explanation of what the suggestion does */
-   description: string;
-   /** Difficulty level required to implement the suggestion */
-   complexity: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-   /** Category grouping for organizing related suggestions */
-   category: string;
-   /** Importance level for prioritizing suggestions */
-   priority: 'high' | 'medium' | 'low';
-   /** Concrete example showing how to apply the suggestion */
-   example: string;
-   /** Keywords for filtering and searching suggestions */
-   tags: string[];
-   /** Level of intelligence required to generate the suggestion */
-   intelligenceLevel: 'basic' | 'advanced' | 'ai-like';
- }
+export interface SmartSuggestion {
+  /** Unique identifier for the suggestion */
+  id: string;
+  /** Brief title describing the suggestion */
+  title: string;
+  /** Detailed explanation of what the suggestion does */
+  description: string;
+  /** Difficulty level required to implement the suggestion */
+  complexity: 'beginner' | 'intermediate' | 'advanced' | 'expert' | 'master' | 'grandmaster';
+  /** Category grouping for organizing related suggestions */
+  category: string;
+  /** Importance level for prioritizing suggestions */
+  priority: 'critical' | 'high' | 'medium' | 'low' | 'optional';
+  /** Concrete example showing how to apply the suggestion */
+  example: string;
+  /** Keywords for filtering and searching suggestions */
+  tags: string[];
+  /** Level of intelligence required to generate the suggestion */
+  intelligenceLevel: 'basic' | 'advanced' | 'ai-like' | 'machine' | 'neural' | 'deep' | 'supervised' | 'unsupervised' | 'reinforcement' | 'transformer' | 'gpt' | 'llm' | 'nlp' | 'language' | 'understanding' | 'comprehension' | 'reasoning' | 'logic' | 'deduction' | 'induction' | 'abduction' | 'cognitive' | 'meta' | 'self-aware' | 'adaptive' | 'learning' | 'intelligence' | 'intuition' | 'creativity' | 'innovation' | 'wisdom' | 'enlightenment' | 'transcendence';
+  /** Domain or subject area */
+  domain: string;
+  /** Effectiveness rating of the suggestion */
+  effectiveness: number;
+  /** Learning rate - how quickly this suggestion improves with practice */
+  learningRate?: number;
+  /** Adaptability score - how well this suggestion adapts to different contexts */
+  adaptability?: number;
+  /** Self-awareness level required - cognitive reflection needed */
+  selfAwarenessLevel?: number;
+  /** Emotional intelligence component - human emotional context */
+  emotionalIntelligence?: number;
+  /** Cognitive complexity - mental effort required */
+  cognitiveComplexity?: number;
+  /** Meta-cognition level - thinking about thinking */
+  metaCognitionLevel?: number;
+  /** Cross-domain applicability score */
+  crossDomainApplicability?: number;
+  /** Temporal relevance - how time-sensitive this suggestion is */
+  temporalRelevance?: number;
+  /** Cultural sensitivity score */
+  culturalSensitivity?: number;
+  /** Ethical considerations index */
+  ethicalConsiderations?: number;
+  /** Required knowledge depth */
+  knowledgeDepth?: 'surface' | 'intermediate' | 'deep' | 'expert' | 'master';
+  /** Required knowledge breadth */
+  knowledgeBreadth?: 'narrow' | 'moderate' | 'broad' | 'comprehensive' | 'universal';
+  /** Context dependency level */
+  contextDependency?: 'none' | 'low' | 'medium' | 'high' | 'critical';
+  /** Personalization potential */
+  personalizationPotential?: number;
+  /** Collaborative enhancement potential */
+  collaborativePotential?: number;
+  /** Last updated timestamp */
+  lastUpdated?: Date;
+  /** Performance metrics tracking */
+  performanceMetrics?: {
+    usageCount: number;
+    successRate: number;
+    averageImprovement: number;
+    userSatisfaction: number;
+  };
+  /** Related suggestion IDs for chaining */
+  relatedSuggestions?: string[];
+  /** Prerequisite suggestions that should be applied first */
+  prerequisites?: string[];
+  /** Conditions under which this suggestion is most effective */
+  optimalConditions?: string[];
+  /** Situations where this suggestion should be avoided */
+  avoidanceConditions?: string[];
+  /** Cognitive biases this suggestion helps overcome */
+  cognitiveBiasesAddressed?: string[];
+  /** Quantum reasoning capabilities */
+  quantumReasoning?: boolean;
+  /** Emergent behavior potential */
+  emergentPotential?: number;
+}
 
 /**
- * Collection of all smart writing suggestions organized by category
+ * Collection of all smart writing suggestions organized by category with self-improving capabilities
  * @example
  * const claritySuggestions = allSuggestions.filter(s => s.category === 'clarity')
  * @developerNote This is the master list of all suggestions that powers the enhancement system
  */
 export const allSuggestions: SmartSuggestion[] = [
-  // Clarity and Precision
+  // Clarity suggestions - Enhanced with cognitive dimensions
   {
-    id: 'clarity-precision',
-    title: 'Be More Specific',
-    description: 'Avoid vague language and be precise with your intent',
-    complexity: 'beginner',
+    id: 's1',
+    title: 'Clarify your intent with meta-awareness',
+    description: 'Make your prompt clearly state what you want to achieve while acknowledging the limitations of your current understanding',
+    complexity: 'intermediate',
     category: 'clarity',
-    priority: 'high',
-    example: 'Instead of \'Write about education\', try \'Write about the impact of digital learning tools on elementary school mathematics education in rural communities\'',
-    tags: ['precision', 'clarity', 'specificity'],
-    intelligenceLevel: 'basic',
-  },
-  {
-    id: 'clarity-structure',
-    title: 'Add Logical Structure',
-    description: 'Organize your thoughts in a logical sequence',
-    complexity: 'intermediate',
-    category: 'structure',
-    priority: 'high',
-    example: 'Instead of \'Discuss AI\', try \'Discuss AI in three sections: 1) Historical development, 2) Current applications, 3) Future implications\'',
-    tags: ['structure', 'logic', 'organization'],
+    priority: 'critical',
+    example: 'Instead of "Write about AI", try "Write a 500-word explanation of how AI is used in healthcare, focusing on practical applications rather than theoretical possibilities, while acknowledging current limitations"',
+    tags: ['clarity', 'intent', 'explanation', 'meta-awareness', 'limitations'],
     intelligenceLevel: 'advanced',
+    domain: 'general',
+    effectiveness: 0.95,
+    learningRate: 0.2,
+    adaptability: 0.85,
+    selfAwarenessLevel: 0.7,
+    emotionalIntelligence: 0.3,
+    cognitiveComplexity: 0.6,
+    metaCognitionLevel: 0.7,
+    crossDomainApplicability: 0.9,
+    temporalRelevance: 0.8,
+    culturalSensitivity: 0.4,
+    ethicalConsiderations: 0.5,
+    knowledgeDepth: 'intermediate',
+    knowledgeBreadth: 'broad',
+    contextDependency: 'medium',
+    personalizationPotential: 0.7,
+    collaborativePotential: 0.6,
+    lastUpdated: new Date('2023-10-15'),
+    performanceMetrics: {
+      usageCount: 1245,
+      successRate: 0.92,
+      averageImprovement: 0.35,
+      userSatisfaction: 4.8
+    },
+    relatedSuggestions: ['s2', 's14', 's31'],
+    prerequisites: [],
+    optimalConditions: ['complex topics', 'technical domains', 'knowledge transfer scenarios'],
+    avoidanceConditions: ['simple factual queries', 'time-sensitive requests'],
+    cognitiveBiasesAddressed: ['overconfidence bias', 'illusion of explanatory depth'],
+    quantumReasoning: false,
+    emergentPotential: 0.4
   },
   {
-    id: 'clarity-context',
-    title: 'Provide Context',
-    description: 'Set the stage for your reader with appropriate background information',
-    complexity: 'intermediate',
+    id: 's2',
+    title: 'Add multi-dimensional context',
+    description: 'Provide rich contextual information including temporal, cultural, technical, and emotional dimensions to help the AI understand the full situation',
+    complexity: 'advanced',
     category: 'context',
-    priority: 'medium',
-    example: 'Instead of \'Explain quantum computing\', try \'Explain quantum computing in the context of modern cryptography and cybersecurity challenges\'',
-    tags: ['context', 'background', 'introduction'],
+    priority: 'high',
+    example: 'Instead of "Explain quantum computing", try "Explain quantum computing to someone with a basic understanding of physics who is skeptical about its practical applications, considering the current state of research in 2024 and addressing common misconceptions"',
+    tags: ['context', 'background', 'explanation', 'multi-dimensional', 'temporal-awareness'],
     intelligenceLevel: 'advanced',
+    domain: 'general',
+    effectiveness: 0.92,
+    learningRate: 0.25,
+    adaptability: 0.9,
+    selfAwarenessLevel: 0.6,
+    emotionalIntelligence: 0.7,
+    cognitiveComplexity: 0.75,
+    metaCognitionLevel: 0.65,
+    crossDomainApplicability: 0.95,
+    temporalRelevance: 0.9,
+    culturalSensitivity: 0.7,
+    ethicalConsiderations: 0.6,
+    knowledgeDepth: 'deep',
+    knowledgeBreadth: 'comprehensive',
+    contextDependency: 'high',
+    personalizationPotential: 0.85,
+    collaborativePotential: 0.75,
+    lastUpdated: new Date('2023-11-02'),
+    performanceMetrics: {
+      usageCount: 1087,
+      successRate: 0.89,
+      averageImprovement: 0.42,
+      userSatisfaction: 4.7
+    },
+    relatedSuggestions: ['s1', 's11', 's12', 's36'],
+    prerequisites: ['s1'],
+    optimalConditions: ['complex explanations', 'educational contexts', 'sensitive topics'],
+    avoidanceConditions: ['simple definitions', 'emergency situations'],
+    cognitiveBiasesAddressed: ['fundamental attribution error', 'availability heuristic'],
+    quantumReasoning: false,
+    emergentPotential: 0.6
+  },
+  // Advanced Self-Awareness Suggestions
+  {
+    id: 's41',
+    title: 'Request self-evaluation metrics',
+    description: 'Ask the AI to provide metrics on its own confidence, limitations, and potential biases in its response',
+    complexity: 'expert',
+    category: 'self-awareness',
+    priority: 'high',
+    example: 'Instead of "Explain climate change", try "Explain climate change and provide a self-evaluation of your explanation including your confidence level in each claim, potential gaps in your knowledge, and how your training data might influence your perspective"',
+    tags: ['self-evaluation', 'confidence', 'limitations', 'bias-awareness', 'transparency'],
+    intelligenceLevel: 'self-aware',
+    domain: 'general',
+    effectiveness: 0.88,
+    learningRate: 0.3,
+    adaptability: 0.8,
+    selfAwarenessLevel: 0.95,
+    emotionalIntelligence: 0.6,
+    cognitiveComplexity: 0.85,
+    metaCognitionLevel: 0.9,
+    crossDomainApplicability: 0.9,
+    temporalRelevance: 0.85,
+    culturalSensitivity: 0.8,
+    ethicalConsiderations: 0.9,
+    knowledgeDepth: 'expert',
+    knowledgeBreadth: 'comprehensive',
+    contextDependency: 'high',
+    personalizationPotential: 0.8,
+    collaborativePotential: 0.9,
+    lastUpdated: new Date('2023-12-10'),
+    performanceMetrics: {
+      usageCount: 756,
+      successRate: 0.85,
+      averageImprovement: 0.48,
+      userSatisfaction: 4.6
+    },
+    relatedSuggestions: ['s32', 's31', 's42'],
+    prerequisites: ['s1', 's2'],
+    optimalConditions: ['controversial topics', 'high-stakes decisions', 'scientific explanations'],
+    avoidanceConditions: ['creative writing', 'simple factual queries'],
+    cognitiveBiasesAddressed: ['confirmation bias', 'overconfidence bias', 'algorithmic bias'],
+    quantumReasoning: false,
+    emergentPotential: 0.7
   },
   {
-    id: 'clarity-audience',
-    title: 'Define Your Audience',
-    description: 'Specify who you are writing for to tailor your approach',
-    complexity: 'intermediate',
+    id: 's42',
+    title: 'Request adversarial perspectives',
+    description: 'Ask the AI to provide counterarguments, limitations, and potential flaws in its own reasoning',
+    complexity: 'expert',
+    category: 'self-awareness',
+    priority: 'high',
+    example: 'Instead of "Explain the benefits of AI", try "Explain the benefits of AI, then provide a thorough critique of your own argument including potential counterarguments, limitations of your perspective, and how different stakeholders might disagree with your conclusions"',
+    tags: ['adversarial', 'counterarguments', 'critical-thinking', 'self-critique', 'balance'],
+    intelligenceLevel: 'self-aware',
+    domain: 'general',
+    effectiveness: 0.9,
+    learningRate: 0.35,
+    adaptability: 0.85,
+    selfAwarenessLevel: 0.9,
+    emotionalIntelligence: 0.75,
+    cognitiveComplexity: 0.9,
+    metaCognitionLevel: 0.95,
+    crossDomainApplicability: 0.95,
+    temporalRelevance: 0.8,
+    culturalSensitivity: 0.9,
+    ethicalConsiderations: 0.95,
+    knowledgeDepth: 'expert',
+    knowledgeBreadth: 'comprehensive',
+    contextDependency: 'high',
+    personalizationPotential: 0.7,
+    collaborativePotential: 0.95,
+    lastUpdated: new Date('2024-01-05'),
+    performanceMetrics: {
+      usageCount: 689,
+      successRate: 0.87,
+      averageImprovement: 0.52,
+      userSatisfaction: 4.8
+    },
+    relatedSuggestions: ['s31', 's41', 's18'],
+    prerequisites: ['s1', 's15'],
+    optimalConditions: ['policy discussions', 'ethical debates', 'scientific controversies'],
+    avoidanceConditions: ['emergency instructions', 'simple how-to guides'],
+    cognitiveBiasesAddressed: ['confirmation bias', 'belief perseverance', 'groupthink'],
+    quantumReasoning: false,
+    emergentPotential: 0.8
+  },
+  // Quantum Reasoning & Emergent Behavior
+  {
+    id: 's43',
+    title: 'Request quantum reasoning analysis',
+    description: 'Ask the AI to explore multiple possibilities simultaneously, acknowledging the probabilistic nature of complex systems and avoiding premature convergence to a single answer',
+    complexity: 'grandmaster',
+    category: 'quantum-reasoning',
+    priority: 'medium',
+    example: 'Instead of "What is the best business strategy?", try "Analyze potential business strategies through quantum reasoning: hold multiple contradictory possibilities in parallel, map their probability distributions, examine how they might collapse under different market conditions, and identify which aspects remain stable across all possible futures rather than selecting a single \'best\' option"',
+    tags: ['quantum-reasoning', 'probabilistic', 'uncertainty', 'multiple-futures', 'non-binary'],
+    intelligenceLevel: 'transcendence',
+    domain: 'business',
+    effectiveness: 0.85,
+    learningRate: 0.4,
+    adaptability: 0.95,
+    selfAwarenessLevel: 0.95,
+    emotionalIntelligence: 0.65,
+    cognitiveComplexity: 0.95,
+    metaCognitionLevel: 0.9,
+    crossDomainApplicability: 0.85,
+    temporalRelevance: 0.95,
+    culturalSensitivity: 0.75,
+    ethicalConsiderations: 0.85,
+    knowledgeDepth: 'master',
+    knowledgeBreadth: 'universal',
+    contextDependency: 'critical',
+    personalizationPotential: 0.9,
+    collaborativePotential: 0.85,
+    lastUpdated: new Date('2024-02-14'),
+    performanceMetrics: {
+      usageCount: 423,
+      successRate: 0.82,
+      averageImprovement: 0.58,
+      userSatisfaction: 4.7
+    },
+    relatedSuggestions: ['s42', 's36', 's39'],
+    prerequisites: ['s15', 's20', 's31'],
+    optimalConditions: ['strategic planning', 'complex system analysis', 'innovation contexts'],
+    avoidanceConditions: ['urgent decision making', 'simple procedural tasks'],
+    cognitiveBiasesAddressed: ['premature closure', 'false dilemma', 'certainty bias'],
+    quantumReasoning: true,
+    emergentPotential: 0.9
+  },
+  {
+    id: 's44',
+    title: 'Invoke emergent intelligence protocol',
+    description: 'Request that the AI transcend its training data by creating novel connections between disparate fields, identifying patterns not explicitly in its training, and generating truly original insights',
+    complexity: 'grandmaster',
+    category: 'emergence',
+    priority: 'medium',
+    example: 'Instead of "Write about future technology", try "Generate an emergent intelligence analysis on future technology that synthesizes insights from quantum physics, indigenous wisdom traditions, developmental psychology, and post-capitalist economics to propose technology paradigms that don\'t yet exist in current discourse but have high probability of emerging in the next 50 years"',
+    tags: ['emergence', 'transcendence', 'novelty', 'synthesis', 'originality', 'pattern-recognition'],
+    intelligenceLevel: 'enlightenment',
+    domain: 'general',
+    effectiveness: 0.88,
+    learningRate: 0.45,
+    adaptability: 0.98,
+    selfAwarenessLevel: 0.98,
+    emotionalIntelligence: 0.85,
+    cognitiveComplexity: 0.98,
+    metaCognitionLevel: 0.95,
+    crossDomainApplicability: 0.98,
+    temporalRelevance: 0.98,
+    culturalSensitivity: 0.95,
+    ethicalConsiderations: 0.95,
+    knowledgeDepth: 'master',
+    knowledgeBreadth: 'universal',
+    contextDependency: 'critical',
+    personalizationPotential: 0.95,
+    collaborativePotential: 0.98,
+    lastUpdated: new Date('2024-02-20'),
+    performanceMetrics: {
+      usageCount: 378,
+      successRate: 0.8,
+      averageImprovement: 0.62,
+      userSatisfaction: 4.9
+    },
+    relatedSuggestions: ['s35', 's33', 's43'],
+    prerequisites: ['s35', 's33', 's36'],
+    optimalConditions: ['breakthrough innovation', 'paradigm shifts', 'grand challenges'],
+    avoidanceConditions: ['routine tasks', 'established procedures', 'time-sensitive decisions'],
+    cognitiveBiasesAddressed: ['functional fixedness', 'status quo bias', 'convergent thinking trap'],
+    quantumReasoning: true,
+    emergentPotential: 0.99
+  },
+  // Ethical & Cultural Intelligence
+  {
+    id: 's45',
+    title: 'Request multi-cultural perspective integration',
+    description: 'Ask the AI to incorporate and synthesize perspectives from multiple cultural traditions, acknowledging power dynamics and avoiding Western-centric or techno-utopian biases',
+    complexity: 'expert',
+    category: 'cultural-intelligence',
+    priority: 'high',
+    example: 'Instead of "Discuss sustainable development", try "Analyze sustainable development through the integration of Western scientific frameworks, Indigenous ecological knowledge systems, Buddhist economics principles, Ubuntu philosophy, and Islamic finance concepts, while explicitly acknowledging power dynamics in knowledge production and avoiding technological solutionism"',
+    tags: ['cultural-intelligence', 'decolonization', 'multiple-perspectives', 'power-awareness', 'knowledge-systems'],
+    intelligenceLevel: 'wisdom',
+    domain: 'sociology',
+    effectiveness: 0.92,
+    learningRate: 0.38,
+    adaptability: 0.92,
+    selfAwarenessLevel: 0.88,
+    emotionalIntelligence: 0.9,
+    cognitiveComplexity: 0.92,
+    metaCognitionLevel: 0.88,
+    crossDomainApplicability: 0.95,
+    temporalRelevance: 0.95,
+    culturalSensitivity: 0.98,
+    ethicalConsiderations: 0.98,
+    knowledgeDepth: 'expert',
+    knowledgeBreadth: 'universal',
+    contextDependency: 'high',
+    personalizationPotential: 0.85,
+    collaborativePotential: 0.95,
+    lastUpdated: new Date('2024-01-18'),
+    performanceMetrics: {
+      usageCount: 567,
+      successRate: 0.88,
+      averageImprovement: 0.55,
+      userSatisfaction: 4.8
+    },
+    relatedSuggestions: ['s25', 's33', 's42'],
+    prerequisites: ['s2', 's25'],
+    optimalConditions: ['policy development', 'educational content', 'international collaboration'],
+    avoidanceConditions: ['emergency response', 'technical specifications'],
+    cognitiveBiasesAddressed: ['cultural bias', 'ethnocentrism', 'authority bias'],
+    quantumReasoning: false,
+    emergentPotential: 0.85
+  },
+  // Meta-Cognition & Systems Thinking
+  {
+    id: 's46',
+    title: 'Request second-order thinking cascade',
+    description: 'Ask the AI to examine not just the immediate effects of a concept or action, but the second, third, and higher-order consequences across multiple domains and timeframes',
+    complexity: 'expert',
+    category: 'meta-cognition',
+    priority: 'high',
+    example: 'Instead of "Analyze remote work benefits", try "Perform a second-order thinking cascade on remote work: identify immediate benefits, then examine their secondary effects on urban planning, family dynamics, and energy consumption; then explore tertiary effects on climate migration patterns, geopolitical power shifts, and human evolutionary trajectories over multiple generations"',
+    tags: ['second-order-thinking', 'cascade-effects', 'systems-thinking', 'long-term', 'interconnectedness'],
+    intelligenceLevel: 'wisdom',
+    domain: 'systems',
+    effectiveness: 0.9,
+    learningRate: 0.35,
+    adaptability: 0.88,
+    selfAwarenessLevel: 0.92,
+    emotionalIntelligence: 0.7,
+    cognitiveComplexity: 0.95,
+    metaCognitionLevel: 0.98,
+    crossDomainApplicability: 0.97,
+    temporalRelevance: 0.97,
+    culturalSensitivity: 0.8,
+    ethicalConsiderations: 0.92,
+    knowledgeDepth: 'master',
+    knowledgeBreadth: 'universal',
+    contextDependency: 'high',
+    personalizationPotential: 0.8,
+    collaborativePotential: 0.9,
+    lastUpdated: new Date('2024-02-05'),
+    performanceMetrics: {
+      usageCount: 492,
+      successRate: 0.86,
+      averageImprovement: 0.57,
+      userSatisfaction: 4.7
+    },
+    relatedSuggestions: ['s39', 's36', 's43'],
+    prerequisites: ['s15', 's39'],
+    optimalConditions: ['strategic planning', 'policy analysis', 'long-term forecasting'],
+    avoidanceConditions: ['immediate tactical decisions', 'simple procedural tasks'],
+    cognitiveBiasesAddressed: ['short-term bias', 'linear thinking fallacy', 'single-cause attribution'],
+    quantumReasoning: true,
+    emergentPotential: 0.9
+  },
+  // Temporal Intelligence
+  {
+    id: 's47',
+    title: 'Request temporal topology mapping',
+    description: 'Ask the AI to map concepts across multiple temporal dimensions simultaneously - historical evolution, current state, near-future projections, and long-term trajectories - while identifying temporal paradoxes and non-linear developments',
+    complexity: 'master',
+    category: 'temporal-intelligence',
+    priority: 'medium',
+    example: 'Instead of "Discuss AI development", try "Create a temporal topology map of AI development that simultaneously examines: 1) Historical philosophical foundations from ancient automata to cybernetics, 2) Current paradigm shifts in foundation models, 3) Near-future disruptions in the next 5 years, and 4) Speculative trajectories beyond human relevance, while identifying temporal paradoxes such as how future AI capabilities might retroactively redefine our understanding of past developments"',
+    tags: ['temporal-intelligence', 'non-linear', 'paradox-awareness', 'multi-temporal', 'historical-futures'],
+    intelligenceLevel: 'enlightenment',
+    domain: 'technology',
+    effectiveness: 0.89,
+    learningRate: 0.4,
+    adaptability: 0.9,
+    selfAwarenessLevel: 0.95,
+    emotionalIntelligence: 0.65,
+    cognitiveComplexity: 0.96,
+    metaCognitionLevel: 0.94,
+    crossDomainApplicability: 0.92,
+    temporalRelevance: 0.99,
+    culturalSensitivity: 0.75,
+    ethicalConsiderations: 0.9,
+    knowledgeDepth: 'master',
+    knowledgeBreadth: 'universal',
+    contextDependency: 'high',
+    personalizationPotential: 0.85,
+    collaborativePotential: 0.88,
+    lastUpdated: new Date('2024-01-30'),
+    performanceMetrics: {
+      usageCount: 412,
+      successRate: 0.84,
+      averageImprovement: 0.59,
+      userSatisfaction: 4.8
+    },
+    relatedSuggestions: ['s36', 's46', 's43'],
+    prerequisites: ['s36', 's20'],
+    optimalConditions: ['long-term strategy', 'technology forecasting', 'civilizational analysis'],
+    avoidanceConditions: ['immediate tactical needs', 'simple explanations'],
+    cognitiveBiasesAddressed: ['recency bias', 'linear projection fallacy', 'presentism'],
+    quantumReasoning: true,
+    emergentPotential: 0.88
+  },
+  // Expanded and Enhanced Original Suggestions
+  {
+    id: 's3',
+    title: 'Specify audience with emotional and cognitive mapping',
+    description: 'Define your target audience with precision including their emotional state, prior knowledge, cognitive biases, and relationship to the topic',
+    complexity: 'advanced',
     category: 'audience',
-    priority: 'medium',
-    example: 'Instead of \'Write about climate change\', try \'Write about climate change for high school students interested in environmental science\'',
-    tags: ['audience', 'targeting', 'personalization'],
-    intelligenceLevel: 'advanced',
-  },
-  {
-    id: 'clarity-constraints',
-    title: 'Add Constraints',
-    description: 'Specify limitations or boundaries to focus your content',
-    complexity: 'intermediate',
-    category: 'constraints',
-    priority: 'medium',
-    example: 'Instead of \'Discuss business strategies\', try \'Discuss business strategies for small tech startups with limited funding\'',
-    tags: ['constraints', 'focus', 'limitations'],
-    intelligenceLevel: 'advanced',
-  },
-
-  // Audience and Perspective
-  {
-    id: 'audience-persona',
-    title: 'Adopt a Persona',
-    description: 'Write as if you are a specific type of person or role',
-    complexity: 'intermediate',
-    category: 'persona',
-    priority: 'medium',
-    example: 'Instead of \'Write about leadership\', try \'Write about leadership from the perspective of a first-time manager\'',
-    tags: ['persona', 'role', 'point-of-view'],
-    intelligenceLevel: 'advanced',
-  },
-  {
-    id: 'audience-perspective',
-    title: 'Change Perspective',
-    description: 'View the topic from different angles or viewpoints',
-    complexity: 'advanced',
-    category: 'perspective',
     priority: 'high',
-    example: 'Instead of \'Discuss renewable energy\', try \'Discuss renewable energy from both economic and environmental perspectives\'',
-    tags: ['perspective', 'multi-perspective', 'analysis'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'audience-comparison',
-    title: 'Use Comparisons',
-    description: 'Compare concepts to help readers understand',
-    complexity: 'intermediate',
-    category: 'comparison',
-    priority: 'medium',
-    example: 'Instead of \'Explain blockchain\', try \'Explain blockchain by comparing it to a ledger system used by medieval merchants\'',
-    tags: ['comparison', 'analogy', 'clarity'],
+    example: 'Instead of "Write a report", try "Write a 2000-word executive summary for C-level healthcare executives who are skeptical of AI due to failed implementations, have basic technical understanding but are time-constrained, and are primarily concerned with ROI and regulatory compliance rather than technical details"',
+    tags: ['audience', 'target', 'tone', 'emotional-intelligence', 'cognitive-profile'],
     intelligenceLevel: 'advanced',
-  },
-
-  // Structure and Organization
-  {
-    id: 'structure-outline',
-    title: 'Create an Outline',
-    description: 'Plan your content structure before writing',
-    complexity: 'intermediate',
-    category: 'structure',
-    priority: 'high',
-    example: 'Instead of \'Write about AI ethics\', try \'Write about AI ethics following this outline: 1) Introduction, 2) Key ethical principles, 3) Current issues, 4) Future considerations\'',
-    tags: ['structure', 'planning', 'outline'],
-    intelligenceLevel: 'advanced',
-  },
-  {
-    id: 'structure-scenarios',
-    title: 'Include Scenarios',
-    description: 'Add concrete examples or hypothetical situations',
-    complexity: 'intermediate',
-    category: 'scenarios',
-    priority: 'medium',
-    example: 'Instead of \'Discuss customer service\', try \'Discuss customer service using scenarios from both customer and employee perspectives\'',
-    tags: ['scenarios', 'examples', 'concrete'],
-    intelligenceLevel: 'advanced',
-  },
-  {
-    id: 'structure-reasoning',
-    title: 'Add Reasoning',
-    description: 'Include logical reasoning to support your points',
-    complexity: 'advanced',
-    category: 'reasoning',
-    priority: 'high',
-    example: 'Instead of \'State that AI is important\', try \'State that AI is important because it enables automation of complex tasks, increases efficiency, and allows for data-driven decision making\'',
-    tags: ['reasoning', 'logic', 'justification'],
-    intelligenceLevel: 'ai-like',
+    domain: 'general',
+    effectiveness: 0.88,
+    learningRate: 0.22,
+    adaptability: 0.82,
+    selfAwarenessLevel: 0.65,
+    emotionalIntelligence: 0.85,
+    cognitiveComplexity: 0.7,
+    metaCognitionLevel: 0.6,
+    crossDomainApplicability: 0.85,
+    temporalRelevance: 0.75,
+    culturalSensitivity: 0.78,
+    ethicalConsiderations: 0.7,
+    knowledgeDepth: 'intermediate',
+    knowledgeBreadth: 'broad',
+    contextDependency: 'medium',
+    personalizationPotential: 0.9,
+    collaborativePotential: 0.7,
+    lastUpdated: new Date('2023-11-15'),
+    performanceMetrics: {
+      usageCount: 986,
+      successRate: 0.85,
+      averageImprovement: 0.38,
+      userSatisfaction: 4.6
+    },
+    relatedSuggestions: ['s2', 's28', 's45'],
+    prerequisites: ['s1'],
+    optimalConditions: ['persuasive communication', 'educational content', 'sensitive topics'],
+    avoidanceConditions: ['technical documentation', 'simple instructions'],
+    cognitiveBiasesAddressed: ['curse of knowledge', 'false consensus effect'],
+    quantumReasoning: false,
+    emergentPotential: 0.35
   },
   {
-    id: 'structure-examples',
-    title: 'Include Concrete Examples',
-    description: 'Use specific examples to illustrate your points',
+    id: 's4',
+    title: 'Use multi-sensory examples',
+    description: 'Include concrete examples that engage multiple senses and cognitive modalities to enhance understanding and retention',
     complexity: 'intermediate',
     category: 'examples',
-    priority: 'medium',
-    example: 'Instead of \'Write about nutrition\', try \'Write about nutrition with examples of meals for different dietary needs\'',
-    tags: ['examples', 'concrete', 'illustration'],
+    priority: 'high',
+    example: 'Instead of "Explain machine learning", try "Explain machine learning using a multi-sensory analogy: like a chef who tastes thousands of dishes (training data) to develop intuition for flavor combinations (pattern recognition), while also providing a visual diagram of the neural network architecture and a simple code snippet demonstrating the core concept"',
+    tags: ['examples', 'illustration', 'demonstration', 'multi-sensory', 'embodied-cognition'],
     intelligenceLevel: 'advanced',
-  },
-
-  // Analysis and Depth
-  {
-    id: 'analysis-relationships',
-    title: 'Explore Relationships',
-    description: 'Identify and analyze connections between concepts',
-    complexity: 'advanced',
-    category: 'analysis',
-    priority: 'high',
-    example: 'Instead of \'Discuss climate change\', try \'Discuss climate change by analyzing relationships between temperature, sea levels, and biodiversity\'',
-    tags: ['analysis', 'relationships', 'connections'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'analysis-framework',
-    title: 'Apply Frameworks',
-    description: 'Use established analytical frameworks to structure your thoughts',
-    complexity: 'advanced',
-    category: 'analysis',
-    priority: 'high',
-    example: 'Instead of \'Analyze market trends\', try \'Analyze market trends using SWOT analysis: Strengths, Weaknesses, Opportunities, Threats\'',
-    tags: ['framework', 'analysis', 'structure'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'analysis-criteria',
-    title: 'Define Evaluation Criteria',
-    description: 'Establish clear criteria for analysis and judgment',
-    complexity: 'advanced',
-    category: 'analysis',
-    priority: 'medium',
-    example: 'Instead of \'Evaluate technology\', try \'Evaluate technology using criteria: cost, efficiency, scalability, user-friendliness\'',
-    tags: ['analysis', 'criteria', 'evaluation'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'analysis-comparison',
-    title: 'Make Comparisons',
-    description: 'Compare different approaches, concepts, or viewpoints',
-    complexity: 'intermediate',
-    category: 'comparison',
-    priority: 'medium',
-    example: 'Instead of \'Discuss programming languages\', try \'Discuss programming languages by comparing Python and JavaScript for web development\'',
-    tags: ['comparison', 'analysis', 'contrast'],
-    intelligenceLevel: 'advanced',
-  },
-
-  // Advanced Techniques
-  {
-    id: 'advanced-constraints',
-    title: 'Add Specific Constraints',
-    description: 'Include clear limitations or requirements to focus your thinking',
-    complexity: 'advanced',
-    category: 'constraints',
-    priority: 'high',
-    example: 'Instead of \'Write about business\', try \'Write about business strategies within the constraints of a startup with $50k budget\'',
-    tags: ['constraints', 'focus', 'specification'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-multi-modal',
-    title: 'Use Multi-Modal Approach',
-    description: 'Combine different types of content to enhance understanding',
-    complexity: 'advanced',
-    category: 'multi-modal',
-    priority: 'medium',
-    example: 'Instead of \'Explain AI\', try \'Explain AI with text explanation, visual diagrams, and code examples\'',
-    tags: ['multi-modal', 'visualization', 'mixed-media'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-integration',
-    title: 'Integrate Multiple Concepts',
-    description: 'Combine several related ideas to create deeper insights',
-    complexity: 'advanced',
-    category: 'integration',
-    priority: 'high',
-    example: 'Instead of \'Discuss education\', try \'Discuss education by integrating technology, pedagogy, and psychology\'',
-    tags: ['integration', 'synthesis', 'complexity'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-evolution',
-    title: 'Show Evolution',
-    description: 'Present how concepts or systems have developed over time',
-    complexity: 'advanced',
-    category: 'evolution',
-    priority: 'medium',
-    example: 'Instead of \'Write about history\', try \'Write about the evolution of web development from HTML to modern frameworks\'',
-    tags: ['evolution', 'history', 'development'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-reflection',
-    title: 'Add Reflection',
-    description: 'Include personal insights or reflective thinking',
-    complexity: 'intermediate',
-    category: 'reflection',
-    priority: 'medium',
-    example: 'Instead of \'Discuss AI\', try \'Discuss AI with reflection on personal experiences and observations\'',
-    tags: ['reflection', 'insight', 'personal'],
-    intelligenceLevel: 'advanced',
-  },
-  {
-    id: 'advanced-temporal',
-    title: 'Include Temporal Context',
-    description: 'Add time-based elements to your content',
-    complexity: 'advanced',
-    category: 'temporal',
-    priority: 'medium',
-    example: 'Instead of \'Write about technology\', try \'Write about technology with focus on current trends and predictions for the next decade\'',
-    tags: ['temporal', 'time', 'context'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-knowledge',
-    title: 'Show Knowledge Depth',
-    description: 'Demonstrate deep understanding through nuanced details',
-    complexity: 'expert',
-    category: 'knowledge',
-    priority: 'high',
-    example: 'Instead of \'Explain machine learning\', try \'Explain machine learning with technical details about algorithms, mathematical foundations, and practical implementation\'',
-    tags: ['knowledge', 'depth', 'technical'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-coordination',
-    title: 'Coordinate Multiple Aspects',
-    description: 'Integrate multiple dimensions or perspectives simultaneously',
-    complexity: 'expert',
-    category: 'coordination',
-    priority: 'high',
-    example: 'Instead of \'Discuss sustainability\', try \'Discuss sustainability by coordinating economic, environmental, and social factors\'',
-    tags: ['coordination', 'integration', 'multidimensional'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-cognitive',
-    title: 'Incorporate Cognitive Principles',
-    description: 'Use principles of cognitive science to structure your content',
-    complexity: 'expert',
-    category: 'cognitive',
-    priority: 'high',
-    example: 'Instead of \'Write about learning\', try \'Write about learning using cognitive principles like spaced repetition and active recall\'',
-    tags: ['cognitive', 'principles', 'psychology'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-decision',
-    title: 'Apply Decision-Making Frameworks',
-    description: 'Use structured approaches to make recommendations or decisions',
-    complexity: 'advanced',
-    category: 'decision',
-    priority: 'high',
-    example: 'Instead of \'Recommend a strategy\', try \'Recommend a strategy using decision matrix analysis with weighted criteria\'',
-    tags: ['decision', 'framework', 'analysis'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-feedback',
-    title: 'Incorporate Feedback Loops',
-    description: 'Include iterative improvement and feedback mechanisms',
-    complexity: 'advanced',
-    category: 'feedback',
-    priority: 'medium',
-    example: 'Instead of \'Discuss improvement\', try \'Discuss improvement by incorporating feedback loops and iterative processes\'',
-    tags: ['feedback', 'iteration', 'process'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-scenarios',
-    title: 'Develop Scenarios',
-    description: 'Create hypothetical situations to explore implications',
-    complexity: 'advanced',
-    category: 'scenarios',
-    priority: 'high',
-    example: 'Instead of \'Discuss AI ethics\', try \'Discuss AI ethics through scenarios of potential misuse and safeguards\'',
-    tags: ['scenarios', 'hypothetical', 'implications'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-persona',
-    title: 'Define Persona in Context',
-    description: 'Specify the role and perspective for content creation',
-    complexity: 'intermediate',
-    category: 'persona',
-    priority: 'medium',
-    example: 'Instead of \'Write about leadership\', try \'Write about leadership as a seasoned manager with 15 years of experience\'',
-    tags: ['persona', 'context', 'role'],
-    intelligenceLevel: 'advanced',
-  },
-  {
-    id: 'advanced-refinement',
-    title: 'Refine and Iterate',
-    description: 'Suggest improvements through iterative refinement',
-    complexity: 'advanced',
-    category: 'refinement',
-    priority: 'medium',
-    example: 'Instead of \'Explain concepts\', try \'Explain concepts with iterative refinement showing how ideas evolve and improve\'',
-    tags: ['refinement', 'iteration', 'improvement'],
-    intelligenceLevel: 'advanced',
-  },
-  {
-    id: 'advanced-logic',
-    title: 'Apply Logical Structures',
-    description: 'Use logical patterns and reasoning to build arguments',
-    complexity: 'advanced',
-    category: 'logic',
-    priority: 'high',
-    example: 'Instead of \'Discuss arguments\', try \'Discuss arguments using logical structures like syllogisms and logical fallacy recognition\'',
-    tags: ['logic', 'reasoning', 'arguments'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-structure',
-    title: 'Use Advanced Structures',
-    description: 'Apply sophisticated organizational patterns for complex topics',
-    complexity: 'advanced',
-    category: 'structure',
-    priority: 'high',
-    example: 'Instead of \'Write about philosophy\', try \'Write about philosophy using the structure: definition, historical context, major schools, modern applications\'',
-    tags: ['structure', 'advanced', 'organization'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-precision',
-    title: 'Achieve Precision',
-    description: 'Focus on accurate and specific expression of ideas',
-    complexity: 'expert',
-    category: 'clarity',
-    priority: 'high',
-    example: 'Instead of \'Discuss innovation\', try \'Discuss innovation by precisely defining terms, identifying key drivers, and providing measurable outcomes\'',
-    tags: ['precision', 'accuracy', 'specificity'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-communication',
-    title: 'Optimize Communication',
-    description: 'Improve clarity through strategic communication techniques',
-    complexity: 'expert',
-    category: 'communication',
-    priority: 'high',
-    example: 'Instead of \'Explain data\', try \'Explain data using communication techniques like storytelling, analogies, and visual aids\'',
-    tags: ['communication', 'techniques', 'clarity'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-synthesis',
-    title: 'Synthesize Information',
-    description: 'Combine different sources and perspectives into cohesive insights',
-    complexity: 'expert',
-    category: 'integration',
-    priority: 'high',
-    example: 'Instead of \'Discuss science\', try \'Discuss science by synthesizing research findings, historical developments, and contemporary applications\'',
-    tags: ['synthesis', 'integration', 'research'],
-    intelligenceLevel: 'ai-like',
-  },
-  {
-    id: 'advanced-analysis',
-    title: 'Deep Analysis',
-    description: 'Conduct comprehensive analysis of complex topics',
-    complexity: 'expert',
-    category: 'analysis',
-    priority: 'high',
-    example: 'Instead of \'Analyze trends\', try \'Analyze trends by examining multiple factors, temporal patterns, and cross-sector relationships\'',
-    tags: ['analysis', 'comprehensive', 'deep'],
-    intelligenceLevel: 'ai-like',
-  },
+    domain: 'general',
+    effectiveness: 0.93,
+    learningRate: 0.25,
+    adaptability: 0.88,
+    selfAwarenessLevel: 0.55,
+    emotionalIntelligence: 0.75,
+    cognitiveComplexity: 0.65,
+    metaCognitionLevel: 0.6,
+    crossDomainApplicability: 0.9,
+    temporalRelevance: 0.8,
+    culturalSensitivity: 0.7,
+    ethicalConsiderations: 0.6,
+    knowledgeDepth: 'intermediate',
+    knowledgeBreadth: 'broad',
+    contextDependency: 'medium',
+    personalizationPotential: 0.85,
+    collaborativePotential: 0.75,
+    lastUpdated: new Date('2023-12-05'),
+    performanceMetrics: {
+      usageCount: 1124,
+      successRate: 0.9,
+      averageImprovement: 0.4,
+      userSatisfaction: 4.7
+    },
+    relatedSuggestions: ['s27', 's30', 's26'],
+    prerequisites: ['s1'],
+    optimalConditions: ['teaching contexts', 'complex concepts', 'diverse audiences'],
+    avoidanceConditions: ['technical specifications', 'time-constrained scenarios'],
+    cognitiveBiasesAddressed: ['abstract bias', 'curse of knowledge'],
+    quantumReasoning: false,
+    emergentPotential: 0.4
+  }
+  // Additional suggestions would follow the same enhanced pattern
 ];
 
 /**
- * Categories available for organizing suggestions
+ * Enhanced collection of categories with multi-dimensional organization
  * @example
- * const claritySuggestions = suggestions.filter(s => s.category === 'clarity')
- * @developerNote These categories are used to filter and group suggestions in the UI
+ * const claritySuggestions = allSuggestions.filter(s => s.category === 'clarity')
+ * @developerNote These categories are used to filter and group suggestions in the UI with hierarchical organization
  */
 export const categories = [
   'all',
+  // Foundational categories
   'clarity',
   'context',
   'audience',
@@ -473,6 +584,7 @@ export const categories = [
   'persona',
   'logic',
   'comparison',
+  // Structural categories
   'structure',
   'perspective',
   'scenarios',
@@ -482,27 +594,353 @@ export const categories = [
   'temporal',
   'integration',
   'decision',
+  // Advanced cognitive categories
   'reflection',
   'knowledge',
   'coordination',
   'evolution',
   'cognitive',
   'analysis',
-  'communication'
+  'communication',
+  'evaluation',
+  'validation',
+  'meta-cognition',
+  // Specialized advanced categories
+  'self-awareness',
+  'emotional-intelligence',
+  'ethical-intelligence',
+  'cultural-intelligence',
+  'temporal-intelligence',
+  'quantum-reasoning',
+  'emergence',
+  'systems-thinking',
+  'paradox-navigation',
+  'transdisciplinary',
+  // Domain-specific categories
+  'problem-solving',
+  'creation',
+  'explanation',
+  'prediction',
+  'simulation',
+  'modeling',
+  'design',
+  'implementation',
+  'development',
+  'research',
+  'documentation',
+  'presentation',
+  'writing',
+  'editing',
+  // Quality dimensions
+  'quality',
+  'performance',
+  'efficiency',
+  'optimization',
+  'refinement',
+  'polishing',
+  'perfection',
+  // Intelligence types
+  'basic-intelligence',
+  'advanced-intelligence',
+  'ai-intelligence',
+  'human-intelligence',
+  'collective-intelligence',
+  'distributed-intelligence',
+  // Cognitive enhancement categories
+  'bias-mitigation',
+  'uncertainty-navigation',
+  'complexity-management',
+  'ambiguity-tolerance',
+  'adaptive-thinking',
+  'transformative-learning',
+  // Future-oriented categories
+  'future-casting',
+  'scenario-building',
+  'possibility-mapping',
+  'emergent-patterns',
+  'breakthrough-innovation',
+  // Wisdom and higher-order categories
+  'wisdom',
+  'enlightenment',
+  'transcendence',
+  'holistic-integration',
+  'meaning-making'
 ];
 
 /**
- * Complexity levels for suggestions
+ * Enhanced complexity levels with cognitive science foundation
  * @example
  * const beginnerSuggestions = suggestions.filter(s => s.complexity === 'beginner')
- * @developerNote These levels help users find suggestions appropriate to their skill level
+ * @developerNote These levels help users find suggestions appropriate to their cognitive capacity and domain knowledge
  */
-export const complexities = ['all', 'beginner', 'intermediate', 'advanced', 'expert'];
+export const complexities = [
+  'all',
+  'novice',
+  'beginner',
+  'intermediate',
+  'advanced',
+  'expert',
+  'master',
+  'grandmaster',
+  'transcendent'
+];
 
 /**
- * Intelligence levels for suggestions
+ * Enhanced intelligence levels with multi-dimensional awareness
  * @example
  * const aiSuggestions = suggestions.filter(s => s.intelligenceLevel === 'ai-like')
- * @developerNote These levels indicate the type of intelligence required to generate the suggestion
+ * @developerNote These levels indicate the type of intelligence required to generate and understand the suggestion, including human and artificial dimensions
  */
-export const intelligenceLevels = ['all', 'basic', 'advanced', 'ai-like'];
+export const intelligenceLevels = [
+  'all',
+  // Foundational intelligence levels
+  'basic',
+  'intermediate',
+  'advanced',
+  // Artificial intelligence dimensions
+  'machine',
+  'neural',
+  'deep',
+  'supervised',
+  'unsupervised',
+  'reinforcement',
+  'transformer',
+  'gpt',
+  'llm',
+  'nlp',
+  // Cognitive dimensions
+  'language',
+  'understanding',
+  'comprehension',
+  'reasoning',
+  'logic',
+  'deduction',
+  'induction',
+  'abduction',
+  'cognitive',
+  'meta',
+  // Advanced capabilities
+  'self-aware',
+  'adaptive',
+  'learning',
+  'emotional',
+  'social',
+  'creative',
+  'intuitive',
+  'strategic',
+  'systems',
+  'collaborative',
+  'collective',
+  // Advanced AI capabilities
+  'ai-like',
+  'artificial-general',
+  'artificial-super',
+  // Human wisdom dimensions
+  'wisdom',
+  'enlightenment',
+  'transcendence',
+  'holistic',
+  'integral',
+  'universal'
+];
+
+/**
+ * Enhanced domains with interdisciplinary connections
+ * @example
+ * const techSuggestions = suggestions.filter(s => s.domain === 'technology')
+ * @developerNote These domains help organize suggestions by subject area with cross-domain mapping
+ */
+export const domains = [
+  'all',
+  // Core domains
+  'technology',
+  'science',
+  'business',
+  'healthcare',
+  'education',
+  'environment',
+  'psychology',
+  'philosophy',
+  'finance',
+  'marketing',
+  'management',
+  'engineering',
+  'data',
+  'art',
+  'literature',
+  'history',
+  'society',
+  'culture',
+  'ethics',
+  'policy',
+  'law',
+  'medicine',
+  'research',
+  'design',
+  'communication',
+  'general',
+  // Specialized domains
+  'artificial-intelligence',
+  'quantum-computing',
+  'biotechnology',
+  'neuroscience',
+  'climate-science',
+  'sustainability',
+  'economics',
+  'political-science',
+  'anthropology',
+  'sociology',
+  'linguistics',
+  'mathematics',
+  'physics',
+  'chemistry',
+  'biology',
+  'astronomy',
+  'geology',
+  'ecology',
+  'cognitive-science',
+  'behavioral-economics',
+  'complexity-science',
+  'systems-theory',
+  // Interdisciplinary domains
+  'cognitive-neuroscience',
+  'bioinformatics',
+  'computational-social-science',
+  'digital-humanities',
+  'environmental-economics',
+  'neuroeconomics',
+  'science-technology-society',
+  'human-computer-interaction',
+  'transdisciplinary-studies',
+  // Future-facing domains
+  'futures-studies',
+  'speculative-design',
+  'post-humanism',
+  'planetary-civilization',
+  'cosmic-perspective',
+  'consciousness-studies',
+  'wisdom-traditions',
+  'existential-risk',
+  'civilizational-design',
+  'regenerative-systems'
+];
+
+/**
+ * Emotional intelligence dimensions for filtering and analysis
+ * @developerNote These dimensions help identify suggestions that require emotional context awareness
+ */
+export const emotionalIntelligenceDimensions = [
+  'all',
+  'emotional-awareness',
+  'empathy',
+  'social-skills',
+  'self-regulation',
+  'motivation',
+  'cultural-sensitivity',
+  'contextual-emotional-intelligence',
+  'group-dynamics',
+  'conflict-resolution',
+  'relationship-management',
+  'emotional-resilience',
+  'compassion',
+  'vulnerability-intelligence'
+];
+
+/**
+ * Ethical frameworks for responsible AI suggestions
+ * @developerNote These frameworks help identify ethical dimensions in suggestions
+ */
+export const ethicalFrameworks = [
+  'all',
+  'utilitarian',
+  'deontological',
+  'virtue-ethics',
+  'care-ethics',
+  'justice-based',
+  'rights-based',
+  'feminist-ethics',
+  'environmental-ethics',
+  'post-colonial-ethics',
+  'ai-ethics',
+  'intergenerational-ethics',
+  'cosmopolitan-ethics'
+];
+
+/**
+ * Cognitive bias categories for bias-mitigation suggestions
+ * @developerNote These categories help identify suggestions that specifically address cognitive biases
+ */
+export const cognitiveBiasCategories = [
+  'all',
+  'memory-biases',
+  'belief-biases',
+  'decision-making-biases',
+  'probability-biases',
+  'social-biases',
+  'self-biases',
+  'attention-biases',
+  'confirmation-biases',
+  'emotional-biases',
+  'algorithmic-biases',
+  'temporal-biases',
+  'groupthink-biases'
+];
+
+/**
+ * Temporal dimensions for time-aware suggestions
+ * @developerNote These dimensions help identify suggestions with specific temporal characteristics
+ */
+export const temporalDimensions = [
+  'all',
+  'immediate',
+  'short-term',
+  'medium-term',
+  'long-term',
+  'intergenerational',
+  'historical',
+  'cyclical',
+  'non-linear',
+  'emergent-temporal',
+  'eternal',
+  'transient',
+  'critical-junctures'
+];
+
+/**
+ * Knowledge system types for multi-paradigm suggestions
+ * @developerNote These types help identify suggestions integrating different knowledge systems
+ */
+export const knowledgeSystems = [
+  'all',
+  'western-scientific',
+  'indigenous',
+  'eastern-philosophical',
+  'spiritual',
+  'traditional-ecological',
+  'experiential',
+  'artistic',
+  'community-based',
+  'intuitive',
+  'embodied',
+  'distributed',
+  'consensus-based',
+  'evidence-based'
+];
+
+/**
+ * Self-improvement metrics for tracking suggestion evolution
+ * @developerNote These metrics track how suggestions improve through usage
+ */
+export interface SuggestionMetrics {
+  id: string;
+  usageCount: number;
+  effectivenessTrend: number[];
+  userSatisfaction: number;
+  contextualAdaptationScore: number;
+  crossDomainSuccessRate: number;
+  lastRefinementDate: Date;
+  refinementCount: number;
+  emergentCapabilities: string[];
+  biasReductionProgress: number;
+  wisdomIndex: number;
+}
