@@ -85,20 +85,24 @@ const SmartSuggestionsPanel: React.FC<SmartSuggestionsPanelProps> = (props) => {
       const allSuggestionObjects: SmartSuggestion[] = [...allSuggestions];
 
       // Add enhanced suggestions as dynamic suggestions
-      enhancedSuggestions.forEach((suggestion: string, index: number) => {
-        allSuggestionObjects.push({
-          id: `enhanced-${index}`,
-          title: 'Enhanced Suggestion',
-          description: suggestion,
-          complexity: enhancedAnalysis.complexity || 'intermediate',
-          category: enhancedAnalysis.context || 'general',
-          priority: 'medium',
-          example: '',
-          tags: ['enhanced', 'ai-brain'],
-          intelligenceLevel: enhancedAnalysis.intelligenceLevel || 'ai-like',
-          domain: enhancedAnalysis.domain || 'general',
-          effectiveness: enhancedAnalysis.effectiveness || 0
-        });
+      enhancedSuggestions.forEach((suggestion: string | SmartSuggestion, index: number) => {
+        if ( typeof suggestion === 'string' ) {
+          allSuggestionObjects.push({
+            id: `enhanced-${index}`,
+            title: 'Enhanced Suggestion',
+            description: suggestion,
+            complexity: enhancedAnalysis.complexity || 'intermediate',
+            category: enhancedAnalysis.context || 'general',
+            priority: 'medium',
+            example: '',
+            tags: ['enhanced', 'ai-brain'],
+            intelligenceLevel: enhancedAnalysis.intelligenceLevel || 'ai-like',
+            domain: enhancedAnalysis.domain || 'general',
+            effectiveness: enhancedAnalysis.effectiveness || 0
+          });
+        } else {
+          allSuggestionObjects.push(suggestion);
+        }
       });
 
       setSuggestions(allSuggestionObjects);
@@ -231,9 +235,13 @@ const SmartSuggestionsPanel: React.FC<SmartSuggestionsPanelProps> = (props) => {
                               </Badge>
                             </div>
                             <p className="text-xs mt-2 text-muted-foreground">{suggestion.description}</p>
-                            {suggestion.example && (
+                            {suggestion?.example?.trim?.() ? (
                               <div className="mt-2 text-xs bg-muted p-2 rounded min-h-[80px]">
                                 <strong>Example:</strong> {suggestion.example}
+                              </div>
+                            ) : (
+                              <div className="mt-2 text-xs bg-muted p-2 rounded min-h-[80px]">
+                                <strong>Example:</strong> N/A
                               </div>
                             )}
                             <div className="mt-2 flex flex-wrap gap-1">
