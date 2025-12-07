@@ -4,14 +4,17 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 
 // ui components
-import { Button } from '~/components/ui/Button';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/Tooltip';
+import {Button} from '~/components/ui/Button';
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '~/components/ui/Tooltip';
 
 // components
 import SmartSuggestionsPanel from './SmartSuggestionsPanel';
+
+// AI brain module
+import EnhancedAIBrainV2 from '~/lib/ai-brain-enhanced';
 
 export interface SmartSuggestionsTriggerProps {
   /** Current prompt text */
@@ -38,18 +41,24 @@ export interface SmartSuggestionsTriggerProps {
  * />
  * ```
  */
-const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = ({
-  prompt,
-  isVisible,
-  onTogglePanel,
-  response
-}) => {
+const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = (props) => {
+  const {prompt, isVisible, onTogglePanel, response} = props;
+
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [analysis, setAnalysis] = useState<any>(null);
 
   useEffect(() => {
-    // Simulate analysis when prompt changes
+    // Initialize EnhancedAIBrainV2 instance
+    const enhancedBrain = EnhancedAIBrainV2.getInstance();
+
+    // Analyze prompt when panel is visible
     if (isVisible && prompt) {
       setIsAnalyzing(true);
+
+      // Use the EnhancedAIBrainV2 to analyze the prompt
+      const analysisResult = enhancedBrain.analyzePrompt(prompt);
+      setAnalysis(analysisResult);
+
       const timer = setTimeout(() => {
         setIsAnalyzing(false);
       }, 800);
@@ -92,6 +101,7 @@ const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = ({
           onClose={onTogglePanel}
           prompt={prompt}
           response={response}
+          analysis={analysis}
         />
       )}
     </>
