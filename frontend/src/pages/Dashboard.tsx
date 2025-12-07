@@ -21,6 +21,7 @@ import HistoryPanel from '~/components/HistoryPanel';
 import SettingsPanel from '~/components/SettingsPanel';
 import ModelSelector from '~/components/ModelSelector';
 import PromptEnhancer from '~/components/PromptEnhancer';
+import DraggableLayout from '~/components/DraggableLayout';
 
 
 /**
@@ -192,44 +193,56 @@ export const Dashboard: React.FC = () => {
           <div className="container mx-auto px-4 py-6 lg:py-8">
             <div className="mx-auto">
               {activeTab === 'enhancer' && (
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                  {/* Main Editor Area */}
-                  <div className="xl:col-span-8">
-                    <PromptEnhancer/>
-                  </div>
+                <DraggableLayout activeTab={activeTab}>
+                  <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                    {/* Main Editor Area */}
+                    <div className="xl:col-span-8">
+                      <PromptEnhancer/>
+                    </div>
 
-                  {/* Sidebar Content */}
-                  <div className="xl:col-span-4">
-                    <div className="sticky top-6 space-y-6">
-                      <div className="hidden xl:block">
-                        <ModelSelector/>
+                    {/* Sidebar Content */}
+                    <div className="xl:col-span-4">
+                      <div className="sticky top-6 space-y-6">
+                        <div className="hidden xl:block">
+                          <ModelSelector/>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                </DraggableLayout>
               )}
 
               {activeTab === 'history' && (
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                  <div className="xl:col-span-8">
-                    <HistoryPanel
-                      history={history}
-                      onDelete={deleteItem}
-                      onUpdate={updateItem}
-                      onExport={exportHistory}
-                      onClear={clearHistory}
-                    />
-                  </div>
-                  <div className="xl:col-span-4">
-                    <div className="hidden xl:block sticky top-6">
-                      <StatsPanel stats={stats}/>
+                <DraggableLayout activeTab={activeTab}>
+                  <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                    <div className="xl:col-span-8">
+                      <HistoryPanel
+                        history={history}
+                        onDelete={deleteItem}
+                        onUpdate={updateItem}
+                        onExport={exportHistory}
+                        onClear={clearHistory}
+                      />
+                    </div>
+                    <div className="xl:col-span-4">
+                      <div className="hidden xl:block sticky top-6">
+                        <StatsPanel stats={stats}/>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </DraggableLayout>
               )}
 
-              {activeTab === 'stats' && <StatsPanel stats={stats}/>}
-              {activeTab === 'settings' && <SettingsPanel/>}
+              {activeTab === 'stats' && (
+                <DraggableLayout activeTab={activeTab}>
+                  <StatsPanel stats={stats}/>
+                </DraggableLayout>
+              )}
+              {activeTab === 'settings' && (
+                <DraggableLayout activeTab={activeTab}>
+                  <SettingsPanel/>
+                </DraggableLayout>
+              )}
             </div>
           </div>
         </div>
