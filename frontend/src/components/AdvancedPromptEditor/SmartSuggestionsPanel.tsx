@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 
 // ui components
 import {Badge} from '~/components/ui/Badge';
@@ -16,12 +16,13 @@ import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '~/compon
 
 // AI brain module
 import {aiBrain, BrainAnalysis} from '~/lib/ai-brain';
+import EnhancedAIBrainV2 from '~/lib/ai-brain-enhanced';
 import {
   allSuggestions,
-  SmartSuggestion,
   categories,
   complexities,
   intelligenceLevels,
+  SmartSuggestion,
 } from '~/constants/prompt-suggestions.ts';
 
 export interface SmartSuggestionsPanelProps {
@@ -36,6 +37,9 @@ export interface SmartSuggestionsPanelProps {
 
   /** Response from prompt enhancement (if available) */
   response?: any | null;
+
+  /** Analysis result from AI brain */
+  analysis?: any | null;
 }
 
 /**
@@ -60,33 +64,47 @@ const SmartSuggestionsPanel: React.FC<SmartSuggestionsPanelProps> = (props) => {
   const [filteredSuggestions, setFilteredSuggestions] = useState<SmartSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [analysis, setAnalysis] = useState<BrainAnalysis | null>(null);
+  const [brainAnalysis, setBrainAnalysis] = useState<BrainAnalysis | null>(null);
+
+  // Initialize EnhancedAIBrainV2 instance
+  const enhancedBrain = EnhancedAIBrainV2.getInstance();
+
   useEffect(() => {
     if (isVisible) {
       setIsLoading(true);
 
       // Analyze prompt with AI brain
       const analysisResult = aiBrain.analyzePrompt(prompt);
-      setAnalysis(analysisResult);
+      setBrainAnalysis(analysisResult);
 
-      // Generate dynamic suggestions
-      const dynamicSuggestions = aiBrain.generateDynamicSuggestions(prompt);
-      const dynamicSuggestionObjects: SmartSuggestion[] = dynamicSuggestions.map((suggestion, index) => ({
-        id: `dynamic-${index}`,
-        title: 'Dynamic Suggestion',
-        description: suggestion,
-        complexity: 'intermediate',
-        category: 'dynamic',
-        priority: 'medium',
-        example: '',
-        tags: ['dynamic'],
-        intelligenceLevel: 'ai-like',
-      }));
+      // Generate dynamic suggestions using EnhancedAIBrainV2
+      const enhancedAnalysis = enhancedBrain.analyzePrompt(prompt);
+      const enhancedSuggestions = enhancedAnalysis.suggestions || [];
 
-      setSuggestions([...allSuggestions, ...dynamicSuggestionObjects]);
+      // Get all suggestions including dynamic ones
+      const allSuggestionObjects: SmartSuggestion[] = [...allSuggestions];
+
+      // Add enhanced suggestions as dynamic suggestions
+      enhancedSuggestions.forEach((suggestion: string, index: number) => {
+        allSuggestionObjects.push({
+          id: `enhanced-${index}`,
+          title: 'Enhanced Suggestion',
+          description: suggestion,
+          complexity: enhancedAnalysis.complexity || 'intermediate',
+          category: enhancedAnalysis.context || 'general',
+          priority: 'medium',
+          example: '',
+          tags: ['enhanced', 'ai-brain'],
+          intelligenceLevel: enhancedAnalysis.intelligenceLevel || 'ai-like',
+          domain: enhancedAnalysis.domain || 'general',
+          effectiveness: enhancedAnalysis.effectiveness || 0
+        });
+      });
+
+      setSuggestions(allSuggestionObjects);
       setIsLoading(false);
     }
-  }, [isVisible, prompt]);
+  }, [enhancedBrain, isVisible, prompt]);
 
   useEffect(() => {
     let filtered = suggestions;
@@ -148,8 +166,8 @@ const SmartSuggestionsPanel: React.FC<SmartSuggestionsPanelProps> = (props) => {
                 {response && (
                   <Badge variant="secondary">Enhanced: {response.enhancedPrompt.length} chars</Badge>
                 )}
-                {analysis && (
-                  <Badge variant="secondary">Confidence: {analysis.confidence}%</Badge>
+                {brainAnalysis && (
+                  <Badge variant="secondary">Confidence: {brainAnalysis.confidence}%</Badge>
                 )}
               </div>
 
@@ -177,14 +195,14 @@ const SmartSuggestionsPanel: React.FC<SmartSuggestionsPanelProps> = (props) => {
                   className="min-w-[150px]"
                   value={activeComplexity}
                   options={complexities.map(value => ({label: value.charAt(0).toUpperCase() + value.slice(1), value}))}
-                  onChange={value => setActiveCategory(value as string)}
+                  onChange={value => setActiveComplexity(value as string)}
                 />
 
                 <Select
                   className="min-w-[150px]"
                   value={activeIntelligence}
                   options={intelligenceLevels.map(value => ({label: value.charAt(0).toUpperCase() + value.slice(1), value}))}
-                  onChange={value => setActiveCategory(value as string)}
+                  onChange={value => setActiveIntelligence(value as string)}
                 />
               </div>
 
@@ -219,11 +237,12 @@ const SmartSuggestionsPanel: React.FC<SmartSuggestionsPanelProps> = (props) => {
                               </div>
                             )}
                             <div className="mt-2 flex flex-wrap gap-1">
-                              {suggestion.tags.map(tag => (
-                                <Badge key={tag} variant="secondary" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
+                              {Array.isArray(suggestion.tags) &&
+                                suggestion.tags.map((tag) => (
+                                  <Badge key={tag} variant="secondary" className="text-xs">
+                                    {tag}
+                                  </Badge>
+                                ))}
                             </div>
                           </Card>
                         </TooltipTrigger>
