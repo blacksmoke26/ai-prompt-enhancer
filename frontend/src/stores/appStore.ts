@@ -10,6 +10,25 @@ import {persist, createJSONStorage} from 'zustand/middleware';
 // types
 import type {AppConfig, AIModel, AIProvider, EnhancementType, UserRole} from '~/types/index';
 
+// Dashboard layout item interface
+export interface DashboardLayoutItem {
+  id: string;
+  type: 'enhancer' | 'history' | 'stats' | 'settings';
+  title: string;
+  width: number; // Grid column width (1-12)
+  height?: number; // Row height if needed
+  visible: boolean;
+  sortable: boolean;
+}
+
+// Dashboard layout configuration
+export interface DashboardLayout {
+  items: DashboardLayoutItem[];
+  dragEnabled: boolean;
+  snapToGrid: boolean;
+  gridSize: number;
+}
+
 /**
  * Application state interface for managing app configuration and UI state
  * @example
@@ -84,6 +103,19 @@ export interface AppState {
 
   /** Updates sidebar visibility */
   setSidebarOpen(open: boolean): void;
+
+  // Dashboard Layout
+  /** Dashboard layout configuration */
+  dashboardLayout: DashboardLayout;
+
+  /** Updates dashboard layout */
+  setDashboardLayout(layout: Partial<DashboardLayout>): void;
+
+  /** Resets dashboard layout to default */
+  resetDashboardLayout(): void;
+
+  /** Auto-arranges dashboard layout */
+  autoArrangeLayout(): void;
 }
 
 /**
@@ -140,6 +172,53 @@ export const useAppStore = create<AppState>()(
       // Sidebar
       sidebarOpen: true,
       setSidebarOpen: (open) => set({sidebarOpen: open}),
+
+      // Dashboard Layout
+      dashboardLayout: {
+        items: [
+          { id: 'enhancer', type: 'enhancer', title: 'Prompt Enhancer', width: 8, visible: true, sortable: true },
+          { id: 'history', type: 'history', title: 'History', width: 8, visible: true, sortable: true },
+          { id: 'stats', type: 'stats', title: 'Statistics', width: 4, visible: true, sortable: true },
+          { id: 'settings', type: 'settings', title: 'Settings', width: 8, visible: true, sortable: true },
+        ],
+        dragEnabled: true,
+        snapToGrid: true,
+        gridSize: 12,
+      },
+      setDashboardLayout: (layout) => set((state) => ({
+        dashboardLayout: {...state.dashboardLayout, ...layout},
+      })),
+      resetDashboardLayout: () => set({
+        dashboardLayout: {
+          items: [
+            { id: 'enhancer', type: 'enhancer', title: 'Prompt Enhancer', width: 8, visible: true, sortable: true },
+            { id: 'history', type: 'history', title: 'History', width: 8, visible: true, sortable: true },
+            { id: 'stats', type: 'stats', title: 'Statistics', width: 4, visible: true, sortable: true },
+            { id: 'settings', type: 'settings', title: 'Settings', width: 8, visible: true, sortable: true },
+          ],
+          dragEnabled: true,
+          snapToGrid: true,
+          gridSize: 12,
+        },
+      }),
+      autoArrangeLayout: () => set((state) => {
+        const visibleItems = state.dashboardLayout.items.filter(item => item.visible);
+        const autoItems = visibleItems.map((item, index) => {
+          const width = Math.floor(12 / visibleItems.length);
+
+          return {
+            ...item,
+            width: width,
+          };
+        });
+
+        return {
+          dashboardLayout: {
+            ...state.dashboardLayout,
+            items: autoItems,
+          },
+        };
+      }),
     }),
     {
       name: 'prompt-enhancer-storage',
@@ -152,6 +231,7 @@ export const useAppStore = create<AppState>()(
         selectedUserRole: state.selectedUserRole,
         theme: state.theme,
         sidebarOpen: state.sidebarOpen,
+        dashboardLayout: state.dashboardLayout,
       }),
     },
   ),
