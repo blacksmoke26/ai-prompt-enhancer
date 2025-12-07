@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+.display-inline {
+    display: inline-block;
+    position: relative;
+    top: -2px;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
