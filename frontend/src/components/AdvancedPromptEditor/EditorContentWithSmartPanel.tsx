@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useState} from 'react';
+import React, {useState, useRef, useEffect} from 'react';
 
 // utils
 import {cn} from '~/utils/helpers';
@@ -94,6 +94,20 @@ export interface EditorContentProps {
 
   /** Whether to show the smart suggestion panel */
   showSmartPanel?: boolean;
+
+  /** Editor settings */
+  editorSettings?: {
+    scrollBehavior?: 'auto' | 'manual' | 'smart';
+    maxHeight?: number;
+    autoScroll?: boolean;
+    fontSize?: 'small' | 'medium' | 'large';
+    lineHeight?: 'tight' | 'normal' | 'relaxed' | 'loose';
+    showScrollbar?: boolean;
+    theme?: 'default' | 'dark' | 'light' | 'blue' | 'green';
+    fontFamily?: 'system' | 'monospace' | 'serif' | 'sans-serif';
+    wordWrap?: boolean;
+    showLineNumbers?: boolean;
+  };
 }
 
 const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((props, ref) => {
@@ -127,16 +141,66 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
     onFocus,
     onBlur,
     showSmartPanel = true,
+    editorSettings,
   } = props;
 
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const editorRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when content overflows
+  useEffect(() => {
+    const scrollEditorToBottom = () => {
+      if (editorRef.current) {
+        const editorElement = editorRef.current.querySelector('.mdxeditor');
+        if (editorElement) {
+          const contentEditable = editorElement.querySelector('[contenteditable]');
+          if (contentEditable) {
+            // Scroll to bottom when content overflows
+            if (contentEditable.scrollHeight > contentEditable.clientHeight) {
+              contentEditable.scrollTop = contentEditable.scrollHeight;
+            }
+          }
+        }
+      }
+    };
+
+    // Use a timeout to ensure DOM is updated
+    const timeout = setTimeout(scrollEditorToBottom, 100);
+
+    return () => clearTimeout(timeout);
+  }, [value]);
+
+  // Handle auto-scroll behavior based on settings
+  useEffect(() => {
+    if (editorSettings?.autoScroll && value) {
+      const scrollEditorToBottom = () => {
+        if (editorRef.current) {
+          const editorElement = editorRef.current.querySelector('.mdxeditor');
+          if (editorElement) {
+            const contentEditable = editorElement.querySelector('[contenteditable]');
+            if (contentEditable) {
+              contentEditable.scrollTop = contentEditable.scrollHeight;
+            }
+          }
+        }
+      };
+
+      // Use a timeout to ensure DOM is updated
+      const timeout = setTimeout(scrollEditorToBottom, 100);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [value, editorSettings?.autoScroll]);
 
   return (
-    <div className={cn('relative', isFullscreen && 'fixed inset-0 z-50 bg-background p-8')}>
+    <div
+      ref={editorRef}
+      className={cn('relative', isFullscreen && 'fixed inset-0 z-50 bg-background p-8')}
+    >
       <MdxEditor
         value={value}
         onChange={onChange}
-        contentEditableClassName="mdxeditor resize-none text-sm leading-relaxed transition-all duration-200"
+        contentEditableClassName="mdxeditor resize-none text-sm leading-relaxed transition-all duration-200 overflow-y-auto max-h-[400px] min-h-[350px]"
         readOnly={disabled}
         placeholder={placeholder}
         showFormatting={showFormatting}
@@ -200,7 +264,7 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
       )}
 
       {/* Smart Suggestions Trigger */}
-      {showSmartPanel !== false && (
+      {showSmartPanel && (
         <div className="absolute top-2 right-2 z-10">
           <SmartSuggestionsTrigger
             prompt={value}
