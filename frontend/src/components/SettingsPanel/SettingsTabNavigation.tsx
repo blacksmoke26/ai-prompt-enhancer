@@ -41,6 +41,7 @@ const SettingsTabNavigation: React.FC<SettingsTabNavigationProps> = ({activeTab,
     {id: 'enhancement', label: 'Enhancement', icon: WandSparkles},
     {id: 'user-role', label: 'User Role', icon: User2},
     {id: 'data', label: 'Data Management', icon: SettingsIcon},
+    {id: 'layout', label: 'Layout', icon: SettingsIcon},
     {id: 'advanced', label: 'Advanced', icon: SettingsIcon},
   ];
 
