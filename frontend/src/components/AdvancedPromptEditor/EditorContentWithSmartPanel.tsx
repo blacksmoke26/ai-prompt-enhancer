@@ -108,6 +108,9 @@ export interface EditorContentProps {
     wordWrap?: boolean;
     showLineNumbers?: boolean;
   };
+
+  /** Theme change handler */
+  onThemeChange?(theme: string): void;
 }
 
 const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((props, ref) => {
@@ -145,7 +148,15 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
   } = props;
 
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedTheme, setSelectedTheme] = useState<string>(editorSettings?.theme ?? 'default');
   const editorRef = useRef<HTMLDivElement>(null);
+
+  // Keep local theme in sync with props when they change
+  useEffect(() => {
+    if (editorSettings?.theme && editorSettings.theme !== selectedTheme) {
+      setSelectedTheme(editorSettings.theme);
+    }
+  }, [editorSettings?.theme, selectedTheme]);
 
   // Auto-scroll to bottom when content overflows
   useEffect(() => {
@@ -213,6 +224,10 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
         onBlur={onBlur}
         autoFocus
         ref={ref}
+        editorSettings={{
+          ...editorSettings,
+          theme: selectedTheme,
+        }}
       />
       {error && <p className="text-sm text-destructive">{error}</p>}
 
