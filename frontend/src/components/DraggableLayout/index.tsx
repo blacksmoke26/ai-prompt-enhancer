@@ -168,8 +168,6 @@ const DraggableLayout: React.FC<DraggableLayoutProps> = ({ children, activeTab }
         'settings': ['settings']
       };
 
-      console.log([activeTab, item.id, item.type]);
-
       return tabMap[activeTab]?.includes(item.type) || false;
     });
   }, [activeTab, dashboardLayout.items]);
