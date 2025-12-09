@@ -6,8 +6,22 @@
 
 import React from 'react';
 import {
-  MDXEditor, UndoRedo, BoldItalicUnderlineToggles, BlockTypeSelect, toolbarPlugin, type MDXEditorProps,
-  CodeToggle, InsertCodeBlock, InsertTable, ListsToggle, InsertFrontmatter, InsertThematicBreak, RealmPlugin,
+  BlockTypeSelect,
+  BoldItalicUnderlineToggles,
+  CodeToggle,
+  InsertTable,
+  InsertThematicBreak,
+  linkDialogPlugin,
+  linkPlugin,
+  listsPlugin,
+  ListsToggle,
+  MDXEditor,
+  type MDXEditorProps,
+  RealmPlugin,
+  tablePlugin,
+  thematicBreakPlugin,
+  toolbarPlugin,
+  UndoRedo,
 } from '@mdxeditor/editor';
 
 // styles
@@ -56,7 +70,13 @@ export const MdxEditor: React.FC<MdxEditorProps> = (props) => {
    * @developer-note: Dynamically adds toolbar plugin only when formatting is enabled
    * to reduce bundle size for cases where formatting controls aren't needed
    */
-  const plugins: RealmPlugin[] = [];
+  const plugins: RealmPlugin[] = [
+    tablePlugin(),
+    listsPlugin(),
+    thematicBreakPlugin(),
+    linkPlugin(),
+    linkDialogPlugin(),
+  ];
 
   if (showFormatting) {
     plugins.push(toolbarPlugin({
@@ -71,10 +91,8 @@ export const MdxEditor: React.FC<MdxEditorProps> = (props) => {
           <UndoRedo/>
           <BoldItalicUnderlineToggles/>
           <BlockTypeSelect/>
-          <InsertCodeBlock/>
           <InsertTable/>
           <ListsToggle/>
-          <InsertFrontmatter/>
           <InsertThematicBreak/>
           <CodeToggle/>
         </>
