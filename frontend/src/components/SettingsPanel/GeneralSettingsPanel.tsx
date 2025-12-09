@@ -21,7 +21,7 @@ export interface GeneralSettingsPanelProps {
   /** Function to update the local configuration */
   setLocalConfig: React.Dispatch<React.SetStateAction<AppConfig>>;
   /** Current theme setting */
-  theme: string;
+  theme: 'light' | 'dark';
   /** Function to update the theme setting */
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
   /** List of available models */
@@ -53,17 +53,16 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium">Theme</label>
-            <div className="flex space-x-2 mt-2">
-              {(['light', 'dark', 'system'] as const).map((t) => (
-                <Button
-                  key={t}
-                  variant={theme === t ? 'default' : 'outline'}
-                  onClick={() => setTheme(t)}
-                  className="capitalize"
-                >
-                  {t}
-                </Button>
-              ))}
+            <div className="mt-2">
+              <Select
+                value={theme}
+                onChange={(e) => setTheme(e as any)}
+                options={[
+                  {value: 'light', label: 'Light'},
+                  {value: 'dark', label: 'Dark'},
+                ]}
+                isSearchable
+              />
             </div>
           </div>
         </div>
@@ -77,8 +76,10 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
             <Select
               isSearchable
               value={localConfig.defaultModel}
-              onChange={(e) => setLocalConfig({...localConfig, defaultModel: e as string})}
-              options={models.map(model => ({
+              onChange={(e) =>
+                setLocalConfig({...localConfig, defaultModel: e as string})
+              }
+              options={models.map((model) => ({
                 value: model.id,
                 label: `${model.name} (${model.provider})`,
               }))}
@@ -89,7 +90,12 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
             <label className="text-sm font-medium">Default System Prompt</label>
             <Textarea
               value={localConfig.defaultSystemPrompt}
-              onChange={(e) => setLocalConfig({...localConfig, defaultSystemPrompt: e.target.value})}
+              onChange={(e) =>
+                setLocalConfig({
+                  ...localConfig,
+                  defaultSystemPrompt: e.target.value,
+                })
+              }
               placeholder="Enter default system prompt..."
               rows={3}
             />
@@ -103,11 +109,15 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
           <div className="flex items-center justify-between">
             <div>
               <label className="text-sm font-medium">Auto-save History</label>
-              <p className="text-xs text-muted-foreground">Automatically save prompt enhancements to history</p>
+              <p className="text-xs text-muted-foreground">
+                Automatically save prompt enhancements to history
+              </p>
             </div>
             <Button
               variant={localConfig.autoSave ? 'default' : 'outline'}
-              onClick={() => setLocalConfig({...localConfig, autoSave: !localConfig.autoSave})}
+              onClick={() =>
+                setLocalConfig({...localConfig, autoSave: !localConfig.autoSave})
+              }
             >
               {localConfig.autoSave ? 'Enabled' : 'Disabled'}
             </Button>
@@ -118,10 +128,12 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
             <Input
               type="number"
               value={localConfig.maxHistoryItems}
-              onChange={(e) => setLocalConfig({
-                ...localConfig,
-                maxHistoryItems: parseInt(e.target.value) || 1000,
-              })}
+              onChange={(e) =>
+                setLocalConfig({
+                  ...localConfig,
+                  maxHistoryItems: parseInt(e.target.value) || 1000,
+                })
+              }
               min="10"
               max="10000"
             />
