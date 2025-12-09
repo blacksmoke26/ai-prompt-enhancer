@@ -54,8 +54,8 @@ const UserRoleSettingsPanel: React.FC<UserRoleSettingsPanelProps> = (props) => {
       <div>
         <h3 className="text-lg font-semibold mb-4"><User2 className="inline-flex" size="16"/> User Roles</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {userRoles.map((role) => (
-            <Card key={role.id} className="p-4">
+          {userRoles.map((role, index) => (
+            <Card key={`${role.id}_${index}`} className="p-4">
               <h4>{role.name} <Badge variant="outline" className="text-xs">{role.category}</Badge></h4>
               <p className="text-sm text-muted-foreground">{role.description}</p>
             </Card>
