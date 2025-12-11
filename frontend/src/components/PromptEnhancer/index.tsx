@@ -4,25 +4,22 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useState} from 'react';
-import {AlertCircle, Play, RefreshCw} from 'lucide-react';
+import React, { useState } from 'react';
 
 // store
-import {useAppStore} from '~/stores/appStore';
+import { useAppStore } from '~/stores/appStore';
 
 // hooks
-import {usePromptEnhancer} from '~/hooks/usePromptEnhancer';
-
-// ui components
-import {Button} from '~/components/ui/Button';
-import {Alert, AlertDescription} from '~/components/ui/Alert';
-import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
+import { usePromptEnhancer } from '~/hooks/usePromptEnhancer';
 
 // components
-import {AdvancedPromptEditor} from '~/components/AdvancedPromptEditor';
+import { AdvancedPromptEditor } from '~/components/AdvancedPromptEditor';
+import ErrorAlert from '~/components/PromptEnhancer/ErrorAlert';
+import ActionButtons from '~/components/PromptEnhancer/ActionButtons';
+import QuickStats from '~/components/PromptEnhancer/QuickStats';
 
 // types
-import type {PromptResponse} from '~/types';
+import type { PromptResponse } from '~/types';
 
 /**
  * PromptEnhancer Component
@@ -134,7 +131,7 @@ const PromptEnhancer: React.FC = () => {
    * <textarea onKeyPress={handleKeyPress} />
    *
    * @developer_notes
-  * - Prevents default browser behavior for the key combination
+   * - Prevents default browser behavior for the key combination
    * - Provides power-user functionality for frequent users
    * - Cross-platform support (Ctrl for Windows/Linux, Cmd for Mac)
    */
@@ -147,15 +144,8 @@ const PromptEnhancer: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Error Alert */}
-      {error && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Main Editor */}
+      <ErrorAlert error={error} />
+      
       <AdvancedPromptEditor
         value={prompt}
         onChange={setPrompt}
@@ -176,73 +166,14 @@ const PromptEnhancer: React.FC = () => {
         className="mb-6"
       />
 
-      {/* Action Buttons */}
-      <div className="flex items-center justify-center space-x-4">
-        <Button
-          onClick={handleEnhance}
-          disabled={!prompt.trim() || !selectedModel || loading}
-          size="lg"
-          className="min-w-32"
-        >
-          {loading ? (
-            <>
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-              Enhancing...
-            </>
-          ) : (
-            <>
-              <Play className="h-4 w-4 mr-2" />
-              Enhance Prompt
-            </>
-          )}
-        </Button>
+      <ActionButtons 
+        onEnhance={handleEnhance}
+        onReset={handleReset}
+        isLoading={loading}
+        isEnhancementAvailable={!!prompt.trim() && !!selectedModel}
+      />
 
-        <Button
-          variant="outline"
-          onClick={handleReset}
-          disabled={loading}
-          size="lg"
-        >
-          Reset
-        </Button>
-      </div>
-
-      {/* Quick Stats */}
-      {response && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Enhancement Results</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {response.processingTime}ms
-                </div>
-                <div className="text-sm text-muted-foreground">Processing Time</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {response.tokensUsed || 'N/A'}
-                </div>
-                <div className="text-sm text-muted-foreground">Tokens Used</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {response.originalPrompt.length}
-                </div>
-                <div className="text-sm text-muted-foreground">Original Length</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {response.enhancedPrompt.length}
-                </div>
-                <div className="text-sm text-muted-foreground">Enhanced Length</div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      <QuickStats response={response} />
     </div>
   );
 };
