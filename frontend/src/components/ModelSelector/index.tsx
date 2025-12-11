@@ -4,22 +4,22 @@
  * @see https://github.com/blacksmoke26
  */
 
-
-import React, {useMemo} from 'react';
-import {Brain, Cloud, Hash, Thermometer, Type, User2} from 'lucide-react';
+import React from 'react';
 
 // store
-import {useAppStore} from '~/stores/appStore';
+import { useAppStore } from '~/stores/appStore';
 
-// helpers
-import {toSelectGroupedOptions} from '~/utils/helpers';
+// ui components
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/Card';
 
 // components
-import {Badge} from '~/components/ui/Badge';
-import {Select} from '~/components/ui/Select';
-import {Input} from '~/components/ui/Input';
-import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
-import {Slider} from '@radix-ui/themes';
+import ProviderSelector from './ProviderSelector';
+import ModelSelector from './ModelSelector';
+import EnhancementTypeSelector from './EnhancementTypeSelector';
+import UserRoleSelector from './UserRoleSelector';
+import TemperatureSlider from './TemperatureSlider';
+import MaxTokensInput from './MaxTokensInput';
+import ProviderStatus from './ProviderStatus';
 
 /**
  * Props for the ModelSelector component
@@ -49,46 +49,10 @@ export interface ModelSelectorProps {
  * - Maintained all existing functionality for enhancement types and user roles
  * - Preserved model display formatting with badges and context information
  */
-const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
+const ModelSelectorComponent: React.FC<ModelSelectorProps> = ({ className = '' }) => {
   const {
-    models,
-    providers,
-    selectedModel,
-    setSelectedModel,
-    setSelectedProvider,
-    enhancementTypes,
-    userRoles,
-    selectedEnhancementType,
-    setSelectedEnhancementType,
-    selectedUserRole,
-    setSelectedUserRole,
     selectedProvider,
-    config,
-    setConfig,
   } = useAppStore();
-
-  // Get selected model data
-  const selectedModelData = models.find(model => model.id === selectedModel);
-
-  // Get enhancement and role data for display
-  const selectedEnhancementData = enhancementTypes.find(type => type.id === selectedEnhancementType);
-  const selectedRoleData = userRoles.find(role => role.id === selectedUserRole);
-
-  // Filter models by selected provider
-  const filteredModels = useMemo(() => {
-    if (!selectedProvider) return [];
-    return models.filter(model => model.provider === selectedProvider);
-  }, [models, selectedProvider]);
-
-  // Get provider options for the provider dropdown
-  const providerOptions = useMemo(() => {
-    const providerNames = Array.from(new Set(models.map(model => model.provider)));
-    return providerNames.map(provider => ({
-      value: provider,
-      label: provider,
-      category: provider,
-    }));
-  }, [models]);
 
   return (
     <Card className={className}>
@@ -96,167 +60,16 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
         <CardTitle className="text-lg">AI Configuration</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Provider Selection */}
-        <div>
-          <Select
-            isSearchable
-            value={selectedProvider}
-            onChange={(e) => {
-              setSelectedProvider(e as string);
-              // Reset selected model when provider changes
-              setSelectedModel('');
-            }}
-            options={providerOptions}
-            label={<strong><Cloud className="inline-flex display-inline" size="16"/> AI Provider</strong>}
-            formatOptionLabel={(option, context) => {
-              return context?.context === 'menu'
-                ? <div><Cloud className="inline-flex" size="16"/> {option.label}</div>
-                : <div>{option.label}</div>;
-            }}
-          />
-        </div>
-
-        {/* Model Selection */}
-        <div>
-          <Select
-            isSearchable
-            value={selectedModel}
-            onChange={(e) => {
-              setSelectedModel(e as string);
-            }}
-            options={toSelectGroupedOptions(filteredModels, 'provider')}
-            label={<strong><Brain className="inline-flex display-inline" size="16"/> AI Model</strong>}
-            formatOptionLabel={(option, context) => {
-              return context?.context === 'menu'
-                ? <div><Brain className="inline-flex" size="16"/> {option.label} <span
-                  className="text-xs">({option.value.replace(option.label + ':', '')})</span><p
-                  className="text-xs pl-5 mt-1">{option.description}</p></div>
-                : (
-                  <div>
-                    {option.label} <span className="text-xs">({option.value.replace(option.label + ':', '')})</span>
-                  </div>
-                );
-            }}
-            disabled={!selectedProvider}
-          />
-          {selectedModelData && (
-            <div className="mt-2 flex flex-wrap gap-2">
-              <Badge variant="secondary" className="text-xs">
-                {selectedModelData.provider}
-              </Badge>
-              {selectedModelData.contextLength && (
-                <Badge variant="outline" className="text-xs">
-                  Context: {selectedModelData.contextLength.toLocaleString()}
-                </Badge>
-              )}
-              {selectedModelData.maxTokens && (
-                <Badge variant="outline" className="text-xs">
-                  Max: {selectedModelData.maxTokens.toLocaleString()}
-                </Badge>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Enhancement Type */}
-        <div>
-          <Select
-            isSearchable={true}
-            value={selectedEnhancementType}
-            onChange={(e) => setSelectedEnhancementType(e as string)}
-            options={toSelectGroupedOptions(enhancementTypes)}
-
-            label={<strong><Type className="inline-flex display-inline" size="16"/> Enhancement Type</strong>}
-            formatOptionLabel={(option, context) => {
-              return context?.context === 'menu'
-                ? <div><Type className="inline-flex" size="16"/> {option.label}<p
-                  className="text-xs pl-5 mt-1">{option.description}</p></div>
-                : <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
-            }}
-          />
-          {selectedEnhancementData && (
-            <p className="mt-1 text-xs text-muted-foreground">
-              {selectedEnhancementData.description}
-            </p>
-          )}
-        </div>
-
-        {/* User Role */}
-        <div>
-          <Select
-            isSearchable
-            value={selectedUserRole}
-            onChange={(e) => {
-              setSelectedUserRole(e as string);
-            }}
-            options={toSelectGroupedOptions(userRoles)}
-            label={<strong><User2 className="inline-flex display-inline" size="16"/> User Role</strong>}
-            formatOptionLabel={(option, context) => {
-              return context?.context === 'menu'
-                ? <div><User2 className="inline-flex" size="16"/> {option.label}<p
-                  className="text-xs pl-5 mt-1">{option.description}</p></div>
-                : <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
-            }}
-          />
-          {selectedRoleData && (
-            <p className="mt-1 text-xs text-muted-foreground">
-              {selectedRoleData.description}
-            </p>
-          )}
-        </div>
-
-        {/* Temperature */}
-        <div>
-          <label className="text-sm font-medium"><Thermometer size="16" className="display-inline"/> Temperature</label>
-          <div className="flex items-center space-x-3 pt-1">
-            <Slider
-              min={0}
-              max={1}
-              step={0.01}
-              defaultValue={[config.temperature ?? 0.7]}
-              onValueChange={([value]) => setConfig({temperature: value})}
-              aria-label="Temperature slider"
-              className="w-full"
-            />
-            <span className="text-sm w-10">
-              {config.temperature?.toFixed(2)}
-            </span>
-          </div>
-        </div>
-
-        {/* Max Tokens */}
-        <div>
-          <label className="text-sm font-medium"><Hash size="16" className="display-inline"/> Max Tokens</label>
-          <Input
-            type="number"
-            value={config.maxTokens ?? 256}
-            onChange={(e) => setConfig({maxTokens: parseInt(e.target.value, 10) || 0})}
-            min={1}
-            aria-label="Maximum number of tokens"
-            className="w-full"
-          />
-        </div>
-
-        {/* Provider Status */}
-        <div className="pt-2 border-t border-border">
-          <h4 className="text-sm font-medium mb-2">Provider Status</h4>
-          <div className="space-y-1">
-            {providers.map((provider) => (
-              <div key={provider.name} className="flex items-center justify-between">
-                <span className="text-sm capitalize">{provider.name}</span>
-                <Badge
-                  variant={provider.isConfigured ? 'default' : 'destructive'}
-                  className="text-xs"
-                >
-                  {provider.isConfigured ? 'Connected' : 'Not Connected'}
-                </Badge>
-              </div>
-            ))}
-          </div>
-        </div>
+        <ProviderSelector />
+        <ModelSelector />
+        <EnhancementTypeSelector />
+        <UserRoleSelector />
+        <TemperatureSlider />
+        <MaxTokensInput />
+        {selectedProvider && <ProviderStatus />}
       </CardContent>
     </Card>
   );
 };
 
-export default ModelSelector;
+export default ModelSelectorComponent;
