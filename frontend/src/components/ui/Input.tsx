@@ -1,10 +1,10 @@
 import React from 'react';
-import { cn } from '../../utils/helpers';
+import { cn } from '~/utils/helpers.ts';
 
 /**
  * Input component props extending HTML input attributes
  */
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   /** Optional label text displayed above the input */
   label?: string;
   /** Error message displayed below the input */
