@@ -5,9 +5,10 @@
  */
 
 import React from 'react';
-import { cn } from '~/utils/helpers.ts';
+import {cn} from '~/utils/helpers.ts';
+import {Switch as RSwitch, SwitchProps as RSwitchProps} from '@radix-ui/themes';
 
-export interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface SwitchProps extends RSwitchProps {
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
 }
@@ -20,28 +21,8 @@ export interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement>
  * Uses a checkbox input hidden visually but accessible to screen readers
  * and a styled toggle thumb that moves based on the checked state
  */
-export const Switch: React.FC<SwitchProps> = ({ className, checked, onCheckedChange, ...props }) => {
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (onCheckedChange) {
-      onCheckedChange(event.target.checked);
-    }
-  };
-
+export const Switch: React.FC<SwitchProps> = (props) => {
   return (
-    <div className={cn('relative inline-flex items-center h-6 rounded-full w-11 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background', className)}>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={handleChange}
-        className="sr-only"
-        {...props}
-      />
-      <span
-        className={cn(
-          'inline-block w-4 h-4 transform bg-white rounded-full duration-200 ease-in-out',
-          checked ? 'translate-x-6' : 'translate-x-1'
-        )}
-      />
-    </div>
+    <RSwitch {...props} />
   );
 };
