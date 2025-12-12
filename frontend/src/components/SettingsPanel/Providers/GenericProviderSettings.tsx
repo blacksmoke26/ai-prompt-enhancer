@@ -5,17 +5,18 @@
  */
 
 import React from 'react';
-import { RefreshCw, TestTube, Eye, EyeOff } from 'lucide-react';
+import {RefreshCw, TestTube, Eye, EyeOff} from 'lucide-react';
 
 // ui components
-import { Button } from '~/components/ui/Button';
-import { Input } from '~/components/ui/Input';
-import { Badge } from '~/components/ui/Badge';
+import {Button} from '~/components/ui/Button';
+import {Input, InputProps} from '~/components/ui/Input';
+import {Badge} from '~/components/ui/Badge';
+import {Switch} from '~/components/ui/Switch';
 
 // types
-import type { AppConfig } from '~/types';
+import type {AppConfig} from '~/types';
 
-interface GenericProviderSettingsProps {
+export interface GenericProviderSettingsProps extends React.PropsWithChildren {
   /** Name of the provider (used for display and test calls) */
   providerName: string;
   /** Key in AppConfig where this provider's settings are stored */
@@ -36,41 +37,99 @@ interface GenericProviderSettingsProps {
   showApiKeys: Record<string, boolean>;
   /** Function to update API key visibility */
   setShowApiKeys: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
+  /** Optional props to customize the base URL input field */
+  baseUrlInputProps?: Partial<InputProps>;
+  /** Whether to show the API key input field */
+  showApiKeyInput?: boolean;
+
   /** Function to test a provider connection */
-  testProvider: (providerName: string) => void;
+  testProvider(providerName: string): void;
 }
+
+/**
+ * Props for provider-specific settings components.
+ * Extends GenericProviderSettingsProps but excludes configKey and providerName
+ * as these are typically handled by parent components or wrappers.
+ */
+export type ProviderSettingsProps = Omit<GenericProviderSettingsProps, 'configKey' | 'providerName'>;
 
 /**
  * Generic component that renders a simple API‑key configuration form
  * and connection test UI for any provider.
  *
- * The component reads/writes the provider’s sub‑object from `localConfig`
+ * The component reads/writes the provider's sub‑object from `localConfig`
  * using the supplied `configKey`.  All actions (state updates, test calls,
  * visibility toggling) are delegated to the callbacks passed in props.
+ *
+ * @component
+ * @example
+ * // Basic usage with initial configuration
+ * <GenericProviderSettings
+ *   providerId="my-provider"
+ *   configuration={{ apiKey: "123", timeout: 3000 }}
+ *   onSettingsChange={(newConfig) => console.log("Settings updated:", newConfig)}
+ * />
+ *
+ * @example
+ * // Advanced usage with custom UI and validation
+ * <GenericProviderSettings
+ *   providerId="my-provider"
+ *   configuration={{ apiKey: "123", timeout: 3000 }}
+ *   onSettingsChange={(newConfig) => updateProviderConfig(newConfig)}
+ *   isReadOnly={false}
+ *   theme="dark"
+ * />
+ *
+ * @returns {JSX.Element} A React component that renders a configurable UI for provider settings.
  */
-const GenericProviderSettings: React.FC<GenericProviderSettingsProps> = ({
-  providerName,
-  configKey,
-  localConfig,
-  setLocalConfig,
-  testingProvider,
-  setTestingProvider,
-  testResults,
-  setTestResults,
-  showApiKeys,
-  setShowApiKeys,
-  testProvider,
-}) => {
-  const providerConfig = localConfig[configKey] as any || {};
+const GenericProviderSettings: React.FC<GenericProviderSettingsProps> = (props) => {
+  const {
+    providerName,
+    configKey,
+    localConfig,
+    setLocalConfig,
+    testingProvider,
+    setTestingProvider,
+    testResults,
+    setTestResults,
+    showApiKeys,
+    setShowApiKeys,
+    children = null,
+    baseUrlInputProps = {},
+    testProvider,
+    showApiKeyInput = true,
+  } = props;
+
+  const providerConfig = localConfig[configKey] as any || {
+    enabled: false,
+    baseUrl: '',
+    apiKey: '',
+  };
+
+  console.log('providerConfig:', providerConfig);
 
   const toggleVisibility = () => {
-    setShowApiKeys((prev) => ({ ...prev, [configKey]: !prev[configKey] }));
+    setShowApiKeys((prev) => ({...prev, [configKey]: !prev[configKey]}));
   };
 
   const handleApiKeyChange = (value: string) => {
     setLocalConfig((prev) => ({
       ...prev,
-      [configKey]: { ...(prev[configKey] || {}) as AppConfig, apiKey: value },
+      [configKey]: {...(prev[configKey] || {}) as AppConfig, apiKey: value},
+    }));
+  };
+
+  const handleBaseUrlChange = (value: string) => {
+    setLocalConfig((prev) => ({
+      ...prev,
+      [configKey]: {...(prev[configKey] || {}) as AppConfig, baseUrl: value},
+    }));
+  };
+
+  const handleEnabledChange = (enabled: boolean) => {
+    setLocalConfig((prev) => ({
+      ...prev,
+      [configKey]: {...(prev[configKey] || {}) as AppConfig, enabled},
     }));
   };
 
@@ -83,32 +142,58 @@ const GenericProviderSettings: React.FC<GenericProviderSettingsProps> = ({
 
   return (
     <div className="space-y-4">
-      <div>
-        <label className="text-sm font-medium">API Key</label>
-        <div className="flex space-x-2">
-          <Input
-            type={showApiKeys[configKey] ? 'text' : 'password'}
-            value={providerConfig.apiKey || ''}
-            onChange={(e) => handleApiKeyChange(e.target.value || '')}
-            placeholder="sk-..."
-            className="flex-1 w-96"
-          />
-          <Button variant="outline" size="icon" onClick={toggleVisibility}>
-            {showApiKeys[configKey] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-          </Button>
-        </div>
+      <div className="flex items-center space-x-2">
+        <Switch
+          checked={providerConfig.enabled !== undefined ? providerConfig.enabled : true}
+          onCheckedChange={handleEnabledChange}
+        />
+        <span className="text-sm font-medium">Enable {providerName}</span>
       </div>
+
+      {showApiKeyInput && (
+        <div>
+          <div className="text-sm font-medium mb-2">API Key</div>
+          <div className="flex space-x-2">
+            <Input
+              type={showApiKeys[configKey] ? 'text' : 'password'}
+              value={providerConfig.apiKey || ''}
+              onChange={(e) => handleApiKeyChange(e.target.value || '')}
+              placeholder="sk-..."
+              className="flex-1 w-96"
+              disabled={!providerConfig.enabled}
+            />
+            <Button variant="outline" size="icon" onClick={toggleVisibility}>
+              {showApiKeys[configKey] ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      <div>
+        <div className="text-sm font-medium mb-2">Base URL (optional)</div>
+        <Input
+          className="w-1/2"
+          value={providerConfig.baseUrl || ''}
+          onChange={(e) => handleBaseUrlChange(e.target.value || '')}
+          placeholder="https://api.example.com/v1"
+          disabled={!providerConfig.enabled}
+          {...baseUrlInputProps}
+        />
+      </div>
+      {children}
+
+      <div className="pb-3"></div>
 
       <div className="flex items-center space-x-2">
         <Button
           onClick={handleTest}
-          disabled={isTesting || !providerConfig.apiKey}
-          variant="outline"
+          disabled={isTesting || !providerConfig.enabled}
+          variant="secondary"
         >
           {isTesting ? (
-            <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+            <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
           ) : (
-            <TestTube className="h-4 w-4 mr-2" />
+            <TestTube className="h-4 w-4 mr-2"/>
           )}
           Test Connection
         </Button>
