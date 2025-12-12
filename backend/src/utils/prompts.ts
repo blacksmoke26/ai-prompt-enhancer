@@ -4,7 +4,8 @@
  * @see https://github.com/blacksmoke26
  */
 
-import {enhancementTypes, userRoles} from '~/config/constants';
+import userRoles from '~/constants/user-roles';
+import enhancementTypes from '~/constants/enhancement-types';
 
 /**
  * Converts the array of enhancement types into a record mapping each type's ID to its system prompt.
