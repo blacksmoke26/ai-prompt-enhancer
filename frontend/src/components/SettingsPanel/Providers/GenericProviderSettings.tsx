@@ -106,8 +106,6 @@ const GenericProviderSettings: React.FC<GenericProviderSettingsProps> = (props) 
     apiKey: '',
   };
 
-  console.log('providerConfig:', providerConfig);
-
   const toggleVisibility = () => {
     setShowApiKeys((prev) => ({...prev, [configKey]: !prev[configKey]}));
   };
@@ -144,10 +142,10 @@ const GenericProviderSettings: React.FC<GenericProviderSettingsProps> = (props) 
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
         <Switch
-          checked={providerConfig.enabled !== undefined ? providerConfig.enabled : true}
+          checked={providerConfig.enabled}
           onCheckedChange={handleEnabledChange}
         />
-        <span className="text-sm font-medium">Enable {providerName}</span>
+        <span className="text-sm font-medium">Enable</span>
       </div>
 
       {showApiKeyInput && (

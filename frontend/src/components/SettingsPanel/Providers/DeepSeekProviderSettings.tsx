@@ -5,127 +5,40 @@
  */
 
 import React from 'react';
-import {RefreshCw, TestTube, Eye, EyeOff} from 'lucide-react';
 
-// ui components
-import {Button} from '~/components/ui/Button';
-import {Input} from '~/components/ui/Input';
-import {Badge} from '~/components/ui/Badge';
-
-// types
-import type {AppConfig} from '~/types';
-
-export interface DeepSeekProviderSettingsProps {
-  /** Current configuration values */
-  localConfig: AppConfig;
-
-  /** Function to update local configuration */
-  setLocalConfig: React.Dispatch<React.SetStateAction<AppConfig>>;
-
-  /** Name of provider currently being tested, or null if none */
-  testingProvider: string | null;
-
-  /** Function to set the provider currently being tested */
-  setTestingProvider: React.Dispatch<React.SetStateAction<string | null>>;
-
-  /** Test results for each provider */
-  testResults: Record<string, boolean>;
-
-  /** Function to update test results */
-  setTestResults: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-
-  /** Visibility state for API key inputs */
-  showApiKeys: Record<string, boolean>;
-
-  /** Function to update API key visibility */
-  setShowApiKeys: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-
-  /** Function to test a provider connection */
-  testProvider(providerName: string): void;
-}
+// components
+import GenericProviderSettings, {ProviderSettingsProps} from './GenericProviderSettings';
 
 /**
- * DeepSeek provider settings component for configuring API credentials and testing connection.
+ * Props interface for the DeepseekProviderSettings component.
  *
- * @example
- * <DeepSeekProviderSettings
- *   localConfig={config}
- *   setLocalConfig={setConfig}
- *   testingProvider={testingProvider}
- *   setTestingProvider={setTestingProvider}
- *   testResults={testResults}
- *   setTestResults={setTestResults}
- *   showApiKeys={showApiKeys}
- *   setShowApiKeys={setShowApiKeys}
- *   testProvider={testProvider}
- * />
- *
- * @developer_notes
- * - Handles API key input with toggle visibility
- * - Provides connection testing functionality
- * - Shows test results with status badges
- * - Uses controlled components for state management
+ * This interface defines all the properties required to manage the Deepseek provider
+ * configuration, including API key management, connection testing, and UI state handling.
+ * Each property is designed to provide full control over the provider's settings and
+ * real-time feedback on connection status.
  */
-const DeepSeekProviderSettings: React.FC<DeepSeekProviderSettingsProps> = (props) => {
-  const {
-    localConfig,
-    setLocalConfig,
-    testingProvider,
-    setTestingProvider,
-    testResults,
-    setTestResults,
-    showApiKeys,
-    setShowApiKeys,
-    testProvider,
-  } = props;
+export type DeepseekProviderSettingsProps = ProviderSettingsProps;
 
+/**
+ * Deepseek Provider Settings Component
+ *
+ * This component provides a comprehensive interface for configuring and managing
+ * the Deepseek AI provider settings. It includes functionality for:
+ * - Secure API key input with toggle visibility
+ * - Real-time connection testing with visual feedback
+ * - Persistent configuration storage through the localConfig state
+ *
+ * The component maintains its own internal state for UI elements while
+ * synchronizing all configuration changes with the parent through the provided
+ * state management functions. It integrates with the broader application's
+ * configuration system to ensure consistent settings across all providers.
+ */
+const DeepseekProviderSettings: React.FC<DeepseekProviderSettingsProps> = (props) => {
   return (
-    <div className="space-y-4">
-      <div>
-        <label className="text-sm font-medium">API Key</label>
-        <div className="flex space-x-2">
-          <Input
-            type={showApiKeys.deepseek ? 'text' : 'password'}
-            value={localConfig.deepseek?.apiKey || ''}
-            onChange={(e) => setLocalConfig({
-              ...localConfig,
-              deepseek: {...(localConfig.deepseek || {}), apiKey: e.target.value || ''},
-            })}
-            placeholder="sk-..."
-            className="flex-1 w-96"
-          />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setShowApiKeys(prev => ({...prev, ['deepseek']: !prev.deepseek}))}
-          >
-            {showApiKeys.deepseek ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Button
-          onClick={() => testProvider('deepseek')}
-          disabled={testingProvider === 'deepseek' || !localConfig.deepseek?.apiKey}
-          variant="outline"
-        >
-          {testingProvider === 'deepseek' ? (
-            <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
-          ) : (
-            <TestTube className="h-4 w-4 mr-2"/>
-          )}
-          Test Connection
-        </Button>
-
-        {testResults['deepseek'] !== undefined && (
-          <Badge variant={testResults['deepseek'] ? 'default' : 'destructive'}>
-            {testResults['deepseek'] ? 'Connected' : 'Failed'}
-          </Badge>
-        )}
-      </div>
-    </div>
+    <GenericProviderSettings
+      baseUrlInputProps={{placeholder: 'https://api.deepseek.com'}}
+      providerName="deepseek" configKey="deepseek" {...props}/>
   );
 };
 
-export default DeepSeekProviderSettings;
+export default DeepseekProviderSettings;

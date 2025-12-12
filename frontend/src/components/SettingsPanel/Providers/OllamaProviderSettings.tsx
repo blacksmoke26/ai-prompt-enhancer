@@ -5,15 +5,12 @@
  */
 
 import React from 'react';
-import {RefreshCw, TestTube} from 'lucide-react';
 
 // ui components
-import {Button} from '~/components/ui/Button';
 import {Input} from '~/components/ui/Input';
-import {Badge} from '~/components/ui/Badge';
 
-// types
-import type {AppConfig} from '~/types';
+// components
+import GenericProviderSettings, {ProviderSettingsProps} from './GenericProviderSettings';
 
 /**
  * Props interface for the OllamaProviderSettings component.
@@ -24,71 +21,7 @@ import type {AppConfig} from '~/types';
  *
  * @interface OllamaProviderSettingsProps
  */
-export interface OllamaProviderSettingsProps {
-  /**
-   * Current configuration values for the application, including all provider settings.
-   * This object contains the existing configuration that the user has set, which
-   * serves as the source of truth for the form inputs and displays.
-   *
-   * @type {AppConfig}
-   */
-  localConfig: AppConfig;
-
-  /**
-   * State setter function for updating the local configuration.
-   * This function is called whenever the user modifies any of the Ollama
-   * provider settings, allowing the parent component to maintain the latest
-   * configuration state.
-   *
-   * @type {React.Dispatch<React.SetStateAction<AppConfig>>}
-   */
-  setLocalConfig: React.Dispatch<React.SetStateAction<AppConfig>>;
-
-  /**
-   * The name of the provider currently being tested, or null if no test is in progress.
-   * This state is used to disable UI elements and display loading states during
-   * connection testing to prevent user interference.
-   *
-   * @type {string | null}
-   */
-  testingProvider: string | null;
-
-  /**
-   * State setter for updating which provider is currently being tested.
-   * Called when starting or stopping a connection test to update the UI state.
-   *
-   * @type {React.Dispatch<React.SetStateAction<string | null>>}
-   */
-  setTestingProvider: React.Dispatch<React.SetStateAction<string | null>>;
-
-  /**
-   * Record of test results for each provider, indicating success or failure.
-   * This object maintains the outcome of connection tests, allowing the UI
-   * to display appropriate status indicators to the user.
-   *
-   * @type {Record<string, boolean>}
-   */
-  testResults: Record<string, boolean>;
-
-  /**
-   * State setter for updating test results.
-   * Called after a connection test completes to store the result and trigger
-   * UI updates that reflect the test outcome.
-   *
-   * @type {React.Dispatch<React.SetStateAction<Record<string, boolean>>>}
-   */
-  setTestResults: React.Dispatch<React.SetStateAction<Record<string, boolean>>>;
-
-  /**
-   * Function to test a provider connection.
-   * This async function initiates a connection test for the specified provider,
-   * updating the testing state and results upon completion.
-   *
-   * @param {string} providerName - The name of the provider to test
-   * @returns {void}
-   */
-  testProvider(providerName: string): void;
-}
+export type OllamaProviderSettingsProps = ProviderSettingsProps;
 
 /**
  * Ollama provider settings component for configuring connection parameters.
@@ -110,65 +43,27 @@ export interface OllamaProviderSettingsProps {
  * server URL, timeout configuration, and connection testing functionality.
  */
 const OllamaProviderSettings: React.FC<OllamaProviderSettingsProps> = (props) => {
-  const {
-    localConfig,
-    setLocalConfig,
-    testingProvider,
-    setTestingProvider,
-    testResults,
-    setTestResults,
-    testProvider,
-  } = props;
-
   return (
-    <div className="space-y-4">
+    <GenericProviderSettings
+      showApiKeyInput={false}
+      providerName="ollama" configKey="ollama" {...props}
+      baseUrlInputProps={{placeholder: 'http://localhost:11434'}}>
       <div>
-        <label className="text-sm font-medium">Server URL</label>
-        <Input
-          value={localConfig.ollama?.url || ''}
-          onChange={(e) => setLocalConfig({
-            ...localConfig,
-            ollama: {...(localConfig.ollama || {}), url: e.target.value},
-          })}
-          placeholder="http://localhost:11434"
-        />
-      </div>
-
-      <div>
-        <label className="text-sm font-medium">Timeout (ms)</label>
+        <div className="text-sm font-medium mb-2">Timeout (ms)</div>
         <Input
           type="number"
-          value={localConfig.ollama?.timeout || 30000}
-          onChange={(e) => setLocalConfig({
+          value={props.localConfig.ollama?.timeout || 30000}
+          onChange={(e) => props.setLocalConfig(localConfig => ({
             ...localConfig,
             ollama: {...(localConfig.ollama || {}), timeout: parseInt(e.target.value) || 30000},
-          })}
+          }))}
           min="5000"
           max="300000"
+          className="w-40"
+          disabled={!props.localConfig.ollama?.enabled}
         />
       </div>
-
-      <div className="flex items-center space-x-2">
-        <Button
-          onClick={() => testProvider('ollama')}
-          disabled={testingProvider === 'ollama'}
-          variant="outline"
-        >
-          {testingProvider === 'ollama' ? (
-            <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
-          ) : (
-            <TestTube className="h-4 w-4 mr-2"/>
-          )}
-          Test Connection
-        </Button>
-
-        {testResults['ollama'] !== undefined && (
-          <Badge variant={testResults['ollama'] ? 'default' : 'destructive'}>
-            {testResults['ollama'] ? 'Connected' : 'Failed'}
-          </Badge>
-        )}
-      </div>
-    </div>
+    </GenericProviderSettings>
   );
 };
 
