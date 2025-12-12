@@ -82,8 +82,8 @@ export class AIProviderManager {
   private initializeProviders(): void {
     const config = this.configManager.getConfig();
 
-    if (config.ollama?.url) {
-      this.providers.set('ollama', new OllamaProvider(config.ollama.url));
+    if (config.ollama?.baseUrl) {
+      this.providers.set('ollama', new OllamaProvider(config.ollama.baseUrl));
     }
 
     const availableProviders: string[] = env.getStringArray('AVAILABLE_PROVIDERS', []);
@@ -244,8 +244,8 @@ export class AIProviderManager {
    */
   public async testProvider(providerName: string): Promise<boolean> {
     const provider = this.getProvider(providerName.toLowerCase());
-    console.log('provider:', provider, this);
     if (!provider) return false;
+
     try {
       return await provider.isAvailable();
     } catch {
