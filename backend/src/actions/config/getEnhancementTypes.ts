@@ -5,7 +5,7 @@
  */
 
 // constants
-import { enhancementTypes, EnhancementType } from '~/config/constants';
+import enhancementTypes, {EnhancementType} from '~/constants/enhancement-types';
 
 /**
  * Retrieves all available enhancement types for prompts

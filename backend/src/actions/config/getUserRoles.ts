@@ -5,7 +5,7 @@
  */
 
 // constants
-import {userRoles, UserRole} from '~/config/constants';
+import userRoles, {UserRole} from '~/constants/user-roles';
 
 /**
  * Retrieves all defined user roles in the system
