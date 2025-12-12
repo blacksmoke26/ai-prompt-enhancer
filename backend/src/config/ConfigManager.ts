@@ -1,6 +1,14 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import fs from 'fs';
 import path from 'path';
-import { defaultConfig } from './constants';
+
+// constants
+import defaultConfig from '~/constants/default-config';
 
 // types
 import type { AppConfig } from '~/types';
