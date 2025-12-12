@@ -4,7 +4,43 @@
  * @see https://github.com/blacksmoke26
  */
 
-export const providers: { name: string; baseUrl: string; [key: string]: any; }[] = [
+/**
+ * Represents configuration for an AI/ML service provider.
+ */
+export interface ProviderConfig {
+  /** Unique identifier for the provider (e.g., 'openai', 'ollama') */
+  name: string;
+  /** Base URL for the provider's API endpoints */
+  baseUrl: string;
+  /** Optional API authentication key */
+  apiKey?: string;
+  /** Request timeout in milliseconds (provider-specific) */
+  timeout?: number;
+  /** Additional provider-specific properties */
+  [key: string]: any;
+}
+
+/**
+ * Configuration for various AI/ML service providers.
+ *
+ * This module defines a list of supported providers with their base URLs and optional authentication credentials.
+ * Each provider can be used to connect to different AI/ML services for model inference and other operations.
+ *
+ * @example
+ * ```typescript
+ * import providers from './providers';
+ *
+ * // Get the OpenAI provider configuration
+ * const openai = providers.find(p => p.name === 'openai');
+ * console.log(openai.baseUrl); // 'https://api.openai.com/v1'
+ * ```
+ *
+ * @developerNotes
+ * - The `apiKey` field should be populated with valid credentials for production use
+ * - Some providers (like Ollama) may not require API keys
+ * - Additional properties can be added to each provider as needed
+ */
+const providers: ProviderConfig[] = [
   {name: 'ollama', baseUrl: 'http://localhost:11434', timeout: 30000},
   {name: 'openai', baseUrl: 'https://api.openai.com/v1', apiKey: ''},
   {name: 'openrouter', baseUrl: 'https://openrouter.ai/api/v1', apiKey: ''},
@@ -25,3 +61,5 @@ export const providers: { name: string; baseUrl: string; [key: string]: any; }[]
   {name: 'zhipu', baseUrl: 'https://open.bigmodel.cn', apiKey: ''},
   {name: 'qwen', baseUrl: 'https://dashscope.aliyuncs.com', apiKey: ''},
 ];
+
+export default providers;
