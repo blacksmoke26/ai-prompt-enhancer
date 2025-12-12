@@ -13,14 +13,17 @@ import rateLimit from '@fastify/rate-limit';
 import websocket from '@fastify/websocket';
 
 // classes
-import { ConfigManager } from './config/ConfigManager';
-import { AIProviderManager } from './services/AIProviderManager';
-import { HistoryManager } from './services/HistoryManager';
+import {ConfigManager} from './config/ConfigManager';
+import {AIProviderManager} from './services/AIProviderManager';
+import {HistoryManager} from './services/HistoryManager';
 
 // controllers
 import promptController from './controllers/promptController';
 import historyController from './controllers/historyController';
 import configController from './controllers/configController';
+
+// db
+import {initDB} from './database';
 
 /**
  * Creates and configures a Fastify server instance with plugins, routes, and WebSocket support.
@@ -30,7 +33,9 @@ import configController from './controllers/configController';
  * await server.listen({ port: 3000 });
  * @developer-note Ensure all environment variables are properly configured before calling this function.
  */
-async function createServer() {
+const createServer = async () => {
+  await initDB();
+
   const fastify = Fastify({
     logger: {
       level: process.env.LOG_LEVEL || 'info',
@@ -45,14 +50,14 @@ async function createServer() {
         cb(null, true);
         return;
       }
-      const hostname = new URL(origin).hostname
-      if(hostname === "localhost"){
+      const hostname = new URL(origin).hostname;
+      if (hostname === 'localhost') {
         //  Request from localhost will pass
-        cb(null, true)
-        return
+        cb(null, true);
+        return;
       }
       // Generate an error on other origins, disabling access
-      cb(new Error("Not allowed"), false)
+      cb(new Error('Not allowed'), false);
     },
     credentials: true,
   } as FastifyCorsOptions);
@@ -82,7 +87,7 @@ async function createServer() {
    * { "status": "ok", "timestamp": "2023-01-01T00:00:00.000Z" }
    */
   fastify.get('/health', async (request, reply) => {
-    return { status: 'ok', timestamp: new Date().toISOString() };
+    return {status: 'ok', timestamp: new Date().toISOString()};
   });
 
   /**
@@ -94,9 +99,9 @@ async function createServer() {
   fastify.head('*', (_req, reply) => reply.send(204));
 
   // Register routes
-  fastify.register(promptController, { prefix: '/api/prompts', providerManager, historyManager });
-  fastify.register(historyController, { prefix: '/api/history', historyManager });
-  fastify.register(configController, { prefix: '/api/config', configManager });
+  fastify.register(promptController, {prefix: '/api/prompts', providerManager, historyManager});
+  fastify.register(historyController, {prefix: '/api/history', historyManager});
+  fastify.register(configController, {prefix: '/api/config', configManager});
 
   /**
    * WebSocket connection handler for real-time updates.
@@ -110,7 +115,7 @@ async function createServer() {
    * @developer-note Add authentication and authorization as needed.
    */
   fastify.register(async function (fastify) {
-    fastify.get('/ws', { websocket: true }, (connection, _req) => {
+    fastify.get('/ws', {websocket: true}, (connection, _req) => {
       console.log('WebSocket client connected');
 
       connection.on('message', (message: string) => {
@@ -121,26 +126,26 @@ async function createServer() {
           // Handle different message types
           switch (data.type) {
             case 'ping':
-              connection.send(JSON.stringify({ type: 'pong' }));
+              connection.send(JSON.stringify({type: 'pong'}));
               break;
             case 'subscribe':
               // Handle subscription to updates
               connection.send(JSON.stringify({
                 type: 'subscribed',
-                channels: data.channels || []
+                channels: data.channels || [],
               }));
               break;
             default:
               connection.send(JSON.stringify({
                 type: 'error',
-                message: 'Unknown message type'
+                message: 'Unknown message type',
               }));
           }
         } catch (error: any) {
           console.error('WebSocket message error:', error);
           connection.send(JSON.stringify({
             type: 'error',
-            message: 'Invalid message format'
+            message: 'Invalid message format',
           }));
         }
       });
@@ -152,7 +157,7 @@ async function createServer() {
       // Send initial connection message
       connection.send(JSON.stringify({
         type: 'connected',
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       }));
     });
   });
@@ -186,7 +191,7 @@ async function createServer() {
   });
 
   return fastify;
-}
+};
 
 /**
  * Starts the Fastify server and listens on configured port and host.
@@ -203,7 +208,7 @@ async function start() {
     const port = parseInt(process.env.PORT || '3000');
     const host = process.env.HOST || '0.0.0.0';
 
-    await server.listen({ port, host });
+    await server.listen({port, host});
     console.log(`🚀 Server listening on http://${host}:${port}`);
 
   } catch (err) {
@@ -217,4 +222,4 @@ if (require.main === module) {
   start();
 }
 
-export { createServer };
+export {createServer};
