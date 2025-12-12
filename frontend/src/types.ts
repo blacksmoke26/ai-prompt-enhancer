@@ -15,74 +15,92 @@ export interface AppConfig {
 
   // Provider specific configuration objects
   ollama?: {
-    url?: string;
+    enabled?: boolean;
+    baseUrl?: string;
     timeout?: number;
   };
   openai?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   openrouter?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   deepseek?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   coze?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   qianfan?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   gemini?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   kimi?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   groq?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   anthropic?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   mistral?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   nvidia?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   cohere?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   cody?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   xai?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   huggingface?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   siliconflow?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };
   glm?: {
+    enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
   };

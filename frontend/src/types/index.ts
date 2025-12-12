@@ -169,7 +169,12 @@ export interface AIProvider {
   /** Whether the provider is properly configured */
   isConfigured?: boolean;
   /** Provider-specific configuration settings */
-  config?: Record<string, any>;
+  config?: {
+    [key: string]: any;
+    enabled?: boolean;
+    apiKey?: string;
+    baseUrl?: string;
+  };
 }
 
 /**

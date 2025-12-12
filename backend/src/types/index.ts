@@ -343,11 +343,13 @@ export interface AppConfig {
    * @example { url: "http://localhost:11434", timeout: 30000 }
    */
   ollama: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * URL of the Ollama server
      * @example "http://localhost:11434"
      */
-    url: string;
+    baseUrl?: string;
     /**
      * Request timeout in milliseconds
      * @example 30000
@@ -359,6 +361,8 @@ export interface AppConfig {
    * @example { apiKey: "sk-...abc", baseUrl: "https://api.openai.com/v1" }
    */
   openai?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for OpenAI
      * @example "sk-...abc"
@@ -375,6 +379,8 @@ export interface AppConfig {
    * @example { apiKey: "sk-...abc", baseUrl: "https://openrouter.ai/api/v1" }
    */
   openrouter?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for OpenRouter
      * @example "sk-...abc"
@@ -391,6 +397,8 @@ export interface AppConfig {
    * @example { apiKey: "sk-...abc", baseUrl: "https://api.deepseek.com" }
    */
   deepseek?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for DeepSeek
      * @example "sk-...abc"
@@ -407,6 +415,8 @@ export interface AppConfig {
    * @example { apiKey: "coze-...abc" }
    */
   coze?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for Coze
      * @example "coze-...abc"
@@ -423,6 +433,8 @@ export interface AppConfig {
    * @example { apiKey: "sk-...abc", baseUrl: "https://aip.baidubce.com" }
    */
   qianfan?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for Qianfan
      * @example "sk-...abc"
@@ -439,6 +451,8 @@ export interface AppConfig {
    * @example { apiKey: "AIza...abc" }
    */
   gemini?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for Gemini
      * @example "AIza...abc"
@@ -455,6 +469,8 @@ export interface AppConfig {
    * @example { apiKey: "sk-...abc", baseUrl: "https://api.moonshot.cn" }
    */
   kimi?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for Kimi
      * @example "sk-...abc"
@@ -471,6 +487,8 @@ export interface AppConfig {
    * @example { apiKey: "gsk_...abc" }
    */
   groq?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for Groq
      * @example "gsk_...abc"
@@ -487,6 +505,8 @@ export interface AppConfig {
    * @example { apiKey: "sk-ant-...abc", baseUrl: "https://api.anthropic.com" }
    */
   anthropic?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for Anthropic
      * @example "sk-ant-...abc"
@@ -503,6 +523,8 @@ export interface AppConfig {
    * @example { apiKey: "Ms-...abc", baseUrl: "https://api.mistral.ai" }
    */
   mistral?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for Mistral
      * @example "Ms-...abc"
@@ -519,6 +541,8 @@ export interface AppConfig {
    * @example { apiKey: "nvapi-...abc", baseUrl: "https://api.nvidia.com" }
    */
   nvidia?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for NVIDIA
      * @example "nvapi-...abc"
@@ -535,6 +559,8 @@ export interface AppConfig {
    * @example { apiKey: "cohere-...abc", baseUrl: "https://api.cohere.ai" }
    */
   cohere?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for Cohere
      * @example "cohere-...abc"
@@ -551,6 +577,8 @@ export interface AppConfig {
    * @example { apiKey: "sgp-...abc", baseUrl: "https://sourcegraph.com" }
    */
   cody?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for Cody
      * @example "sgp-...abc"
@@ -567,6 +595,8 @@ export interface AppConfig {
    * @example { apiKey: "xai-...abc", baseUrl: "https://api.x.ai" }
    */
   xai?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for xAI
      * @example "xai-...abc"
@@ -583,6 +613,8 @@ export interface AppConfig {
    * @example { apiKey: "hf_...abc" }
    */
   huggingface?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for HuggingFace
      * @example "hf_...abc"
@@ -599,6 +631,8 @@ export interface AppConfig {
    * @example { apiKey: "sk-...abc", baseUrl: "https://api.siliconflow.cn" }
    */
   siliconflow?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for SiliconFlow
      * @example "sk-...abc"
@@ -615,6 +649,8 @@ export interface AppConfig {
    * @example { apiKey: "glm-...abc", baseUrl: "https://open.bigmodel.cn" }
    */
   zhipu?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for Zhipu AI
      * @example "glm-...abc"
@@ -631,6 +667,8 @@ export interface AppConfig {
    * @example { apiKey: "sk-...abc", baseUrl: "https://dashscope.aliyuncs.com" }
    */
   qwen?: {
+    /** System-wide enable or disable provider  */
+    enabled?: boolean;
     /**
      * API key for Qwen
      * @example "sk-...abc"
