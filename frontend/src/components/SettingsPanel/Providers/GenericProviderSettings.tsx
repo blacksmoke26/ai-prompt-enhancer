@@ -14,7 +14,7 @@ import {Badge} from '~/components/ui/Badge';
 import {Switch} from '~/components/ui/Switch';
 
 // types
-import type {AppConfig} from '~/types';
+import type {AppConfig, ProviderConfig} from '~/types/index';
 
 export interface GenericProviderSettingsProps extends React.PropsWithChildren {
   /** Name of the provider (used for display and test calls) */
@@ -43,7 +43,7 @@ export interface GenericProviderSettingsProps extends React.PropsWithChildren {
   showApiKeyInput?: boolean;
 
   /** Function to test a provider connection */
-  testProvider(providerName: string): void;
+  testProvider(providerName: string, config?: ProviderConfig): void;
 }
 
 /**
@@ -132,7 +132,7 @@ const GenericProviderSettings: React.FC<GenericProviderSettingsProps> = (props) 
   };
 
   const handleTest = () => {
-    testProvider(providerName);
+    testProvider(providerName, localConfig[providerName]);
   };
 
   const isTesting = testingProvider === providerName;
