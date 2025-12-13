@@ -7,23 +7,21 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('providers',   {
+  up: async (queryInterface) => {
+    await queryInterface.createTable('providers', {
       id: {
         type: DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
         primaryKey: true,
       },
-      name: {
+      caption: {
         type: DataTypes.STRING(60),
         allowNull: false,
-        unique: true,
       },
-      apiKey: {
-        field: 'api_key',
-        type: DataTypes.STRING,
-        allowNull: true,
-        defaultValue: null,
+      name: {
+        type: DataTypes.STRING(30),
+        allowNull: false,
+        unique: true,
       },
       config: {
         type: DataTypes.JSON,
@@ -48,7 +46,7 @@ module.exports = {
       },
     });
   },
-  down: async (queryInterface, Sequelize) => {
+  down: async (queryInterface) => {
     await queryInterface.dropTable('providers');
   },
 };
