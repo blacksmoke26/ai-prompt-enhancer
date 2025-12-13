@@ -14,6 +14,7 @@ import {Textarea} from '~/components/ui/Textarea';
 
 // types
 import type {AppConfig} from '~/types';
+import type {Theme} from '~/components/ThemeProvider.tsx';
 
 export interface GeneralSettingsPanelProps {
   /** Current application configuration */
@@ -21,9 +22,9 @@ export interface GeneralSettingsPanelProps {
   /** Function to update the local configuration */
   setLocalConfig: React.Dispatch<React.SetStateAction<AppConfig>>;
   /** Current theme setting */
-  theme: 'light' | 'dark';
+  theme: Theme;
   /** Function to update the theme setting */
-  setTheme: (theme: 'light' | 'dark' | 'system') => void;
+  setTheme: (theme: Theme) => void;
   /** List of available models */
   models: { id: string; name: string; provider: string }[];
 }
