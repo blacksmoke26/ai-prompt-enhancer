@@ -7,9 +7,11 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
-    "db:migrate": "npx sequelize-cli db:migrate",
-    "db:rollback": "npx sequelize-cli db:migrate:undo",
-    "db:rollback:all": "nxp sequelize-cli db:migrate:undo:all",
+    "db:migrate": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/sequelize-cli/lib/sequelize db:migrate",
+    "db:seed": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/sequelize-cli/lib/sequelize db:seed:all",
+    "db:seed:undo": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/sequelize-cli/lib/sequelize db:seed:undo:all",
+    "db:rollback": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/sequelize-cli/lib/sequelize db:migrate:undo",
+    "db:rollback:all": "node -r ts-node/register -r tsconfig-paths/register ./node_modules/sequelize-cli/lib/sequelize db:migrate:undo:all",
     "lint": "eslint src --config .eslintrc.js",
     "test": "jest"
   },
@@ -39,6 +41,8 @@
     "eslint": "^9.39.1",
     "jest": "^30.2.0",
     "sequelize-cli": "^6.6.3",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
