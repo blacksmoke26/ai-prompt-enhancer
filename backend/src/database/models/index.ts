@@ -18,7 +18,7 @@ export * from './Setting';
 let isInitialized = false;
 
 if (!isInitialized) {
-  History.hasOne(Provider, {as: 'provider', foreignKey: 'providerId'});
+  Provider.hasMany(History, {as: 'provider', foreignKey: 'providerId'});
   isInitialized = true;
 }
 

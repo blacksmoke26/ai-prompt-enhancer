@@ -9,6 +9,14 @@ import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, M
 // db
 import {getInstance} from '~/database';
 
+export interface ConfigMeta {
+  [key: string]: any;
+
+  apiKey: string | null;
+  baseUrl: string;
+  timeout?: number;
+}
+
 /**
  * Represents a provider configuration with API credentials and settings.
  *
@@ -32,16 +40,16 @@ class Provider extends Model<InferAttributes<Provider>, InferCreationAttributes<
   declare readonly id: CreationOptional<number>;
 
   /** Human-readable name of the provider (must be unique) */
+  declare caption: CreationOptional<string>;
+
+  /** Human-readable name of the provider (must be unique) */
   declare name: string;
 
-  /** API authentication key (nullable for providers without auth) */
-  declare apiKey: string;
-
   /** Provider-specific configuration object (JSON format) */
-  declare config?: Record<string, any>;
+  declare config: ConfigMeta;
 
   /** Whether this provider is currently active (defaults to false) */
-  declare enabled?: boolean;
+  declare enabled: boolean;
 
   /** Record creation timestamp (auto-generated) */
   declare readonly createdAt: CreationOptional<Date>;
@@ -57,16 +65,14 @@ Provider.init(
       autoIncrement: true,
       primaryKey: true,
     },
-    name: {
+    caption: {
       type: DataTypes.STRING(60),
       allowNull: false,
-      unique: true,
     },
-    apiKey: {
-      field: 'api_key',
-      type: DataTypes.STRING,
-      allowNull: true,
-      defaultValue: null,
+    name: {
+      type: DataTypes.STRING(30),
+      allowNull: false,
+      unique: true,
     },
     config: {
       type: DataTypes.JSON,
