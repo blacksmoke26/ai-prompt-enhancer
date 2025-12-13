@@ -16,7 +16,28 @@ export type SequelizeInstance = InstanceType<typeof Sequelize>;
 
 const DB_CONFIG = config?.development ?? {};
 
+/**
+ * The main Sequelize instance for the application.
+ */
 let sequelizeInstance: SequelizeInstance;
+
+/**
+ * Creates a new Sequelize instance with the given options.
+ * @param options - Partial Sequelize configuration options to override defaults
+ * @returns The newly created Sequelize instance
+ */
+export const newInstance = (options: Partial<Options> = {}) => {
+  if (!sequelizeInstance) {
+    sequelizeInstance = new Sequelize({
+      dialect: DB_CONFIG.dialect,
+      storage: DB_CONFIG.storage,
+      logging: DB_CONFIG.logging,
+      ...options,
+    });
+  }
+
+  return sequelizeInstance;
+};
 
 /**
  * Initializes database connection and synchronizes models.
@@ -34,12 +55,7 @@ let sequelizeInstance: SequelizeInstance;
  * In production, consider using migrations instead of sync() for better control over schema changes.
  */
 export const initDB = async (options: Partial<Options> = {}): Promise<void> => {
-  const instance = new Sequelize({
-    dialect: DB_CONFIG.dialect,
-    storage: DB_CONFIG.storage,
-    logging: DB_CONFIG.logging,
-    ...options,
-  });
+  const instance = getInstance();
 
   try {
     await instance.authenticate();
@@ -50,8 +66,6 @@ export const initDB = async (options: Partial<Options> = {}): Promise<void> => {
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
-
-  sequelizeInstance = instance;
 };
 
 /**
@@ -71,7 +85,7 @@ export const initDB = async (options: Partial<Options> = {}): Promise<void> => {
  * Always call initDB() before attempting to get the instance.
  */
 export const getInstance = (): SequelizeInstance => {
-  if (sequelizeInstance) return sequelizeInstance;
-
-  throw new Error('Sequelize instance not initialized.');
+  return sequelizeInstance
+    ? sequelizeInstance
+    : (sequelizeInstance = newInstance());
 };
