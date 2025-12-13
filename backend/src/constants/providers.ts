@@ -8,6 +8,8 @@
  * Represents configuration for an AI/ML service provider.
  */
 export interface ProviderConfig {
+  /** The display name */
+  caption: string;
   /** Unique identifier for the provider (e.g., 'openai', 'ollama') */
   name: string;
   /** Base URL for the provider's API endpoints */
@@ -16,6 +18,7 @@ export interface ProviderConfig {
   apiKey?: string;
   /** Request timeout in milliseconds (provider-specific) */
   timeout?: number;
+
   /** Additional provider-specific properties */
   [key: string]: any;
 }
@@ -41,25 +44,25 @@ export interface ProviderConfig {
  * - Additional properties can be added to each provider as needed
  */
 const providers: ProviderConfig[] = [
-  {name: 'ollama', baseUrl: 'http://localhost:11434', timeout: 30000},
-  {name: 'openai', baseUrl: 'https://api.openai.com/v1', apiKey: ''},
-  {name: 'openrouter', baseUrl: 'https://openrouter.ai/api/v1', apiKey: ''},
-  {name: 'deepseek', baseUrl: 'https://api.deepseek.com', apiKey: ''},
-  {name: 'coze', baseUrl: 'https://api.coze.cn', apiKey: ''},
-  {name: 'qianfan', baseUrl: 'https://aip.baidubce.com', apiKey: ''},
-  {name: 'gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta', apiKey: ''},
-  {name: 'kimi', baseUrl: 'https://api.moonshot.cn', apiKey: ''},
-  {name: 'groq', baseUrl: 'https://api.groq.com', apiKey: ''},
-  {name: 'anthropic', baseUrl: 'https://api.anthropic.com', apiKey: ''},
-  {name: 'mistral', baseUrl: 'https://api.mistral.ai', apiKey: ''},
-  {name: 'nvidia', baseUrl: 'https://api.nvidia.com', apiKey: ''},
-  {name: 'cohere', baseUrl: 'https://api.cohere.ai', apiKey: ''},
-  {name: 'cody', baseUrl: 'https://sourcegraph.com', apiKey: ''},
-  {name: 'xai', baseUrl: 'https://api.x.ai', apiKey: ''},
-  {name: 'huggingface', baseUrl: 'https://api-inference.huggingface.co/models', apiKey: ''},
-  {name: 'siliconflow', baseUrl: 'https://api.siliconflow.cn', apiKey: ''},
-  {name: 'zhipu', baseUrl: 'https://open.bigmodel.cn', apiKey: ''},
-  {name: 'qwen', baseUrl: 'https://dashscope.aliyuncs.com', apiKey: ''},
+  {caption: 'Ollama', name: 'ollama', baseUrl: 'http://localhost:11434', timeout: 30000},
+  {caption: 'OpenAI', name: 'openai', baseUrl: 'https://api.openai.com/v1', apiKey: ''},
+  {caption: 'OpenRouter', name: 'openrouter', baseUrl: 'https://openrouter.ai/api/v1', apiKey: ''},
+  {caption: 'Deepseek', name: 'deepseek', baseUrl: 'https://api.deepseek.com', apiKey: ''},
+  {caption: 'Coze', name: 'coze', baseUrl: 'https://api.coze.cn', apiKey: ''},
+  {caption: 'Qianfan', name: 'qianfan', baseUrl: 'https://aip.baidubce.com', apiKey: ''},
+  {caption: 'Gemini', name: 'gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta', apiKey: ''},
+  {caption: 'Kimi', name: 'kimi', baseUrl: 'https://api.moonshot.cn', apiKey: ''},
+  {caption: 'Groq', name: 'groq', baseUrl: 'https://api.groq.com', apiKey: ''},
+  {caption: 'Anthropic', name: 'anthropic', baseUrl: 'https://api.anthropic.com', apiKey: ''},
+  {caption: 'Mistral', name: 'mistral', baseUrl: 'https://api.mistral.ai', apiKey: ''},
+  {caption: 'Nvidia', name: 'nvidia', baseUrl: 'https://api.nvidia.com', apiKey: ''},
+  {caption: 'Cohere', name: 'cohere', baseUrl: 'https://api.cohere.ai', apiKey: ''},
+  {caption: 'Cody', name: 'cody', baseUrl: 'https://sourcegraph.com', apiKey: ''},
+  {caption: 'xAI', name: 'xai', baseUrl: 'https://api.x.ai', apiKey: ''},
+  {caption: 'HuggingFace', name: 'huggingface', baseUrl: 'https://api-inference.huggingface.co/models', apiKey: ''},
+  {caption: 'SiliconFlow', name: 'siliconflow', baseUrl: 'https://api.siliconflow.cn', apiKey: ''},
+  {caption: 'Zhipu', name: 'zhipu', baseUrl: 'https://open.bigmodel.cn', apiKey: ''},
+  {caption: 'Qwen', name: 'qwen', baseUrl: 'https://dashscope.aliyuncs.com', apiKey: ''},
 ];
 
 export default providers;
