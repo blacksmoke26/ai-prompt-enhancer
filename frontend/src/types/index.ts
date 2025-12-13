@@ -358,3 +358,19 @@ export interface HistoryStats {
   /** Most frequently used enhancement type */
   mostUsedEnhancementType: string;
 }
+
+/**
+ * Provider configuration settings for a specific AI service provider.
+ */
+export interface ProviderConfig {
+  [key: string]: any;
+
+  /** Whether the provider is enabled */
+  enabled: boolean;
+  /** Base URL for the provider */
+  baseUrl?: string;
+  /** The API key for the provider */
+  apiKey?: string;
+  /** The timeout for requests to the provider */
+  timeout?: number;
+}
