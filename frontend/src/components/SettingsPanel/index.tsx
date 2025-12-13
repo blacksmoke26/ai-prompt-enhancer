@@ -26,11 +26,12 @@ import ProviderSettingsPanel from './ProviderSettingsPanel';
 import EnhancementSettingsPanel from './EnhancementSettingsPanel';
 import DataSettingsPanel from './DataSettingsPanel';
 import AdvancedSettingsPanel from './AdvancedSettingsPanel';
-
-// types
-import type {AppConfig} from '~/types';
 import UserRoleSettingsPanel from './UserRoleSettingsPanel';
 import LayoutSettingsPanel from './LayoutSettingsPanel';
+
+// types
+import {AppConfig} from '~/types';
+import {ProviderConfig} from '~/types/index';
 
 /**
  * Type definition for available settings tabs
@@ -161,14 +162,15 @@ const SettingsPanel: React.FC = () => {
   /**
    * Tests connection to an AI provider
    * @param providerName - Name of the provider to test
+   * @param config - Provider configuration object
    * @example
    * testProvider('openai'); // Tests OpenAI connection
    * @developer Note: Updates testResults state with outcome
    */
-  const testProvider = async (providerName: string) => {
+  const testProvider = async (providerName: string, config: ProviderConfig = {}) => {
     setTestingProvider(providerName);
     try {
-      const result = await PromptService.testProvider(providerName);
+      const result = await PromptService.testProvider(providerName, config);
       setTestResults(prev => ({...prev, [providerName]: result.available}));
     } catch (error) {
       setTestResults(prev => ({...prev, [providerName]: false}));
@@ -232,7 +234,7 @@ const SettingsPanel: React.FC = () => {
         );
       case 'layout':
         return (
-          <LayoutSettingsPanel />
+          <LayoutSettingsPanel/>
         );
       case 'advanced':
         return (
@@ -279,7 +281,7 @@ const SettingsPanel: React.FC = () => {
       </div>
 
       {/* Tab Navigation */}
-      <SettingsTabNavigation activeTab={activeTab} setActiveTab={setActiveTab} />
+      <SettingsTabNavigation activeTab={activeTab} setActiveTab={setActiveTab}/>
 
       {/* Tab Content */}
       <div className="space-y-6">
