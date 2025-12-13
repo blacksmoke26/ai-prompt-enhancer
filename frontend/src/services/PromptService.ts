@@ -7,7 +7,7 @@
 import api from '~/utils/api';
 
 // types
-import type { PromptRequest, PromptResponse, AIModel, AIProvider } from '~/types/index';
+import {PromptRequest, PromptResponse, AIModel, AIProvider, ProviderConfig} from '~/types/index';
 
 /**
  * Service for handling AI prompt enhancement and provider management.
@@ -142,6 +142,7 @@ export default abstract class PromptService {
   /**
    * Tests if a specific AI provider is currently available and functional.
    * @param providerName - The name of the provider to test.
+   * @param config - Optional configuration for the provider.
    * @returns Promise resolving to an object containing provider status.
    * @throws {Error} When provider name is invalid or test fails.
    * @example
@@ -149,11 +150,15 @@ export default abstract class PromptService {
    * console.log(status.available); // true/false
    * @developerNote This performs a lightweight health check - not a full capability test.
    */
-  static async testProvider(providerName: string): Promise<{ providerName: string; available: boolean; lastChecked: string }> {
+  static async testProvider(providerName: string, config: ProviderConfig = {}): Promise<{
+    providerName: string;
+    available: boolean;
+    lastChecked: string
+  }> {
     this.validateProviderName(providerName);
 
     try {
-      const response = await api.post(`/prompts/providers/${encodeURIComponent(providerName)}/test`, null, {
+      const response = await api.post(`/prompts/providers/${encodeURIComponent(providerName)}/test`, config, {
         timeout: this.HEALTH_CHECK_TIMEOUT,
       });
 
