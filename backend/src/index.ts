@@ -75,8 +75,13 @@ const createServer = async () => {
 
   // Initialize managers
   const configManager = new ConfigManager();
-  const providerManager = new AIProviderManager(configManager);
+  await configManager.load();
+
+  const providerManager = new AIProviderManager();
+  await providerManager.load();
+
   const historyManager = new HistoryManager();
+  await historyManager.load();
 
   /**
    * Health check endpoint to verify server status.
