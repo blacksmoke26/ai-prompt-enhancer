@@ -174,6 +174,7 @@ export interface AIProvider {
     enabled?: boolean;
     apiKey?: string;
     baseUrl?: string;
+    timeout?: number;
   };
 }
 
@@ -205,7 +206,14 @@ export interface AppConfig {
   temperature?: number;
   /** Maximum tokens allowed in the response */
   maxTokens?: number;
-
+  /** Selected enhancement type to use */
+  enhancementType?: string;
+  /** Selected user role to use */
+  userRole?: string;
+  /** Selected AI provider to use */
+  provider?: string;
+  /** Selected AI model to use */
+  model?: string;
   // Provider specific configuration objects
   ollama?: {
     url?: string;
