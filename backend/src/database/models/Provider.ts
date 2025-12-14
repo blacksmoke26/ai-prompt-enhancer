@@ -9,11 +9,17 @@ import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, M
 // db
 import {getInstance} from '~/database';
 
+// constants
+import providers from '~/constants/providers';
+
 export interface ConfigMeta {
   [key: string]: any;
-
-  apiKey: string | null;
-  baseUrl: string;
+  enabled?: boolean;
+  /** Valid API key for authentication */
+  apiKey?: string | null;
+  /** Base URL for the provider's API */
+  baseUrl?: string;
+  /** Request timeout in milliseconds (default: 30000) */
   timeout?: number;
 }
 
@@ -56,6 +62,50 @@ class Provider extends Model<InferAttributes<Provider>, InferCreationAttributes<
 
   /** Last modification timestamp (nullable) */
   declare readonly updatedAt?: Date;
+
+  /**
+   * Check if a provider with the given name exists
+   * @param name - Name of the provider to check
+   * @returns Promise resolving to true if a provider with the given name exists, false otherwise
+   */
+  public static async exists(name: string): Promise<boolean> {
+    return (await Provider.count({where: {name}})) > 0;
+  }
+
+  /**
+   * Gets all providers.
+   */
+  public static async getAllProviders(): Promise<Record<string, ConfigMeta>> {
+    const records = await Provider.findAll({attributes: ['name', 'config', 'enabled'], raw: true});
+
+    const config: Record<string, ConfigMeta> = {};
+
+    records.forEach(record => {
+      config[record.name] = {
+        enabled: Boolean(record.enabled),
+        apiKey: '',
+        ...(JSON.parse(record?.config as unknown as string)),
+      };
+    });
+
+    return config;
+  }
+
+  /**
+   * Gets all default settings.
+   */
+  public static async getDefaultProviders(): Promise<Record<string, ConfigMeta>> {
+    const config: Record<string, ConfigMeta> = {};
+
+    for (const {name, caption, enabled, ...provider} of providers) {
+      config[name] = {
+        enabled,
+        ...provider,
+      } as ConfigMeta;
+    }
+
+    return config;
+  }
 }
 
 Provider.init(
