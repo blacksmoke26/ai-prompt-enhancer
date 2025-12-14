@@ -5,7 +5,7 @@
  */
 
 import React, {useMemo} from 'react';
-import {Cloud, Hash} from 'lucide-react';
+import {Cloud} from 'lucide-react';
 import {useAppStore} from '~/stores/appStore';
 import {Select} from '~/components/ui/Select';
 
@@ -14,11 +14,7 @@ export interface ProviderSelectorProps {
 }
 
 const ProviderSelector: React.FC<ProviderSelectorProps> = ({className = ''}) => {
-  const {
-    models,
-    selectedProvider,
-    setSelectedProvider,
-  } = useAppStore();
+  const {models, config, setConfig} = useAppStore();
 
   // Get provider options for the provider dropdown
   const providerOptions = useMemo(() => {
@@ -33,10 +29,8 @@ const ProviderSelector: React.FC<ProviderSelectorProps> = ({className = ''}) => 
   return (
     <Select
       isSearchable
-      value={selectedProvider}
-      onChange={(e) => {
-        setSelectedProvider(e as string);
-      }}
+      value={config.provider}
+      onChange={(e) => setConfig({provider: e as string})}
       options={providerOptions}
       label={<strong><Cloud className="inline-flex display-inline" size="16"/> AI Provider</strong>}
       formatOptionLabel={(option, context) => {

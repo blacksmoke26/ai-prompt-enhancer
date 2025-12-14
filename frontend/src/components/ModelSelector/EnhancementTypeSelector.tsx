@@ -5,38 +5,36 @@
  */
 
 import React from 'react';
-import { Type } from 'lucide-react';
+import {Type} from 'lucide-react';
 
 // hooks
-import { useAppStore } from '~/stores/appStore';
+import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import { Select } from '~/components/ui/Select';
-import { Badge } from '~/components/ui/Badge';
+import {Select} from '~/components/ui/Select';
+import {Badge} from '~/components/ui/Badge';
 
 // utils
-import { toSelectGroupedOptions } from '~/utils/helpers.ts';
+import {toSelectGroupedOptions} from '~/utils/helpers.ts';
 
 export interface EnhancementTypeSelectorProps {
   className?: string;
 }
 
-const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({ className = '' }) => {
-  const {
-    enhancementTypes,
-    selectedEnhancementType,
-    setSelectedEnhancementType,
-  } = useAppStore();
+const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({className = ''}) => {
+  const {enhancementTypes, config, setConfig} = useAppStore();
 
   // Get enhancement data for display
-  const selectedEnhancementData = enhancementTypes.find(type => type.id === selectedEnhancementType);
+  const selectedEnhancementData = enhancementTypes.find(type => type.id === config.enhancementType);
 
   return (
     <div className={className}>
       <Select
         isSearchable={true}
-        value={selectedEnhancementType}
-        onChange={(e) => setSelectedEnhancementType(e as string)}
+        value={config.enhancementType}
+        onChange={(value) => {
+          setConfig({enhancementType: value as string});
+        }}
         options={toSelectGroupedOptions(enhancementTypes)}
         label={<strong><Type className="inline-flex display-inline" size="16"/> Enhancement Type</strong>}
         formatOptionLabel={(option, context) => {

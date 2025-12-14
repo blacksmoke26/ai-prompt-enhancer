@@ -4,41 +4,42 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, { useMemo } from 'react';
-import { Brain } from 'lucide-react';
-import { useAppStore } from '~/stores/appStore';
-import { Select } from '~/components/ui/Select';
-import { Badge } from '~/components/ui/Badge';
-import { toSelectGroupedOptions } from '~/utils/helpers.ts';
+import React, {useMemo} from 'react';
+import {Brain} from 'lucide-react';
+
+// store
+import {useAppStore} from '~/stores/appStore';
+
+// ui components
+import {Select} from '~/components/ui/Select';
+import {Badge} from '~/components/ui/Badge';
+
+// utils
+import {toSelectGroupedOptions} from '~/utils/helpers.ts';
 
 export interface ModelSelectorProps {
   className?: string;
 }
 
-const ModelSelector: React.FC<ModelSelectorProps> = ({ className = '' }) => {
-  const {
-    models,
-    selectedModel,
-    setSelectedModel,
-    selectedProvider,
-  } = useAppStore();
+const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
+  const {models, config, setConfig} = useAppStore();
 
   // Filter models by selected provider
   const filteredModels = useMemo(() => {
-    if (!selectedProvider) return [];
-    return models.filter(model => model.provider === selectedProvider);
-  }, [models, selectedProvider]);
+    if (!config.provider) return [];
+    return models.filter(model => model.provider === config.provider);
+  }, [models, config.provider]);
 
   // Get selected model data
-  const selectedModelData = models.find(model => model.id === selectedModel);
+  const selectedModelData = models.find(model => model.id === config.model);
 
   return (
     <div className={className}>
       <Select
         isSearchable
-        value={selectedModel}
-        onChange={(e) => {
-          setSelectedModel(e as string);
+        value={config.model}
+        onChange={(name) => {
+          setConfig({model: name as string});
         }}
         options={toSelectGroupedOptions(filteredModels as any, 'provider')}
         label={<strong><Brain className="inline-flex display-inline" size="16"/> AI Model</strong>}
@@ -53,7 +54,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ className = '' }) => {
               </div>
             );
         }}
-        disabled={!selectedProvider}
+        disabled={!config.provider}
       />
       {selectedModelData && (
         <div className="mt-2 flex flex-wrap gap-2">
