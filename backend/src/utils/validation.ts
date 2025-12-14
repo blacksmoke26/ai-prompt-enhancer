@@ -22,35 +22,6 @@ export const promptRequestSchema = Joi.object({
 });
 
 /**
- * Validates configuration update requests for various AI providers and app settings.
- * @example
- * { ollama: { url: "http://localhost:11434" }, theme: "dark" }
- * @developer_note
- * Only include fields that need to be updated in the request.
- */
-export const configUpdateSchema = Joi.object({
-  ollama: Joi.object({
-    url: Joi.string().uri().optional(),
-    timeout: Joi.number().min(1000).max(300000).optional(),
-  }).optional(),
-  openai: Joi.object({
-    apiKey: Joi.string().optional(),
-    baseUrl: Joi.string().uri().optional(),
-  }).optional(),
-  openrouter: Joi.object({
-    apiKey: Joi.string().optional(),
-  }).optional(),
-  deepseek: Joi.object({
-    apiKey: Joi.string().optional(),
-  }).optional(),
-  theme: Joi.string().valid('light', 'dark', 'system').optional(),
-  autoSave: Joi.boolean().optional(),
-  maxHistoryItems: Joi.number().min(10).max(10000).optional(),
-  defaultModel: Joi.string().optional(),
-  defaultSystemPrompt: Joi.string().max(2000).optional(),
-});
-
-/**
  * Validates history item updates including ratings and notes.
  * @example
  * { rating: 5, notes: "Excellent response" }
