@@ -4,6 +4,47 @@
  * @see https://github.com/blacksmoke26
  */
 
+// providers
+import BaseAIProvider from '~/base/BaseAIProvider';
+import OpenAIProvider from '~/providers/OpenAIProvider';
+import OpenRouterProvider from '~/providers/OpenRouterProvider';
+import DeepSeekProvider from '~/providers/DeepSeekProvider';
+import CozeProvider from '~/providers/CozeProvider';
+import QianFanProvider from '~/providers/QianFanProvider';
+import GeminiProvider from '~/providers/GeminiProvider';
+import KimiProvider from '~/providers/KimiProvider';
+import GroqProvider from '~/providers/GroqProvider';
+import AnthropicProvider from '~/providers/AnthropicProvider';
+import MistralProvider from '~/providers/MistralProvider';
+import NvidiaProvider from '~/providers/NvidiaProvider';
+import CohereProvider from '~/providers/CohereProvider';
+import CodyProvider from '~/providers/CodyProvider';
+import XAIProvider from '~/providers/XAIProvider';
+import HuggingFaceProvider from '~/providers/HuggingFaceProvider';
+import SiliconFlowProvider from '~/providers/SiliconFlowProvider';
+import ZhipuProvider from '~/providers/ZhipuProvider';
+
+export type ProviderName =
+  'ollama'
+  | 'openai'
+  | 'openrouter'
+  | 'deepseek'
+  | 'coze'
+  | 'qianfan'
+  | 'gemini'
+  | 'kimi'
+  | 'groq'
+  | 'anthropic'
+  | 'mistral'
+  | 'nvidia'
+  | 'cohere'
+  | 'cody'
+  | 'xai'
+  | 'huggingface'
+  | 'siliconflow'
+  | 'zhipu'
+  | 'qwen';
+
 /**
  * Represents configuration for an AI/ML service provider.
  */
@@ -11,7 +52,7 @@ export interface ProviderConfig {
   /** The display name */
   caption: string;
   /** Unique identifier for the provider (e.g., 'openai', 'ollama') */
-  name: string;
+  name: ProviderName | string;
   /** Base URL for the provider's API endpoints */
   baseUrl: string;
   /** Optional API authentication key */
@@ -44,7 +85,7 @@ export interface ProviderConfig {
  * - Additional properties can be added to each provider as needed
  */
 const providers: ProviderConfig[] = [
-  {caption: 'Ollama', name: 'ollama', baseUrl: 'http://localhost:11434', timeout: 30000},
+  {caption: 'Ollama', name: 'ollama', baseUrl: 'http://localhost:11434', apiKey: '', timeout: 30000},
   {caption: 'OpenAI', name: 'openai', baseUrl: 'https://api.openai.com/v1', apiKey: ''},
   {caption: 'OpenRouter', name: 'openrouter', baseUrl: 'https://openrouter.ai/api/v1', apiKey: ''},
   {caption: 'Deepseek', name: 'deepseek', baseUrl: 'https://api.deepseek.com', apiKey: ''},
@@ -64,5 +105,26 @@ const providers: ProviderConfig[] = [
   {caption: 'Zhipu', name: 'zhipu', baseUrl: 'https://open.bigmodel.cn', apiKey: ''},
   {caption: 'Qwen', name: 'qwen', baseUrl: 'https://dashscope.aliyuncs.com', apiKey: ''},
 ];
+
+// provider imports
+export const providersClasses: Record<ProviderName | string, new (...args: any[]) => BaseAIProvider> = {
+  openai: OpenAIProvider,
+  openrouter: OpenRouterProvider,
+  deepseek: DeepSeekProvider,
+  coze: CozeProvider,
+  qianfan: QianFanProvider,
+  gemini: GeminiProvider,
+  kimi: KimiProvider,
+  groq: GroqProvider,
+  anthropic: AnthropicProvider,
+  mistral: MistralProvider,
+  nvidia: NvidiaProvider,
+  cohere: CohereProvider,
+  cody: CodyProvider,
+  xai: XAIProvider,
+  huggingface: HuggingFaceProvider,
+  siliconflow: SiliconFlowProvider,
+  zhipu: ZhipuProvider,
+};
 
 export default providers;
