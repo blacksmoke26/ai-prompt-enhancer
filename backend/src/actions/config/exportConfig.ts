@@ -14,7 +14,7 @@ import { ConfigManager } from '~/config/ConfigManager';
  */
 export default async function exportConfig(configManager: ConfigManager) {
   try {
-    return configManager.exportConfig();
+    return await configManager.exportConfig();
   } catch (error: any) {
     throw new Error(`Failed to export config: ${error.message}`);
   }

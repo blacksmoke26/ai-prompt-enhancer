@@ -15,8 +15,8 @@ import {AppConfig} from '~/types';
  */
 export default async function resetConfig(configManager: ConfigManager): Promise<AppConfig> {
   try {
-    configManager.resetConfig();
-    return configManager.getConfig();
+    await configManager.resetConfig();
+    return await configManager.getConfig();
   } catch (error: any) {
     throw new Error(`Failed to reset config: ${error.message}`);
   }

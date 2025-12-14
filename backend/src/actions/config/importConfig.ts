@@ -19,7 +19,7 @@ export default async function importConfig(configManager: ConfigManager, configJ
       throw new Error('configJson is required');
     }
 
-    const success = configManager.importConfig(configJson);
+    const success = await configManager.importConfig(configJson);
 
     if (!success) {
       throw new Error('Invalid config JSON');

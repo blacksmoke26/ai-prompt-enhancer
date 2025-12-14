@@ -19,13 +19,8 @@ import {AppConfig} from '~/types';
  */
 export default async function updateConfig(configManager: ConfigManager, updates: Record<string, any>): Promise<AppConfig> {
   try {
-    const { error, value } = configUpdateSchema.validate(updates);
-    if (error) {
-      throw new Error(`Validation failed: ${error.details.map(detail => detail.message).join(', ')}`);
-    }
-
-    configManager.updateConfig(value);
-    return configManager.getConfig();
+    await configManager.updateConfig(updates);
+    return await configManager.getConfig();
   } catch (error: any) {
     throw new Error(`Failed to update config: ${error.message}`);
   }
