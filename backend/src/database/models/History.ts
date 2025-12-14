@@ -8,19 +8,9 @@ import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, M
 
 // db
 import {getInstance} from '~/database';
-import {Provider} from './index';
 
 /**
  * Represents a history record of provider interactions.
- * @example
- * ```typescript
- * const history = await History.create({
- *   providerId: 1,
- *   prompt: 'What is the weather today?',
- *   response: 'The weather is sunny with a high of 75°F.',
- *   meta: { temperature: 75, condition: 'sunny' }
- * });
- * ```
  * @developerNotes
  * - The `meta` field is flexible and can store any JSON-serializable data.
  * - `createdAt` and `updatedAt` are automatically managed by Sequelize.
@@ -30,10 +20,26 @@ class History extends Model<InferAttributes<History>, InferCreationAttributes<Hi
   declare readonly id: CreationOptional<number>;
   /** ID of the associated provider */
   declare providerId: number;
-  /** The prompt sent to the provider */
-  declare prompt: string;
+  /** The original prompt sent to the provider */
+  declare originalPrompt: string;
+  /** The enhanced prompt received from the provider */
+  declare enhancedPrompt: string;
+  /** The model used for the response */
+  declare model: string;
+  /** The type of enhancement applied to the prompt */
+  declare enhancementType: string;
+  /** The role of the user */
+  declare userRole: string;
   /** The response received from the provider */
-  declare response: string;
+  declare systemPrompt: string;
+  /** The number of tokens used for the response */
+  declare tokensUsed: number;
+  /** The time taken to process the request */
+  declare processingTime: number;
+  /** The temperature used for the response */
+  declare temperature: number;
+  /** The maximum number of tokens allowed for the response */
+  declare maxTokens: number;
   /** Optional metadata for the history record */
   declare meta?: Record<string, any>;
   /** Timestamp when the record was created */
@@ -53,15 +59,57 @@ History.init(
       field: 'provider_id',
       type: DataTypes.INTEGER.UNSIGNED,
       allowNull: false,
-      references: {model: Provider, key: 'id'},
+      references: { model: 'Provider', key: 'id' },
       onDelete: 'CASCADE',
     },
-    prompt: {
+    originalPrompt: {
+      field: 'original_prompt',
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    response: {
+    enhancedPrompt: {
+      field: 'enhanced_prompt',
       type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    model: {
+      field: 'model',
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    enhancementType: {
+      field: 'enhancement_type',
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    userRole: {
+      field: 'user_role',
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    systemPrompt: {
+      field: 'system_prompt',
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    tokensUsed: {
+      field: 'tokens_used',
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    processingTime: {
+      field: 'processing_time',
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    temperature: {
+      field: 'temperature',
+      type: DataTypes.NUMBER,
+      allowNull: false,
+    },
+    maxTokens: {
+      field: 'max_tokens',
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
     meta: {

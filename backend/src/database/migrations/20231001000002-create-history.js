@@ -21,12 +21,54 @@ module.exports = {
         references: { model: 'Provider', key: 'id' },
         onDelete: 'CASCADE',
       },
-      prompt: {
+      originalPrompt: {
+        field: 'original_prompt',
         type: DataTypes.TEXT,
         allowNull: false,
       },
-      response: {
+      enhancedPrompt: {
+        field: 'enhanced_prompt',
         type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      model: {
+        field: 'model',
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      enhancementType: {
+        field: 'enhancement_type',
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      userRole: {
+        field: 'user_role',
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      systemPrompt: {
+        field: 'system_prompt',
+        type: DataTypes.TEXT,
+        allowNull: false,
+      },
+      tokensUsed: {
+        field: 'tokens_used',
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      processingTime: {
+        field: 'processing_time',
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      temperature: {
+        field: 'temperature',
+        type: DataTypes.NUMBER,
+        allowNull: false,
+      },
+      maxTokens: {
+        field: 'max_tokens',
+        type: DataTypes.INTEGER,
         allowNull: false,
       },
       meta: {
