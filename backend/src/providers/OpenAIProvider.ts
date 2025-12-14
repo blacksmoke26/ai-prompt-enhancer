@@ -10,6 +10,7 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type { PromptRequest, PromptResponse, AIModel } from '~/types';
 
 /**
@@ -19,8 +20,7 @@ import type { PromptRequest, PromptResponse, AIModel } from '~/types';
 export default class OpenAIProvider extends BaseAIProvider {
   /**
    * Creates a new instance of the OpenAI provider.
-   * @param apiKey - The OpenAI API key for authentication
-   * @param baseURL - Optional custom base URL for the OpenAI API
+   * @param config - Configuration object
    *
    * @example
    * ```typescript
@@ -31,9 +31,9 @@ export default class OpenAIProvider extends BaseAIProvider {
    * If no baseURL is provided, defaults to the official OpenAI API endpoint.
    * The API key is set in the authorization header for all requests.
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('OpenAI', baseURL || 'https://api.openai.com/v1');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('OpenAI', config?.baseURL || 'https://api.openai.com/v1');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**

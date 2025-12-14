@@ -10,6 +10,7 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 
 /**
@@ -20,7 +21,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @example
  * ```ts
- * const provider = new NvidiaProvider('your-api-key');
+ * const provider = new NvidiaProvider({apiKey: 'your-api-key'});
  * const response = await provider.enhancePrompt({
  *   text: 'Explain quantum computing',
  *   model: 'nvidia-llama3',
@@ -38,12 +39,11 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 export default class NvidiaProvider extends BaseAIProvider {
   /**
    * Creates an instance of the Nvidia provider.
-   * @param apiKey - Your Nvidia API key
-   * @param baseURL - Optional custom base URL for the API
+   * @param config - Configuration object
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('Nvidia', baseURL || 'https://integrate.nvidia.com/v1');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('Nvidia', config?.baseURL || 'https://integrate.nvidia.com/v1');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**

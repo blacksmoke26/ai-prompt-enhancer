@@ -10,6 +10,7 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 
 /**
@@ -20,7 +21,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @example
  * ```ts
- * const provider = new HuggingFaceProvider('your-huggingface-api-key');
+ * const provider = new HuggingFaceProvider({apiKey: 'your-api-key'});
  * const response = await provider.enhancePrompt({
  *   text: 'Explain relativity',
  *   model: 'EleutherAI/gpt-neo-2.7B',
@@ -35,12 +36,11 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 export default class HuggingFaceProvider extends BaseAIProvider {
   /**
    * Creates a new HuggingFace provider instance.
-   * @param apiKey - Your Hugging Face API key
-   * @param baseURL - Optional custom base URL
+   * @param config - Configuration object
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('HuggingFace', baseURL || 'https://api-inference.huggingface.co/models');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('HuggingFace', config?.baseURL || 'https://api-inference.huggingface.co/models');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**

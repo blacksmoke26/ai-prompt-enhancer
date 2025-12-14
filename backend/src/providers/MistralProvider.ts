@@ -10,6 +10,7 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 
 /**
@@ -20,7 +21,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @example
  * ```ts
- * const provider = new MistralProvider('your-api-key');
+ * const provider = new MistralProvider({apiKey: 'your-api-key'});
  * const response = await provider.enhancePrompt({
  *   text: 'Explain quantum computing',
  *   model: 'mistral-large-latest',
@@ -38,17 +39,15 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 export default class MistralProvider extends BaseAIProvider {
   /**
    * Creates a new Mistral provider instance.
-   *
-   * @param apiKey - Valid Mistral API authentication key
-   * @param baseURL - Optional custom base URL for API endpoints
+   * @param config - Configuration object
    *
    * @developer-notes
    * - Automatically sets up Bearer token authentication
    * - Falls back to default Mistral API URL if none provided
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('Mistral', baseURL || 'https://api.mistral.ai/v1');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('Mistral', config?.baseURL || 'https://api.mistral.ai/v1');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**

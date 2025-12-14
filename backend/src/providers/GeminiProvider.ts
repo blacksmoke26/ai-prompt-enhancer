@@ -10,6 +10,7 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 
 /**
@@ -24,7 +25,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @example
  * ```ts
- * const provider = new GeminiProvider('your-google-api-key');
+ * const provider = new GeminiProvider({apiKey: 'your-api-key'});
  * const response = await provider.enhancePrompt({
  *   text: 'Explain blockchain',
  *   model: 'gemini-1.5-pro-001',
@@ -40,13 +41,11 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 export default class GeminiProvider extends BaseAIProvider {
   /**
    * Creates an instance of GeminiProvider.
-   *
-   * @param apiKey - The Google AI API key for authentication
-   * @param baseURL - Optional custom base URL (defaults to Gemini API)
+   * @param config - Configuration object
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('Gemini', baseURL || 'https://generativelanguage.googleapis.com/v1beta');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('Gemini', config?.baseURL || 'https://generativelanguage.googleapis.com/v1beta');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**

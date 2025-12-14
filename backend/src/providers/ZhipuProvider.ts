@@ -10,7 +10,8 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
-import type { AIModel, PromptRequest, PromptResponse } from '~/types';
+import type {ConfigMeta} from '~/database/models';
+import type {AIModel, PromptRequest, PromptResponse} from '~/types';
 
 /**
  * Zhipu AI provider for GLM (General Language Model) series.
@@ -18,7 +19,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @example
  * ```ts
- * const provider = new ZhipuProvider('your-api-key');
+ * const provider = new ZhipuProvider({apiKey: 'your-api-key'});
  * const response = await provider.enhancePrompt({
  *   text: 'Explain quantum computing',
  *   model: 'glm-4',
@@ -32,12 +33,11 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 export default class ZhipuProvider extends BaseAIProvider {
   /**
    * Initializes a new Zhipu provider instance.
-   * @param apiKey - Your Zhipu API authentication key
-   * @param baseURL - Optional custom base URL, defaults to Zhipu's API endpoint
+   * @param config - Configuration object
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('Zhipu', baseURL || 'https://api.z.ai/api/paas/v4');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('Zhipu', config?.baseURL || 'https://api.z.ai/api/paas/v4');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
     this.client.defaults.headers.common['Content-Type'] = 'application/json';
   }
 
@@ -102,7 +102,7 @@ export default class ZhipuProvider extends BaseAIProvider {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          { role: 'system', content: systemPrompt },
+          {role: 'system', content: systemPrompt},
           {
             role: 'user',
             content: `Original prompt: ${request.text}\n\nEnhanced prompt:`,
@@ -138,7 +138,7 @@ export default class ZhipuProvider extends BaseAIProvider {
     try {
       const resp = await this.client.post('/chat/completions', {
         model: 'glm-4',
-        messages: [{ role: 'user', content: 'test' }],
+        messages: [{role: 'user', content: 'test'}],
         max_tokens: 1,
       });
       return !!resp.data.choices;

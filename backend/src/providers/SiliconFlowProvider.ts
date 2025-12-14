@@ -10,6 +10,7 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 
 /**
@@ -20,7 +21,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @example
  * ```ts
- * const provider = new SiliconFlowProvider('your-api-key');
+ * const provider = new SiliconFlowProvider({apiKey: 'your-api-key'});
  * const response = await provider.enhancePrompt({
  *   text: 'Explain relativity',
  *   model: 'siliconflow-llama3',
@@ -33,13 +34,11 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 export default class SiliconFlowProvider extends BaseAIProvider {
   /**
    * Creates a new SiliconFlow provider instance.
-   *
-   * @param apiKey - The API key for authentication
-   * @param baseURL - Optional custom base URL
+   * @param config - Configuration object
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('SiliconFlow', baseURL || 'https://api.siliconflow.cn/v1');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('SiliconFlow', config?.baseURL || 'https://api.siliconflow.cn/v1');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**

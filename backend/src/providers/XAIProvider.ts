@@ -10,6 +10,7 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 
 /**
@@ -18,7 +19,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * Integrates with XAI's API to enhance and optimize user prompts through various enhancement types.
  * @example
  * ```ts
- * const provider = new XAIProvider('your-api-key');
+ * const provider = new XAIProvider({apiKey: 'your-api-key'});
  * const enhanced = await provider.enhancePrompt({
  *   text: 'Explain quantum computing',
  *   model: 'xai-gpt4',
@@ -29,12 +30,11 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 export default class XAIProvider extends BaseAIProvider {
   /**
    * Creates a new XAI provider instance.
-   * @param apiKey - XAI API authentication key
-   * @param baseURL - Optional custom base URL (defaults to XAI's API)
+   * @param config - Configuration object
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('XAI', baseURL || 'https://api.x.ai/v1');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('XAI', config?.baseURL || 'https://api.x.ai/v1');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**

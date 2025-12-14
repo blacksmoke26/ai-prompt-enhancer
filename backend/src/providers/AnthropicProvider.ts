@@ -10,14 +10,15 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
-import type { AIModel, PromptRequest, PromptResponse } from '~/types';
+import type {AIModel, PromptRequest, PromptResponse} from '~/types';
+import type {ConfigMeta} from '~/database/models';
 
 /**
  * Anthropic AI provider for prompt enhancement.
  *
  * @example
  * ```ts
- * const provider = new AnthropicProvider('your-api-key');
+ * const provider = new AnthropicProvider({apiKey: 'your-api-key'});
  * const enhanced = await provider.enhancePrompt({
  *   text: 'Explain relativity',
  *   model: 'claude-3-haiku-20240307',
@@ -29,12 +30,11 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 export default class AnthropicProvider extends BaseAIProvider {
   /**
    * Creates a new Anthropic provider instance.
-   * @param apiKey - Anthropic API key
-   * @param baseURL - Optional custom base URL (defaults to Anthropic's API)
+   * @param config - Configuration object
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('Anthropic', baseURL || 'https://api.anthropic.com/v1');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('Anthropic', config?.baseURL || 'https://api.anthropic.com/v1');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
     this.client.defaults.headers.common['Anthropic-Version'] = '2023-06-01';
     this.client.defaults.headers.common['Content-Type'] = 'application/json';
   }
@@ -122,7 +122,7 @@ export default class AnthropicProvider extends BaseAIProvider {
         temperature: 0,
         system: 'You are a helpful assistant.',
         messages: [
-          { role: 'user', content: [{ type: 'text', text: 'test' }] },
+          {role: 'user', content: [{type: 'text', text: 'test'}]},
         ],
       });
       return !!resp.data.content;

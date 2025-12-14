@@ -10,13 +10,14 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type { PromptRequest, PromptResponse, AIModel } from '~/types';
 
 /**
  * OpenRouter API provider for prompt enhancement services
  * @example
  * ```typescript
- * const provider = new OpenRouterProvider('your-api-key');
+ * const provider = new OpenRouterProvider({apiKey: 'your-api-key'});
  * const enhanced = await provider.enhancePrompt({
  *   text: 'Write a story',
  *   model: 'openai/gpt-3.5-turbo'
@@ -29,15 +30,14 @@ import type { PromptRequest, PromptResponse, AIModel } from '~/types';
 export default class OpenRouterProvider extends BaseAIProvider {
   /**
    * Initialize OpenRouter provider with API authentication
-   * @param apiKey - OpenRouter API key for authentication
-   * @param baseURL - Base URL for API calls
+   * @param config - Configuration object
    * @developerNote
    * Sets up HTTP client with required headers including Bearer token
    * and OpenRouter-specific headers for proper API communication.
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('OpenRouter', baseURL || 'https://openrouter.ai/api/v1');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('OpenRouter', config?.baseURL || 'https://openrouter.ai/api/v1');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
     this.client.defaults.headers.common['HTTP-Referer'] = 'http://localhost:5173';
     this.client.defaults.headers.common['X-Title'] = 'AI Prompt Enhancer';
   }

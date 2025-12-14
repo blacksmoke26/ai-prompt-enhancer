@@ -10,6 +10,7 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 
 /**
@@ -21,7 +22,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @example
  * ```ts
- * const provider = new QianFanProvider('your-api-key');
+ * const provider = new QianFanProvider({apiKey: 'your-api-key'});
  * const response = await provider.enhancePrompt({
  *   text: 'Explain machine learning',
  *   model: 'qwen-1.5-72b-chat',
@@ -38,13 +39,11 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 export default class QianFanProvider extends BaseAIProvider {
   /**
    * Initialize the QianFan provider with authentication credentials.
-   *
-   * @param apiKey - Valid QianFan API key for authentication
-   * @param baseURL - Optional custom base URL (defaults to DashScope endpoint)
+   * @param config - Configuration object
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('QianFan', baseURL || 'https://dashscope.aliyuncs.com');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('QianFan', config?.baseURL || 'https://dashscope.aliyuncs.com');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**

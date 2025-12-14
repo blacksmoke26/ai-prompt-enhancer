@@ -10,6 +10,7 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type { PromptRequest, PromptResponse, AIModel } from '~/types';
 
 /**
@@ -97,10 +98,10 @@ export interface OllamaModel {
 export default class OllamaProvider extends BaseAIProvider {
   /**
    * Creates a new Ollama provider instance.
-   * @param url - The base URL of the Ollama API endpoint
+   * @param config - Configuration object
    */
-  constructor(url: string = 'http://localhost:11434') {
-    super('Ollama', url);
+  constructor(config: ConfigMeta) {
+    super('Ollama', config?.baseUrl ?? 'http://localhost:11434');
   }
 
   /**

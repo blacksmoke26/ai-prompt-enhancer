@@ -10,13 +10,14 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type {AIModel, PromptRequest, PromptResponse} from '~/types';
 
 /**
  * DeepSeek AI provider for prompt enhancement and model management.
  * @example
  * ```typescript
- * const provider = new DeepSeekProvider('your-api-key');
+ * const provider = new DeepSeekProvider({apiKey: 'your-api-key'});
  * const response = await provider.enhancePrompt({
  *   text: 'Explain quantum computing',
  *   model: 'deepseek-chat',
@@ -28,17 +29,16 @@ import type {AIModel, PromptRequest, PromptResponse} from '~/types';
 export default class DeepSeekProvider extends BaseAIProvider {
   /**
    * Creates a new DeepSeek provider instance with authentication.
-   * @param apiKey - DeepSeek API authentication key
-   * @param baseURL - Optional custom base URL for API requests
+   * @param config - Configuration object
    * @example
    * ```typescript
    * const provider = new DeepSeekProvider('api-key', 'https://custom.url');
    * ```
    * @developerNote API key is stored in headers for all subsequent requests.
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('DeepSeek', baseURL || 'https://api.deepseek.com');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('DeepSeek', config?.baseURL || 'https://api.deepseek.com');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**

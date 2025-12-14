@@ -10,7 +10,8 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
-import type { AIModel, PromptRequest, PromptResponse } from '~/types';
+import type {ConfigMeta} from '~/database/models';
+import type {AIModel, PromptRequest, PromptResponse} from '~/types';
 
 /**
  * Coze AI provider for prompt enhancement and model management.
@@ -20,7 +21,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @example
  * ```typescript
- * const provider = new CozeProvider('your-api-key');
+ * const provider = new CozeProvider({apiKey: 'your-api-key'});
  * const response = await provider.enhancePrompt({
  *   text: 'Explain relativity',
  *   model: 'coze-llama3',
@@ -35,13 +36,11 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 export default class CozeProvider extends BaseAIProvider {
   /**
    * Creates a new Coze provider instance.
-   *
-   * @param apiKey - Your Coze API key for authentication
-   * @param baseURL - Optional custom base URL for the Coze API
+   * @param config - Configuration object
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('Coze', baseURL || 'https://api.coze.cn');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('Coze', config?.baseURL || 'https://api.coze.cn');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**
@@ -102,8 +101,8 @@ export default class CozeProvider extends BaseAIProvider {
       const response = await this.client.post('/v1/chat/completions', {
         model: request.model,
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Original prompt: ${request.text}\n\nEnhanced prompt:` },
+          {role: 'system', content: systemPrompt},
+          {role: 'user', content: `Original prompt: ${request.text}\n\nEnhanced prompt:`},
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
@@ -138,7 +137,7 @@ export default class CozeProvider extends BaseAIProvider {
     try {
       const response = await this.client.post('/v1/chat/completions', {
         model: 'coze-llama3',
-        messages: [{ role: 'user', content: 'test' }],
+        messages: [{role: 'user', content: 'test'}],
         max_tokens: 1,
       });
       return !!response.data.choices;

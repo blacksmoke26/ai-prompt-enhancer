@@ -10,7 +10,8 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
-import type { AIModel, PromptRequest, PromptResponse } from '~/types';
+import type {ConfigMeta} from '~/database/models';
+import type {AIModel, PromptRequest, PromptResponse} from '~/types';
 
 /**
  * Cohere AI provider for prompt enhancement and text generation.
@@ -20,7 +21,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @example
  * ```ts
- * const provider = new CohereProvider('your-cohere-api-key');
+ * const provider = new CohereProvider({apiKey: 'your-api-key'});
  * const response = await provider.enhancePrompt({
  *   text: 'Explain relativity',
  *   model: 'command-nightly',
@@ -37,13 +38,11 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 export default class CohereProvider extends BaseAIProvider {
   /**
    * Creates a new Cohere provider instance.
-   *
-   * @param apiKey - Your Cohere API key
-   * @param baseURL - Optional custom base URL (defaults to Cohere's API)
+   * @param config - Configuration object
    */
-  constructor(apiKey: string, baseURL?: string) {
-    super('Cohere', baseURL || 'https://api.cohere.com/v1');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  constructor(config: ConfigMeta) {
+    super('Cohere', config?.baseURL || 'https://api.cohere.com/v1');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**
@@ -104,7 +103,7 @@ export default class CohereProvider extends BaseAIProvider {
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
-          { role: 'system', content: systemPrompt },
+          {role: 'system', content: systemPrompt},
           {
             role: 'user',
             content: `Original prompt: ${request.text}\n\nEnhanced prompt:`,
@@ -144,7 +143,7 @@ export default class CohereProvider extends BaseAIProvider {
     try {
       const resp = await this.client.post('/chat', {
         model: 'command-nightly',
-        messages: [{ role: 'user', content: 'test' }],
+        messages: [{role: 'user', content: 'test'}],
         max_tokens: 1,
       });
       return !!resp.data.generations;

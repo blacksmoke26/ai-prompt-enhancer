@@ -10,6 +10,7 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
+import type {ConfigMeta} from '~/database/models';
 import type { AIModel, PromptRequest, PromptResponse } from '~/types';
 
 /**
@@ -17,7 +18,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @example
  * ```ts
- * const provider = new GroqProvider('your-groq-api-key');
+ * const provider = new GroqProvider({apiKey: 'your-api-key'});
  * const response = await provider.enhancePrompt({
  *   text: 'Explain relativity',
  *   model: 'mixtral-8x7b-32768',
@@ -29,9 +30,13 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * It supports Mixtral and LLaMA2 models with various context lengths and token limits.
  */
 export default class GroqProvider extends BaseAIProvider {
-  constructor(apiKey: string, baseURL?: string) {
-    super('Groq', baseURL || 'https://api.groq.com/openai/v1');
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
+  /**
+   * Creates an instance of GroqProvider.
+   * @param config - Configuration object
+   */
+  constructor(config: ConfigMeta) {
+    super('Groq', config?.baseURL || 'https://api.groq.com/openai/v1');
+    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
   /**
