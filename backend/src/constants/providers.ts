@@ -24,6 +24,7 @@ import HuggingFaceProvider from '~/providers/HuggingFaceProvider';
 import SiliconFlowProvider from '~/providers/SiliconFlowProvider';
 import ZhipuProvider from '~/providers/ZhipuProvider';
 import OllamaProvider from '~/providers/OllamaProvider';
+import QwenProvider from '~/providers/QwenProvider';
 
 export type ProviderName =
   'ollama'
@@ -120,6 +121,7 @@ export const providersClasses: Record<ProviderName | string, new (...args: any[]
   openrouter: OpenRouterProvider,
   deepseek: DeepSeekProvider,
   coze: CozeProvider,
+  qwen: QwenProvider,
   qianfan: QianFanProvider,
   gemini: GeminiProvider,
   kimi: KimiProvider,
