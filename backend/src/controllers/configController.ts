@@ -7,9 +7,6 @@
 // classes
 import {ConfigManager} from '~/config/ConfigManager';
 
-// utils
-import {configUpdateSchema} from '~/utils/validation';
-
 // actions
 import getConfig from '~/actions/config/getConfig';
 import updateConfig from '~/actions/config/updateConfig';
@@ -21,6 +18,7 @@ import getUserRoles from '~/actions/config/getUserRoles';
 
 // types
 import type {FastifyInstance} from 'fastify';
+import type {AppConfig} from '~/types/index';
 
 /**
  * Registers configuration management routes for Fastify.
@@ -55,19 +53,10 @@ export default async function configRoutes(fastify: FastifyInstance, options: { 
    * @example PUT /config with body: {"setting": "value"}
    * @developer-note All updates are validated against configUpdateSchema
    */
-  fastify.put('/', async (request, reply) => {
+  fastify.put<{ Body: AppConfig }>('/', async (request, reply) => {
     try {
       const updates = request.body;
-
-      const {error, value} = configUpdateSchema.validate(updates);
-      if (error) {
-        return reply.code(400).send({
-          error: 'Validation failed',
-          details: error.details.map(detail => detail.message),
-        });
-      }
-
-      const updatedConfig = await updateConfig(configManager, value);
+      const updatedConfig = await updateConfig(configManager, updates);
       return reply.code(200).send(updatedConfig);
     } catch (error: any) {
       fastify.log.error('Failed to update config:', error);
