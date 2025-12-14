@@ -7,18 +7,18 @@
 import React from 'react';
 
 // hooks
-import { useAppStore } from '~/stores/appStore';
+import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import { Badge } from '~/components/ui/Badge';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/Card';
+import {Badge} from '~/components/ui/Badge';
+import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
 
 export interface ProviderStatusProps {
   className?: string;
 }
 
-const ProviderStatus: React.FC<ProviderStatusProps> = ({ className = '' }) => {
-  const { providers } = useAppStore();
+const ProviderStatus: React.FC<ProviderStatusProps> = ({className = ''}) => {
+  const {providers} = useAppStore();
 
   return (
     <Card className={className}>
@@ -27,7 +27,7 @@ const ProviderStatus: React.FC<ProviderStatusProps> = ({ className = '' }) => {
       </CardHeader>
       <CardContent>
         <div className="space-y-1">
-          {providers.map((provider) => (
+          {providers.filter(x => x.isConfigured).map((provider) => (
             <div key={provider.name} className="flex items-center justify-between">
               <span className="text-sm capitalize">{provider.name}</span>
               <Badge
