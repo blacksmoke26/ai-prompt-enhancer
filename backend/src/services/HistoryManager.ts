@@ -155,7 +155,6 @@ export class HistoryManager {
    */
   constructor(historyPath?: string) {
     this.historyPath = historyPath ?? path.join(process.cwd(), 'history.json');
-    this.loadHistory();
   }
 
   /**
@@ -179,7 +178,7 @@ export class HistoryManager {
    * // This method is called automatically in the constructor
    * // and after any file system errors during save operations
    */
-  private loadHistory(): void {
+  public async load(): Promise<void> {
     try {
       if (fs.existsSync(this.historyPath)) {
         const data = fs.readFileSync(this.historyPath, 'utf-8');
