@@ -4,10 +4,11 @@
  * @see https://github.com/blacksmoke26
  */
 
-import axios, { AxiosInstance } from 'axios';
+import axios, {AxiosInstance} from 'axios';
 
 // types
-import type { PromptRequest, PromptResponse, AIModel } from '~/types';
+import type {ConfigMeta} from '~/database/models';
+import type {PromptRequest, PromptResponse, AIModel} from '~/types';
 
 /**
  * Abstract base class for AI provider implementations.
@@ -24,23 +25,24 @@ import type { PromptRequest, PromptResponse, AIModel } from '~/types';
  * Extend this class to implement new AI providers with custom API integrations.
  */
 export default abstract class BaseAIProvider {
+  /** HTTP client instance for making API requests */
   protected client: AxiosInstance;
+  /** Provider name */
   protected name: string;
 
   /**
    * Creates an instance of BaseAIProvider with HTTP client configuration.
    * @param name - Provider identifier for logging/tracking purposes
-   * @param baseURL - Base URL for the provider's API
-   * @param timeout - Request timeout in milliseconds (default: 30000)
+   * @param config - Configuration object
    *
    * @example
    * const provider = new BaseAIProvider('openai', 'https://api.openai.com', 10000);
    */
-  constructor(name: string, baseURL: string, timeout: number = 30000) {
+  constructor(name: string, config: ConfigMeta) {
     this.name = name;
     this.client = axios.create({
-      baseURL,
-      timeout,
+      baseURL: config?.baseUrl,
+      timeout: config?.timeout ?? 30000,
       headers: {
         'Content-Type': 'application/json',
       },
