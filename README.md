@@ -214,11 +214,12 @@ ai-prompt-enhancer/
 1. **Create Provider Class**
    ```typescript
    // backend/src/services/NewProvider.ts
-   import { BaseAIProvider } from './BaseAIProvider';
+   import BaseAIProvider from './BaseAIProvider'; 
+   import type {ConfigMeta} from '~/database/models/Provider';
    
    export class NewProvider extends BaseAIProvider {
-     constructor(apiKey: string) {
-       super('NewProvider', 'https://api.newprovider.com');
+     constructor(config: ConfigMeta) {
+       super('NewProvider', {baseUrl: config?.baseUrl || 'https://api.newprovider.com'});
        this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
      }
    
