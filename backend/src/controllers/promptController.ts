@@ -62,7 +62,7 @@ export default async function promptRoutes(fastify: FastifyInstance, options: { 
    * // Response: [{ provider: "openai", models: ["gpt-4", "gpt-3.5"] }]
    * @developer_notes Returns aggregated list from all registered providers
    */
-  fastify.get('/models', async (request, reply) => {
+  fastify.get('/models', async (_request, reply) => {
     try {
       const models = await getAllModels(providerManager);
       return reply.code(200).send(models);
@@ -79,13 +79,13 @@ export default async function promptRoutes(fastify: FastifyInstance, options: { 
    * // Response: [{ name: "openai", status: "active" }]
    * @developer_notes Includes provider status and configuration info
    */
-  fastify.get('/providers', async (request, reply) => {
+  fastify.get('/providers', async (_request, reply) => {
     try {
       const providers = await getAllProviders(providerManager);
       return reply.code(200).send(providers);
     } catch (error: any) {
       fastify.log.error('Failed to get providers:', error);
-      return reply.code(500).send({ error: 'Failed to fetch providers' });
+      return reply.code(500).send({ error: `Failed to fetch providers: ${error.message}` });
     }
   });
 
