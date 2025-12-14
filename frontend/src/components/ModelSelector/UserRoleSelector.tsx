@@ -5,40 +5,34 @@
  */
 
 import React from 'react';
-import { User2 } from 'lucide-react';
+import {User2} from 'lucide-react';
 
 // hooks
-import { useAppStore } from '~/stores/appStore';
+import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import { Select } from '~/components/ui/Select';
-import { Badge } from '~/components/ui/Badge';
+import {Select} from '~/components/ui/Select';
+import {Badge} from '~/components/ui/Badge';
 
 // utils
-import { toSelectGroupedOptions } from '~/utils/helpers.ts';
+import {toSelectGroupedOptions} from '~/utils/helpers.ts';
 
 interface UserRoleSelectorProps {
   className?: string;
 }
 
-const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({ className = '' }) => {
-  const {
-    userRoles,
-    selectedUserRole,
-    setSelectedUserRole,
-  } = useAppStore();
+const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => {
+  const {userRoles, setConfig, config} = useAppStore();
 
   // Get role data for display
-  const selectedRoleData = userRoles.find(role => role.id === selectedUserRole);
+  const selectedRoleData = userRoles.find(role => role.id === config.userRole);
 
   return (
     <div className={className}>
       <Select
         isSearchable
-        value={selectedUserRole}
-        onChange={(e) => {
-          setSelectedUserRole(e as string);
-        }}
+        value={config.userRole}
+        onChange={(e) => setConfig({userRole: e as string})}
         options={toSelectGroupedOptions(userRoles)}
         label={<strong><User2 className="inline-flex display-inline" size="16"/> User Role</strong>}
         formatOptionLabel={(option, context) => {
