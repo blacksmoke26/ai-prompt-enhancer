@@ -23,6 +23,7 @@ import XAIProvider from '~/providers/XAIProvider';
 import HuggingFaceProvider from '~/providers/HuggingFaceProvider';
 import SiliconFlowProvider from '~/providers/SiliconFlowProvider';
 import ZhipuProvider from '~/providers/ZhipuProvider';
+import OllamaProvider from '~/providers/OllamaProvider';
 
 export type ProviderName =
   'ollama'
@@ -63,6 +64,12 @@ export interface ProviderConfig {
   /** Additional provider-specific properties */
   [key: string]: any;
 }
+
+export const configKeys: string[] = [
+  'baseUrl',
+  'apiKey',
+  'timeout',
+];
 
 /**
  * Configuration for various AI/ML service providers.
@@ -108,6 +115,7 @@ const providers: ProviderConfig[] = [
 
 // provider imports
 export const providersClasses: Record<ProviderName | string, new (...args: any[]) => BaseAIProvider> = {
+  ollama: OllamaProvider,
   openai: OpenAIProvider,
   openrouter: OpenRouterProvider,
   deepseek: DeepSeekProvider,
