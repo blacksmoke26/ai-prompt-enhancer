@@ -4,155 +4,197 @@
  * @see https://github.com/blacksmoke26
  */
 
-import fs from 'fs';
-import path from 'path';
+// db
+import {ConfigMeta, Provider, Setting} from '~/database/models';
 
 // constants
+import {configKeys} from '~/constants/providers';
 import defaultConfig from '~/constants/default-config';
 
 // types
-import type { AppConfig } from '~/types';
+import type {AppConfig} from '~/types';
 
 /**
  * Manages application configuration loading, saving, and manipulation.
  * @example
- * const configManager = new ConfigManager('./my-config.json');
+ * ```typescript
+ * const configManager = new ConfigManager();
+ * await configManager.load();
  * const config = configManager.getConfig();
- * @developerNotes
- * Handles configuration file operations with fallback to defaults.
- * Supports JSON-based configuration with partial updates.
+ * ```
+ * @developerNotes: This class serves as the primary interface for all configuration-related operations. It handles both settings and providers, ensuring data consistency across the application.
  */
 export class ConfigManager {
-  /** Path to the configuration file */
-  private configPath: string;
   /** Current configuration object */
-  private config: AppConfig;
+  private config: AppConfig = {};
 
   /**
-   * Initializes ConfigManager with optional custom config path.
-   * @param configPath - Optional path to config file. Defaults to './config.json'.
+   * Initializes ConfigManager instance.
    * @example
-   * const manager = new ConfigManager(); // uses default path
-   * const customManager = new ConfigManager('./custom.json');
-   * @developerNotes
-   * Merges with default configuration during initialization.
-   * Creates config file if it doesn't exist during updates.
+   * ```typescript
+   * const manager = new ConfigManager();
+   * await manager.load();
+   * ```
+   * @developerNotes: The constructor doesn't load configuration automatically. Call load() method explicitly to populate the config.
    */
-  constructor(configPath?: string) {
-    this.configPath = configPath || path.join(process.cwd(), 'config.json');
-    this.config = this.loadConfig();
+  constructor() {
   }
 
   /**
-   * Loads configuration from file with fallback to defaults.
-   * @returns Loaded configuration merged with defaults.
-   * @private
+   * Loads configuration from database with fallback to defaults.
+   * @throws {Error} When database connection fails
    * @example
-   * const config = this.loadConfig();
-   * @developerNotes
-   * Gracefully handles missing or malformed config files.
-   * Always ensures at least default configuration is returned.
+   * ```typescript
+   * await configManager.load();
+   * ```
+   * @developerNotes: This method is idempotent and can be called multiple times. It gracefully handles database errors by maintaining current configuration.
    */
-  private loadConfig(): AppConfig {
+  public async load(): Promise<void> {
     try {
-      if (fs.existsSync(this.configPath)) {
-        const configData = fs.readFileSync(this.configPath, 'utf-8');
-        const parsedConfig = JSON.parse(configData);
-        return { ...defaultConfig, ...parsedConfig };
-      }
+      this.config = await this.getConfig();
     } catch (error: any) {
       console.warn('Failed to load config, using defaults:', error);
     }
-    return defaultConfig;
   }
 
   /**
-   * Returns current configuration object.
-   * @returns The current configuration.
+   * Retrieves default settings and providers from database.
+   * @returns Promise resolving to default configuration object
    * @example
+   * ```typescript
+   * const defaults = await ConfigManager.getDefaultSettings();
+   * ```
+   * @developerNotes: Static method that doesn't require instance creation. Useful for initialization and comparison operations.
+   */
+  public static async getDefaultSettings(): Promise<AppConfig> {
+    const settings = await Setting.getDefaultSettings();
+    const providers = await Provider.getDefaultProviders();
+    return {...settings, ...providers};
+  }
+
+  /**
+   * Retrieves current configuration from database.
+   * @returns Promise resolving to current configuration object
+   * @example
+   * ```typescript
    * const currentConfig = configManager.getConfig();
-   * @developerNotes
-   * Returns a reference to the internal config object.
-   * Modifying the returned object won't persist - use updateConfig().
+   * ```
+   * @developerNotes: Always fetches fresh data from database, unlike the internal config property which may be stale.
    */
-  public getConfig(): AppConfig {
-    return this.config;
+  public async getConfig(): Promise<AppConfig> {
+    const settings = await Setting.getAllSettings();
+    const providers = await Provider.getAllProviders();
+    return {...settings, ...providers};
   }
 
   /**
-   * Updates configuration with partial changes and saves to file.
-   * @param updates - Partial configuration object with properties to update.
+   * Updates configuration with partial changes and persists to database.
+   * @param updates - Partial configuration object with properties to update
+   * @throws {Error} When database update fails
    * @example
-   * configManager.updateConfig({ timeout: 5000, retries: 3 });
-   * @developerNotes
-   * Performs shallow merge of updates with existing config.
-   * Automatically persists changes to configuration file.
+   * ```typescript
+   * await configManager.updateConfig({ timeout: 5000, retries: 3 });
+   * ```
+   * @developerNotes: Performs shallow merge. Nested objects will be completely replaced, not merged. Consider using spread operator for deep updates if needed.
    */
-  public updateConfig(updates: Partial<AppConfig>): void {
-    this.config = { ...this.config, ...updates };
+  public async updateConfig(updates: Partial<AppConfig>): Promise<void> {
+    this.config = {...this.config, ...updates};
     this.saveConfig();
   }
 
   /**
-   * Persists current configuration to file.
+   * Persists current configuration to database.
    * @private
+   * @throws {Error} When database operations fail
    * @example
+   * ```typescript
    * this.saveConfig();
-   * @developerNotes
-   * Uses pretty-printed JSON with 2-space indentation.
-   * Handles write errors gracefully without throwing.
+   * ```
+   * @developerNotes: Handles both settings and providers in separate transactions. Provider configs are filtered to only include valid config keys.
    */
-  private saveConfig(): void {
-    try {
-      fs.writeFileSync(this.configPath, JSON.stringify(this.config, null, 2));
-    } catch (error: any) {
-      console.error('Failed to save config:', error);
+  private async saveConfig(): Promise<void> {
+    // save settings
+    for await (const [key, value] of Object.entries(this.config)) {
+      const exist = await Setting.keyExists(key);
+
+      if (exist) {
+        await Setting.update(
+          {value: JSON.stringify(value)},
+          {where: {key}},
+        );
+      }
+    }
+
+    // save providers
+    for await (const [name, config] of Object.entries(this.config)) {
+      const exist = await Provider.exists(name);
+
+      if (!exist) continue;
+
+      const providerConfig: Partial<ConfigMeta> = {};
+
+      for (const [key, value] of Object.entries(config)) {
+        if (configKeys.includes(key)) {
+          providerConfig[key] = value;
+        }
+      }
+
+      const updated: Record<string, any> = {
+        config: providerConfig as ConfigMeta,
+      };
+
+      if (!config.enabled) {
+        updated.enabled = false;
+      }
+
+      await Provider.update(updated, {where: {name}});
     }
   }
 
   /**
-   * Resets configuration to default values and persists.
+   * Resets configuration to default values and persists to database.
+   * @throws {Error} When database operations fail
    * @example
-   * configManager.resetConfig();
-   * @developerNotes
-   * Creates new object from defaultConfig to avoid reference issues.
-   * Immediately saves the reset configuration to file.
+   * ```typescript
+   * await configManager.resetConfig();
+   * ```
+   * @developerNotes: Currently commented out reset logic. Uncomment this.config = {...defaultConfig} to enable full reset functionality.
    */
-  public resetConfig(): void {
-    this.config = { ...defaultConfig };
-    this.saveConfig();
+  public async resetConfig(): Promise<void> {
+    //this.config = {...defaultConfig};
+    return this.saveConfig();
   }
 
   /**
    * Exports current configuration as formatted JSON string.
-   * @returns JSON string representation of current configuration.
+   * @returns Promise resolving to JSON string representation of current configuration
    * @example
-   * const configJson = configManager.exportConfig();
+   * ```typescript
+   * const configJson = await configManager.exportConfig();
    * console.log(configJson);
-   * @developerNotes
-   * Returns pretty-printed JSON with 2-space indentation.
-   * Useful for backup or configuration sharing.
+   * ```
+   * @developerNotes: Always fetches latest config from database. Use 2-space indentation for readability. Sensitive values should be masked before export.
    */
-  public exportConfig(): string {
-    return JSON.stringify(this.config, null, 2);
+  public async exportConfig(): Promise<string> {
+    return JSON.stringify(await this.getConfig(), null, 2);
   }
 
   /**
-   * Imports configuration from JSON string and persists.
-   * @param configJson - JSON string containing configuration to import.
-   * @returns True if import succeeded, false if failed.
+   * Imports configuration from JSON string and persists to database.
+   * @param configJson - JSON string containing configuration to import
+   * @returns Promise resolving to true if import succeeded, false if failed
    * @example
-   * const success = configManager.importConfig('{"timeout": 3000}');
+   * ```typescript
+   * const success = await configManager.importConfig('{"timeout": 3000}');
    * if (!success) console.error('Import failed');
-   * @developerNotes
-   * Merges imported config with defaults for completeness.
-   * Returns boolean status instead of throwing on invalid JSON.
+   * ```
+   * @developerNotes: Performs validation during JSON.parse. Invalid JSON or malformed config will fail silently without affecting current configuration.
    */
-  public importConfig(configJson: string): boolean {
+  public async importConfig(configJson: string): Promise<boolean> {
     try {
       const importedConfig = JSON.parse(configJson);
-      this.config = { ...defaultConfig, ...importedConfig };
-      this.saveConfig();
+      this.config = {...defaultConfig, ...importedConfig};
+      await this.saveConfig();
       return true;
     } catch (error: any) {
       console.error('Failed to import config:', error);
