@@ -20,7 +20,12 @@ module.exports = {
       },
       value: {
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        defaultValue: null,
       },
       createdAt: {
         field: 'created_at',
