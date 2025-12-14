@@ -33,7 +33,7 @@ export default class XAIProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('XAI', config?.baseURL || 'https://api.x.ai/v1');
+    super('XAI', {baseUrl: config?.baseUrl || 'https://api.x.ai/v1'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

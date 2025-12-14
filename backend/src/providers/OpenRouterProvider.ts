@@ -36,7 +36,7 @@ export default class OpenRouterProvider extends BaseAIProvider {
    * and OpenRouter-specific headers for proper API communication.
    */
   constructor(config: ConfigMeta) {
-    super('OpenRouter', config?.baseURL || 'https://openrouter.ai/api/v1');
+    super('OpenRouter', {baseUrl: config?.baseUrl || 'https://openrouter.ai/api/v1'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
     this.client.defaults.headers.common['HTTP-Referer'] = 'http://localhost:5173';
     this.client.defaults.headers.common['X-Title'] = 'AI Prompt Enhancer';

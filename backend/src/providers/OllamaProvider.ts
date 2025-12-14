@@ -11,7 +11,7 @@ import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
 import type {ConfigMeta} from '~/database/models';
-import type { PromptRequest, PromptResponse, AIModel } from '~/types';
+import type {PromptRequest, PromptResponse, AIModel} from '~/types';
 
 /**
  * Interface representing an Ollama model's metadata and configuration details.
@@ -101,7 +101,7 @@ export default class OllamaProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Ollama', config?.baseUrl ?? 'http://localhost:11434');
+    super('Ollama', {baseUrl: config?.baseUrl ?? 'http://localhost:11434'});
   }
 
   /**
@@ -121,7 +121,7 @@ export default class OllamaProvider extends BaseAIProvider {
    */
   async getModels(): Promise<AIModel[]> {
     try {
-      const response = await this.client.get<{models: OllamaModel[]}>('/api/tags');
+      const response = await this.client.get<{ models: OllamaModel[] }>('/api/tags');
       const models = response.data.models || [];
 
       return models.map((model: any) => ({
@@ -247,7 +247,7 @@ export default class OllamaProvider extends BaseAIProvider {
 
     console.log({
       systemPrompt,
-      rolePrompt
+      rolePrompt,
     });
 
     return `${rolePrompt} ${systemPrompt}`;

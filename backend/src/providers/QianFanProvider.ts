@@ -42,7 +42,7 @@ export default class QianFanProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('QianFan', config?.baseURL || 'https://dashscope.aliyuncs.com');
+    super('QianFan', {baseUrl: config?.baseUrl || 'https://dashscope.aliyuncs.com'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

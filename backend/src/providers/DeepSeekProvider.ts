@@ -37,7 +37,7 @@ export default class DeepSeekProvider extends BaseAIProvider {
    * @developerNote API key is stored in headers for all subsequent requests.
    */
   constructor(config: ConfigMeta) {
-    super('DeepSeek', config?.baseURL || 'https://api.deepseek.com');
+    super('DeepSeek', {baseUrl: config?.baseUrl || 'https://api.deepseek.com'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

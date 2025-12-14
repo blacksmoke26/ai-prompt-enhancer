@@ -28,11 +28,11 @@ export default class OpenAIProvider extends BaseAIProvider {
    * ```
    *
    * @developer_notes
-   * If no baseURL is provided, defaults to the official OpenAI API endpoint.
+   * If no baseUrl is provided, defaults to the official OpenAI API endpoint.
    * The API key is set in the authorization header for all requests.
    */
   constructor(config: ConfigMeta) {
-    super('OpenAI', config?.baseURL || 'https://api.openai.com/v1');
+    super('OpenAI', {baseUrl: config?.baseUrl || 'https://api.openai.com/v1'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

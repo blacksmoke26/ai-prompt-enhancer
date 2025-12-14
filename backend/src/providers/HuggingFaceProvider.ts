@@ -39,7 +39,7 @@ export default class HuggingFaceProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('HuggingFace', config?.baseURL || 'https://api-inference.huggingface.co/models');
+    super('HuggingFace', {baseUrl: config?.baseUrl || 'https://api-inference.huggingface.co/models'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

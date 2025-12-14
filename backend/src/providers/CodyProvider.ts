@@ -43,7 +43,7 @@ export default class CodyProvider extends BaseAIProvider {
    * ```
    */
   constructor(config: ConfigMeta) {
-    super('Cody', config?.baseURL || 'https://api.cody.ai/v1');
+    super('Cody', {baseUrl: config?.baseUrl ||  'https://api.cody.ai/v1'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

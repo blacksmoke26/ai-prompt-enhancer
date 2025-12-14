@@ -46,7 +46,7 @@ export default class MistralProvider extends BaseAIProvider {
    * - Falls back to default Mistral API URL if none provided
    */
   constructor(config: ConfigMeta) {
-    super('Mistral', config?.baseURL || 'https://api.mistral.ai/v1');
+    super('Mistral', {baseUrl: config?.baseUrl || 'https://api.mistral.ai/v1'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

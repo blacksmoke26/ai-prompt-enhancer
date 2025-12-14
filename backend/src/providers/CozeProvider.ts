@@ -31,7 +31,7 @@ import type {AIModel, PromptRequest, PromptResponse} from '~/types';
  *
  * @developer-note
  * Ensure you have a valid API key from Coze. The provider uses the default
- * Coze API endpoint but can be customized with a different baseURL if needed.
+ * Coze API endpoint but can be customized with a different baseUrl if needed.
  */
 export default class CozeProvider extends BaseAIProvider {
   /**
@@ -39,7 +39,7 @@ export default class CozeProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Coze', config?.baseURL || 'https://api.coze.cn');
+    super('Coze', {baseUrl: config?.baseUrl || 'https://api.coze.cn'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

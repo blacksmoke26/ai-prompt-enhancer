@@ -42,7 +42,7 @@ export default class NvidiaProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Nvidia', config?.baseURL || 'https://integrate.nvidia.com/v1');
+    super('Nvidia', {baseUrl: config?.baseUrl || 'https://integrate.nvidia.com/v1'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

@@ -37,7 +37,7 @@ export default class KimiProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Kimi', config?.baseURL || 'https://api.kimi.ai');
+    super('Kimi', {baseUrl: config?.baseUrl || 'https://api.kimi.ai'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

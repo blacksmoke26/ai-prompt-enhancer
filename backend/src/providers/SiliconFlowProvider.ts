@@ -37,7 +37,7 @@ export default class SiliconFlowProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('SiliconFlow', config?.baseURL || 'https://api.siliconflow.cn/v1');
+    super('SiliconFlow', {baseUrl: config?.baseUrl || 'https://api.siliconflow.cn/v1'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

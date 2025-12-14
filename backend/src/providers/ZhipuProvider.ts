@@ -36,7 +36,7 @@ export default class ZhipuProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Zhipu', config?.baseURL || 'https://api.z.ai/api/paas/v4');
+    super('Zhipu', {baseUrl: config?.baseUrl || 'https://api.z.ai/api/paas/v4'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
     this.client.defaults.headers.common['Content-Type'] = 'application/json';
   }

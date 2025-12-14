@@ -44,7 +44,7 @@ export default class GeminiProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Gemini', config?.baseURL || 'https://generativelanguage.googleapis.com/v1beta');
+    super('Gemini', {baseUrl: config?.baseUrl || 'https://generativelanguage.googleapis.com/v1beta'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 

@@ -11,7 +11,7 @@ import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
 import type {ConfigMeta} from '~/database/models';
-import type { AIModel, PromptRequest, PromptResponse } from '~/types';
+import type {AIModel, PromptRequest, PromptResponse} from '~/types';
 
 /**
  * Groq AI provider for prompt enhancement.
@@ -35,7 +35,7 @@ export default class GroqProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Groq', config?.baseURL || 'https://api.groq.com/openai/v1');
+    super('Groq', {baseUrl: config?.baseUrl || 'https://api.groq.com/openai/v1'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
@@ -95,7 +95,7 @@ export default class GroqProvider extends BaseAIProvider {
     const response = await this.client.post('/chat/completions', {
       model: request.model,
       messages: [
-        { role: 'system', content: systemPrompt },
+        {role: 'system', content: systemPrompt},
         {
           role: 'user',
           content: `Original prompt: ${request.text}\n\nEnhanced prompt:`,
@@ -130,7 +130,7 @@ export default class GroqProvider extends BaseAIProvider {
     try {
       const resp = await this.client.post('/chat/completions', {
         model: 'mixtral-8x7b-32768',
-        messages: [{ role: 'user', content: 'test' }],
+        messages: [{role: 'user', content: 'test'}],
         max_tokens: 1,
       });
       return !!resp.data.choices;

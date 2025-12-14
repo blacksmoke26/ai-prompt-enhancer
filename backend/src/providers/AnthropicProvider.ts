@@ -33,7 +33,7 @@ export default class AnthropicProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Anthropic', config?.baseURL || 'https://api.anthropic.com/v1');
+    super('Anthropic', {baseUrl: config?.baseUrl || 'https://api.anthropic.com/v1'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
     this.client.defaults.headers.common['Anthropic-Version'] = '2023-06-01';
     this.client.defaults.headers.common['Content-Type'] = 'application/json';

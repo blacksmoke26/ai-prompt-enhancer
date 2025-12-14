@@ -41,7 +41,7 @@ export default class CohereProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Cohere', config?.baseURL || 'https://api.cohere.com/v1');
+    super('Cohere', {baseUrl: config?.baseUrl || 'https://api.cohere.com/v1'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
