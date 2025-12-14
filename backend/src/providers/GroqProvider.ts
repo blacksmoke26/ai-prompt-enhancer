@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -28,7 +28,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * @developerNote This provider uses Groq's API endpoint at https://api.groq.com/openai/v1/chat/completions.
  * It supports Mixtral and LLaMA2 models with various context lengths and token limits.
  */
-export class GroqProvider extends BaseAIProvider {
+export default class GroqProvider extends BaseAIProvider {
   constructor(apiKey: string, baseURL?: string) {
     super('Groq', baseURL || 'https://api.groq.com/openai/v1');
     this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;

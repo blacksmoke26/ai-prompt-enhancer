@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -32,7 +32,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * Ensure you have a valid API key from Coze. The provider uses the default
  * Coze API endpoint but can be customized with a different baseURL if needed.
  */
-export class CozeProvider extends BaseAIProvider {
+export default class CozeProvider extends BaseAIProvider {
   /**
    * Creates a new Coze provider instance.
    *

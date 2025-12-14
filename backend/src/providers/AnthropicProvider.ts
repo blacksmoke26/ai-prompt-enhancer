@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -26,7 +26,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * ```
  * @developerNote Uses Anthropic's Claude models with custom system prompts for different enhancement types
  */
-export class AnthropicProvider extends BaseAIProvider {
+export default class AnthropicProvider extends BaseAIProvider {
   /**
    * Creates a new Anthropic provider instance.
    * @param apiKey - Anthropic API key

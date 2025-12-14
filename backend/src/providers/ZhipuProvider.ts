@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -29,7 +29,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * Ensure proper API key management and consider rate limits.
  * The base URL can be customized for different deployment environments.
  */
-export class ZhipuProvider extends BaseAIProvider {
+export default class ZhipuProvider extends BaseAIProvider {
   /**
    * Initializes a new Zhipu provider instance.
    * @param apiKey - Your Zhipu API authentication key

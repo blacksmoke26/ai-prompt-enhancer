@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import {BaseAIProvider} from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -26,10 +26,11 @@ import type { PromptRequest, PromptResponse, AIModel } from '~/types';
  * Extends BaseAIProvider to implement OpenRouter-specific API calls.
  * Handles authentication, model fetching, and prompt enhancement.
  */
-export class OpenRouterProvider extends BaseAIProvider {
+export default class OpenRouterProvider extends BaseAIProvider {
   /**
    * Initialize OpenRouter provider with API authentication
    * @param apiKey - OpenRouter API key for authentication
+   * @param baseURL - Base URL for API calls
    * @developerNote
    * Sets up HTTP client with required headers including Bearer token
    * and OpenRouter-specific headers for proper API communication.

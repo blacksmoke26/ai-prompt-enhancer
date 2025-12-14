@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -16,7 +16,7 @@ import type { PromptRequest, PromptResponse, AIModel } from '~/types';
  * OpenAI provider implementation for AI model interactions.
  * Extends BaseAIProvider to provide OpenAI-specific functionality.
  */
-export class OpenAIProvider extends BaseAIProvider {
+export default class OpenAIProvider extends BaseAIProvider {
   /**
    * Creates a new instance of the OpenAI provider.
    * @param apiKey - The OpenAI API key for authentication

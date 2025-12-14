@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -26,7 +26,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * });
  * ```
  */
-export class XAIProvider extends BaseAIProvider {
+export default class XAIProvider extends BaseAIProvider {
   /**
    * Creates a new XAI provider instance.
    * @param apiKey - XAI API authentication key

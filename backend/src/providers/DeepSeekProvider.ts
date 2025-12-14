@@ -1,4 +1,10 @@
-import {BaseAIProvider} from '~/base/BaseAIProvider';
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -19,7 +25,7 @@ import type {AIModel, PromptRequest, PromptResponse} from '~/types';
  * ```
  * @developerNote Ensure valid API key is provided for all operations.
  */
-export class DeepSeekProvider extends BaseAIProvider {
+export default class DeepSeekProvider extends BaseAIProvider {
   /**
    * Creates a new DeepSeek provider instance with authentication.
    * @param apiKey - DeepSeek API authentication key

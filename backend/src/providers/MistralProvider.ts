@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -35,7 +35,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * - Supports custom base URL for enterprise deployments
  * - All API calls are authenticated with Bearer token
  */
-export class MistralProvider extends BaseAIProvider {
+export default class MistralProvider extends BaseAIProvider {
   /**
    * Creates a new Mistral provider instance.
    *

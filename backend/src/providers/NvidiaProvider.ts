@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -35,7 +35,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * - Supports customization of system prompts
  * - Handles API errors gracefully with detailed logging
  */
-export class NvidiaProvider extends BaseAIProvider {
+export default class NvidiaProvider extends BaseAIProvider {
   /**
    * Creates an instance of the Nvidia provider.
    * @param apiKey - Your Nvidia API key

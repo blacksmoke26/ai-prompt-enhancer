@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -34,7 +34,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * - Implements exponential backoff for rate limiting
  * - Default temperature: 0.7, max tokens: 2000
  */
-export class CohereProvider extends BaseAIProvider {
+export default class CohereProvider extends BaseAIProvider {
   /**
    * Creates a new Cohere provider instance.
    *

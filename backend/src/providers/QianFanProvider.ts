@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -35,7 +35,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * - Default models support context up to 16K tokens
  * - Automatic fallback to original prompt on API failure
  */
-export class QianFanProvider extends BaseAIProvider {
+export default class QianFanProvider extends BaseAIProvider {
   /**
    * Initialize the QianFan provider with authentication credentials.
    *

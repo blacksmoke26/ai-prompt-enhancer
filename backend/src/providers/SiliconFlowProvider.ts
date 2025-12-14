@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -30,7 +30,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @developerNote This provider requires a valid API key and supports multiple enhancement types.
  */
-export class SiliconFlowProvider extends BaseAIProvider {
+export default class SiliconFlowProvider extends BaseAIProvider {
   /**
    * Creates a new SiliconFlow provider instance.
    *

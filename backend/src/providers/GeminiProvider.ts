@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -37,7 +37,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  * - Default models: gemini-1.5-pro-001, gemini-1.5-pro-002
  * - Supports system prompts and role-based enhancement
  */
-export class GeminiProvider extends BaseAIProvider {
+export default class GeminiProvider extends BaseAIProvider {
   /**
    * Creates an instance of GeminiProvider.
    *

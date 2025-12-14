@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -30,7 +30,7 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  *
  * @developer Note: Requires valid API key. Default base URL is https://api.kimi.ai
  */
-export class KimiProvider extends BaseAIProvider {
+export default class KimiProvider extends BaseAIProvider {
   /**
    * Creates a new Kimi AI provider instance.
    *

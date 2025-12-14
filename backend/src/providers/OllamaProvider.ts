@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { BaseAIProvider } from '~/base/BaseAIProvider';
+import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
@@ -94,7 +94,7 @@ export interface OllamaModel {
  * This class extends BaseAIProvider and implements Ollama-specific API calls.
  * Default URL points to local Ollama instance. Error handling returns empty arrays for model fetch failures.
  */
-export class OllamaProvider extends BaseAIProvider {
+export default class OllamaProvider extends BaseAIProvider {
   /**
    * Creates a new Ollama provider instance.
    * @param url - The base URL of the Ollama API endpoint
