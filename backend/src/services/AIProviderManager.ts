@@ -43,7 +43,9 @@ export class AIProviderManager {
     const providers = await Provider.getAllProviders();
 
     for (const [name, config] of Object.entries(providers)) {
-      if (!Object.hasOwn(providersClasses, name)) continue;
+      if (!Object.hasOwn(providersClasses, name)) {
+        throw new Error(`Provider ${name} is not supported`);
+      }
 
       const ctor = providersClasses[name];
       this.providers.set(name, new ctor(config));
@@ -96,7 +98,12 @@ export class AIProviderManager {
    */
   public async getAllModels(): Promise<AIModel[]> {
     const allModels: AIModel[] = [];
-    for (const provider of this.providers.values()) {
+    const providers = await Provider.getAllProviders();
+
+    for (const [name, config] of Object.entries(providers)) {
+      const provider = this.getProvider(name);
+      if (!provider || !config.enabled) continue;
+
       try {
         if (await provider.isAvailable()) {
           const models = await provider.getModels();
@@ -106,6 +113,7 @@ export class AIProviderManager {
         console.error('Failed to get models from provider:', error);
       }
     }
+
     return allModels;
   }
 
