@@ -4,53 +4,17 @@
  * @see https://github.com/blacksmoke26
  */
 
-import {ConfigManager} from '~/config/ConfigManager';
-import {BaseAIProvider} from '~/base/BaseAIProvider';
+// base
+import BaseAIProvider from '~/base/BaseAIProvider';
 
-import env from '@junaidatari/env-binder';
+// db
+import {ConfigMeta, Provider} from '~/database/models';
 
-// provider imports
-import {OllamaProvider} from '~/providers/OllamaProvider';
-import {OpenAIProvider} from '~/providers/OpenAIProvider';
-import {OpenRouterProvider} from '~/providers/OpenRouterProvider';
-import {DeepSeekProvider} from '~/providers/DeepSeekProvider';
-import {CozeProvider} from '~/providers/CozeProvider';
-import {QianFanProvider} from '~/providers/QianFanProvider';
-import {GeminiProvider} from '~/providers/GeminiProvider';
-import {KimiProvider} from '~/providers/KimiProvider';
-import {GroqProvider} from '~/providers/GroqProvider';
-import {AnthropicProvider} from '~/providers/AnthropicProvider';
-import {MistralProvider} from '~/providers/MistralProvider';
-import {NvidiaProvider} from '~/providers/NvidiaProvider';
-import {CohereProvider} from '~/providers/CohereProvider';
-import {CodyProvider} from '~/providers/CodyProvider';
-import {XAIProvider} from '~/providers/XAIProvider';
-import {HuggingFaceProvider} from '~/providers/HuggingFaceProvider';
-import {SiliconFlowProvider} from '~/providers/SiliconFlowProvider';
-import {ZhipuProvider} from '~/providers/ZhipuProvider';
+// constants
+import {providersClasses} from '~/constants/providers';
 
 // types
-import type {AIModel, AIProvider, AppConfig} from '~/types';
-
-const providers: Record<string, new (...args: any[]) => BaseAIProvider> = {
-  openai: OpenAIProvider,
-  openrouter: OpenRouterProvider,
-  deepseek: DeepSeekProvider,
-  coze: CozeProvider,
-  qianfan: QianFanProvider,
-  gemini: GeminiProvider,
-  kimi: KimiProvider,
-  groq: GroqProvider,
-  anthropic: AnthropicProvider,
-  mistral: MistralProvider,
-  nvidia: NvidiaProvider,
-  cohere: CohereProvider,
-  cody: CodyProvider,
-  xai: XAIProvider,
-  huggingface: HuggingFaceProvider,
-  siliconflow: SiliconFlowProvider,
-  zhipu: ZhipuProvider,
-};
+import type {AIModel, AIProvider} from '~/types';
 
 /**
  * Manages initialization and access to multiple AI provider implementations.
@@ -63,37 +27,26 @@ const providers: Record<string, new (...args: any[]) => BaseAIProvider> = {
  * @devnote Ensure provider credentials are properly configured before initialization.
  */
 export class AIProviderManager {
-  private configManager: ConfigManager;
   private providers: Map<string, BaseAIProvider> = new Map();
 
   /**
    * Creates an instance of AIProviderManager.
-   * @param configManager - The configuration manager instance.
    */
-  constructor(configManager: ConfigManager) {
-    this.configManager = configManager;
-    this.initializeProviders();
+  constructor() {
   }
 
   /**
    * Initializes all available AI providers based on configuration.
    * @devnote Providers are only added if their required config is present.
    */
-  private initializeProviders(): void {
-    const config = this.configManager.getConfig();
+  public async load(): Promise<void> {
+    const providers = await Provider.getAllProviders();
 
-    if (config.ollama?.baseUrl) {
-      this.providers.set('ollama', new OllamaProvider(config.ollama.baseUrl));
-    }
+    for (const [name, config] of Object.entries(providers)) {
+      if (!Object.hasOwn(providersClasses, name)) continue;
 
-    const availableProviders: string[] = env.getStringArray('AVAILABLE_PROVIDERS', []);
-
-    for (const [key, ctor] of Object.entries(providers)) {
-      if (availableProviders.length && !availableProviders.includes(key)) continue;
-
-      const providerName = key as keyof AppConfig;
-      const providerConfig = config?.[providerName] as Record<string, any>;
-      this.providers.set(key, new ctor(providerConfig?.apiKey, providerConfig?.baseUrl));
+      const ctor = providersClasses[name];
+      this.providers.set(name, new ctor(config));
     }
   }
 
@@ -108,16 +61,31 @@ export class AIProviderManager {
    */
   public async getAllProviders(): Promise<AIProvider[]> {
     const providers: AIProvider[] = [];
-    for (const [key, provider] of this.providers) {
-      const isAvailable = await provider.isAvailable();
-      const models = isAvailable ? await provider.getModels() : [];
+
+    const providerModels = await Provider.findAll({attributes: ['name', 'caption', 'config', 'enabled'], raw: true});
+
+    for await (const providerModel of providerModels) {
+      const isAvailable = Boolean(providerModel?.enabled ?? false);
+      const aiProvider = this.getProvider(providerModel.name);
+
+      let models: AIProvider['models'] = [];
+
+      if (isAvailable && aiProvider) {
+        models = await aiProvider.getModels();
+      }
+
       providers.push({
-        name: key,
+        caption: providerModel.caption,
+        name: providerModel.name,
         models,
         isConfigured: isAvailable,
-        config: this.getProviderConfig(key),
+        config: {
+          apikey: '',
+          ...JSON.parse(providerModel.config as unknown as string),
+        },
       });
     }
+
     return providers;
   }
 
@@ -163,7 +131,7 @@ export class AIProviderManager {
    */
   public async refreshProviders(): Promise<void> {
     this.providers.clear();
-    this.initializeProviders();
+    await this.load();
   }
 
   /**
@@ -172,49 +140,14 @@ export class AIProviderManager {
    * @returns The provider configuration or undefined if not found.
    * @devnote This is a private helper method.
    */
-  private getProviderConfig(providerName: string): Record<string, any> | undefined {
-    const config = this.configManager.getConfig();
+  private async getProviderConfig(providerName: string): Promise<ConfigMeta | null> {
+    const model = await Provider.findOne({
+      attributes: ['config'],
+      where: {name: providerName.toLowerCase()},
+      raw: true,
+    });
 
-    switch (providerName.toLowerCase()) {
-      case 'ollama':
-        return config.ollama;
-      case 'openai':
-        return config.openai;
-      case 'openrouter':
-        return config.openrouter;
-      case 'deepseek':
-        return config.deepseek;
-      case 'coze':
-        return config.coze;
-      case 'qianfan':
-        return config.qianfan;
-      case 'gemini':
-        return config.gemini;
-      case 'kimi':
-        return config.kimi;
-      case 'groq':
-        return config.groq;
-      case 'anthropic':
-        return config.anthropic;
-      case 'mistral':
-        return config.mistral;
-      case 'nvidia':
-        return config.nvidia;
-      case 'cohere':
-        return config.cohere;
-      case 'cody':
-        return config.cody;
-      case 'xai':
-        return config.xai;
-      case 'huggingface':
-        return config.huggingface;
-      case 'siliconflow':
-        return config.siliconflow;
-      case 'zhipu':
-        return config.zhipu;
-      default:
-        return undefined;
-    }
+    return model?.config ?? null;
   }
 
   /**
@@ -226,8 +159,12 @@ export class AIProviderManager {
    * console.log('Available providers:', names);
    * ```
    */
-  public getAvailableProviderNames(): string[] {
-    return Array.from(this.providers.keys());
+  public async getAvailableProviderNames(): Promise<string[]> {
+    const records = await Provider.findAll({
+      attributes: ['name'],
+    });
+
+    return records.map(record => record.name);
   }
 
   /**
@@ -243,11 +180,17 @@ export class AIProviderManager {
    * ```
    */
   public async testProvider(providerName: string): Promise<boolean> {
+    const exist = await Provider.exists(providerName);
+
+    if (!exist) return false;
+
     const provider = this.getProvider(providerName.toLowerCase());
     if (!provider) return false;
 
     try {
-      return await provider.isAvailable();
+      const available = await provider.isAvailable();
+      await Provider.update({enabled: available}, {where: {name: providerName}});
+      return true;
     } catch {
       return false;
     }
