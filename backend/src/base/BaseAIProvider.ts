@@ -1,3 +1,9 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import axios, { AxiosInstance } from 'axios';
 
 // types
@@ -17,7 +23,7 @@ import type { PromptRequest, PromptResponse, AIModel } from '~/types';
  * @developer_notes
  * Extend this class to implement new AI providers with custom API integrations.
  */
-export abstract class BaseAIProvider {
+export default abstract class BaseAIProvider {
   protected client: AxiosInstance;
   protected name: string;
 
