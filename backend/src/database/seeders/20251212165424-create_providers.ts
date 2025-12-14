@@ -15,7 +15,7 @@ import providers from '~/constants/providers';
 export default {
   async up(queryInterface: QueryInterface) {
     for await (const provider of providers) {
-      const {caption, name, apiKey, ...config} = provider;
+      const {caption, name, ...config} = provider;
 
       const [result] = await queryInterface.sequelize.query(`SELECT COUNT(*) as total FROM providers WHERE name = '${name}'`, {
         type: QueryTypes.SELECT,
