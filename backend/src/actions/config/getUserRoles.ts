@@ -4,16 +4,31 @@
  * @see https://github.com/blacksmoke26
  */
 
+// db
+import {UserRole} from '~/database/models';
+
 // constants
-import userRoles, {UserRole} from '~/constants/user-roles';
+import {UserRole as UsrRole} from '~/constants/user-roles';
 
 /**
- * Retrieves all defined user roles in the system
- * @returns Array of user roles
+ * Retrieves all available enhancement types for prompts
+ * @returns Array of enhancement types
  */
-export default async function getUserRoles(): Promise<UserRole[]> {
+export default async function getUserRoles(): Promise<UsrRole[]> {
   try {
-    return userRoles;
+    const userRoles = await UserRole.findAll({
+      attributes: ['key', 'name', 'description', 'systemPrompt', 'category'],
+      order: [['id', 'ASC']],
+      raw: true,
+    });
+
+    return userRoles.map(userRole => ({
+      id: userRole.key,
+      name: userRole.name,
+      description: userRole.description,
+      systemPrompt: userRole.systemPrompt,
+      category: userRole.category,
+    }));
   } catch (error: any) {
     throw new Error(`Failed to get user roles: ${error.message}`);
   }

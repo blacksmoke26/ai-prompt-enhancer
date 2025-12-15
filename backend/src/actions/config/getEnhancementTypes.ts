@@ -4,16 +4,31 @@
  * @see https://github.com/blacksmoke26
  */
 
+// db
+import {EnhancementType} from '~/database/models';
+
 // constants
-import enhancementTypes, {EnhancementType} from '~/constants/enhancement-types';
+import {EnhancementType as EnhType} from '~/constants/enhancement-types';
 
 /**
  * Retrieves all available enhancement types for prompts
  * @returns Array of enhancement types
  */
-export default async function getEnhancementTypes(): Promise<EnhancementType[]> {
+export default async function getEnhancementTypes(): Promise<EnhType[]> {
   try {
-    return enhancementTypes;
+    const enhancementTypes = await EnhancementType.findAll({
+      attributes: ['id', 'key', 'name', 'description', 'systemPrompt', 'category'],
+      order: [['id', 'ASC']],
+      raw: true,
+    });
+
+    return enhancementTypes.map(enhancementType => ({
+      id: enhancementType.key,
+      name: enhancementType.name,
+      description: enhancementType.description,
+      systemPrompt: enhancementType.systemPrompt,
+      category: enhancementType.category,
+    }));
   } catch (error: any) {
     throw new Error(`Failed to get enhancement types: ${error.message}`);
   }
