@@ -18,7 +18,7 @@ import getUserRoles from '~/actions/config/getUserRoles';
 
 // types
 import type {FastifyInstance} from 'fastify';
-import type {AppConfig} from '~/types/index';
+import type {AppConfig} from '~/types';
 
 /**
  * Registers configuration management routes for Fastify.
