@@ -43,7 +43,7 @@ export default async function promptRoutes(fastify: FastifyInstance, options: { 
     try {
       const promptRequest = request.body as PromptRequest;
 
-      const response = await enhancePrompt(providerManager, historyManager, promptRequest);
+      const response = await enhancePrompt(providerManager, promptRequest);
 
       return reply.code(200).send(response);
     } catch (error: any) {
