@@ -28,10 +28,36 @@ export const useHistory = () => {
   const {
     history,
     setHistory,
+    setStats,
     updateHistoryItem,
     deleteHistoryItem,
     clearHistory: clearLocalHistory,
+    stats,
   } = useHistoryStore();
+
+  /**
+   * Asynchronously loads statistics data and updates the application state.
+   * Handles loading, error, and completion states using the provided services and state management.
+   * @example
+   * await loadStats(); // Loads stats and updates the state with fetched data
+   * @developerNotes
+   * - Uses a try-catch-finally block to manage loading, error handling, and state updates.
+   * - Sets `loading` to true during fetch and resets it afterward.
+   * - Catches errors and sets a user-friendly error message if the request fails.
+   */
+  const loadStats = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const stats = await HistoryService.getStats();
+      setStats(stats);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load stats');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   /**
    * Loads history data with optional pagination and search filtering.
@@ -134,9 +160,11 @@ export const useHistory = () => {
   };
 
   return {
+    stats,
     history,
     loading,
     error,
+    loadStats,
     loadHistory,
     deleteItem,
     updateItem,
