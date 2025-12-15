@@ -7,9 +7,11 @@
 // classes
 import {AIProviderManager} from '~/services/AIProviderManager';
 
+// db
+import {History, Provider} from '~/database/models';
+
 // types
 import type {PromptRequest, PromptResponse} from '~/types';
-import {History, Provider} from '~/database/models';
 
 /**
  * Enhances a prompt using the specified AI provider
@@ -27,6 +29,7 @@ export default async function enhancePrompt(
     const providerRecord = await Provider.findOne({
       where: {name: promptRequest.provider.toLowerCase(), enabled: true},
       attributes: ['id'],
+      raw: true,
     });
 
     if (!provider || !providerRecord) {
@@ -54,6 +57,8 @@ export default async function enhancePrompt(
       processingTime: response.processingTime,
       temperature: promptRequest?.temperature ?? 0,
       maxTokens: promptRequest?.maxTokens ?? 0,
+      rating: 0,
+      notes: null,
     });
 
     return response;
