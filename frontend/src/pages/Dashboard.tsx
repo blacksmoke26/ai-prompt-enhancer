@@ -39,8 +39,7 @@ export type TabType = 'enhancer' | 'history' | 'stats' | 'settings';
 export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('enhancer');
   const {loading, error, refreshData} = useAppData();
-  const {history, loadHistory, deleteItem, updateItem, clearHistory, exportHistory} = useHistory();
-  const {stats, setStats} = useHistoryStore();
+  const {history, loadStats, loadHistory, deleteItem, updateItem, clearHistory, exportHistory} = useHistory();
   const {sidebarOpen} = useAppStore();
 
   /**
@@ -49,44 +48,10 @@ export const Dashboard: React.FC = () => {
    * @developer notes: Consider adding error handling for failed loads
    */
   useEffect(() => {
-    loadHistory();
+    Promise.all([loadStats(), loadHistory()]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Calculates and updates statistics based on history changes
-   * @example useEffect(() => loadStats(), [history]);
-   * @developer notes: Stats calculation could be optimized for large histories
-   */
-  useEffect(() => {
-    const loadStats = async () => {
-      if (history.length > 0) {
-        const totalItems = history.length;
-        const totalTokensUsed = history.reduce((sum, item) => sum + (item.tokensUsed || 0), 0);
-        const averageProcessingTime = history.reduce((sum, item) => sum + item.processingTime, 0) / totalItems;
-
-        const modelCounts = history.reduce((acc, item) => {
-          acc[item.model] = (acc[item.model] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        const typeCounts = history.reduce((acc, item) => {
-          acc[item.enhancementType] = (acc[item.enhancementType] || 0) + 1;
-          return acc;
-        }, {} as Record<string, number>);
-
-        setStats({
-          totalItems,
-          totalTokensUsed,
-          averageProcessingTime: Math.round(averageProcessingTime),
-          mostUsedModel: Object.entries(modelCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A',
-          mostUsedEnhancementType: Object.entries(typeCounts).sort(([, a], [, b]) => b - a)[0]?.[0] || 'N/A',
-        });
-      }
-    };
-
-    loadStats();
-  }, [history, setStats]);
 
   /**
    * Navigation tab configuration with icons
@@ -226,7 +191,7 @@ export const Dashboard: React.FC = () => {
                     </div>
                     <div className="xl:col-span-4">
                       <div className="hidden xl:block sticky top-6">
-                        <StatsPanel stats={stats}/>
+                        <StatsPanel/>
                       </div>
                     </div>
                   </div>
@@ -235,7 +200,7 @@ export const Dashboard: React.FC = () => {
 
               {activeTab === 'stats' && (
                 <DraggableLayout activeTab={activeTab}>
-                  <StatsPanel stats={stats}/>
+                  <StatsPanel/>
                 </DraggableLayout>
               )}
               {activeTab === 'settings' && (
