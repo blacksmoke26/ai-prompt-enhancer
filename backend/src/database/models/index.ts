@@ -4,16 +4,20 @@
  * @see https://github.com/blacksmoke26
  */
 
-import Provider from './Provider';
 import History from './History';
 import Setting from './Setting';
+import Provider from './Provider';
+import UserRole from './UserRole';
+import EnhancementType from './EnhancementType';
 
 /**
  * Export all models for use elsewhere in the application.
  */
-export * from './Provider';
 export * from './History';
 export * from './Setting';
+export * from './Provider';
+export * from './UserRole';
+export * from './EnhancementType';
 
 let isInitialized = false;
 
@@ -23,7 +27,9 @@ if (!isInitialized) {
 }
 
 export {
-  Provider,
   History,
   Setting,
+  Provider,
+  UserRole,
+  EnhancementType,
 };
