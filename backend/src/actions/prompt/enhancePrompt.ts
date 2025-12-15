@@ -5,29 +5,31 @@
  */
 
 // classes
-import { AIProviderManager } from '~/services/AIProviderManager';
-import { HistoryManager } from '~/services/HistoryManager';
+import {AIProviderManager} from '~/services/AIProviderManager';
 
 // types
 import type {PromptRequest, PromptResponse} from '~/types';
+import {History, Provider} from '~/database/models';
 
 /**
  * Enhances a prompt using the specified AI provider
  * @param providerManager - Instance of AIProviderManager
- * @param historyManager - Instance of HistoryManager
  * @param promptRequest - Request containing prompt and enhancement details
  * @returns Enhanced prompt response
  */
 export default async function enhancePrompt(
   providerManager: AIProviderManager,
-  historyManager: HistoryManager,
-  promptRequest: PromptRequest
+  promptRequest: PromptRequest,
 ): Promise<PromptResponse> {
   try {
     // Extract provider name from model ID
     const provider = providerManager.getProvider(promptRequest.provider);
+    const providerRecord = await Provider.findOne({
+      where: {name: promptRequest.provider.toLowerCase(), enabled: true},
+      attributes: ['id'],
+    });
 
-    if (!provider) {
+    if (!provider || !providerRecord) {
       throw new Error(`Provider ${promptRequest.provider} not found`);
     }
 
@@ -40,20 +42,18 @@ export default async function enhancePrompt(
     const response = await provider.enhancePrompt(promptRequest);
 
     // Save to history
-    historyManager.addToHistory({
-      provider: promptRequest.provider,
+    await History.create({
+      providerId: providerRecord.id,
       originalPrompt: response.originalPrompt,
       enhancedPrompt: response.enhancedPrompt,
       model: response.model,
       enhancementType: promptRequest.enhancementType || 'enhance',
       userRole: promptRequest.userRole || 'general',
-      systemPrompt: promptRequest.systemPrompt,
-      timestamp: response.timestamp,
-      tokensUsed: response.tokensUsed,
+      systemPrompt: promptRequest?.systemPrompt ?? '',
+      tokensUsed: response?.tokensUsed ?? 0,
       processingTime: response.processingTime,
-      temperature: promptRequest.temperature,
-      maxTokens: promptRequest.maxTokens,
-
+      temperature: promptRequest?.temperature ?? 0,
+      maxTokens: promptRequest?.maxTokens ?? 0,
     });
 
     return response;
