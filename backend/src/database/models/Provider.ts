@@ -14,6 +14,7 @@ import providers from '~/constants/providers';
 
 export interface ConfigMeta {
   [key: string]: any;
+
   enabled?: boolean;
   /** Valid API key for authentication */
   apiKey?: string | null;
@@ -70,6 +71,21 @@ class Provider extends Model<InferAttributes<Provider>, InferCreationAttributes<
    */
   public static async exists(name: string): Promise<boolean> {
     return (await Provider.count({where: {name}})) > 0;
+  }
+
+  /**
+   * Retrieves the name of a provider by its primary key (pk).
+   * @param pk - The primary key of the provider to retrieve.
+   * @returns A Promise that resolves to the provider's name or an empty string if not found.
+   * @example
+   * const name = await Provider.getNameByPk(1); // Returns 'Ollama'
+   * @developerNotes
+   * - Uses Sequelize's `findByPk` with `raw: true` and `attributes: ['name']` to optimize query performance.
+   * - Utilizes optional chaining (`?.`) and nullish coalescing (`??`) to safely handle missing records.
+   */
+  public static async getNameByPk(pk: number): Promise<string | null> {
+    const record = await Provider.findByPk(pk, {raw: true, attributes: ['name']});
+    return record?.name ?? null;
   }
 
   /**
