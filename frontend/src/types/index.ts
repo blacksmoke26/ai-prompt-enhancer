@@ -352,7 +352,104 @@ export interface UserRole {
  *   totalTokensUsed: 45000,
  *   averageProcessingTime: 1.2,
  *   mostUsedModel: "gpt-4",
- *   mostUsedEnhancementType: "enhance"
+ *   mostUsedEnhancementType: "enhance",
+ *   providerUsage: [
+ *     { provider: "OpenAI", model: "gpt-4", count: 50 },
+ *     { provider: "Anthropic", model: "claude-3", count: 30 }
+ *   ],
+ *   mostUsedRoles: [
+ *     { role: "professional", count: 45 },
+ *     { role: "creative", count: 35 }
+ *   ],
+ *   totalWords: 12000,
+ *   totalLines: 800,
+ *   totalChars: 65000,
+ *   averageTokensUsed: 300,
+ *   maxTokensUsed: 1200,
+ *   averageRating: 4.2,
+ *   topRatedEntries: 25,
+ *   averageTemperature: 0.7,
+ *   temperatureDistribution: [
+ *     { range: "0.0-0.3", count: 20 },
+ *     { range: "0.4-0.7", count: 50 },
+ *     { range: "0.8-1.0", count: 30 }
+ *   ],
+ *   enhancementFrequency: [
+ *     { type: "enhance", count: 60, percentage: 40 },
+ *     { type: "summarize", count: 45, percentage: 30 }
+ *   ],
+ *   modelPerformance: [
+ *     { model: "gpt-4", avgProcessingTime: 1.2, totalUsage: 50 },
+ *     { model: "claude-3", avgProcessingTime: 1.5, totalUsage: 30 }
+ *   ],
+ *   roleModelDistribution: [
+ *     { role: "professional", model: "gpt-4", count: 25 },
+ *     { role: "creative", model: "gpt-4", count: 15 }
+ *   ],
+ *   dateRange: {
+ *     earliest: new Date("2023-01-01"),
+ *     latest: new Date("2023-12-31")
+ *   },
+ *   peakUsageHour: { hour: 14, count: 35 },
+ *   monthlyUsage: [
+ *     { month: "January", count: 10 },
+ *     { month: "February", count: 15 }
+ *   ],
+ *   averageMaxTokens: 400,
+ *   minTokensUsed: 50,
+ *   promptEnhancementRatio: 0.75,
+ *   systemPromptUsage: {
+ *     used: 110,
+ *     notUsed: 40,
+ *     percentage: 73.3
+ *   },
+ *   ratingDistribution: [
+ *     { rating: 5, count: 30, percentage: 20 },
+ *     { rating: 4, count: 40, percentage: 26.7 },
+ *     { rating: 3, count: 35, percentage: 23.3 },
+ *     { rating: 2, count: 15, percentage: 10 },
+ *     { rating: 1, count: 10, percentage: 6.7 }
+ *   ],
+ *   costAnalysis: {
+ *     totalEstimatedCost: 125.5,
+ *     avgCostPerRequest: 0.83
+ *   },
+ *   weeklyUsage: [
+ *     { week: "Week 1", count: 15 },
+ *     { week: "Week 2", count: 20 }
+ *   ],
+ *   longestPrompt: {
+ *     originalLength: 500,
+ *     enhancedLength: 750,
+ *     ratio: 1.5
+ *   },
+ *   shortestPrompt: {
+ *     originalLength: 20,
+ *     enhancedLength: 30,
+ *     ratio: 1.5
+ *   },
+ *   averagePromptLength: {
+ *     original: 80,
+ *     enhanced: 120
+ *   },
+ *   mostEfficientModel: {
+ *     model: "gpt-4",
+ *     avgProcessingTime: 1.2,
+ *     avgTokensPerMs: 0.25
+ *   },
+ *   preferredTimeSlots: [
+ *     { hour: 9, count: 15, percentage: 10 },
+ *     { hour: 14, count: 35, percentage: 23.3 }
+ *   ],
+ *   enhancementTypeEfficiency: [
+ *     { type: "enhance", avgProcessingTime: 1.2, avgTokensUsed: 300, successRate: 0.95 },
+ *     { type: "summarize", avgProcessingTime: 0.8, avgTokensUsed: 200, successRate: 0.9 }
+ *   ],
+ *   metaFieldUsage: {
+ *     withMeta: 80,
+ *     withoutMeta: 70,
+ *     percentage: 53.3
+ *   }
  * };
  * @developerNote
  * Useful for analytics and tracking usage patterns.
@@ -360,14 +457,81 @@ export interface UserRole {
 export interface HistoryStats {
   /** Total number of history items */
   totalItems: number;
-  /** Total tokens used across all enhancements */
+  /** Total tokens used across all history items */
   totalTokensUsed: number;
-  /** Average processing time per enhancement */
+  /** Average processing time in seconds */
   averageProcessingTime: number;
   /** Most frequently used model */
   mostUsedModel: string;
   /** Most frequently used enhancement type */
   mostUsedEnhancementType: string;
+  /** Usage statistics by provider and model */
+  providerUsage: { provider: string; model: string; count: number }[];
+  /** Most frequently used user roles */
+  mostUsedRoles: { role: string; count: number }[];
+  /** Total number of words in all prompts */
+  totalWords: number;
+  /** Total number of lines in all prompts */
+  totalLines: number;
+  /** Total number of characters in all prompts */
+  totalChars: number;
+  /** Average tokens used per request */
+  averageTokensUsed: number;
+  /** Maximum tokens used in a single request */
+  maxTokensUsed: number;
+  /** Average rating given to enhancements */
+  averageRating: number;
+  /** Number of top-rated entries (e.g., 5-star ratings) */
+  topRatedEntries: number;
+  /** Average temperature setting used */
+  averageTemperature: number;
+  /** Distribution of temperature settings used */
+  temperatureDistribution: { range: string; count: number }[];
+  /** Frequency of enhancement types used */
+  enhancementFrequency: { type: string; count: number; percentage: number }[];
+  /** Performance metrics for each model */
+  modelPerformance: { model: string; avgProcessingTime: number; totalUsage: number }[];
+  /** Distribution of roles used with models */
+  roleModelDistribution: { role: string; model: string; count: number }[];
+  /** Date range of history items */
+  dateRange: { earliest: Date; latest: Date };
+  /** Hour with peak usage */
+  peakUsageHour: { hour: number; count: number };
+  /** Usage statistics by month */
+  monthlyUsage: { month: string; count: number }[];
+  /** Average maximum tokens allowed */
+  averageMaxTokens: number;
+  /** Minimum tokens used in a request */
+  minTokensUsed: number;
+  /** Ratio of enhanced prompts to original prompts */
+  promptEnhancementRatio: number;
+  /** Usage statistics for system prompts */
+  systemPromptUsage: { used: number; notUsed: number; percentage: number };
+  /** Distribution of ratings given */
+  ratingDistribution: { rating: number; count: number; percentage: number }[];
+  /** Cost analysis data */
+  costAnalysis: { totalEstimatedCost: number; avgCostPerRequest: number };
+  /** Usage statistics by week */
+  weeklyUsage: { week: string; count: number }[];
+  /** Longest prompt in history */
+  longestPrompt: { originalLength: number; enhancedLength: number; ratio: number };
+  /** Shortest prompt in history */
+  shortestPrompt: { originalLength: number; enhancedLength: number; ratio: number };
+  /** Average length of prompts */
+  averagePromptLength: { original: number; enhanced: number };
+  /** Most efficient model based on processing time and tokens */
+  mostEfficientModel: { model: string; avgProcessingTime: number; avgTokensPerMs: number };
+  /** Preferred time slots for usage */
+  preferredTimeSlots: { hour: number; count: number; percentage: number }[];
+  /** Efficiency metrics for each enhancement type */
+  enhancementTypeEfficiency: {
+    type: string;
+    avgProcessingTime: number;
+    avgTokensUsed: number;
+    successRate: number
+  }[];
+  /** Usage statistics for meta fields */
+  metaFieldUsage: { withMeta: number; withoutMeta: number; percentage: number };
 }
 
 /**
