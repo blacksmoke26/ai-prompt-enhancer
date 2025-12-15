@@ -81,7 +81,6 @@ const createServer = async () => {
   await providerManager.load();
 
   const historyManager = new HistoryManager();
-  await historyManager.load();
 
   /**
    * Health check endpoint to verify server status.
@@ -91,7 +90,7 @@ const createServer = async () => {
    * // Response
    * { "status": "ok", "timestamp": "2023-01-01T00:00:00.000Z" }
    */
-  fastify.get('/health', async (request, reply) => {
+  fastify.get('/health', async () => {
     return {status: 'ok', timestamp: new Date().toISOString()};
   });
 
