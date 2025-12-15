@@ -12,8 +12,9 @@
  * @since 1.0.0
  */
 
-import fs from 'fs';
-import path from 'path';
+// db
+import {History, Provider} from '~/database/models';
+import {FindOptions, Op} from 'sequelize';
 
 /**
  * Represents a single entry in the prompt history with comprehensive metadata.
@@ -70,6 +71,10 @@ export interface PromptHistory {
   temperature?: number;
   /** Maximum tokens allowed in the response */
   maxTokens?: number;
+  /** Rating given to the response (1-5) */
+  rating: number;
+  /** Any additional notes about the response */
+  notes: string | null;
 }
 
 /**
@@ -128,7 +133,6 @@ export interface PromptHistory {
  * - The history maintains insertion order with newest entries first
  */
 export class HistoryManager {
-  private readonly historyPath: string;
   private history: PromptHistory[] = [];
 
   /**
@@ -138,131 +142,10 @@ export class HistoryManager {
    * If the file doesn't exist or is corrupted, it starts with an empty history.
    * The history file is monitored and updated automatically with each change.
    *
-   * @param {string} [historyPath] - Optional custom path to the JSON history file.
-   *                                 Defaults to 'history.json' in the current working directory.
-   *                                 Relative paths are resolved from the current working directory.
-   *                                 The directory will be created if it doesn't exist.
-   *
    * @example
-   * // Using default path
    * const defaultManager = new HistoryManager();
-   *
-   * // Using absolute path
-   * const absolutePathManager = new HistoryManager('/var/data/prompt-history.json');
-   *
-   * // Using relative path
-   * const relativePathManager = new HistoryManager('./storage/history.json');
    */
-  constructor(historyPath?: string) {
-    this.historyPath = historyPath ?? path.join(process.cwd(), 'history.json');
-  }
-
-  /**
-   * Loads the history data from the persistent storage file.
-   *
-   * This private method attempts to read and parse the JSON file at the configured
-   * history path. It handles various error conditions gracefully:
-   * - File not found: Starts with empty history
-   * - Parse errors: Falls back to empty history and logs the error
-   * - Permission issues: Logs warning and continues with empty history
-   *
-   * The method automatically converts timestamp strings back to Date objects
-   * during the loading process to maintain data type consistency.
-   *
-   * @private
-   * @returns {void}
-   *
-   * @fires console.warn - When loading fails, with error details
-   *
-   * @example
-   * // This method is called automatically in the constructor
-   * // and after any file system errors during save operations
-   */
-  public async load(): Promise<void> {
-    try {
-      if (fs.existsSync(this.historyPath)) {
-        const data = fs.readFileSync(this.historyPath, 'utf-8');
-        this.history = JSON.parse(data).map((item: any) => ({
-          ...item,
-          timestamp: new Date(item.timestamp),
-        }));
-      }
-    } catch (error: any) {
-      console.warn('Failed to load history, starting with empty history:', error);
-      this.history = [];
-    }
-  }
-
-  /**
-   * Persists the current history state to the JSON storage file.
-   *
-   * This private method ensures atomic write operations by:
-   * 1. Creating the target directory if it doesn't exist
-   * 2. Writing the entire history array as formatted JSON
-   * 3. Handling file system errors gracefully without crashing
-   *
-   * The JSON output is pretty-printed with 2-space indentation for
-   * better human readability when manually inspecting the file.
-   *
-   * @private
-   * @returns {void}
-   *
-   * @fires console.error - When saving fails, with error details
-   *
-   * @example
-   * // This method is called automatically after:
-   * // - Adding new entries
-   * // - Updating existing entries
-   * // - Deleting entries
-   * // - Clearing history
-   */
-  private saveHistory(): void {
-    try {
-      const dir = path.dirname(this.historyPath);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, {recursive: true});
-      }
-      fs.writeFileSync(this.historyPath, JSON.stringify(this.history, null, 2));
-    } catch (error: any) {
-      console.error('Failed to save history:', error);
-    }
-  }
-
-  /**
-   * Adds a new entry to the prompt history with automatic ID generation.
-   *
-   * This method creates a new history entry by:
-   * 1. Generating a unique identifier using timestamp and random components
-   * 2. Adding the entry to the beginning of the history array (newest first)
-   * 3. Persisting the updated history to disk
-   * 4. Returning the complete entry with the generated ID
-   *
-   * @param {Omit<PromptHistory, 'id'>} entry - The history entry data without the ID field.
-   *                                           All other PromptHistory fields are required.
-   *
-   * @returns {PromptHistory} The complete history entry with the auto-generated ID.
-   *                          The returned object includes all fields from the input
-   *                          plus the newly assigned unique identifier.
-   *
-   * @example
-   * const newEntry = historyManager.addToHistory({
-   *   originalPrompt: 'Translate to Spanish',
-   *   enhancedPrompt: 'Please translate the following text into Spanish, maintaining the original meaning and tone',
-   *   model: 'gpt-4',
-   *   enhancementType: 'translation',
-   *   userRole: 'translator',
-   *   provider: 'OpenAI',
-   *   timestamp: new Date(),
-   *   tokensUsed: 30,
-   *   processingTime: 1800
-   * });
-   * console.log('New entry ID:', newEntry.id);
-   */
-  public addToHistory(entry: Omit<PromptHistory, 'id'>): PromptHistory {
-    const historyItem: PromptHistory = {...entry, id: this.generateId()};
-    this.history.unshift(historyItem);
-    this.saveHistory();
-    return historyItem;
+  constructor() {
   }
 
   /**
@@ -290,8 +173,46 @@ export class HistoryManager {
    * // Get just the latest entry
    * const latestEntry = historyManager.getHistory(1)[0];
    */
-  public getHistory(limit?: number): PromptHistory[] {
-    return limit ? this.history.slice(0, limit) : this.history;
+  public async getHistory(limit?: number): Promise<PromptHistory[]> {
+    const findOptions: FindOptions<Provider> = {
+      where: {},
+      order: [['createdAt', 'DESC']],
+    };
+
+    if (limit) findOptions.limit = limit;
+
+    const histories = await History.findAll(findOptions);
+
+    const providers: Record<string, string> = {};
+
+    const records: PromptHistory[] = [];
+
+    for await (const history of histories) {
+      if (!Object.hasOwn(providers, String(history.providerId))) {
+        const provider = await Provider.findByPk(history.providerId, {raw: true, attributes: ['name']});
+        providers[String(history.providerId)] = provider?.name ?? '';
+      }
+
+      records.push({
+        id: String(history?.id),
+        model: history.model,
+        enhancedPrompt: history.enhancedPrompt,
+        enhancementType: history.enhancementType,
+        originalPrompt: history.originalPrompt,
+        processingTime: history.processingTime,
+        timestamp: new Date(history?.createdAt),
+        userRole: history.userRole,
+        provider: providers[String(history.providerId)],
+        tokensUsed: history.tokensUsed,
+        maxTokens: history.maxTokens,
+        temperature: history.temperature,
+        systemPrompt: history.systemPrompt,
+        rating: history.rating,
+        notes: history.notes,
+      });
+    }
+
+    return records;
   }
 
   /**
@@ -330,17 +251,51 @@ export class HistoryManager {
    * // Search for content in prompts
    * const summaryEntries = historyManager.searchHistory('summarize');
    */
-  public searchHistory(query: string): PromptHistory[] {
+  public async searchHistory(query: string): Promise<PromptHistory[]> {
     const lc = query.toLowerCase();
-    return this.history.filter(
-      (i) =>
-        i.originalPrompt.toLowerCase().includes(lc) ||
-        i.enhancedPrompt.toLowerCase().includes(lc) ||
-        i.model.toLowerCase().includes(lc) ||
-        i.enhancementType.toLowerCase().includes(lc) ||
-        i.userRole.toLowerCase().includes(lc) ||
-        (i.provider?.toLowerCase().includes(lc) ?? false),
-    );
+
+    const histories = await History.findAll({
+      where: {
+        [Op.or]: [
+          {originalPrompt: {[Op.like]: `%${lc}%`}},
+          {enhancedPrompt: {[Op.like]: `%${lc}%`}},
+          {model: {[Op.like]: `%${lc}%`}},
+          {enhancementType: {[Op.like]: `%${lc}%`}},
+          {userRole: {[Op.like]: `%${lc}%`}},
+        ],
+      },
+      order: [['createdAt', 'DESC']],
+    });
+
+    const records: PromptHistory[] = [];
+    const providers: Record<string, string> = {};
+
+    for await (const history of histories) {
+      if (!Object.hasOwn(providers, String(history.providerId))) {
+        const provider = await Provider.findByPk(history.providerId, {raw: true, attributes: ['name']});
+        providers[String(history.providerId)] = provider?.name ?? '';
+      }
+
+      records.push({
+        id: String(history?.id),
+        model: history.model,
+        enhancedPrompt: history.enhancedPrompt,
+        enhancementType: history.enhancementType,
+        originalPrompt: history.originalPrompt,
+        processingTime: history.processingTime,
+        timestamp: new Date(history?.createdAt),
+        userRole: history.userRole,
+        provider: providers[String(history.providerId)],
+        tokensUsed: history.tokensUsed,
+        maxTokens: history.maxTokens,
+        temperature: history.temperature,
+        systemPrompt: history.systemPrompt,
+        rating: history.rating,
+        notes: history.notes,
+      });
+    }
+
+    return records;
   }
 
   /**
@@ -368,14 +323,8 @@ export class HistoryManager {
    *   console.log('Entry not found');
    * }
    */
-  public deleteHistoryItem(id: string): boolean {
-    const idx = this.history.findIndex((i) => i.id === id);
-    if (idx !== -1) {
-      this.history.splice(idx, 1);
-      this.saveHistory();
-      return true;
-    }
-    return false;
+  public async deleteHistoryItem(id: string): Promise<boolean> {
+    return (await History.destroy({where: {id}})) > 0;
   }
 
   /**
@@ -408,14 +357,8 @@ export class HistoryManager {
    *   console.log('Entry updated successfully');
    * }
    */
-  public updateHistoryItem(id: string, updates: Partial<PromptHistory>): boolean {
-    const idx = this.history.findIndex((i) => i.id === id);
-    if (idx !== -1) {
-      this.history[idx] = {...this.history[idx], ...updates};
-      this.saveHistory();
-      return true;
-    }
-    return false;
+  public async updateHistoryItem(id: string, updates: Partial<PromptHistory>): Promise<boolean> {
+    throw new Error('Not implemented yet');
   }
 
   /**
@@ -446,9 +389,8 @@ export class HistoryManager {
    * historyManager.clearHistory();
    * console.log('All history cleared');
    */
-  public clearHistory(): void {
-    this.history = [];
-    this.saveHistory();
+  public async clearHistory(): Promise<void> {
+    await History.destroy({});
   }
 
   /**
@@ -485,7 +427,7 @@ export class HistoryManager {
    * const txtData = historyManager.exportHistory('txt');
    * console.log(txtData); // Display in console
    */
-  public exportHistory(format: 'json' | 'csv' | 'txt' = 'json'): string {
+  public async exportHistory(format: 'json' | 'csv' | 'txt' = 'json'): Promise<string> {
     switch (format) {
       case 'json':
         return JSON.stringify(this.history, null, 2);
@@ -555,29 +497,6 @@ export class HistoryManager {
   }
 
   /**
-   * Generates a unique identifier for new history entries.
-   *
-   * This private method creates IDs using a combination of:
-   * - Current timestamp in base-36 for chronological ordering
-   * - Random string for uniqueness within the same millisecond
-   *
-   * The resulting ID is URL-safe, sortable, and highly unlikely to collide.
-   *
-   * @private
-   * @returns {string} A unique identifier string suitable for use as a primary key.
-   *                   Format: [timestamp-base36][random-base36]
-   *                   Example: "l1e2b3c4d5xyz"
-   *
-   * @example
-   * // Used internally when adding new entries
-   * const id = this.generateId();
-   * // Returns something like: "k5j2h3g1f7abc"
-   */
-  private generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substring(2);
-  }
-
-  /**
    * Computes comprehensive usage statistics from the entire prompt history.
    *
    * This method analyzes all history entries to provide insights including:
@@ -637,7 +556,7 @@ export class HistoryManager {
    *   console.log(`${role}: ${count} entries (${(count/stats.totalItems*100).toFixed(1)}%)`);
    * });
    */
-  public getStats(): {
+  public async getStats(): Promise<{
     totalItems: number;
     totalTokensUsed: number;
     averageProcessingTime: number;
@@ -648,8 +567,44 @@ export class HistoryManager {
     totalWords: number;
     totalLines: number;
     totalChars: number;
-  } {
-    const len = this.history.length;
+    averageTokensUsed: number;
+    maxTokensUsed: number;
+    averageRating: number;
+    topRatedEntries: number;
+    averageTemperature: number;
+    temperatureDistribution: { range: string; count: number }[];
+    enhancementFrequency: { type: string; count: number; percentage: number }[];
+    modelPerformance: { model: string; avgProcessingTime: number; totalUsage: number }[];
+    roleModelDistribution: { role: string; model: string; count: number }[];
+    dateRange: { earliest: Date; latest: Date };
+    peakUsageHour: { hour: number; count: number };
+    monthlyUsage: { month: string; count: number }[];
+    averageMaxTokens: number;
+    minTokensUsed: number;
+    promptEnhancementRatio: number;
+    systemPromptUsage: { used: number; notUsed: number; percentage: number };
+    ratingDistribution: { rating: number; count: number; percentage: number }[];
+    costAnalysis: { totalEstimatedCost: number; avgCostPerRequest: number };
+    weeklyUsage: { week: string; count: number }[];
+    longestPrompt: { originalLength: number; enhancedLength: number; ratio: number };
+    shortestPrompt: { originalLength: number; enhancedLength: number; ratio: number };
+    averagePromptLength: { original: number; enhanced: number };
+    mostEfficientModel: { model: string; avgProcessingTime: number; avgTokensPerMs: number };
+    preferredTimeSlots: { hour: number; count: number; percentage: number }[];
+    enhancementTypeEfficiency: {
+      type: string;
+      avgProcessingTime: number;
+      avgTokensUsed: number;
+      successRate: number
+    }[];
+    metaFieldUsage: { withMeta: number; withoutMeta: number; percentage: number };
+  }> {
+    const histories = await History.findAll({
+      raw: true,
+      order: [['createdAt', 'DESC']],
+    });
+
+    const len = histories.length;
     if (len === 0) {
       return {
         totalItems: 0,
@@ -662,6 +617,32 @@ export class HistoryManager {
         totalWords: 0,
         totalLines: 0,
         totalChars: 0,
+        averageTokensUsed: 0,
+        maxTokensUsed: 0,
+        averageRating: 0,
+        topRatedEntries: 0,
+        averageTemperature: 0,
+        temperatureDistribution: [],
+        enhancementFrequency: [],
+        modelPerformance: [],
+        roleModelDistribution: [],
+        dateRange: {earliest: new Date(), latest: new Date()},
+        peakUsageHour: {hour: 0, count: 0},
+        monthlyUsage: [],
+        averageMaxTokens: 0,
+        minTokensUsed: 0,
+        promptEnhancementRatio: 0,
+        systemPromptUsage: {used: 0, notUsed: 0, percentage: 0},
+        ratingDistribution: [],
+        costAnalysis: {totalEstimatedCost: 0, avgCostPerRequest: 0},
+        weeklyUsage: [],
+        longestPrompt: {originalLength: 0, enhancedLength: 0, ratio: 0},
+        shortestPrompt: {originalLength: 0, enhancedLength: 0, ratio: 0},
+        averagePromptLength: {original: 0, enhanced: 0},
+        mostEfficientModel: {model: 'N/A', avgProcessingTime: 0, avgTokensPerMs: 0},
+        preferredTimeSlots: [],
+        enhancementTypeEfficiency: [],
+        metaFieldUsage: {withMeta: 0, withoutMeta: 0, percentage: 0},
       };
     }
 
@@ -669,32 +650,154 @@ export class HistoryManager {
     const typeCount: Record<string, number> = {};
     const roleCount: Record<string, number> = {};
     const providerModelCount: Record<string, number> = {};
+    const modelProcessingTime: Record<string, number[]> = {};
+    const roleModelCount: Record<string, number> = {};
+    const hourlyUsage: Record<number, number> = {};
+    const monthlyUsage: Record<string, number> = {};
+    const weeklyUsage: Record<string, number> = {};
+    const temperatureRanges = {
+      '0-0.2': 0, '0.2-0.4': 0, '0.4-0.6': 0,
+      '0.6-0.8': 0, '0.8-1.0': 0,
+    };
+    const ratingCounts: Record<number, number> = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+    const enhancementStats: Record<string, { processingTime: number[]; tokensUsed: number[]; ratings: number[] }> = {};
 
     let totalTokens = 0;
     let totalProcessing = 0;
     let totalWords = 0;
     let totalLines = 0;
     let totalChars = 0;
+    let maxTokens = 0;
+    let minTokens = Number.MAX_SAFE_INTEGER;
+    let totalRating = 0;
+    let topRated = 0;
+    let totalTemperature = 0;
+    let totalMaxTokens = 0;
+    let systemPromptUsed = 0;
+    let systemPromptNotUsed = 0;
+    let withMeta = 0;
+    let withoutMeta = 0;
+    let totalOriginalLength = 0;
+    let totalEnhancedLength = 0;
+    let maxOriginalLength = 0;
+    let maxEnhancedLength = 0;
+    let minOriginalLength = Number.MAX_SAFE_INTEGER;
+    let minEnhancedLength = Number.MAX_SAFE_INTEGER;
+    let earliestDate = histories[0].createdAt;
+    let latestDate = histories[0].createdAt;
 
-    for (const item of this.history) {
+    for (const item of histories) {
+      // Model and type counts
       modelCount[item.model] = (modelCount[item.model] ?? 0) + 1;
       typeCount[item.enhancementType] = (typeCount[item.enhancementType] ?? 0) + 1;
       roleCount[item.userRole] = (roleCount[item.userRole] ?? 0) + 1;
 
-      const provider = item.provider ?? 'N/A';
+      // Provider usage
+      const provider = await Provider.getNameByPk(item.providerId) ?? 'N/A';
       const key = `${provider}|${item.model}`;
       providerModelCount[key] = (providerModelCount[key] ?? 0) + 1;
 
-      totalTokens += item.tokensUsed ?? 0;
+      // Model performance tracking
+      if (!modelProcessingTime[item.model]) {
+        modelProcessingTime[item.model] = [];
+      }
+      modelProcessingTime[item.model].push(item.processingTime);
+
+      // Role-model distribution
+      const roleModelKey = `${item.userRole}|${item.model}`;
+      roleModelCount[roleModelKey] = (roleModelCount[roleModelKey] ?? 0) + 1;
+
+      // Token statistics
+      const tokensUsed = item.tokensUsed ?? 0;
+      totalTokens += tokensUsed;
+      maxTokens = Math.max(maxTokens, tokensUsed);
+      minTokens = Math.min(minTokens, tokensUsed);
+
+      // Max tokens statistics
+      totalMaxTokens += item.maxTokens ?? 0;
+
+      // Processing time
       totalProcessing += item.processingTime;
 
+      // Rating statistics
+      totalRating += item.rating ?? 0;
+      const rating = item.rating ?? 0;
+      if (rating >= 4) topRated++;
+      if (rating >= 1 && rating <= 5) {
+        ratingCounts[rating]++;
+      }
+
+      // Temperature statistics
+      totalTemperature += item.temperature ?? 0;
+      const temp = item.temperature ?? 0;
+      if (temp <= 0.2) temperatureRanges['0-0.2']++;
+      else if (temp <= 0.4) temperatureRanges['0.2-0.4']++;
+      else if (temp <= 0.6) temperatureRanges['0.4-0.6']++;
+      else if (temp <= 0.8) temperatureRanges['0.6-0.8']++;
+      else temperatureRanges['0.8-1.0']++;
+
+      // Text statistics
+      const originalLength = item.originalPrompt.length;
+      const enhancedLength = item.enhancedPrompt.length;
       const promptText = `${item.originalPrompt}\n${item.enhancedPrompt}`;
+
       totalChars += promptText.length;
       totalLines += (promptText.match(/\n/g) || []).length + 1;
       totalWords += promptText.split(/\s+/).filter(Boolean).length;
+
+      totalOriginalLength += originalLength;
+      totalEnhancedLength += enhancedLength;
+
+      maxOriginalLength = Math.max(maxOriginalLength, originalLength);
+      maxEnhancedLength = Math.max(maxEnhancedLength, enhancedLength);
+      minOriginalLength = Math.min(minOriginalLength, originalLength);
+      minEnhancedLength = Math.min(minEnhancedLength, enhancedLength);
+
+      // System prompt usage
+      if (item.systemPrompt && item.systemPrompt.trim()) {
+        systemPromptUsed++;
+      } else {
+        systemPromptNotUsed++;
+      }
+
+      // Meta field usage
+      if (item.meta) {
+        withMeta++;
+      } else {
+        withoutMeta++;
+      }
+
+      // Enhancement type efficiency
+      if (!enhancementStats[item.enhancementType]) {
+        enhancementStats[item.enhancementType] = {processingTime: [], tokensUsed: [], ratings: []};
+      }
+      enhancementStats[item.enhancementType].processingTime.push(item.processingTime);
+      enhancementStats[item.enhancementType].tokensUsed.push(tokensUsed);
+      enhancementStats[item.enhancementType].ratings.push(rating);
+
+      // Date/time statistics
+      const date = new Date(item.createdAt);
+      earliestDate = date < earliestDate ? date : earliestDate;
+      latestDate = date > latestDate ? date : latestDate;
+
+      const hour = date.getHours();
+      hourlyUsage[hour] = (hourlyUsage[hour] ?? 0) + 1;
+
+      const monthKey = date.toISOString().slice(0, 7);
+      monthlyUsage[monthKey] = (monthlyUsage[monthKey] ?? 0) + 1;
+
+      const weekKey = this.getISOWeek(date);
+      weeklyUsage[weekKey] = (weeklyUsage[weekKey] ?? 0) + 1;
     }
 
     const avgProcessing = Math.round(totalProcessing / len);
+    const avgTokens = Math.round(totalTokens / len);
+    const avgRating = Number((totalRating / len).toFixed(1));
+    const avgTemp = Number((totalTemperature / len).toFixed(2));
+    const averageMaxTokens = Math.round(totalMaxTokens / len);
+    const promptEnhancementRatio = Number((totalEnhancedLength / totalOriginalLength).toFixed(2));
+    const systemPromptPercentage = Number(((systemPromptUsed / len) * 100).toFixed(1));
+    const metaPercentage = Number(((withMeta / len) * 100).toFixed(1));
 
     const mostUsedModel = Object.entries(modelCount).sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'N/A';
     const mostUsedType = Object.entries(typeCount).sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'N/A';
@@ -708,6 +811,89 @@ export class HistoryManager {
       .map(([role, count]) => ({role, count}))
       .sort((a, b) => b.count - a.count);
 
+    const modelPerformance = Object.entries(modelProcessingTime).map(([model, times]) => ({
+      model,
+      avgProcessingTime: Math.round(times.reduce((a, b) => a + b, 0) / times.length),
+      totalUsage: times.length,
+    })).sort((a, b) => b.totalUsage - a.totalUsage);
+
+    const mostEfficient = Object.entries(modelProcessingTime)
+      .map(([model, times]) => ({
+        model,
+        avgProcessingTime: Math.round(times.reduce((a, b) => a + b, 0) / times.length),
+        avgTokensPerMs: Number((histories.filter(h => h.model === model).reduce((sum, h) => sum + (h.tokensUsed ?? 0), 0) / times.reduce((a, b) => a + b, 0)).toFixed(4)),
+      }))
+      .sort((a, b) => b.avgTokensPerMs - a.avgTokensPerMs)[0] ?? {
+      model: 'N/A',
+      avgProcessingTime: 0,
+      avgTokensPerMs: 0,
+    };
+
+    const enhancementFrequency = Object.entries(typeCount)
+      .map(([type, count]) => ({
+        type,
+        count,
+        percentage: Number(((count / len) * 100).toFixed(1)),
+      }))
+      .sort((a, b) => b.count - a.count);
+
+    const temperatureDistribution = Object.entries(temperatureRanges).map(([range, count]) => ({
+      range,
+      count,
+    }));
+
+    const roleModelDistribution = Object.entries(roleModelCount).map(([k, count]) => {
+      const [role, model] = k.split('|');
+      return {role, model, count};
+    }).sort((a, b) => b.count - a.count);
+
+    const peakHour = Object.entries(hourlyUsage)
+      .sort(([, a], [, b]) => b - a)[0] ?? ['0', 0];
+
+    const monthlyStats = Object.entries(monthlyUsage)
+      .map(([month, count]) => ({month, count}))
+      .sort((a, b) => b.month.localeCompare(a.month));
+
+    const weeklyStats = Object.entries(weeklyUsage)
+      .map(([week, count]) => ({week, count}))
+      .sort((a, b) => b.week.localeCompare(a.week));
+
+    const ratingDistribution = Object.entries(ratingCounts)
+      .map(([rating, count]) => ({
+        rating: Number(rating),
+        count,
+        percentage: Number(((count / len) * 100).toFixed(1)),
+      }))
+      .filter(r => r.count > 0);
+
+    const costAnalysis = {
+      totalEstimatedCost: Number((totalTokens * 0.00002).toFixed(4)), // Assuming $0.02 per 1K tokens
+      avgCostPerRequest: Number(((totalTokens * 0.00002) / len).toFixed(6)),
+    };
+
+    const preferredTimeSlots = Object.entries(hourlyUsage)
+      .map(([hour, count]) => ({
+        hour: Number(hour),
+        count,
+        percentage: Number(((count / len) * 100).toFixed(1)),
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
+
+    const enhancementTypeEfficiency: {
+      type: string;
+      avgProcessingTime: number;
+      avgTokensUsed: number;
+      successRate: number;
+    }[] = Object.entries(enhancementStats).map(([type, stats]) => ({
+      type,
+      avgProcessingTime: Math.round(stats.processingTime.reduce((a, b) => a + b, 0) / stats.processingTime.length),
+      avgTokensUsed: Math.round(stats.tokensUsed.reduce((a, b) => a + b, 0) / stats.tokensUsed.length),
+      successRate: Number(((stats.ratings.filter(r => r >= 4).length / stats.ratings.length) * 100).toFixed(1)),
+    }));
+
+    enhancementTypeEfficiency.sort((a, b) => b.successRate - a.successRate);
+
     return {
       totalItems: len,
       totalTokensUsed: totalTokens,
@@ -719,6 +905,51 @@ export class HistoryManager {
       totalWords,
       totalLines,
       totalChars,
+      averageTokensUsed: avgTokens,
+      maxTokensUsed: maxTokens,
+      averageRating: avgRating,
+      topRatedEntries: topRated,
+      averageTemperature: avgTemp,
+      temperatureDistribution,
+      enhancementFrequency,
+      modelPerformance,
+      roleModelDistribution,
+      dateRange: {earliest: earliestDate, latest: latestDate},
+      peakUsageHour: {hour: Number(peakHour[0]), count: peakHour[1]},
+      monthlyUsage: monthlyStats,
+      averageMaxTokens,
+      minTokensUsed: minTokens === Number.MAX_SAFE_INTEGER ? 0 : minTokens,
+      promptEnhancementRatio,
+      systemPromptUsage: {used: systemPromptUsed, notUsed: systemPromptNotUsed, percentage: systemPromptPercentage},
+      ratingDistribution,
+      costAnalysis,
+      weeklyUsage: weeklyStats,
+      longestPrompt: {
+        originalLength: maxOriginalLength,
+        enhancedLength: maxEnhancedLength,
+        ratio: Number((maxEnhancedLength / maxOriginalLength).toFixed(2)),
+      },
+      shortestPrompt: {
+        originalLength: minOriginalLength === Number.MAX_SAFE_INTEGER ? 0 : minOriginalLength,
+        enhancedLength: minEnhancedLength === Number.MAX_SAFE_INTEGER ? 0 : minEnhancedLength,
+        ratio: minEnhancedLength === Number.MAX_SAFE_INTEGER ? 0 : Number((minEnhancedLength / minOriginalLength).toFixed(2)),
+      },
+      averagePromptLength: {
+        original: Math.round(totalOriginalLength / len),
+        enhanced: Math.round(totalEnhancedLength / len),
+      },
+      mostEfficientModel: mostEfficient,
+      preferredTimeSlots,
+      enhancementTypeEfficiency,
+      metaFieldUsage: {withMeta, withoutMeta, percentage: metaPercentage},
     };
+  }
+
+  getISOWeek(date: Date): string {
+    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const dayNum = d.getUTCDay() || 7;
+    d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    return `${d.getUTCFullYear()}-W${Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)}`;
   }
 }
