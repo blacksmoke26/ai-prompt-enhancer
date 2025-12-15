@@ -19,7 +19,6 @@ import AutoSaveIndicator from './AutoSaveIndicator';
 import EditorContentWithSmartPanel, {MDXEditorMethods} from '~/components/AdvancedPromptEditor/EditorContentWithSmartPanel.tsx';
 
 // types
-import type {PromptResponse} from '~/types';
 
 /**
  * Configuration props for the Advanced Prompt Editor component

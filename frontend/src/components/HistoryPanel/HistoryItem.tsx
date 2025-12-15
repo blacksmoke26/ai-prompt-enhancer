@@ -21,7 +21,7 @@ import RatingStars from './RatingStars';
 import NotesEditor from './NotesEditor';
 
 // types
-import type { PromptHistory } from '~/types/index';
+import type { PromptHistory } from '~/types';
 
 /**
  * Props for the {@link HistoryItem} component.

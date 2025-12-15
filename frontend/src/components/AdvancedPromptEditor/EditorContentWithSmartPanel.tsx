@@ -19,7 +19,6 @@ import SmartSuggestionsTrigger from './SmartSuggestionsTrigger';
 import EnhancedPrompt, {type EnhancedPromptResponse} from './EnhancedPrompt';
 
 // types
-import type {PromptResponse} from '~/types';
 import type {MDXEditorMethods} from '@mdxeditor/editor';
 
 export type {MDXEditorMethods};

@@ -8,7 +8,7 @@ import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
 
 // types
-import type {AppConfig, AIModel, AIProvider, EnhancementType, UserRole} from '~/types/index';
+import type {AppConfig, AIModel, AIProvider, EnhancementType, UserRole} from '~/types';
 
 // Dashboard layout item interface
 export interface DashboardLayoutItem {

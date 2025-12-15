@@ -14,7 +14,7 @@ import {Badge} from '~/components/ui/Badge';
 import {Switch} from '~/components/ui/Switch';
 
 // types
-import type {AppConfig, ProviderConfig} from '~/types/index';
+import type {AppConfig, ProviderConfig} from '~/types';
 
 export interface GenericProviderSettingsProps extends React.PropsWithChildren {
   /** Name of the provider (used for display and test calls) */

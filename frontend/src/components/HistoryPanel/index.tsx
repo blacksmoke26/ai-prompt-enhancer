@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/Card';
 import { Button } from '~/components/ui/Button';
 import FilterPanel from './FilterPanel';
 import HistoryItem from './HistoryItem';
-import type { PromptHistory } from '~/types/index';
+import type { PromptHistory } from '~/types';
 
 /**
  * Props for the {@link HistoryPanel} component.

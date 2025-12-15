@@ -19,7 +19,6 @@ import ActionButtons from '~/components/PromptEnhancer/ActionButtons';
 import QuickStats from '~/components/PromptEnhancer/QuickStats';
 
 // types
-import type { PromptResponse } from '~/types';
 
 /**
  * PromptEnhancer Component
@@ -145,7 +144,7 @@ const PromptEnhancer: React.FC = () => {
   return (
     <div className="space-y-6">
       <ErrorAlert error={error} />
-      
+
       <AdvancedPromptEditor
         value={prompt}
         onChange={setPrompt}
@@ -166,7 +165,7 @@ const PromptEnhancer: React.FC = () => {
         className="mb-6"
       />
 
-      <ActionButtons 
+      <ActionButtons
         onEnhance={handleEnhance}
         onReset={handleReset}
         isLoading={loading}

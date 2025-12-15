@@ -31,7 +31,7 @@ import LayoutSettingsPanel from './LayoutSettingsPanel';
 
 // types
 import {AppConfig} from '~/types';
-import {ProviderConfig} from '~/types/index';
+import {ProviderConfig} from '~/types';
 
 /**
  * Type definition for available settings tabs

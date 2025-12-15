@@ -14,7 +14,7 @@ import {useHistoryStore} from '~/stores/historyStore';
 import PromptService from '~/services/PromptService';
 
 // types
-import type {PromptRequest} from '~/types/index';
+import type {PromptRequest} from '~/types';
 
 /**
  * Custom hook for enhancing AI prompts with various settings.
