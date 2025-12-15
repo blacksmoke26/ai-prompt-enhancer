@@ -10,84 +10,12 @@ import React from 'react';
 // helpers
 import {formatDuration} from '~/utils/helpers';
 
+// hooks
+import {useHistory} from '~/hooks/useHistory';
+
 // components
 import {Card, CardContent, CardHeader, CardTitle} from './ui/Card';
 
-/**
- * Represents a provider-model usage bucket.
- * @example
- * ```typescript
- * const usage: ProviderUsage = {
- *   provider: 'OpenAI',
- *   model: 'gpt-4',
- *   count: 42
- * };
- * ```
- * @developerNotes Used to track how many times each provider/model combination was used
- */
-export interface ProviderUsage {
-  /** The provider used for the prompt. */
-  provider: string;
-  /** The model used for the prompt. */
-  model: string;
-  /** The number of times this provider/model combination was used. */
-  count: number;
-}
-
-/**
- * Represents a role usage bucket.
- * @example
- * ```typescript
- * const role: RoleUsage = {
- *   role: 'system',
- *   count: 15
- * };
- * ```
- * @developerNotes Tracks the frequency of different roles in prompts (system, user, assistant)
- */
-export interface RoleUsage {
-  /** The role used for the prompt. */
-  role: string;
-  /** The number of times this role was used. */
-  count: number;
-}
-
-/**
- * Comprehensive statistics shape returned by `HistoryManager.getStats`.
- * @example
- * ```typescript
- * const stats: StatsPanelStats = {
- *   totalItems: 100,
- *   totalTokensUsed: 50000,
- *   averageProcessingTime: 2.5,
- *   mostUsedModel: 'gpt-4',
- *   mostUsedEnhancementType: 'summary'
- * };
- * ```
- * @developerNotes All numeric fields should be provided, optional fields may be omitted
- */
-export interface StatsPanelStats {
-  /** Total number of processed items/prompts. */
-  totalItems: number;
-  /** Total number of tokens used across all items. */
-  totalTokensUsed: number;
-  /** Average processing time per item in seconds. */
-  averageProcessingTime: number;
-  /** The most frequently used model name. */
-  mostUsedModel: string;
-  /** The most frequently used enhancement type. */
-  mostUsedEnhancementType: string;
-  /** Array of provider-specific usage statistics. */
-  providerUsage?: ProviderUsage[];
-  /** Array of role usage statistics sorted by frequency. */
-  mostUsedRoles?: RoleUsage[];
-  /** Total word count across all processed text. */
-  totalWords?: number;
-  /** Total line count across all processed text. */
-  totalLines?: number;
-  /** Total character count across all processed text. */
-  totalChars?: number;
-}
 
 /**
  * Props for the StatsPanel component.
@@ -96,13 +24,11 @@ export interface StatsPanelStats {
  * statistics are not available a fallback of `0` or `"N/A"` is shown.
  * @example
  * ```typescript
- * <StatsPanel stats={usageStats} />
+ * <StatsPanel />
  * ```
  * @developerNotes Pass null or undefined stats to show empty state with zeros
  */
-interface StatsPanelProps {
-  /** Statistics data to display, or null if no data is available. */
-  stats: StatsPanelStats | null;
+export interface StatsPanelProps {
 }
 
 /**
@@ -136,7 +62,9 @@ const formatNumber = (num: number | undefined | null) => {
  * ```
  * @developerNotes Component automatically calculates derived metrics like averages and rates
  */
-const StatsPanel: React.FC<StatsPanelProps> = ({stats}) => {
+const StatsPanel: React.FC<StatsPanelProps> = () => {
+  const {stats} = useHistory();
+
   const totalItems = stats?.totalItems ?? 0;
   const totalTokens = stats?.totalTokensUsed ?? 0;
   const avgProcessing = stats?.averageProcessingTime ?? 0;
