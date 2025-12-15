@@ -86,6 +86,9 @@ export interface PromptRequest {
  * `tokensUsed` is optional as not all providers return this information.
  */
 export interface PromptResponse {
+  /** Optional metadata returned by the service. */
+  [key: string]: any;
+
   /** The enhanced version of the prompt */
   enhancedPrompt: string;
   /** The original prompt text */
@@ -374,7 +377,7 @@ export interface ProviderConfig {
   [key: string]: any;
 
   /** Whether the provider is enabled */
-  enabled: boolean;
+  enabled?: boolean;
   /** Base URL for the provider */
   baseUrl?: string;
   /** The API key for the provider */
