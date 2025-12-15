@@ -36,13 +36,7 @@ export const usePromptEnhancer = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const {
-    selectedProvider,
-    selectedModel,
-    selectedEnhancementType,
-    selectedUserRole,
-    config,
-  } = useAppStore();
+  const {config} = useAppStore();
 
   const {addToHistory} = useHistoryStore();
 
@@ -70,7 +64,12 @@ export const usePromptEnhancer = () => {
       return null;
     }
 
-    if (!selectedModel) {
+    if (!config?.provider) {
+      setError('Please select a provider');
+      return null;
+    }
+
+    if (!config?.model) {
       setError('Please select a model');
       return null;
     }
@@ -81,13 +80,13 @@ export const usePromptEnhancer = () => {
 
       const request: PromptRequest = {
         text: text.trim(),
-        model: selectedModel,
-        provider: selectedProvider,
-        enhancementType: selectedEnhancementType,
-        userRole: selectedUserRole,
+        model: config?.model,
+        provider: config?.provider,
+        enhancementType: config.enhancementType,
+        userRole: config.userRole,
         systemPrompt: config.defaultSystemPrompt,
-        temperature: 0.7,
-        maxTokens: 2000,
+        temperature: config?.temperature ?? 0.7,
+        maxTokens: config?.maxTokens ?? 2000,
       };
 
       const response = await PromptService.enhancePrompt(request);
@@ -95,9 +94,10 @@ export const usePromptEnhancer = () => {
       // Add to history
       addToHistory({
         ...response,
+        provider: config?.provider,
         id: response.timestamp, // Use timestamp as ID for now
-        enhancementType: selectedEnhancementType,
-        userRole: selectedUserRole,
+        enhancementType: config?.enhancementType!,
+        userRole: config?.userRole!,
         rating: undefined,
         notes: undefined,
       });
@@ -110,7 +110,7 @@ export const usePromptEnhancer = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedProvider, selectedModel, selectedEnhancementType, selectedUserRole, config.defaultSystemPrompt, addToHistory]);
+  }, [config?.provider, config?.model, config.enhancementType, config.userRole, config.defaultSystemPrompt, config?.temperature, config?.maxTokens, addToHistory]);
 
   /**
    * Refines an enhanced prompt with additional context.
@@ -131,13 +131,13 @@ export const usePromptEnhancer = () => {
 
       const request: PromptRequest = {
         text: `${enhancedText}\n\nAdditional context: ${additionalContext}`,
-        model: selectedModel,
-        provider: selectedProvider,
+        model: config.model!,
+        provider: config.provider!,
         enhancementType: 'refine',
-        userRole: selectedUserRole,
+        userRole: config.userRole,
         systemPrompt: config.defaultSystemPrompt,
-        temperature: 0.5,
-        maxTokens: 2000,
+        temperature: config?.temperature ?? 0.7,
+        maxTokens: config?.maxTokens ?? 2000,
       };
 
       const response = await PromptService.enhancePrompt(request);
@@ -145,8 +145,9 @@ export const usePromptEnhancer = () => {
       addToHistory({
         ...response,
         id: response.timestamp,
+        provider: config.provider!,
         enhancementType: 'refine',
-        userRole: selectedUserRole,
+        userRole: config.userRole!,
         rating: undefined,
         notes: undefined,
       });
@@ -159,7 +160,7 @@ export const usePromptEnhancer = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedProvider, selectedModel, selectedUserRole, config.defaultSystemPrompt, addToHistory]);
+  }, [config.model, config.provider, config.userRole, config.defaultSystemPrompt, config?.temperature, config?.maxTokens, addToHistory]);
 
   /**
    * Combines multiple enhanced prompts into a single prompt.
@@ -181,13 +182,13 @@ export const usePromptEnhancer = () => {
 
       const request: PromptRequest = {
         text: combinedText,
-        provider: selectedProvider,
-        model: selectedModel,
+        provider: config.provider!,
+        model: config.model!,
         enhancementType: 'combine',
-        userRole: selectedUserRole,
+        userRole: config.userRole,
         systemPrompt: config.defaultSystemPrompt,
-        temperature: 0.6,
-        maxTokens: 2500,
+        temperature: config?.temperature ?? 0.7,
+        maxTokens: config?.maxTokens ?? 2000,
       };
 
       const response = await PromptService.enhancePrompt(request);
@@ -195,8 +196,9 @@ export const usePromptEnhancer = () => {
       addToHistory({
         ...response,
         id: response.timestamp,
+        provider: config.provider!,
         enhancementType: 'combine',
-        userRole: selectedUserRole,
+        userRole: config.userRole!,
         rating: undefined,
         notes: undefined,
       });
@@ -209,7 +211,7 @@ export const usePromptEnhancer = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedProvider, selectedModel, selectedUserRole, config.defaultSystemPrompt, addToHistory]);
+  }, [config.provider, config.model, config.userRole, config.defaultSystemPrompt, config?.temperature, config?.maxTokens, addToHistory]);
 
   /**
    * Reverts a prompt to its original state from history.
