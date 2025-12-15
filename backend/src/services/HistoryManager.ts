@@ -427,50 +427,60 @@ export class HistoryManager {
    * const txtData = historyManager.exportHistory('txt');
    * console.log(txtData); // Display in console
    */
-  public async exportHistory(format: 'json' | 'csv' | 'txt' = 'json'): Promise<string> {
-    switch (format) {
-      case 'json':
-        return JSON.stringify(this.history, null, 2);
+   public async exportHistory(format: 'json' | 'csv' | 'txt' = 'json'): Promise<string> {
+     const records = await this.getHistory();
 
-      case 'csv':
-        const headers = [
-          'ID',
-          'Original Prompt',
-          'Enhanced Prompt',
-          'Model',
-          'Enhancement Type',
-          'User Role',
-          'Provider',
-          'Timestamp',
-          'Tokens Used',
-          'Processing Time',
-        ];
-        const rows = [
-          headers.join(','),
-          ...this.history.map((i) => [
-            i.id,
-            `"${this.escapeCsv(i.originalPrompt)}"`,
-            `"${this.escapeCsv(i.enhancedPrompt)}"`,
-            i.model,
-            i.enhancementType,
-            i.userRole,
-            i.provider ?? '',
-            i.timestamp.toISOString(),
-            i.tokensUsed ?? 0,
-            i.processingTime,
-          ].join(',')),
-        ];
-        return rows.join('\n');
+     switch (format) {
+       case 'json':
+         return JSON.stringify(records, null, 2);
 
-      case 'txt':
-        return this.history
-          .map((i) => `=== ${i.timestamp.toISOString()} ===\n` + `Model: ${i.model} | Type: ${i.enhancementType} | Role: ${i.userRole}\n` + `Provider: ${i.provider ?? 'N/A'}\n\n` + `Original Prompt:\n${i.originalPrompt}\n\n` + `Enhanced Prompt:\n${i.enhancedPrompt}\n` + `${i.tokensUsed ? `Tokens Used: ${i.tokensUsed}\n` : ''}` + `Processing Time: ${i.processingTime}ms\n\n---\n`)
-          .join('\n');
+       case 'csv':
+         const headers = [
+           'ID',
+           'Original Prompt',
+           'Enhanced Prompt',
+           'Model',
+           'Enhancement Type',
+           'User Role',
+           'Provider',
+           'Timestamp',
+           'Tokens Used',
+           'Processing Time',
+           'Temperature',
+           'Max Tokens',
+           'Rating',
+           'Notes',
+         ];
+         const rows = [
+           headers.join(','),
+           ...records.map((i) => [
+             i.id,
+             `"${this.escapeCsv(i.originalPrompt)}"`,
+             `"${this.escapeCsv(i.enhancedPrompt)}"`,
+             i.model,
+             i.enhancementType,
+             i.userRole,
+             i.provider ?? '',
+             i.timestamp.toISOString(),
+             i.tokensUsed ?? 0,
+             i.processingTime,
+             i.temperature ?? '',
+             i.maxTokens ?? '',
+             i.rating ?? 0,
+             i.notes ? `"${this.escapeCsv(i.notes)}"` : '',
+           ].join(',')),
+         ];
+         return rows.join('\n');
 
-      default:
-        return JSON.stringify(this.history, null, 2);
-    }
-  }
+       case 'txt':
+         return records
+           .map((i) => `=== ${i.timestamp.toISOString()} ===\n` + `Model: ${i.model} | Type: ${i.enhancementType} | Role: ${i.userRole}\n` + `Provider: ${i.provider ?? 'N/A'}\n\n` + `Original Prompt:\n${i.originalPrompt}\n\n` + `Enhanced Prompt:\n${i.enhancedPrompt}\n` + `${i.tokensUsed ? `Tokens Used: ${i.tokensUsed}\n` : ''}` + `Processing Time: ${i.processingTime}ms\n` + `${i.temperature ? `Temperature: ${i.temperature}\n` : ''}` + `${i.maxTokens ? `Max Tokens: ${i.maxTokens}\n` : ''}` + `Rating: ${i.rating}\n` + `${i.notes ? `Notes: ${i.notes}\n` : ''}\n---\n`)
+           .join('\n');
+
+       default:
+         return JSON.stringify(records, null, 2);
+     }
+   }
 
   /**
    * Escapes special characters in CSV fields to maintain data integrity.
