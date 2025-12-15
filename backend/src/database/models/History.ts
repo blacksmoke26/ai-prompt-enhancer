@@ -40,6 +40,10 @@ class History extends Model<InferAttributes<History>, InferCreationAttributes<Hi
   declare temperature: number;
   /** The maximum number of tokens allowed for the response */
   declare maxTokens: number;
+  /** The rating given to the response */
+  declare rating: number;
+  /** Any additional notes about the response */
+  declare notes: string | null;
   /** Optional metadata for the history record */
   declare meta?: Record<string, any>;
   /** Timestamp when the record was created */
@@ -111,6 +115,18 @@ History.init(
       field: 'max_tokens',
       type: DataTypes.INTEGER,
       allowNull: false,
+    },
+    rating: {
+      field: 'rating',
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
+    notes: {
+      field: 'notes',
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
     },
     meta: {
       field: 'metadata',

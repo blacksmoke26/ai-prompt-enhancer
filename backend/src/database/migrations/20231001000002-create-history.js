@@ -7,8 +7,14 @@
 const { DataTypes } = require('sequelize');
 
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.createTable('history',   {
+  /**
+   * Applies the migration logic to create or modify database schema.
+   * This function is executed when the migration is run, typically to create tables or update schema.
+   *
+   * @param {import('sequelize').QueryInterface} queryInterface - Sequelize's query interface for database operations.
+   */
+  up: async (queryInterface) => {
+    await queryInterface.createTable('history', {
       id: {
         type: DataTypes.INTEGER.UNSIGNED,
         autoIncrement: true,
@@ -18,8 +24,6 @@ module.exports = {
         field: 'provider_id',
         type: DataTypes.INTEGER.UNSIGNED,
         allowNull: false,
-        references: { model: 'Provider', key: 'id' },
-        onDelete: 'CASCADE',
       },
       originalPrompt: {
         field: 'original_prompt',
@@ -71,6 +75,18 @@ module.exports = {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      rating: {
+        field: 'rating',
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0,
+      },
+      notes: {
+        field: 'notes',
+        type: DataTypes.TEXT,
+        allowNull: true,
+        defaultValue: null,
+      },
       meta: {
         field: 'metadata',
         type: DataTypes.JSON,
@@ -89,8 +105,28 @@ module.exports = {
         allowNull: true,
       },
     });
+
+    return queryInterface.addConstraint('history', {
+      fields: ['provider_id'],
+      type: 'foreign key',
+      name: 'FK_history_provider_id_providers_id',
+      references: {
+        table: 'providers',
+        field: 'id',
+      },
+      onDelete: 'cascade',
+      onUpdate: 'cascade',
+    });
   },
-  down: async (queryInterface, Sequelize) => {
+
+  /**
+   * Reverts the migration by dropping tables or undoing schema changes.
+   * This function is executed when the migration is rolled back, typically to remove tables or revert modifications.
+   *
+   * @param {import('sequelize').QueryInterface} queryInterface - Sequelize's query interface for database operations.
+   */
+  down: async (queryInterface) => {
+    await queryInterface.removeConstraint('history', 'FK_history_provider_id_providers_id');
     await queryInterface.dropTable('history');
   },
 };
