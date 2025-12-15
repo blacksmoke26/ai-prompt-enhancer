@@ -14,7 +14,7 @@ import { HistoryManager } from '~/services/HistoryManager';
  */
 export default async function clearHistory(historyManager: HistoryManager): Promise<boolean> {
   try {
-    historyManager.clearHistory();
+    await historyManager.clearHistory();
     return true;
   } catch (error: any) {
     throw new Error(`Failed to clear history: ${error.message}`);

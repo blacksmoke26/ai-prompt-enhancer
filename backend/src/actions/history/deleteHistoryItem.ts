@@ -16,7 +16,7 @@ import {HistoryManager} from '~/services/HistoryManager';
  */
 export default async function deleteHistoryItem(historyManager: HistoryManager, id: string): Promise<boolean> {
   try {
-    return historyManager.deleteHistoryItem(id);
+    return await historyManager.deleteHistoryItem(id);
   } catch (error: any) {
     throw new Error(`Failed to delete history item: ${error.message}`);
   }
