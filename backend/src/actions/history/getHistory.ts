@@ -18,9 +18,9 @@ export default async function getHistory(historyManager: HistoryManager, limit?:
   try {
     let history;
     if (search) {
-      history = historyManager.searchHistory(search);
+      history = await historyManager.searchHistory(search);
     } else {
-      history = historyManager.getHistory(limit);
+      history = await historyManager.getHistory(limit);
     }
     return history;
   } catch (error: any) {
