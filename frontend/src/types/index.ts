@@ -188,6 +188,8 @@ export interface AIProviderConfig {
  * `config` is intentionally generic to support various provider-specific settings.
  */
 export interface AIProvider {
+  /** Provider title */
+  caption: string;
   /** Name of the AI service provider */
   name: string;
   /** List of available models from this provider */
