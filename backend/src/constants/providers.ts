@@ -25,6 +25,7 @@ import SiliconFlowProvider from '~/providers/SiliconFlowProvider';
 import ZhipuProvider from '~/providers/ZhipuProvider';
 import OllamaProvider from '~/providers/OllamaProvider';
 import QwenProvider from '~/providers/QwenProvider';
+import LMStudioProvider from '~/providers/LMStudioProvider';
 
 export type ProviderName =
   'ollama'
@@ -45,7 +46,8 @@ export type ProviderName =
   | 'huggingface'
   | 'siliconflow'
   | 'zhipu'
-  | 'qwen';
+  | 'qwen'
+  | 'lmstudio';
 
 /**
  * Represents configuration for an AI/ML service provider.
@@ -112,6 +114,7 @@ const providers: ProviderConfig[] = [
   {caption: 'SiliconFlow', name: 'siliconflow', baseUrl: 'https://api.siliconflow.cn', apiKey: '', timeout: 30000},
   {caption: 'Zhipu', name: 'zhipu', baseUrl: 'https://open.bigmodel.cn', apiKey: '', timeout: 30000},
   {caption: 'Qwen', name: 'qwen', baseUrl: 'https://dashscope.aliyuncs.com', apiKey: '', timeout: 30000},
+  {caption: 'LM Studio', name: 'lmstudio', baseUrl: 'http://localhost:1234', timeout: 30000},
 ];
 
 // provider imports
@@ -135,6 +138,7 @@ export const providersClasses: Record<ProviderName | string, new (...args: any[]
   huggingface: HuggingFaceProvider,
   siliconflow: SiliconFlowProvider,
   zhipu: ZhipuProvider,
+  lmstudio: LMStudioProvider,
 };
 
 export default providers;

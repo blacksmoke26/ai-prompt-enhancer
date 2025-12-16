@@ -13,6 +13,9 @@ import {ConfigMeta, Provider} from '~/database/models';
 // constants
 import {providersClasses} from '~/constants/providers';
 
+// utils
+import {toProviderName} from '~/utils/provider';
+
 // types
 import type {AIModel, AIProvider} from '~/types';
 
@@ -130,7 +133,7 @@ export class AIProviderManager {
    * ```
    */
   public getProvider(providerName: string): BaseAIProvider | undefined {
-    return this.providers.get(providerName.toLowerCase());
+    return this.providers.get(toProviderName(providerName));
   }
 
   /**

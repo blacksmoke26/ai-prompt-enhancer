@@ -10,6 +10,9 @@ import {AIProviderManager} from '~/services/AIProviderManager';
 // db
 import {History, Provider} from '~/database/models';
 
+// utils
+import {toProviderName} from '~/utils/provider';
+
 // types
 import type {PromptRequest, PromptResponse} from '~/types';
 
@@ -27,7 +30,7 @@ export default async function enhancePrompt(
     // Extract provider name from model ID
     const provider = providerManager.getProvider(promptRequest.provider);
     const providerRecord = await Provider.findOne({
-      where: {name: promptRequest.provider.toLowerCase(), enabled: true},
+      where: {name: toProviderName(promptRequest.provider), enabled: true},
       attributes: ['id'],
       raw: true,
     });
