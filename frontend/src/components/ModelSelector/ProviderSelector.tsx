@@ -14,17 +14,23 @@ export interface ProviderSelectorProps {
 }
 
 const ProviderSelector: React.FC<ProviderSelectorProps> = ({className = ''}) => {
-  const {models, config, setConfig} = useAppStore();
+  const {models, providers, config, setConfig} = useAppStore();
 
   // Get provider options for the provider dropdown
   const providerOptions = useMemo(() => {
-    const providerNames = Array.from(new Set(models.map(model => model.provider)));
-    return providerNames.map(provider => ({
+    // Extract unique provider names from models
+    const uniqueProviders = Array.from(new Set(models.map(model => model.provider)));
+
+    // Create a map for O(1) caption lookup by provider name
+    const providerMap = new Map(providers.map(provider => [provider.name, provider.caption]));
+
+    // Generate options using the map for efficient lookups
+    return uniqueProviders.map(provider => ({
       value: provider,
-      label: provider,
+      label: providerMap.get(provider) || 'Unknown Provider',
       category: provider,
     }));
-  }, [models]);
+  }, [models, providers]);
 
   return (
     <Select
