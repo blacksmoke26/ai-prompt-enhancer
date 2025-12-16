@@ -1,52 +1,122 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React from 'react';
 
+// hooks
+import {useAppStore} from '~/stores/appStore.ts';
+
 // ui components
-import { Input } from '~/components/ui/Input';
-import { Select } from '~/components/ui/Select';
-import { Label } from '~/components/ui/Label';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/Card';
+import {Input} from '~/components/ui/Input';
+import {Select} from '~/components/ui/Select';
+import {Label} from '~/components/ui/Label';
+import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
 
 /**
  * Props for the {@link FilterPanel} component.
  *
- * @property searchQuery      Current search text.
- * @property setSearchQuery   Setter for search text.
- * @property models           Array of distinct model names for the model filter.
- * @property selectedModel    Currently selected model filter.
- * @property setSelectedModel Setter for selected model.
- * @property ratingFilter     Minimum rating filter (0–5).
- * @property setRatingFilter  Setter for rating filter.
- * @property dateRange        Tuple `[start, end]` where each value is a date string in `YYYY-MM-DD` or `null`.
- * @property setDateRange     Setter for date range.
- * @property roles            Array of distinct user roles for the role filter.
- * @property selectedRole     Currently selected user role filter.
- * @property setSelectedRole  Setter for selected role.
- * @property enhancementTypes Array of distinct enhancement types for the type filter.
- * @property selectedEnhancementType Currently selected enhancement type filter.
- * @property setSelectedEnhancementType Setter for selected enhancement type.
- * @property providers        Array of distinct providers for the provider filter.
- * @property selectedProvider Currently selected provider filter.
- * @property setSelectedProvider Setter for selected provider.
+ * Interface defining the props for the FilterPanel component, which manages various filter states.
  */
 export interface FilterPanelProps {
+  /**
+   * The current search query string.
+   */
   searchQuery: string;
-  setSearchQuery: (q: string) => void;
+
+  /**
+   * Function to update the search query string.
+   * @param q - New search query string.
+   */
+  setSearchQuery(q: string): void;
+
+  /**
+   * Array of available model names.
+   */
   models: string[];
+
+  /**
+   * Currently selected model from the models array.
+   */
   selectedModel: string;
-  setSelectedModel: (model: string) => void;
+
+  /**
+   * Function to update the selected model.
+   * @param model - New selected model.
+   */
+  setSelectedModel(model: string): void;
+
+  /**
+   * Numeric rating filter (e.g., 1-5).
+   */
   ratingFilter: number;
-  setRatingFilter: (rating: number) => void;
+
+  /**
+   * Function to update the rating filter.
+   * @param rating - New numeric rating.
+   */
+  setRatingFilter(rating: number): void;
+
+  /**
+   * Tuple representing a date range [start, end], where null indicates no selection.
+   */
   dateRange: [string | null, string | null];
-  setDateRange: (range: [string | null, string | null]) => void;
+
+  /**
+   * Function to update the date range.
+   * @param range - New date range tuple.
+   */
+  setDateRange(range: [string | null, string | null]): void;
+
+  /**
+   * Array of available role names.
+   */
   roles: string[];
+
+  /**
+   * Currently selected role from the roles array.
+   */
   selectedRole: string;
-  setSelectedRole: (role: string) => void;
+
+  /**
+   * Function to update the selected role.
+   * @param role - New selected role.
+   */
+  setSelectedRole(role: string): void;
+
+  /**
+   * Array of available enhancement types.
+   */
   enhancementTypes: string[];
+
+  /**
+   * Currently selected enhancement type from the enhancement types array.
+   */
   selectedEnhancementType: string;
-  setSelectedEnhancementType: (type: string) => void;
+
+  /**
+   * Function to update the selected enhancement type.
+   * @param type - New selected enhancement type.
+   */
+  setSelectedEnhancementType(type: string): void;
+
+  /**
+   * Array of available provider names.
+   */
   providers: string[];
+
+  /**
+   * Currently selected provider from the providers array.
+   */
   selectedProvider: string;
-  setSelectedProvider: (provider: string) => void;
+
+  /**
+   * Function to update the selected provider.
+   * @param provider - New selected provider.
+   */
+  setSelectedProvider(provider: string): void;
 }
 
 /**
@@ -65,46 +135,54 @@ export interface FilterPanelProps {
  *
  * @component
  */
-const FilterPanel: React.FC<FilterPanelProps> = ({
-  searchQuery,
-  setSearchQuery,
-  models,
-  selectedModel,
-  setSelectedModel,
-  ratingFilter,
-  setRatingFilter,
-  dateRange,
-  setDateRange,
-  roles,
-  selectedRole,
-  setSelectedRole,
-  enhancementTypes,
-  selectedEnhancementType,
-  setSelectedEnhancementType,
-  providers,
-  selectedProvider,
-  setSelectedProvider,
-}) => {
+const FilterPanel: React.FC<FilterPanelProps> = (props) => {
+  const {
+    searchQuery,
+    setSearchQuery,
+    models,
+    selectedModel,
+    setSelectedModel,
+    ratingFilter,
+    setRatingFilter,
+    dateRange,
+    setDateRange,
+    roles,
+    selectedRole,
+    setSelectedRole,
+    enhancementTypes,
+    selectedEnhancementType,
+    setSelectedEnhancementType,
+    providers,
+    selectedProvider,
+    setSelectedProvider,
+  } = props;
+
   const [startDate, endDate] = dateRange;
 
+  const {
+    providers: globalProviders,
+    enhancementTypes: globalEnhancementTypes,
+    userRoles: globalUserRoles,
+  } = useAppStore();
+
   const modelOptions = [
-    { value: '', label: 'All' },
-    ...models.map((m) => ({ value: m, label: m })),
+    {value: '', label: 'All'},
+    ...models.map((m) => ({value: m, label: m})),
   ];
 
   const roleOptions = [
-    { value: '', label: 'All' },
-    ...roles.map((r) => ({ value: r, label: r })),
+    {value: '', label: 'All'},
+    ...roles.map((r) => ({value: r, label: globalUserRoles.filter(x => x.id === r)?.[0]?.name ?? r})),
   ];
 
   const typeOptions = [
-    { value: '', label: 'All' },
-    ...enhancementTypes.map((t) => ({ value: t, label: t })),
+    {value: '', label: 'All'},
+    ...enhancementTypes.map((t) => ({value: t, label: globalEnhancementTypes.filter(x => x.id === t)?.[0]?.name ?? t})),
   ];
 
   const providerOptions = [
-    { value: '', label: 'All' },
-    ...providers.map((p) => ({ value: p, label: p })),
+    {value: '', label: 'All'},
+    ...providers.map((p) => ({value: p, label: globalProviders.filter(x => x.name === p)?.[0]?.caption ?? p})),
   ];
 
   return (
@@ -128,6 +206,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         <div>
           <Label htmlFor="history-provider">Provider</Label>
           <Select
+            isSearchable
             id="history-provider"
             options={providerOptions}
             value={selectedProvider}
@@ -139,6 +218,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         <div>
           <Label htmlFor="history-model">Model</Label>
           <Select
+            isSearchable
             id="history-model"
             options={modelOptions}
             value={selectedModel}
@@ -150,6 +230,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         <div>
           <Label htmlFor="history-role">User Role</Label>
           <Select
+            isSearchable
             id="history-role"
             options={roleOptions}
             value={selectedRole}
@@ -161,6 +242,7 @@ const FilterPanel: React.FC<FilterPanelProps> = ({
         <div>
           <Label htmlFor="history-type">Enhancement Type</Label>
           <Select
+            isSearchable
             id="history-type"
             options={typeOptions}
             value={selectedEnhancementType}
