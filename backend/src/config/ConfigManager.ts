@@ -25,9 +25,6 @@ import type {AppConfig} from '~/types';
  * @developerNotes: This class serves as the primary interface for all configuration-related operations. It handles both settings and providers, ensuring data consistency across the application.
  */
 export class ConfigManager {
-  /** Current configuration object */
-  private config: AppConfig = {};
-
   /**
    * Initializes ConfigManager instance.
    * @example
@@ -38,23 +35,6 @@ export class ConfigManager {
    * @developerNotes: The constructor doesn't load configuration automatically. Call load() method explicitly to populate the config.
    */
   constructor() {
-  }
-
-  /**
-   * Loads configuration from database with fallback to defaults.
-   * @throws {Error} When database connection fails
-   * @example
-   * ```typescript
-   * await configManager.load();
-   * ```
-   * @developerNotes: This method is idempotent and can be called multiple times. It gracefully handles database errors by maintaining current configuration.
-   */
-  public async load(): Promise<void> {
-    try {
-      this.config = await this.getConfig();
-    } catch (error: any) {
-      console.warn('Failed to load config, using defaults:', error);
-    }
   }
 
   /**
@@ -98,8 +78,7 @@ export class ConfigManager {
    * @developerNotes: Performs shallow merge. Nested objects will be completely replaced, not merged. Consider using spread operator for deep updates if needed.
    */
   public async updateConfig(updates: Partial<AppConfig>): Promise<void> {
-    this.config = {...this.config, ...updates};
-    this.saveConfig();
+    this.saveConfig(updates);
   }
 
   /**
@@ -112,9 +91,9 @@ export class ConfigManager {
    * ```
    * @developerNotes: Handles both settings and providers in separate transactions. Provider configs are filtered to only include valid config keys.
    */
-  private async saveConfig(): Promise<void> {
+  private async saveConfig(appConfig: Partial<AppConfig>): Promise<void> {
     // save settings
-    for await (const [key, value] of Object.entries(this.config)) {
+    for await (const [key, value] of Object.entries(appConfig)) {
       const exist = await Setting.keyExists(key);
 
       if (exist) {
@@ -122,32 +101,32 @@ export class ConfigManager {
           {value: JSON.stringify(value)},
           {where: {key}},
         );
+
+        continue;
       }
-    }
 
-    // save providers
-    for await (const [name, config] of Object.entries(this.config)) {
-      const exist = await Provider.exists(name);
+      const providerExist = await Provider.exists(key);
 
-      if (!exist) continue;
+      // save providers
+      if ( providerExist ) {
+        const providerConfig: Partial<ConfigMeta> = {};
 
-      const providerConfig: Partial<ConfigMeta> = {};
-
-      for (const [key, value] of Object.entries(config)) {
-        if (configKeys.includes(key)) {
-          providerConfig[key] = value;
+        for (const [key, val] of Object.entries(value)) {
+          if (configKeys.includes(key)) {
+            providerConfig[key] = val;
+          }
         }
+
+        const updated: Record<string, any> = {
+          config: providerConfig as ConfigMeta,
+        };
+
+        if (!value.enabled) {
+          updated.enabled = false;
+        }
+
+        await Provider.update(updated, {where: {name: key}});
       }
-
-      const updated: Record<string, any> = {
-        config: providerConfig as ConfigMeta,
-      };
-
-      if (!config.enabled) {
-        updated.enabled = false;
-      }
-
-      await Provider.update(updated, {where: {name}});
     }
   }
 
@@ -161,8 +140,8 @@ export class ConfigManager {
    * @developerNotes: Currently commented out reset logic. Uncomment this.config = {...defaultConfig} to enable full reset functionality.
    */
   public async resetConfig(): Promise<void> {
-    //this.config = {...defaultConfig};
-    return this.saveConfig();
+    const defaultConfig = await ConfigManager.getDefaultSettings();
+    return this.saveConfig(defaultConfig);
   }
 
   /**
@@ -193,8 +172,7 @@ export class ConfigManager {
   public async importConfig(configJson: string): Promise<boolean> {
     try {
       const importedConfig = JSON.parse(configJson);
-      this.config = {...defaultConfig, ...importedConfig};
-      await this.saveConfig();
+      await this.saveConfig({...defaultConfig, ...importedConfig});
       return true;
     } catch (error: any) {
       console.error('Failed to import config:', error);
