@@ -75,7 +75,6 @@ const createServer = async () => {
 
   // Initialize managers
   const configManager = new ConfigManager();
-  await configManager.load();
 
   const providerManager = new AIProviderManager();
   await providerManager.load();
