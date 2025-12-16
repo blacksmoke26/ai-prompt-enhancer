@@ -15,74 +15,40 @@ import type {ConfigMeta} from '~/database/models';
 import type {PromptRequest, PromptResponse, AIModel} from '~/types';
 
 /**
- * Interface representing an LM Studio model's metadata and configuration details.
+ * Represents a model from LM Studio, containing metadata such as ID, type, publisher, and configuration details.
+ * Example: `{ id: 'qwen2-vl-7b-instruct', type: 'vlm', publisher: 'mlx-community', max_context_length: 2048 }`.
  *
- * @example
- * ```typescript
- * const model: LMStudioModel = {
- *   name: 'llama2:latest',
- *   model: 'llama2',
- *   modified_at: '2023-12-01T10:00:00Z',
- *   size: 4349184000,
- *   digest: 'sha256:abc123...',
- *   details: {
- *     parent_model: '',
- *     format: 'gguf',
- *     family: 'llama',
- *     families: ['llama'],
- *     parameter_size: '7B',
- *     quantization_level: 'Q4_0'
- *   }
- * };
- * ```
+ * @interface LMStudioModel
  *
- * @developerNote
- * This interface matches the LM Studio API response structure for model metadata.
- * All fields are readonly as they represent server-provided data.
+ * Developer Notes:
+ * - This interface defines the structure of a model from LM Studio, supporting various types (e.g., VLM, LLM).
+ * - `readonly` properties ensure immutability for critical metadata like `id` and `type`.
+ * - Enum-like values (e.g., `quantization`, `state`) provide type safety and clarity for model states.
  */
 export interface LMStudioModel {
-  /** The full name of the model including version tag (e.g., 'mxbai-embed-large:latest') */
-  readonly name: string;
-
-  /** The model identifier (typically same as name) */
-  readonly model: string;
-
-  /** ISO timestamp of when the model was last modified */
-  readonly modified_at: string;
-
-  /** Size of the model in bytes */
-  readonly size: number;
-
-  /** SHA256 digest hash of the model for integrity verification */
-  readonly digest: string;
-
-  /** Detailed configuration and metadata about the model */
-  readonly details: {
-    /** Parent model if this is a fine-tuned version */
-    readonly parent_model: string;
-
-    /** Model format (e.g., 'gguf' for GPT-Generated Unified Format) */
-    readonly format: string;
-
-    /** Primary model family/architecture (e.g., 'bert', 'llama') */
-    readonly family: string;
-
-    /** Array of all model families this model belongs to */
-    readonly families: string[];
-
-    /** Parameter size as string (e.g., '334M' for 334 million parameters) */
-    readonly parameter_size: string;
-
-    /** Quantization level for model compression (e.g., 'F16' for 16-bit float) */
-    readonly quantization_level: string;
-
-    /** Context length supported by the model */
-    readonly context_length?: number;
-  };
+  /** The full ID of the model, including version tag (e.g., 'qwen2-vl-7b-instruct') */
+  readonly id: string;
+  /** The type of the model object (e.g., 'model', 'llm', 'vlm') */
+  readonly object: 'model' | string;
+  /** The category of the model (e.g., 'vlm' for Vision-Language Models, 'llm' for Language Models) */
+  readonly type: 'vlm' | 'llm' | 'embeddings' | string;
+  /** The publisher of the model (e.g., 'mlx-community' for community models) */
+  readonly publisher: 'mlx-community' | string;
+  /** The architecture or framework of the model (e.g., 'Transformer', 'LSTM') */
+  readonly arch: string;
+  /** The compatibility type or framework (e.g., 'mlx' for MLX framework) */
+  readonly compatibility_type: 'mlx' | 'gguf' | string;
+  /** The quantization level of the model (e.g., '4bit' for 4-bit quantization) */
+  readonly quantization: '4bit' | '8bit' | 'Q4_K_M' | string;
+  /** The current state of the model (e.g., 'not-loaded', 'loaded') */
+  readonly state: 'not-loaded' | 'loaded' | string;
+  /** The maximum context length supported by the model in tokens */
+  readonly max_context_length: number;
 }
 
 /**
  * Provider implementation for LM Studio AI models.
+ * @see https://lmstudio.ai/docs/developer/rest/endpoints
  *
  * @example
  * ```typescript
@@ -125,16 +91,24 @@ export default class LMStudioProvider extends BaseAIProvider {
    */
   async getModels(): Promise<AIModel[]> {
     try {
-      const response = await this.client.get<{ models: LMStudioModel[] }>('/v0/models');
-      const models = response.data.models || [];
+      const response = await this.client.get<{ data: LMStudioModel[] }>('/api/v0/models');
+      const models = response.data.data || [];
 
-      return models.map((model: any) => ({
-        id: model.name,
-        name: model.name.split(':')[0],
-        provider: toProviderName('LM Studio'),
-        description: `${model.size} • ${model.digest.substring(0, 12)}`,
-        contextLength: model.details?.context_length || 4096,
-      })).sort((a, b) => a.name.localeCompare(b.name));
+      return models.map((model) => {
+        const [, size = '?b'] = model.id.match(/-(\d+b)/) ?? [];
+        const items = model.id.split('-');
+        let name = (String(items[0]).split('/')[1] ?? '');
+        if (name.trim()) {
+          name += '-' + items[1];
+        }
+        return ({
+          id: model.id,
+          name,
+          provider: toProviderName('LM Studio'),
+          description: `${size} • ${model.type} • ${model.compatibility_type}`,
+          contextLength: model?.max_context_length || 4096,
+        });
+      }).sort((a, b) => a.name.localeCompare(b.name));
     } catch (error: any) {
       console.error('Failed to fetch LM Studio models:', error);
       return [];
@@ -169,7 +143,7 @@ export default class LMStudioProvider extends BaseAIProvider {
       const systemPrompt = this.buildSystemPrompt(request);
       const fullPrompt = `${systemPrompt}\n\nOriginal prompt: ${request.text}\n\nEnhanced prompt:`;
 
-      const response = await this.client.post('/v0/completions', {
+      const response = await this.client.post('/api/v0/completions', {
         model: request.model,
         prompt: fullPrompt,
         stream: false,
@@ -211,7 +185,7 @@ export default class LMStudioProvider extends BaseAIProvider {
    */
   async isAvailable(): Promise<boolean> {
     try {
-      await this.client.get('/v0/models');
+      await this.client.get('/api/v0/models');
       return true;
     } catch {
       return false;
