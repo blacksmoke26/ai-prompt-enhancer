@@ -6,9 +6,11 @@
 
 import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
+import axios from 'axios';
 
 // types
 import type {AppConfig, AIModel, AIProvider, EnhancementType, UserRole} from '~/types';
+import {debounce} from '~/utils/helpers.ts';
 
 // Dashboard layout item interface
 export interface DashboardLayoutItem {
@@ -42,7 +44,9 @@ export interface AppState {
   config: AppConfig;
 
   /** Updates configuration with partial changes */
-  setConfig(config: Partial<AppConfig>): void;
+  setConfig(config: Partial<AppConfig>, save?: boolean): Promise<void>;
+
+  saveConfig(config: Partial<AppConfig>): Promise<void>;
 
   // Models and Providers
   /** Available AI models in the system */
@@ -119,6 +123,26 @@ export interface AppState {
 }
 
 /**
+ * Saves the current application configuration to the backend
+ * @param config The configuration to save
+ * @returns Promise that resolves when save is complete
+ */
+export const saveAppConfig = async (config: Partial<AppConfig>): Promise<void> => {
+  try {
+    await axios.put('/api/config', config, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log('Configuration saved successfully');
+  } catch (error) {
+    console.error('Failed to save configuration:', error);
+    throw error;
+  }
+};
+
+/**
  * Zustand store for managing application state with persistence
  * @example
  * ```typescript
@@ -131,17 +155,42 @@ export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       // Config
-      config: {
-        ollama: {url: 'http://localhost:11434', timeout: 30000},
-        theme: 'system',
-        autoSave: true,
-        maxHistoryItems: 1000,
-        defaultModel: 'llama2',
-        defaultSystemPrompt: 'You are a helpful AI assistant specialized in enhancing and improving prompts.',
+      config: {} as AppConfig,
+      async setConfig(updates, save: boolean = false) {
+        // Call the original setConfig function
+        set((state) => ({
+          config: {...state.config, ...updates},
+        }));
+
+        if (save) {
+          await saveAppConfig(updates);
+        }
+
+        // Check if auto-save is enabled in current config
+        // const currentConfig = useAppStore.getState().config;
+        // if (currentConfig.autoSave === true) {
+        //   const debouncedSave = debounce(async () => {
+        //     try {
+        //       const finalConfig = useAppStore.getState().config;
+        //       await saveAppConfig(finalConfig);
+        //     } catch (error) {
+        //       console.error('Auto-save failed:', error);
+        //     }
+        //   }, 3000); // Save after 3 seconds of inactivity
+
+        //   debouncedSave();
+        // }
       },
-      setConfig: (updates) => set((state) => ({
-        config: {...state.config, ...updates},
-      })),
+
+      /** Saves the current configuration to the backend */
+      async saveConfig(updates: Partial<AppConfig>) {
+        try {
+          await saveAppConfig(updates);
+        } catch (error) {
+          console.error('Failed to save configuration:', error);
+          throw error;
+        }
+      },
 
       // Models and Providers
       models: [],
@@ -176,10 +225,10 @@ export const useAppStore = create<AppState>()(
       // Dashboard Layout
       dashboardLayout: {
         items: [
-          { id: 'enhancer', type: 'enhancer', title: 'Prompt Enhancer', width: 8, visible: true, sortable: true },
-          { id: 'history', type: 'history', title: 'History', width: 8, visible: true, sortable: true },
-          { id: 'stats', type: 'stats', title: 'Statistics', width: 4, visible: true, sortable: true },
-          { id: 'settings', type: 'settings', title: 'Settings', width: 8, visible: true, sortable: true },
+          {id: 'enhancer', type: 'enhancer', title: 'Prompt Enhancer', width: 8, visible: true, sortable: true},
+          {id: 'history', type: 'history', title: 'History', width: 8, visible: true, sortable: true},
+          {id: 'stats', type: 'stats', title: 'Statistics', width: 4, visible: true, sortable: true},
+          {id: 'settings', type: 'settings', title: 'Settings', width: 8, visible: true, sortable: true},
         ],
         dragEnabled: true,
         snapToGrid: true,
@@ -191,10 +240,10 @@ export const useAppStore = create<AppState>()(
       resetDashboardLayout: () => set({
         dashboardLayout: {
           items: [
-            { id: 'enhancer', type: 'enhancer', title: 'Prompt Enhancer', width: 8, visible: true, sortable: true },
-            { id: 'history', type: 'history', title: 'History', width: 8, visible: true, sortable: true },
-            { id: 'stats', type: 'stats', title: 'Statistics', width: 4, visible: true, sortable: true },
-            { id: 'settings', type: 'settings', title: 'Settings', width: 8, visible: true, sortable: true },
+            {id: 'enhancer', type: 'enhancer', title: 'Prompt Enhancer', width: 8, visible: true, sortable: true},
+            {id: 'history', type: 'history', title: 'History', width: 8, visible: true, sortable: true},
+            {id: 'stats', type: 'stats', title: 'Statistics', width: 4, visible: true, sortable: true},
+            {id: 'settings', type: 'settings', title: 'Settings', width: 8, visible: true, sortable: true},
           ],
           dragEnabled: true,
           snapToGrid: true,
