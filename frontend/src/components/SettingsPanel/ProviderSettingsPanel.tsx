@@ -153,10 +153,12 @@ const ProviderSettingsPanel: React.FC<ProviderSettingsPanelProps> = (props) => {
   } = activeProvider;
 
   return (
-    <div className="space-y-6">
-      <ProviderTabNavigation activeTab={activeTab} setActiveTab={setActiveTab}/>
+    <div className="flex space-x-6">
+      <div className="w-64">
+        <ProviderTabNavigation activeTab={activeTab} setActiveTab={setActiveTab}/>
+      </div>
 
-      <div>
+      <div className="flex-1">
         <h3 className="text-lg font-semibold mb-4">{title}</h3>
         <ActiveComponent
           localConfig={localConfig}

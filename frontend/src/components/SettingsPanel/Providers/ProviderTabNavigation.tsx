@@ -29,7 +29,7 @@ export interface ProviderTabNavigationProps {
 }
 
 /**
- * ProviderTabNavigation component renders a navigation bar for provider selection.
+ * ProviderTabNavigation component renders a vertical navigation bar for provider selection.
  * This component displays a list of configurable tabs and manages their active state.
  * It's designed to work as a controlled component, receiving the active tab state
  * and a callback to update it.
@@ -81,17 +81,17 @@ const ProviderTabNavigation: React.FC<ProviderTabNavigationProps> = (props) => {
   ];
 
   return (
-    <div className="flex space-x-2 mb-6 border-b">
+    <div className="flex flex-col space-y-2">
       {tabs.map((tab) => {
         return (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              'py-2 px-3 border-b-2 font-medium text-sm transition-colors',
+              'py-1 px-4 text-left font-medium text-sm transition-colors rounded-md',
               activeTab === tab.id
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground',
+                ? 'bg-primary text-primary-foreground'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted',
             )}
           >
             {tab.label}
