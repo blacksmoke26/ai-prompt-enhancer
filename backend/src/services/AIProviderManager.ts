@@ -71,23 +71,20 @@ export class AIProviderManager {
 
     for await (const providerModel of providerModels) {
       const isAvailable = Boolean(providerModel?.enabled ?? false);
-      const aiProvider = this.getProvider(providerModel.name);
+      //const aiProvider = this.getProvider(providerModel.name);
 
       let models: AIProvider['models'] = [];
 
-      if (isAvailable && aiProvider) {
-        models = await aiProvider.getModels();
-      }
+      // if (isAvailable && aiProvider) {
+      //   models = await aiProvider.getModels();
+      // }
 
       providers.push({
         caption: providerModel.caption,
         name: providerModel.name,
         models,
         isConfigured: isAvailable,
-        config: {
-          apikey: '',
-          ...JSON.parse(providerModel.config as unknown as string),
-        },
+        config: JSON.parse(providerModel.config as unknown as string),
       });
     }
 
@@ -154,7 +151,7 @@ export class AIProviderManager {
   private async getProviderConfig(providerName: string): Promise<ConfigMeta | null> {
     const model = await Provider.findOne({
       attributes: ['config'],
-      where: {name: providerName.toLowerCase()},
+      where: {name: toProviderName(providerName)},
       raw: true,
     });
 
@@ -191,16 +188,16 @@ export class AIProviderManager {
    * ```
    */
   public async testProvider(providerName: string): Promise<boolean> {
-    const exist = await Provider.exists(providerName);
+    const exist = await Provider.exists(toProviderName(providerName));
 
     if (!exist) return false;
 
-    const provider = this.getProvider(providerName.toLowerCase());
+    const provider = this.getProvider(toProviderName(providerName));
     if (!provider) return false;
 
     try {
       const available = await provider.isAvailable();
-      await Provider.update({enabled: available}, {where: {name: providerName}});
+      await Provider.update({enabled: available}, {where: {name: toProviderName(providerName)}});
       return true;
     } catch {
       return false;
