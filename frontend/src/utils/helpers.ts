@@ -43,6 +43,51 @@ export const formatBytes = (bytes: number): string => {
 };
 
 /**
+ * Utility for formatting numbers safely.
+ * @param num Value to format; returns `'0'` for null/undefined.
+ * @example
+ * ```typescript
+ * formatNumber(1234.56); // "1,235"
+ * formatNumber(null); // "0"
+ * ```
+ * @developerNotes Handles NaN and null/undefined gracefully
+ */
+export const formatNumber = (num: number | undefined | null) => {
+  if (num == null || isNaN(num)) return '0';
+  return num.toLocaleString();
+};
+
+/**
+ * Utility for formatting percentages.
+ * @param num Value to format as percentage; returns `'0%'` for null/undefined.
+ * @example
+ * ```typescript
+ * formatPercentage(0.75); // "75%"
+ * formatPercentage(null); // "0%"
+ * ```
+ * @developerNotes Handles NaN and null/undefined gracefully
+ */
+export const formatPercentage = (num: number | undefined | null) => {
+  if (num == null || isNaN(num)) return '0%';
+  return `${Math.round(num * 100)}%`;
+};
+
+/**
+ * Utility for formatting time ranges.
+ * @param seconds Value in seconds to format; returns `'0s'` for null/undefined.
+ * @example
+ * ```typescript
+ * formatTimeRange(120); // "2m"
+ * formatTimeRange(45); // "45s"
+ * ```
+ * @developerNotes Converts seconds to appropriate time units
+ */
+export const formatTimeRange = (seconds: number | undefined | null) => {
+  if (seconds == null || isNaN(seconds)) return '0s';
+  return formatDuration(seconds * 1000);
+};
+
+/**
  * Formats milliseconds into a readable duration string.
  * @example formatDuration(1500) // Returns "1.5s"
  * @developer-note Adjust thresholds for different precision requirements.
