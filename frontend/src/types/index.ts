@@ -153,6 +153,29 @@ export interface PromptHistory {
 }
 
 /**
+ * Represents the configuration object for an AI provider, containing optional settings like API key, base URL, and timeout.
+ * Example: `{ enabled: true, apiKey: 'your-api-key', baseUrl: 'https://api.example.com/v1', timeout: 30000 }`.
+ *
+ * @interface AIProviderConfig
+ *
+ * Developer Notes:
+ * - The `[key: string]: any` index signature allows dynamic property handling for extended configurations.
+ * - All properties are optional; developers can include only the settings they need.
+ * - `enabled` acts as a toggle to activate or deactivate the provider.
+ */
+export interface AIProviderConfig {
+  [key: string]: any;
+  /** Whether the AI provider is enabled or disabled */
+  enabled?: boolean;
+  /** The API key for authenticating requests to the AI provider */
+  apiKey?: string;
+  /** The base URL of the AI provider's API endpoint */
+  baseUrl?: string;
+  /** The timeout duration (in milliseconds) for API requests */
+  timeout?: number;
+}
+
+/**
  * Configuration for an AI service provider and its available models.
  * @example
  * const provider: AIProvider = {
@@ -172,13 +195,7 @@ export interface AIProvider {
   /** Whether the provider is properly configured */
   isConfigured?: boolean;
   /** Provider-specific configuration settings */
-  config?: {
-    [key: string]: any;
-    enabled?: boolean;
-    apiKey?: string;
-    baseUrl?: string;
-    timeout?: number;
-  };
+  config?: AIProviderConfig;
 }
 
 /**
@@ -218,78 +235,25 @@ export interface AppConfig {
   /** Selected AI model to use */
   model?: string;
   // Provider specific configuration objects
-  ollama?: {
-    url?: string;
-    timeout?: number;
-  };
-  openai?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  openrouter?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  deepseek?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  coze?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  qianfan?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  gemini?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  kimi?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  groq?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  anthropic?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  mistral?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  nvidia?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  cohere?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  cody?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  xai?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  huggingface?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  siliconflow?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
-  glm?: {
-    apiKey?: string;
-    baseUrl?: string;
-  };
+  ollama?: AIProviderConfig;
+  openai?: AIProviderConfig;
+  openrouter?: AIProviderConfig;
+  deepseek?: AIProviderConfig;
+  coze?: AIProviderConfig;
+  qianfan?: AIProviderConfig;
+  gemini?: AIProviderConfig;
+  kimi?: AIProviderConfig;
+  groq?: AIProviderConfig;
+  anthropic?: AIProviderConfig;
+  mistral?: AIProviderConfig;
+  nvidia?: AIProviderConfig;
+  cohere?: AIProviderConfig;
+  cody?: AIProviderConfig;
+  xai?: AIProviderConfig;
+  huggingface?: AIProviderConfig;
+  siliconflow?: AIProviderConfig;
+  glm?: AIProviderConfig;
+  lmstudio?: AIProviderConfig;
 }
 
 /**
