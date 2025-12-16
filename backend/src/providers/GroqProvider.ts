@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -52,7 +53,7 @@ export default class GroqProvider extends BaseAIProvider {
       {
         id: 'mixtral-8x7b-32768',
         name: 'Groq Mixtral 8x7B',
-        provider: 'Groq',
+        provider: toProviderName('Groq'),
         description: 'Groq Mixtral 8x7B model',
         contextLength: 32768,
         maxTokens: 8192,
@@ -60,7 +61,7 @@ export default class GroqProvider extends BaseAIProvider {
       {
         id: 'llama2-70b-4096',
         name: 'Groq LLaMA2 70B',
-        provider: 'Groq',
+        provider: toProviderName('Groq'),
         description: 'Groq LLaMA2 70B model',
         contextLength: 4096,
         maxTokens: 2048,

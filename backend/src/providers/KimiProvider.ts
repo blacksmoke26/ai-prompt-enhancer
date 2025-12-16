@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -52,7 +53,7 @@ export default class KimiProvider extends BaseAIProvider {
       {
         id: 'kimi-large',
         name: 'Kimi Large',
-        provider: 'Kimi',
+        provider: toProviderName('Kimi'),
         description: 'Kimi large conversational model',
         contextLength: 32768,
         maxTokens: 4096,
@@ -60,7 +61,7 @@ export default class KimiProvider extends BaseAIProvider {
       {
         id: 'kimi-3.5',
         name: 'Kimi 3.5',
-        provider: 'Kimi',
+        provider: toProviderName('Kimi'),
         description: 'Kimi 3.5 model',
         contextLength: 16384,
         maxTokens: 2048,

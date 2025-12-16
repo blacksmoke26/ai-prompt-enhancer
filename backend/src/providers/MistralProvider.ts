@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -65,7 +66,7 @@ export default class MistralProvider extends BaseAIProvider {
       {
         id: 'mistral-large-latest',
         name: 'Mistral Large',
-        provider: 'Mistral',
+        provider: toProviderName('Mistral'),
         description: 'Mistral Large conversational model',
         contextLength: 32768,
         maxTokens: 8192,
@@ -73,7 +74,7 @@ export default class MistralProvider extends BaseAIProvider {
       {
         id: 'mistral-small-latest',
         name: 'Mistral Small',
-        provider: 'Mistral',
+        provider: toProviderName('Mistral'),
         description: 'Mistral Small conversational model',
         contextLength: 16384,
         maxTokens: 4096,

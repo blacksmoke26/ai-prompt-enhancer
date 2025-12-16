@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -52,7 +53,7 @@ export default class SiliconFlowProvider extends BaseAIProvider {
       {
         id: 'siliconflow-llama3',
         name: 'SiliconFlow LLaMA 3',
-        provider: 'SiliconFlow',
+        provider: toProviderName('SiliconFlow'),
         description: 'SiliconFlow LLaMA 3 model',
         contextLength: 32768,
         maxTokens: 8192,
@@ -60,7 +61,7 @@ export default class SiliconFlowProvider extends BaseAIProvider {
       {
         id: 'siliconflow-dolly',
         name: 'SiliconFlow Dolly',
-        provider: 'SiliconFlow',
+        provider: toProviderName('SiliconFlow'),
         description: 'SiliconFlow Dolly model',
         contextLength: 4096,
         maxTokens: 2048,

@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -57,7 +58,7 @@ export default class CozeProvider extends BaseAIProvider {
       {
         id: 'coze-llama3',
         name: 'Coze LLaMA 3',
-        provider: 'Coze',
+        provider: toProviderName('Coze'),
         description: 'Coze\'s LLaMA 3 based model',
         contextLength: 32768,
         maxTokens: 4096,
@@ -65,7 +66,7 @@ export default class CozeProvider extends BaseAIProvider {
       {
         id: 'coze-dolly',
         name: 'Coze Dolly',
-        provider: 'Coze',
+        provider: toProviderName('Coze'),
         description: 'Coze\'s Dolly model for general usage',
         contextLength: 2048,
         maxTokens: 1024,
@@ -73,7 +74,7 @@ export default class CozeProvider extends BaseAIProvider {
       {
         id: 'coze-gpt4',
         name: 'Coze GPT-4',
-        provider: 'Coze',
+        provider: toProviderName('Coze'),
         description: 'Coze\'s GPT-4 compatible model',
         contextLength: 8192,
         maxTokens: 2048,

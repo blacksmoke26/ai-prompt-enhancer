@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -58,7 +59,7 @@ export default class GeminiProvider extends BaseAIProvider {
       {
         id: 'gemini-1.5-pro-001',
         name: 'Gemini Pro 1.5',
-        provider: 'Gemini',
+        provider: toProviderName('Gemini'),
         description: 'Google Gemini Pro 1.5 model',
         contextLength: 8192,
         maxTokens: 8192,
@@ -66,7 +67,7 @@ export default class GeminiProvider extends BaseAIProvider {
       {
         id: 'gemini-1.5-pro-002',
         name: 'Gemini Pro 1.5 (2024‑09)',
-        provider: 'Gemini',
+        provider: toProviderName('Gemini'),
         description: 'Google Gemini Pro 1.5 (latest) model',
         contextLength: 8192,
         maxTokens: 8192,

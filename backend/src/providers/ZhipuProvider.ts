@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -53,7 +54,7 @@ export default class ZhipuProvider extends BaseAIProvider {
       {
         id: 'glm-4',
         name: 'GLM-4',
-        provider: 'Zhipu',
+        provider: toProviderName('Zhipu'),
         description: 'GLM‑4 large language model',
         contextLength: 200000,
         maxTokens: 8192,
@@ -61,7 +62,7 @@ export default class ZhipuProvider extends BaseAIProvider {
       {
         id: 'glm-4-all',
         name: 'GLM-4 All',
-        provider: 'Zhipu',
+        provider: toProviderName('Zhipu'),
         description: 'GLM‑4 All model (general usage)',
         contextLength: 200000,
         maxTokens: 8192,
@@ -69,7 +70,7 @@ export default class ZhipuProvider extends BaseAIProvider {
       {
         id: 'glm-4-turbo',
         name: 'GLM-4 Turbo',
-        provider: 'Zhipu',
+        provider: toProviderName('Zhipu'),
         description: 'GLM‑4 Turbo model (fast, cheaper)',
         contextLength: 200000,
         maxTokens: 8192,
@@ -77,7 +78,7 @@ export default class ZhipuProvider extends BaseAIProvider {
       {
         id: 'glm-4-9b',
         name: 'GLM‑4‑9B',
-        provider: 'Zhipu',
+        provider: toProviderName('Zhipu'),
         description: 'GLM‑4‑9B (smaller variant)',
         contextLength: 200000,
         maxTokens: 8192,

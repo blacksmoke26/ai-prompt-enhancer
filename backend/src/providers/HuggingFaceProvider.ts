@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -55,7 +56,7 @@ export default class HuggingFaceProvider extends BaseAIProvider {
       {
         id: 'EleutherAI/gpt-neo-2.7B',
         name: 'GPT‑Neo 2.7B',
-        provider: 'HuggingFace',
+        provider: toProviderName('HuggingFace'),
         description: 'EleutherAI GPT‑Neo 2.7B model',
         contextLength: 2048,
         maxTokens: 1024,
@@ -63,7 +64,7 @@ export default class HuggingFaceProvider extends BaseAIProvider {
       {
         id: 'gpt2',
         name: 'GPT‑2',
-        provider: 'HuggingFace',
+        provider: toProviderName('HuggingFace'),
         description: 'OpenAI GPT‑2 base model',
         contextLength: 1024,
         maxTokens: 512,
@@ -71,7 +72,7 @@ export default class HuggingFaceProvider extends BaseAIProvider {
       {
         id: 'distilgpt2',
         name: 'DistilGPT‑2',
-        provider: 'HuggingFace',
+        provider: toProviderName('HuggingFace'),
         description: 'Distilled GPT‑2 model',
         contextLength: 1024,
         maxTokens: 512,

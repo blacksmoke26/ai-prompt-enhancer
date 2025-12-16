@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -55,7 +56,7 @@ export default class CohereProvider extends BaseAIProvider {
       {
         id: 'command-nightly',
         name: 'Command Nightly',
-        provider: 'Cohere',
+        provider: toProviderName('Cohere'),
         description: 'Cohere Command nightly model',
         contextLength: 4096,
         maxTokens: 4096,
@@ -63,7 +64,7 @@ export default class CohereProvider extends BaseAIProvider {
       {
         id: 'command-light-nightly',
         name: 'Command Light Nightly',
-        provider: 'Cohere',
+        provider: toProviderName('Cohere'),
         description: 'Cohere Command Light nightly model',
         contextLength: 4096,
         maxTokens: 2048,
@@ -71,7 +72,7 @@ export default class CohereProvider extends BaseAIProvider {
       {
         id: 'command-r',
         name: 'Command R',
-        provider: 'Cohere',
+        provider: toProviderName('Cohere'),
         description: 'Cohere Command R model',
         contextLength: 4096,
         maxTokens: 4096,

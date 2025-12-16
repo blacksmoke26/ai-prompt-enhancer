@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -57,7 +58,7 @@ export default class DeepSeekProvider extends BaseAIProvider {
         {
           id: 'deepseek-chat',
           name: 'DeepSeek Chat',
-          provider: 'DeepSeek',
+          provider: toProviderName('DeepSeek'),
           description: 'DeepSeek\'s conversational model',
           contextLength: 32768,
           maxTokens: 4096,
@@ -65,7 +66,7 @@ export default class DeepSeekProvider extends BaseAIProvider {
         {
           id: 'deepseek-coder',
           name: 'DeepSeek Coder',
-          provider: 'DeepSeek',
+          provider: toProviderName('DeepSeek'),
           description: 'DeepSeek\'s code-specialized model',
           contextLength: 16384,
           maxTokens: 4096,

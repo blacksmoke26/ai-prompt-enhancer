@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -52,7 +53,7 @@ export default class QwenProvider extends BaseAIProvider {
     return [
       {
         id: 'qwen-max',
-        provider: 'Qwen',
+        provider: toProviderName('Qwen'),
         name: 'Qwen Max',
         description: 'Most capable model for complex tasks',
         maxTokens: 8192,
@@ -60,7 +61,7 @@ export default class QwenProvider extends BaseAIProvider {
       },
       {
         id: 'qwen-plus',
-        provider: 'Qwen',
+        provider: toProviderName('Qwen'),
         name: 'Qwen Plus',
         description: 'Balanced model for general tasks',
         maxTokens: 4096,
@@ -68,7 +69,7 @@ export default class QwenProvider extends BaseAIProvider {
       },
       {
         id: 'qwen-turbo',
-        provider: 'Qwen',
+        provider: toProviderName('Qwen'),
         name: 'Qwen Turbo',
         description: 'Fast and efficient model for simple tasks',
         maxTokens: 2048,

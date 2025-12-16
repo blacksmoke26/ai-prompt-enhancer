@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -62,7 +63,7 @@ export default class OpenRouterProvider extends BaseAIProvider {
       return models.map((model: any) => ({
         id: model.id,
         name: model.name || model.id,
-        provider: 'OpenRouter',
+        provider: toProviderName('OpenRouter'),
         description: `${model.description} • ${model.pricing?.prompt || 'Free'}`,
         contextLength: model.context_length,
         maxTokens: model.top_provider?.max_completion_tokens,

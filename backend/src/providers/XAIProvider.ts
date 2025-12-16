@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -46,7 +47,7 @@ export default class XAIProvider extends BaseAIProvider {
       {
         id: 'xai-gpt4',
         name: 'XAI GPT‑4',
-        provider: 'XAI',
+        provider: toProviderName('XAI'),
         description: 'XAI GPT‑4 model',
         contextLength: 65536,
         maxTokens: 8192,
@@ -54,7 +55,7 @@ export default class XAIProvider extends BaseAIProvider {
       {
         id: 'xai-dolly',
         name: 'XAI Dolly',
-        provider: 'XAI',
+        provider: toProviderName('XAI'),
         description: 'XAI Dolly model',
         contextLength: 16384,
         maxTokens: 4096,

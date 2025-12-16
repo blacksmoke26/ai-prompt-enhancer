@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -56,7 +57,7 @@ export default class QianFanProvider extends BaseAIProvider {
       {
         id: 'qwen-1.5-1.8b-chat',
         name: 'Qwen 1.5 1.8B Chat',
-        provider: 'QianFan',
+        provider: toProviderName('QianFan'),
         description: 'Alibaba Qwen 1.5 1.8B chat model',
         contextLength: 8192,
         maxTokens: 2048,
@@ -64,7 +65,7 @@ export default class QianFanProvider extends BaseAIProvider {
       {
         id: 'qwen-1.5-72b-chat',
         name: 'Qwen 1.5 72B Chat',
-        provider: 'QianFan',
+        provider: toProviderName('QianFan'),
         description: 'Alibaba Qwen 1.5 72B chat model',
         contextLength: 16384,
         maxTokens: 4096,

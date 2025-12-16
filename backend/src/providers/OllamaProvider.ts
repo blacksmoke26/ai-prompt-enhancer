@@ -9,6 +9,9 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 // utils
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
+// utils
+import {toProviderName} from '~/utils/provider';
+
 // types
 import type {ConfigMeta} from '~/database/models';
 import type {PromptRequest, PromptResponse, AIModel} from '~/types';
@@ -127,7 +130,7 @@ export default class OllamaProvider extends BaseAIProvider {
       return models.map((model: any) => ({
         id: model.name,
         name: model.name.split(':')[0],
-        provider: 'Ollama',
+        provider: toProviderName('Ollama'),
         description: `${model.size} • ${model.digest.substring(0, 12)}`,
         contextLength: model.details?.context_length || 4096,
       })).sort((a, b) => a.name.localeCompare(b.name));

@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -130,7 +131,7 @@ export default class LMStudioProvider extends BaseAIProvider {
       return models.map((model: any) => ({
         id: model.name,
         name: model.name.split(':')[0],
-        provider: 'LMStudio',
+        provider: toProviderName('LM Studio'),
         description: `${model.size} • ${model.digest.substring(0, 12)}`,
         contextLength: model.details?.context_length || 4096,
       })).sort((a, b) => a.name.localeCompare(b.name));

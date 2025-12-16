@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -63,7 +64,7 @@ export default class CodyProvider extends BaseAIProvider {
       {
         id: 'cody-code',
         name: 'Cody Code',
-        provider: 'Cody',
+        provider: toProviderName('Cody'),
         description: 'Cody model optimized for code generation',
         contextLength: 16384,
         maxTokens: 2048,
@@ -71,7 +72,7 @@ export default class CodyProvider extends BaseAIProvider {
       {
         id: 'cody-general',
         name: 'Cody General',
-        provider: 'Cody',
+        provider: toProviderName('Cody'),
         description: 'Cody model optimized for general conversation',
         contextLength: 32768,
         maxTokens: 4096,

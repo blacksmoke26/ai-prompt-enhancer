@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -61,7 +62,7 @@ export default class OpenAIProvider extends BaseAIProvider {
         .map((model: any) => ({
           id: model.id,
           name: model.id,
-          provider: 'OpenAI',
+          provider: toProviderName('OpenAI'),
           description: model.owned_by,
           contextLength: this.getContextLength(model.id),
           maxTokens: this.getMaxTokens(model.id),

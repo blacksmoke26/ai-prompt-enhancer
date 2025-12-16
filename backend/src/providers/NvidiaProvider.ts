@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -55,7 +56,7 @@ export default class NvidiaProvider extends BaseAIProvider {
       {
         id: 'nvidia-llama3',
         name: 'Nvidia LLaMA3',
-        provider: 'Nvidia',
+        provider: toProviderName('Nvidia'),
         description: 'Nvidia LLaMA3 model',
         contextLength: 32768,
         maxTokens: 8192,
@@ -63,7 +64,7 @@ export default class NvidiaProvider extends BaseAIProvider {
       {
         id: 'nvidia-dolly',
         name: 'Nvidia Dolly',
-        provider: 'Nvidia',
+        provider: toProviderName('Nvidia'),
         description: 'Nvidia Dolly model',
         contextLength: 16384,
         maxTokens: 4096,

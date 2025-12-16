@@ -7,6 +7,7 @@
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // utils
+import {toProviderName} from '~/utils/provider';
 import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
@@ -48,7 +49,7 @@ export default class AnthropicProvider extends BaseAIProvider {
       {
         id: 'claude-3-5-sonnet-20240620',
         name: 'Claude 3.5 Sonnet',
-        provider: 'Anthropic',
+        provider: toProviderName('Anthropic'),
         description: 'Claude 3.5 Sonnet model',
         contextLength: 8192,
         maxTokens: 4096,
@@ -56,7 +57,7 @@ export default class AnthropicProvider extends BaseAIProvider {
       {
         id: 'claude-3-haiku-20240307',
         name: 'Claude 3 Haiku',
-        provider: 'Anthropic',
+        provider: toProviderName('Anthropic'),
         description: 'Claude 3 Haiku model',
         contextLength: 4096,
         maxTokens: 2048,
