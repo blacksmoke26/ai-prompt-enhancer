@@ -60,6 +60,7 @@ const ProviderTabNavigation: React.FC<ProviderTabNavigationProps> = (props) => {
    */
   const tabs: { id: string; label: string; }[] = [
     {id: 'ollama', label: 'Ollama'},
+    {id: 'lmstudio', label: 'LM Studio'},
     {id: 'openai', label: 'OpenAI'},
     {id: 'openrouter', label: 'OpenRouter'},
     {id: 'deepseek', label: 'DeepSeek'},

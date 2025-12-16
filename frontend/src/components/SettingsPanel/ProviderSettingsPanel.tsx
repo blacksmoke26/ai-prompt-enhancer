@@ -31,6 +31,7 @@ import XAIProviderSettings from './Providers/XAIProviderSettings';
 import HuggingFaceProviderSettings from './Providers/HuggingFaceProviderSettings';
 import SiliconFlowProviderSettings from './Providers/SiliconFlowProviderSettings';
 import GLMProviderSettings from './Providers/GLMProviderSettings';
+import LMStudioProviderSettings from './Providers/LMStudioProviderSettings';
 
 /**
  * Props interface for the ProviderSettingsPanel component
@@ -101,6 +102,7 @@ type ProviderInfo = {
  */
 const PROVIDER_MAP: ProviderInfo[] = [
   {key: 'ollama', title: 'Ollama (Local)', component: OllamaProviderSettings},
+  {key: 'lmstudio', title: 'LM Studio', component: LMStudioProviderSettings},
   {key: 'openai', title: 'OpenAI', component: OpenAIProviderSettings},
   {key: 'openrouter', title: 'OpenRouter', component: OpenRouterProviderSettings},
   {key: 'deepseek', title: 'DeepSeek', component: DeepSeekProviderSettings},
