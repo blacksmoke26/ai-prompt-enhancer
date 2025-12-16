@@ -54,9 +54,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
       <Select
         isSearchable
         value={config.model}
-        onChange={(name) => {
-          setConfig({model: name as string});
-        }}
+        onChange={name => setConfig({model: name as string}, true)}
         options={toSelectGroupedOptions(filteredModels as any, 'provider')}
         label={<strong><Brain className="inline-flex display-inline" size="16"/> AI Model</strong>}
         formatOptionLabel={(option, context) => {

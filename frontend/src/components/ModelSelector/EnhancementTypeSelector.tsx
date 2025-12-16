@@ -33,7 +33,7 @@ const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({classN
         isSearchable={true}
         value={config.enhancementType}
         onChange={(value) => {
-          setConfig({enhancementType: value as string});
+          setConfig({enhancementType: value as string}, true);
         }}
         options={toSelectGroupedOptions(enhancementTypes)}
         label={<strong><Type className="inline-flex display-inline" size="16"/> Enhancement Type</strong>}

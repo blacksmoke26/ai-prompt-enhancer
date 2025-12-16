@@ -32,7 +32,7 @@ const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => 
       <Select
         isSearchable
         value={config.userRole}
-        onChange={(e) => setConfig({userRole: e as string})}
+        onChange={(e) => setConfig({userRole: e as string}, true)}
         options={toSelectGroupedOptions(userRoles)}
         label={<strong><User2 className="inline-flex display-inline" size="16"/> User Role</strong>}
         formatOptionLabel={(option, context) => {

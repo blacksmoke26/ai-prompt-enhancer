@@ -36,7 +36,7 @@ const ProviderSelector: React.FC<ProviderSelectorProps> = ({className = ''}) => 
     <Select
       isSearchable
       value={config.provider}
-      onChange={(e) => setConfig({provider: e as string})}
+      onChange={value => setConfig({provider: value as string}, true)}
       options={providerOptions}
       label={<strong><Cloud className="inline-flex display-inline" size="16"/> AI Provider</strong>}
       formatOptionLabel={(option, context) => {
