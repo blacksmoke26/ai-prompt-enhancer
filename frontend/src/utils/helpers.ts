@@ -69,7 +69,11 @@ export const formatNumber = (num: number | undefined | null) => {
  */
 export const formatPercentage = (num: number | undefined | null) => {
   if (num == null || isNaN(num)) return '0%';
-  return `${Math.round(num * 100)}%`;
+  return num >= 100
+    ? `${Math.round(num)}%`
+    : (num < 0.01
+      ? '<1%'
+      : `${Math.round(num * 100)}%`);
 };
 
 /**
