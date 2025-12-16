@@ -17,17 +17,33 @@ import {Badge} from '~/components/ui/Badge';
 // utils
 import {toSelectGroupedOptions} from '~/utils/helpers.ts';
 
+/**
+ * Interface defining the props for the ModelSelector component.
+ * @interface ModelSelectorProps
+ */
 export interface ModelSelectorProps {
+  /** Optional class name for custom styling. */
   className?: string;
 }
 
+/**
+ * A reusable component for selecting different models with optional styling customization.
+ * @example <ModelSelector className="custom-style" />
+ * @developerNotes This component is a React.FC with TypeScript support. The className prop allows for flexible styling.
+ */
 const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
   const {models, config, setConfig} = useAppStore();
 
   // Filter models by selected provider
   const filteredModels = useMemo(() => {
-    if (!config.provider) return [];
-    return models.filter(model => model.provider === config.provider);
+    // Add type guard for provider
+    if (typeof config.provider !== 'string' || !config?.provider) {
+      console.warn('Invalid provider:', config?.provider);
+      return [];
+    }
+
+    // Use type assertion to ensure string comparison
+    return models.filter(model => model.provider === config.provider as string);
   }, [models, config.provider]);
 
   // Get selected model data
