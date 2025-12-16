@@ -8,7 +8,6 @@
 import { ConfigManager } from '~/config/ConfigManager';
 
 // utils
-import { configUpdateSchema } from '~/utils/validation';
 import {AppConfig} from '~/types';
 
 /**
