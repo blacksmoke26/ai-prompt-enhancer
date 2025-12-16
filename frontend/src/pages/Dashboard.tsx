@@ -23,7 +23,6 @@ import ModelSelector from '~/components/ModelSelector';
 import PromptEnhancer from '~/components/PromptEnhancer';
 import DraggableLayout from '~/components/DraggableLayout';
 
-
 /**
  * Represents the available dashboard tabs
  * @example 'enhancer' - Main prompt enhancement interface
@@ -179,22 +178,13 @@ export const Dashboard: React.FC = () => {
 
               {activeTab === 'history' && (
                 <DraggableLayout activeTab={activeTab}>
-                  <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                    <div className="xl:col-span-8">
-                      <HistoryPanel
-                        history={history}
-                        onDelete={deleteItem}
-                        onUpdate={updateItem}
-                        onExport={exportHistory}
-                        onClear={clearHistory}
-                      />
-                    </div>
-                    <div className="xl:col-span-4">
-                      <div className="hidden xl:block sticky top-6">
-                        <StatsPanel/>
-                      </div>
-                    </div>
-                  </div>
+                  <HistoryPanel
+                    history={history}
+                    onDelete={deleteItem}
+                    onUpdate={updateItem}
+                    onExport={exportHistory}
+                    onClear={clearHistory}
+                  />
                 </DraggableLayout>
               )}
 
