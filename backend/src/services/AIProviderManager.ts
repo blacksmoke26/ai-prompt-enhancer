@@ -197,8 +197,11 @@ export class AIProviderManager {
 
     try {
       const available = await provider.isAvailable();
-      await Provider.update({enabled: available}, {where: {name: toProviderName(providerName)}});
-      return true;
+      if (available) {
+        await Provider.update({enabled: available}, {where: {name: toProviderName(providerName)}});
+        return true;
+      }
+      return false;
     } catch {
       return false;
     }
