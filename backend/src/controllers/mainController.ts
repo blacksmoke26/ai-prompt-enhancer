@@ -28,4 +28,18 @@ export default async function promptRoutes(fastify: FastifyInstance, options: {
   fastify.get('/health', async () => {
     return {status: 'ok', timestamp: new Date().toISOString()};
   });
+
+  /**
+   * Test endpoint to check provider availability and models.
+   * @route GET /test
+   * @returns {object}
+   * @example
+   * { "isAvailable": true, "models": [ { "id": "glm-4", "name": "GLM-4", "provider": "Zhipu", "description": "GLM‑4 large language model", "contextLength": 200000, "maxTokens": 8192 } ] }
+   * @developerNote
+   * This endpoint is used for testing purposes.
+   */
+  fastify.get('/test', async () => {
+    const provider = options.providerManager.getProvider('zhipu')!;
+    return {isAvailable: await provider.isAvailable(), models: await provider.getModels()};
+  });
 }
