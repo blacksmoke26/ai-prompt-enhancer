@@ -89,6 +89,14 @@ const createServer = async () => {
   fastify.register(configController, {prefix: '/api/config', configManager});
 
   /**
+   * Handles HEAD requests for all routes.
+   * @route HEAD *
+   * @returns {204} No Content
+   * @developer-note Useful for health checks and CORS preflight requests.
+   */
+  fastify.head('*', (_req, reply) => reply.send(204));
+
+  /**
    * WebSocket connection handler for real-time updates.
    * @route GET /ws
    * @param {object} connection - WebSocket connection instance.
