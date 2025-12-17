@@ -15,8 +15,35 @@ import type {ConfigMeta} from '~/database/models';
 import type {AIModel, PromptRequest, PromptResponse} from '~/types';
 
 /**
+ * Represents a model from the Zhipu API, containing metadata and configuration details.
+ *
+ * @example
+ * const model: ZhipuModel = {
+ *   id: 'glm-4.5',
+ *   object: 'model',
+ *   created: 1753632000,
+ *   owned_by: 'z-ai'
+ * };
+ *
+ * @developerNotes
+ * This interface is based on the Zhipu API response structure. The `created` field is a Unix timestamp as a number, and `owned_by` indicates the organization that owns the model.
+ */
+export interface ZhipuModel {
+  /** Unique identifier for the model (e.g., 'glm-4.5') */
+  id: string;
+  /** Type of the model object (always 'model') */
+  object: string;
+  /** Unix timestamp indicating when the model was created */
+  created: number;
+  /** Organization or entity that owns the model (e.g., 'z-ai') */
+  owned_by: string;
+}
+
+/**
  * Zhipu AI provider for GLM (General Language Model) series.
  * Provides integration with Zhipu AI's chat completion API.
+ *
+ * @see https://docs.z.ai/guides/llm/glm-4.5#samples-code
  *
  * @example
  * ```ts
@@ -50,40 +77,26 @@ export default class ZhipuProvider extends BaseAIProvider {
    * Consider fetching dynamically from the API for production use.
    */
   async getModels(): Promise<AIModel[]> {
-    return [
-      {
-        id: 'glm-4',
-        name: 'GLM-4',
-        provider: toProviderName('Zhipu'),
-        description: 'GLM‑4 large language model',
-        contextLength: 200000,
-        maxTokens: 8192,
-      },
-      {
-        id: 'glm-4-all',
-        name: 'GLM-4 All',
-        provider: toProviderName('Zhipu'),
-        description: 'GLM‑4 All model (general usage)',
-        contextLength: 200000,
-        maxTokens: 8192,
-      },
-      {
-        id: 'glm-4-turbo',
-        name: 'GLM-4 Turbo',
-        provider: toProviderName('Zhipu'),
-        description: 'GLM‑4 Turbo model (fast, cheaper)',
-        contextLength: 200000,
-        maxTokens: 8192,
-      },
-      {
-        id: 'glm-4-9b',
-        name: 'GLM‑4‑9B',
-        provider: toProviderName('Zhipu'),
-        description: 'GLM‑4‑9B (smaller variant)',
-        contextLength: 200000,
-        maxTokens: 8192,
-      },
-    ];
+    try {
+      const response = await this.client.get<{ data: ZhipuModel[] }>('models');
+      const models = response.data.data || [];
+
+      return models.map(model => {
+        const [, size = '?b'] = model.id.match(/-(\d+b)/) ?? [];
+        const name = model.id.split('/')
+        return ({
+          id: model.id,
+          name: (name.length > 1 ? name[1] : name[0]).replace(/-\d+b/g, ''),
+          provider: toProviderName('Zhipu'),
+          size,
+          description: model.id,
+          contextLength: 4096,
+        });
+      }).sort((a, b) => a.name.localeCompare(b.name));
+    } catch (error: any) {
+      console.error('Failed to fetch Groq models:', error);
+      return [];
+    }
   }
 
   /**
