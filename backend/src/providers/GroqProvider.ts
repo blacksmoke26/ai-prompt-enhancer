@@ -15,6 +15,41 @@ import type {ConfigMeta} from '~/database/models';
 import type {AIModel, PromptRequest, PromptResponse} from '~/types';
 
 /**
+ * Represents a model from the Groq API, containing metadata and configuration details.
+ *
+ * @example
+ * const model: GroqModel = {
+ *   id: 'gemma2-9b-it',
+ *   object: 'model',
+ *   created: '1693721698',
+ *   owned_by: 'Google',
+ *   active: true,
+ *   context_window: 8192,
+ *   public_apps: null
+ * };
+ *
+ * @developerNotes
+ * This interface is based on the Groq API response structure. The `created` field is a Unix timestamp as a string.
+ * The `public_apps` field can be null if the model is not publicly accessible.
+ */
+export interface GroqModel {
+  /** Unique identifier for the model (e.g., 'gemma2-9b-it') */
+  id: string;
+  /** Type of the model object (always 'model')*/
+  object: string;
+  /** Unix timestamp indicating when the model was created*/
+  created: string;
+  /** Organization or entity that owns the model (e.g., 'Google')*/
+  owned_by: string;
+  /** Boolean flag indicating if the model is currently active */
+  active: boolean;
+  /** Maximum context window size in tokens supported by the model*/
+  context_window: number;
+  /** Optional field specifying public applications associated with the model*/
+  public_apps: string | null;
+}
+
+/**
  * Groq AI provider for prompt enhancement.
  *
  * @example
@@ -36,7 +71,7 @@ export default class GroqProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Groq', {baseUrl: config?.baseUrl || 'https://api.groq.com/openai/v1'});
+    super('Groq', {baseUrl: config?.baseUrl || 'https://api.groq.com'});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
@@ -49,24 +84,26 @@ export default class GroqProvider extends BaseAIProvider {
    * These models have different token limits and capabilities.
    */
   async getModels(): Promise<AIModel[]> {
-    return [
-      {
-        id: 'mixtral-8x7b-32768',
-        name: 'Groq Mixtral 8x7B',
-        provider: toProviderName('Groq'),
-        description: 'Groq Mixtral 8x7B model',
-        contextLength: 32768,
-        maxTokens: 8192,
-      },
-      {
-        id: 'llama2-70b-4096',
-        name: 'Groq LLaMA2 70B',
-        provider: toProviderName('Groq'),
-        description: 'Groq LLaMA2 70B model',
-        contextLength: 4096,
-        maxTokens: 2048,
-      },
-    ];
+    try {
+      const response = await this.client.get<{ data: GroqModel[] }>('/openai/v1/models');
+      const models = response.data.data || [];
+
+      return models.map((model) => {
+        const [, size = '?b'] = model.id.match(/-(\d+b)/) ?? [];
+        const name = model.id.split('/')
+        return ({
+          id: model.id,
+          name: (name.length > 1 ? name[1] : name[0]).replace(/-\d+b/g, ''),
+          provider: toProviderName('Groq'),
+          size,
+          description: `${size}`,
+          contextLength: model?.context_window || 4096,
+        });
+      }).sort((a, b) => a.name.localeCompare(b.name));
+    } catch (error: any) {
+      console.error('Failed to fetch Groq models:', error);
+      return [];
+    }
   }
 
   /**
@@ -93,7 +130,7 @@ export default class GroqProvider extends BaseAIProvider {
 
     const systemPrompt = this.buildSystemPrompt(request);
 
-    const response = await this.client.post('/chat/completions', {
+    const response = await this.client.post('/openai/v1/chat/completions', {
       model: request.model,
       messages: [
         {role: 'system', content: systemPrompt},
@@ -128,9 +165,11 @@ export default class GroqProvider extends BaseAIProvider {
    * Returns false on any API error or if response format is unexpected.
    */
   async isAvailable(): Promise<boolean> {
+    const [model] = await this.getModels();
+
     try {
-      const resp = await this.client.post('/chat/completions', {
-        model: 'mixtral-8x7b-32768',
+      const resp = await this.client.post('/openai/v1/chat/completions', {
+        model: model.id,
         messages: [{role: 'user', content: 'test'}],
         max_tokens: 1,
       });
