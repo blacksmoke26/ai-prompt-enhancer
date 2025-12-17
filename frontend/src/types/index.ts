@@ -236,6 +236,8 @@ export interface AppConfig {
   provider?: string;
   /** Selected AI model to use */
   model?: string;
+  /** Selected intelligent word analysis frequency */
+  wordFrequency?: 'all' | 'high' | 'medium' | 'low' | 'complex';
   // Provider specific configuration objects
   ollama?: AIProviderConfig;
   openai?: AIProviderConfig;

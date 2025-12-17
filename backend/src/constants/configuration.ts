@@ -51,7 +51,8 @@ export type ConfigKey =
   'enhancementType' | // Type of enhancement to apply (e.g., 'none', 'summarize')
   'userRole' |       // Role of the user in the conversation context
   'provider' |       // AI service provider (e.g., 'openai', 'anthropic')
-  'model';           // Specific model version to use
+  'model' |           // Specific model version to use
+  'wordFrequency';   // Specific model version to use
 
 /**
  * Configuration keys for the application
@@ -111,6 +112,11 @@ export const configuration: Config[] = [{
   type: 'string',
   description: 'Default model',
   defaultValue: null,
+}, {
+  key: 'wordFrequency',
+  type: 'string',
+  description: 'Default Intelligent Word Analysis frequency',
+  defaultValue: 'all',
 }];
 
 export default configuration;

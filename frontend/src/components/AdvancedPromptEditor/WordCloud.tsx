@@ -10,6 +10,8 @@ import {Button} from '~/components/ui/Button';
 import {Badge} from '~/components/ui/Badge';
 import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
 import {Tooltip, TooltipContent, TooltipTrigger} from '~/components/ui/Tooltip';
+import {useAppStore} from '~/stores/appStore.ts';
+import {AppConfig} from '~/types';
 
 /**
  * Common English stop words to filter out
@@ -93,10 +95,12 @@ export interface WordCloudProps {
 const WordCloud: React.FC<WordCloudProps> = (props) => {
   const {text, wordFrequency: externalWordFrequency = [], showWordCloud, setShowWordCloud, onInsightsDetected} = props;
 
+  const {config, setConfig} = useAppStore();
+
   if (!showWordCloud) return null;
 
   // State for filter selection
-  const [filterLevel, setFilterLevel] = useState<'all' | 'high' | 'medium' | 'low' | 'complex'>('all');
+  const [filterLevel, setFilterLevel] = useState<AppConfig['wordFrequency']>(config.wordFrequency);
 
   // Process text and extract word frequencies if raw text is provided
   const {processedWords, insights} = useMemo(() => {
@@ -133,11 +137,11 @@ const WordCloud: React.FC<WordCloudProps> = (props) => {
   const filteredWords = processedWords.filter((item) => {
     const {count, complexity} = item;
 
-    if (filterLevel === 'all') return true;
-    if (filterLevel === 'high') return count >= maxCount * 0.7;
-    if (filterLevel === 'medium') return count >= maxCount * 0.3 && count < maxCount * 0.7;
-    if (filterLevel === 'low') return count < maxCount * 0.3;
-    if (filterLevel === 'complex') {
+    if (config.wordFrequency === 'all') return true;
+    if (config.wordFrequency === 'high') return count >= maxCount * 0.7;
+    if (config.wordFrequency === 'medium') return count >= maxCount * 0.3 && count < maxCount * 0.7;
+    if (config.wordFrequency === 'low') return count < maxCount * 0.3;
+    if (config.wordFrequency === 'complex') {
       // Safely check for complexity properties
       return (complexity?.technicalScore ?? 0) > 0.7 || (complexity?.rarityScore ?? 0) > 0.7;
     }
@@ -198,8 +202,8 @@ const WordCloud: React.FC<WordCloudProps> = (props) => {
           </div>
           <div className="relative">
             <select
-              value={filterLevel}
-              onChange={(e) => setFilterLevel(e.target.value as any)}
+              value={config.wordFrequency}
+              onChange={(e) => setConfig({wordFrequency: e.target.value as AppConfig['wordFrequency']}, true)}
               className="appearance-none bg-background border border-border rounded-md py-1.5 pl-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
             >
               {filterOptions.map((option) => (
