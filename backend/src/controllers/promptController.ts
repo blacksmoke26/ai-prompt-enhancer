@@ -4,11 +4,15 @@
  * @see https://github.com/blacksmoke26
  */
 
-import {FastifyInstance} from 'fastify';
-
 // classes
 import {AIProviderManager} from '~/services/AIProviderManager';
 import {HistoryManager} from '~/services/HistoryManager';
+
+// db
+import {Provider} from '~/database/models';
+
+// utils
+import {toProviderName} from '~/utils/provider';
 
 // actions
 import enhancePrompt from '~/actions/prompt/enhancePrompt';
@@ -18,9 +22,7 @@ import testProvider from '~/actions/prompt/testProvider';
 
 // types
 import type {PromptRequest} from '~/types';
-import {Provider} from '~/database/models';
-import {toProviderName} from '~/utils/provider';
-import {ProviderConfig} from '~/constants/providers';
+import type {FastifyInstance} from 'fastify';
 
 /**
  * Registers prompt enhancement routes for the Fastify instance
