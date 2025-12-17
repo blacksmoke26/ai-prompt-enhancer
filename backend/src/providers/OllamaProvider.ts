@@ -129,6 +129,7 @@ export default class OllamaProvider extends BaseAIProvider {
 
       return models.map((model: any) => ({
         id: model.name,
+        size: model.size,
         name: model.name.split(':')[0],
         provider: toProviderName('Ollama'),
         description: `${model.size} • ${model.digest.substring(0, 12)}`,

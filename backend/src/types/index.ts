@@ -33,6 +33,8 @@ export interface AIModel {
    * @example "GPT-4 Turbo"
    */
   name: string;
+  /** Size of the model (e.g., "7b", "20b", "30b") */
+  size?: string;
   /**
    * Provider of the AI model (e.g., "openai", "ollama")
    * @example "openai"

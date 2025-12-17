@@ -60,14 +60,19 @@ export default class OpenRouterProvider extends BaseAIProvider {
       const response = await this.client.get<{data: AIModel[]}>('/models');
       const models = response.data.data || [];
 
-      return models.map((model: any) => ({
-        id: model.id,
-        name: model.name || model.id,
-        provider: toProviderName('OpenRouter'),
-        description: `${model.description} • ${model.pricing?.prompt || 'Free'}`,
-        contextLength: model.context_length,
-        maxTokens: model.top_provider?.max_completion_tokens,
-      })).sort((a, b) => a.name.localeCompare(b.name));;
+      return models.map((model: any) => {
+        const [, size = '?b'] = model.id.match(/-(\d+(b|n))/) ?? [];
+
+        return ({
+          id: model.id,
+          name: model.name || model.id,
+          size,
+          provider: toProviderName('OpenRouter'),
+          description: `${model.description} • ${model.pricing?.prompt || 'Free'}`,
+          contextLength: model.context_length,
+          maxTokens: model.top_provider?.max_completion_tokens,
+        });
+      }).sort((a, b) => a.name.localeCompare(b.name));;
     } catch (error: any) {
       console.error('Failed to fetch OpenRouter models:', error);
       return [];

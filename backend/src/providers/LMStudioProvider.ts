@@ -104,6 +104,7 @@ export default class LMStudioProvider extends BaseAIProvider {
         return ({
           id: model.id,
           name,
+          size,
           provider: toProviderName('LM Studio'),
           description: `${size} • ${model.type} • ${model.compatibility_type}`,
           contextLength: model?.max_context_length || 4096,
