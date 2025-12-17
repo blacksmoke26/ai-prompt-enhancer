@@ -28,12 +28,4 @@ export default async function promptRoutes(fastify: FastifyInstance, options: {
   fastify.get('/health', async () => {
     return {status: 'ok', timestamp: new Date().toISOString()};
   });
-
-  /**
-   * Handles HEAD requests for all routes.
-   * @route HEAD *
-   * @returns {204} No Content
-   * @developer-note Useful for health checks and CORS preflight requests.
-   */
-  fastify.head('*', (_req, reply) => reply.send(204));
 }
