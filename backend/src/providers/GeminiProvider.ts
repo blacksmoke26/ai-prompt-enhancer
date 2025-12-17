@@ -107,13 +107,14 @@ export default class GeminiProvider extends BaseAIProvider {
    * @returns Promise resolving to an array of available AIModel objects
    */
   async getModels(): Promise<AIModel[]> {
-     try {
+    try {
       const response = await this.client.get<{ models: GeminiModel[] }>('/models');
       const models = response.data.models || [];
 
       return models.map((model) => {
         const [, size = '?b'] = model.name.match(/-(\d+(b|n))/) ?? [];
-        const name = model.name.split('/')
+        const name = model.name.split('/');
+
         return ({
           id: model.name,
           name: (name.length > 1 ? name[1] : name[0]).replace(/-\d+b/g, ''),
