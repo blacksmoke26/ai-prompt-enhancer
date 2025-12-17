@@ -18,6 +18,7 @@ import {AIProviderManager} from './services/AIProviderManager';
 import {HistoryManager} from './services/HistoryManager';
 
 // controllers
+import mainController from './controllers/mainController';
 import promptController from './controllers/promptController';
 import historyController from './controllers/historyController';
 import configController from './controllers/configController';
@@ -81,27 +82,8 @@ const createServer = async () => {
 
   const historyManager = new HistoryManager();
 
-  /**
-   * Health check endpoint to verify server status.
-   * @route GET /health
-   * @returns {object} Server status and current timestamp.
-   * @example
-   * // Response
-   * { "status": "ok", "timestamp": "2023-01-01T00:00:00.000Z" }
-   */
-  fastify.get('/health', async () => {
-    return {status: 'ok', timestamp: new Date().toISOString()};
-  });
-
-  /**
-   * Handles HEAD requests for all routes.
-   * @route HEAD *
-   * @returns {204} No Content
-   * @developer-note Useful for health checks and CORS preflight requests.
-   */
-  fastify.head('*', (_req, reply) => reply.send(204));
-
   // Register routes
+  fastify.register(mainController, {prefix: '/api'});
   fastify.register(promptController, {prefix: '/api/prompts', providerManager, historyManager});
   fastify.register(historyController, {prefix: '/api/history', historyManager});
   fastify.register(configController, {prefix: '/api/config', configManager});
