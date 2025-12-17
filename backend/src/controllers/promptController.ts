@@ -4,11 +4,11 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { FastifyInstance } from 'fastify';
+import {FastifyInstance} from 'fastify';
 
 // classes
-import { AIProviderManager } from '~/services/AIProviderManager';
-import { HistoryManager } from '~/services/HistoryManager';
+import {AIProviderManager} from '~/services/AIProviderManager';
+import {HistoryManager} from '~/services/HistoryManager';
 
 // actions
 import enhancePrompt from '~/actions/prompt/enhancePrompt';
@@ -17,7 +17,10 @@ import getAllProviders from '~/actions/prompt/getAllProviders';
 import testProvider from '~/actions/prompt/testProvider';
 
 // types
-import type { PromptRequest } from '~/types';
+import type {PromptRequest} from '~/types';
+import {Provider} from '~/database/models';
+import {toProviderName} from '~/utils/provider';
+import {ProviderConfig} from '~/constants/providers';
 
 /**
  * Registers prompt enhancement routes for the Fastify instance
@@ -29,8 +32,11 @@ import type { PromptRequest } from '~/types';
  * });
  * @developer_notes Ensure all providers are properly initialized before registering routes
  */
-export default async function promptRoutes(fastify: FastifyInstance, options: { providerManager: AIProviderManager; historyManager: HistoryManager }) {
-  const { providerManager, historyManager } = options;
+export default async function promptRoutes(fastify: FastifyInstance, options: {
+  providerManager: AIProviderManager;
+  historyManager: HistoryManager
+}) {
+  const {providerManager} = options;
 
   /**
    * Enhances a prompt using the specified AI provider
@@ -50,7 +56,7 @@ export default async function promptRoutes(fastify: FastifyInstance, options: { 
       fastify.log.error('Prompt enhancement failed:', error);
       return reply.code(500).send({
         error: 'Failed to enhance prompt',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   });
@@ -68,7 +74,7 @@ export default async function promptRoutes(fastify: FastifyInstance, options: { 
       return reply.code(200).send(models);
     } catch (error: any) {
       fastify.log.error('Failed to get models:', error);
-      return reply.code(500).send({ error: 'Failed to fetch models' });
+      return reply.code(500).send({error: 'Failed to fetch models'});
     }
   });
 
@@ -85,7 +91,7 @@ export default async function promptRoutes(fastify: FastifyInstance, options: { 
       return reply.code(200).send(providers);
     } catch (error: any) {
       fastify.log.error('Failed to get providers:', error);
-      return reply.code(500).send({ error: `Failed to fetch providers: ${error.message}` });
+      return reply.code(500).send({error: `Failed to fetch providers: ${error.message}`});
     }
   });
 
@@ -96,18 +102,36 @@ export default async function promptRoutes(fastify: FastifyInstance, options: { 
    * // Response: { providerName: "openai", available: true }
    * @developer_notes Performs health check on the specified provider
    */
-  fastify.post('/providers/:providerName/test', async (request, reply) => {
+  fastify.post<{
+    Body: { enabled: boolean; apiKey: string; timeout: number; baseUrl: string; }
+  }>('/providers/:providerName/test', async (request, reply) => {
     try {
-      const { providerName } = request.params as { providerName: string };
+      const {providerName} = request.params as { providerName: string };
       const isAvailable = await testProvider(providerManager, providerName);
+
+      if ( isAvailable ) {
+        //<editor-fold desc="Database updates">
+        const record = await Provider.findOne({where: {name: toProviderName(providerName)}});
+        if (record) {
+          record.enabled = request.body.enabled;
+          record.config = {
+            ...record.config,
+            apiKey: request.body.apiKey,
+            baseUrl: request.body.baseUrl?.trim?.(),
+            timeout: Number(request.body.timeout) || 30000,
+          };
+          await record.save();
+        }
+        //</editor-fold>
+      }
 
       return reply.code(200).send({
         providerName,
-        available: isAvailable
+        available: isAvailable,
       });
     } catch (error: any) {
       fastify.log.error('Provider test failed:', error);
-      return reply.code(500).send({ error: 'Failed to test provider' });
+      return reply.code(500).send({error: 'Failed to test provider'});
     }
   });
 }
