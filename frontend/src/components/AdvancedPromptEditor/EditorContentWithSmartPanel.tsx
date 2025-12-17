@@ -20,6 +20,7 @@ import EnhancedPrompt, {type EnhancedPromptResponse} from './EnhancedPrompt';
 
 // types
 import type {MDXEditorMethods} from '@mdxeditor/editor';
+import type {PromptResponse} from '~/types';
 
 export type {MDXEditorMethods};
 
