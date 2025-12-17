@@ -112,7 +112,7 @@ const providers: ProviderConfig[] = [
   {caption: 'xAI', name: 'xai', baseUrl: 'https://api.x.ai', apiKey: '', timeout: 30000},
   {caption: 'HuggingFace', name: 'huggingface', baseUrl: 'https://api-inference.huggingface.co/models', apiKey: '', timeout: 30000},
   {caption: 'SiliconFlow', name: 'siliconflow', baseUrl: 'https://api.siliconflow.cn', apiKey: '', timeout: 30000},
-  {caption: 'Zhipu', name: 'zhipu', baseUrl: 'https://open.bigmodel.cn', apiKey: '', timeout: 30000},
+  {caption: 'Zhipu', name: 'zhipu', baseUrl: 'https://api.z.ai/api/paas/v4', apiKey: '', timeout: 30000},
   {caption: 'Qwen', name: 'qwen', baseUrl: 'https://dashscope.aliyuncs.com', apiKey: '', timeout: 30000},
   {caption: 'LM Studio', name: 'lmstudio', baseUrl: 'http://localhost:1234', timeout: 30000},
 ];
