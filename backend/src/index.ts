@@ -83,7 +83,7 @@ const createServer = async () => {
   const historyManager = new HistoryManager();
 
   // Register routes
-  fastify.register(mainController, {prefix: '/api'});
+  fastify.register(mainController, {prefix: '/api', providerManager, historyManager, configManager});
   fastify.register(promptController, {prefix: '/api/prompts', providerManager, historyManager});
   fastify.register(historyController, {prefix: '/api/history', historyManager});
   fastify.register(configController, {prefix: '/api/config', configManager});
