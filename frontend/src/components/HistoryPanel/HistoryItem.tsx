@@ -6,7 +6,7 @@
 
 import React from 'react';
 import {Eye, Trash2, Edit, Copy, Check} from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import MarkdownPreview from '@uiw/react-markdown-preview';
 
 // ui components
 import {Badge} from '~/components/ui/Badge';
@@ -270,9 +270,9 @@ const HistoryItem: React.FC<HistoryItemProps> = (props) => {
                 </Button>
               </div>
             </div>
-            <p className="text-sm bg-muted/30 p-2 rounded">
-              <ReactMarkdown>{item.enhancedPrompt.replace(/\n/ig, `\n`)}</ReactMarkdown>
-            </p>
+            <MarkdownPreview
+              className="text-sm text-muted-foreground bg-muted/30 p-2 rounded"
+              style={{background: 'none'}} source={item.enhancedPrompt}/>
           </div>
         )}
       </div>

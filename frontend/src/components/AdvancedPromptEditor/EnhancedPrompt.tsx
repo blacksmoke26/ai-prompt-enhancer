@@ -5,11 +5,11 @@
  */
 
 import React from 'react';
-import Markdown from 'react-markdown';
 import {Sparkles, Target, Clock, Zap, TrendingUp} from 'lucide-react';
 
 // ui components
 import {Badge} from '~/components/ui/Badge';
+import MarkdownPreview from '@uiw/react-markdown-preview';
 
 /**
  * Represents the response from an enhanced prompt generation request
@@ -95,9 +95,7 @@ const EnhancedPrompt: React.FC<EnhancedPromptProps> = ({response, originalPrompt
         </div>
       </div>
       <div className="rounded-md p-4 max-h-96 overflow-y-auto">
-        <Markdown>
-        {String(response.enhancedPrompt || '')?.replace(/\\n/ig, `\n`)}
-        </Markdown>
+        <MarkdownPreview source={response.enhancedPrompt}/>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-muted-foreground">
