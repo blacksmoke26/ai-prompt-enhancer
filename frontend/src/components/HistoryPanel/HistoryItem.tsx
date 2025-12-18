@@ -5,53 +5,111 @@
  */
 
 import React from 'react';
-import { Eye, Trash2, Edit, Copy, Check, MessageSquare } from 'lucide-react';
-import * as Popover from '@radix-ui/react-popover';
+import {Eye, Trash2, Edit, Copy, Check} from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
 // ui components
-import { Badge } from '~/components/ui/Badge';
-import { Button } from '~/components/ui/Button';
+import {Badge} from '~/components/ui/Badge';
+import {Button} from '~/components/ui/Button';
 
 // utils
-import { formatDate, formatDuration, truncateText } from '~/utils/helpers';
+import {formatDate, formatDuration, truncateText} from '~/utils/helpers';
 
 // components
 import RatingStars from './RatingStars';
 import NotesEditor from './NotesEditor';
 
 // types
-import type { PromptHistory } from '~/types';
+import type {PromptHistory} from '~/types';
 
 /**
- * Props for the {@link HistoryItem} component.
- *
- * @property item           The prompt history item to display.
- * @property isExpanded    Whether the enhanced prompt is currently expanded.
- * @property onToggleExpand Callback to toggle the expanded state.
- * @property onDelete       Callback to delete this item.
- * @property onRatingChange Callback invoked with a new rating.
- * @property isEditingNotes Whether the notes editor is active for this item.
- * @property notesValue     Current text in the notes editor.
- * @property onNotesChange  Callback to update the notes editor value.
- * @property onNotesSave    Callback to save notes (triggers parent update).
- * @property onNotesCancel  Callback to cancel notes editing.
- * @property onEditNotes   Callback to initiate notes editing.
- * @property onCopyPrompt   Callback to copy prompt to editor.
+ * Interface for props passed to a history item component.
+ * Provides data and interaction handlers for rendering and managing prompt history entries.
+ * @example
+ * const props: HistoryItemProps = {
+ *   item: { id: '123', prompt: 'Sample prompt', notes: 'Initial notes' },
+ *   isExpanded: false,
+ *   onToggleExpand: () => {},
+ *   onDelete: () => {},
+ *   onRatingChange: (id, rating) => {},
+ *   isEditingNotes: false,
+ *   notesValue: '',
+ *   onNotesChange: (value) => {},
+ *   onNotesSave: () => {},
+ *   onNotesCancel: () => {},
+ *   onEditNotes: () => {},
+ *   onCopyPrompt: (prompt, isEnhanced) => {}
+ * };
+ * @note
+ * - `item` is the core data object for the history entry.
+ * - Interaction handlers (`onToggleExpand`, `onDelete`, etc.) enable user actions.
+ * - `onRatingChange` and `onCopyPrompt` handle specific user feedback and copy actions.
  */
 export interface HistoryItemProps {
+  /**
+   * The prompt history entry data (e.g., ID, prompt text, notes).
+   */
   item: PromptHistory;
+
+  /**
+   * Whether the history item is currently expanded (showing additional details).
+   */
   isExpanded: boolean;
-  onToggleExpand: () => void;
-  onDelete: () => void;
-  onRatingChange: (id: string, rating: number) => void;
+
+  /**
+   * Callback to toggle the expanded/collapsed state of the item.
+   */
+  onToggleExpand(): void;
+
+  /**
+   * Callback to delete the history item.
+   */
+  onDelete(): void;
+
+  /**
+   * Callback to update the rating for the prompt (id and rating value).
+   * @param id - The ID of the prompt to rate.
+   * @param rating - The rating value (e.g., 1-5).
+   */
+  onRatingChange(id: string, rating: number): void;
+
+  /**
+   * Whether the notes section is currently in edit mode.
+   */
   isEditingNotes: boolean;
+
+  /**
+   * Current value of the notes input field.
+   */
   notesValue: string;
-  onNotesChange: (value: string) => void;
-  onNotesSave: () => void;
-  onNotesCancel: () => void;
-  onEditNotes: () => void;
-  onCopyPrompt: (prompt: string, isEnhanced: boolean) => void;
+
+  /**
+   * Callback to update the notes input value.
+   * @param value - The new notes text.
+   */
+  onNotesChange(value: string): void;
+
+  /**
+   * Callback to save the edited notes.
+   */
+  onNotesSave(): void;
+
+  /**
+   * Callback to cancel edits and revert to the original notes.
+   */
+  onNotesCancel(): void;
+
+  /**
+   * Callback to initiate editing the notes section.
+   */
+  onEditNotes(): void;
+
+  /**
+   * Callback to copy the prompt text (with optional enhanced version).
+   * @param prompt - The prompt text to copy.
+   * @param isEnhanced - Whether to copy the enhanced version of the prompt.
+   */
+  onCopyPrompt(prompt: string, isEnhanced: boolean): void;
 }
 
 /**
@@ -61,27 +119,29 @@ export interface HistoryItemProps {
  * metadata, rating stars and a notes editor. All user actions are
  * delegated to the parent via callbacks.
  */
-const HistoryItem: React.FC<HistoryItemProps> = ({
-  item,
-  isExpanded,
-  onToggleExpand,
-  onDelete,
-  onRatingChange,
-  isEditingNotes,
-  notesValue,
-  onNotesChange,
-  onNotesSave,
-  onNotesCancel,
-  onEditNotes,
-  onCopyPrompt,
-}) => {
+const HistoryItem: React.FC<HistoryItemProps> = (props) => {
+  const {
+    item,
+    isExpanded,
+    onToggleExpand,
+    onDelete,
+    onRatingChange,
+    isEditingNotes,
+    notesValue,
+    onNotesChange,
+    onNotesSave,
+    onNotesCancel,
+    onEditNotes,
+    onCopyPrompt,
+  } = props;
+
   const [copied, setCopied] = React.useState<{ original?: boolean; enhanced?: boolean }>({});
 
   const handleCopy = (prompt: string, isEnhanced: boolean) => {
     navigator.clipboard.writeText(prompt);
-    setCopied(prev => ({ ...prev, [isEnhanced ? 'enhanced' : 'original']: true }));
+    setCopied(prev => ({...prev, [isEnhanced ? 'enhanced' : 'original']: true}));
     setTimeout(() => {
-      setCopied(prev => ({ ...prev, [isEnhanced ? 'enhanced' : 'original']: false }));
+      setCopied(prev => ({...prev, [isEnhanced ? 'enhanced' : 'original']: false}));
     }, 2000);
   };
 
@@ -108,7 +168,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
             className="h-7 w-7"
             aria-label={isExpanded ? 'Collapse' : 'Expand'}
           >
-            <Eye className="h-4 w-4" />
+            <Eye className="h-4 w-4"/>
           </Button>
           <Button
             variant="ghost"
@@ -117,7 +177,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
             className="h-7 w-7 text-destructive hover:text-destructive"
             aria-label="Delete"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4"/>
           </Button>
         </div>
       </div>
@@ -184,7 +244,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
               className="h-7 px-2 text-xs"
               aria-label="Copy original prompt"
             >
-              {copied.original ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied.original ? <Check className="h-4 w-4"/> : <Copy className="h-4 w-4"/>}
               <span className="ml-1">{copied.original ? 'Copied!' : 'Copy'}</span>
             </Button>
           </div>
@@ -205,29 +265,13 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
                   className="h-7 px-2 text-xs"
                   aria-label="Copy enhanced prompt"
                 >
-                  {copied.enhanced ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied.enhanced ? <Check className="h-4 w-4"/> : <Copy className="h-4 w-4"/>}
                   <span className="ml-1">{copied.enhanced ? 'Copied!' : 'Copy'}</span>
                 </Button>
-
-                <Popover.Root>
-                  <Popover.Trigger asChild>
-                    <Button variant="ghost" size="sm" className="h-7 px-2 text-xs">
-                      <MessageSquare className="h-4 w-4" />
-                      <span className="ml-1">View Full</span>
-                    </Button>
-                  </Popover.Trigger>
-                  <Popover.Content
-                    side="bottom"
-                    align="start"
-                    className="w-96 p-4 rounded bg-background shadow-lg z-50"
-                  >
-                    <ReactMarkdown>{item.enhancedPrompt}</ReactMarkdown>
-                  </Popover.Content>
-                </Popover.Root>
               </div>
             </div>
             <p className="text-sm bg-muted/30 p-2 rounded">
-              {truncateText(item.enhancedPrompt, 400)}
+              <ReactMarkdown>{item.enhancedPrompt.replace(/\n/ig, `\n`)}</ReactMarkdown>
             </p>
           </div>
         )}
@@ -256,7 +300,7 @@ const HistoryItem: React.FC<HistoryItemProps> = ({
             className="h-7 w-7"
             aria-label="Edit notes"
           >
-            <Edit className="h-4 w-4" />
+            <Edit className="h-4 w-4"/>
           </Button>
         </div>
 
