@@ -1,3 +1,9 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React, {useState, useEffect} from 'react';
 import {History, BarChart3, Settings, Sparkles} from 'lucide-react';
 
