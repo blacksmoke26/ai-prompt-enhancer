@@ -280,7 +280,7 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
 
       {/* Smart Suggestions Trigger */}
       {showSmartPanel && (
-        <div className="absolute top-2 right-2 z-10">
+        <div className="absolute top-1 right-2 z-10">
           <SmartSuggestionsTrigger
             prompt={value}
             isVisible={showSuggestions}
