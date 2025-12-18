@@ -167,7 +167,7 @@ export default class OllamaProvider extends BaseAIProvider {
 
     try {
       const systemPrompt = await this.buildSystemPrompt(request);
-      const fullPrompt = this.formatSystemPrompt(systemPrompt) + `\n\n` + this.formatPrompt(request.text);
+      const fullPrompt = this.formatSystemPrompt(systemPrompt) + `\n\n` + this.formatPrompt(request);
 
       const response = await this.client.post('/api/generate', {
         model: request.model,

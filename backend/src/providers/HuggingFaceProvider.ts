@@ -95,7 +95,7 @@ export default class HuggingFaceProvider extends BaseAIProvider {
     try {
       const systemPrompt = await this.buildSystemPrompt(request);
       const payload = {
-        inputs: this.formatSystemPrompt(systemPrompt) + `\n\n` + this.formatPrompt(request.text),
+        inputs: this.formatSystemPrompt(systemPrompt) + `\n\n` + this.formatPrompt(request),
         parameters: {
           max_length: request.maxTokens ?? 2000,
           temperature: request.temperature ?? 0.7,

@@ -103,7 +103,7 @@ export default class CozeProvider extends BaseAIProvider {
         model: request.model,
         messages: [
           {role: 'system', content: this.formatSystemPrompt(systemPrompt)},
-          {role: 'user', content: this.formatPrompt(request.text)},
+          {role: 'user', content: this.formatPrompt(request)},
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,

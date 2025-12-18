@@ -89,7 +89,7 @@ export default class KimiProvider extends BaseAIProvider {
           {role: 'system', content: this.formatSystemPrompt(systemPrompt)},
           {
             role: 'user',
-            content: this.formatPrompt(request.text),
+            content: this.formatPrompt(request),
           },
         ],
         temperature: request.temperature ?? 0.7,

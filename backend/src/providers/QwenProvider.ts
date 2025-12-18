@@ -101,7 +101,7 @@ export default class QwenProvider extends BaseAIProvider {
           },
           {
             role: 'user',
-            content: request.text,
+            content: this.formatPrompt(request),
           },
         ],
         temperature: request.temperature ?? 0.7,

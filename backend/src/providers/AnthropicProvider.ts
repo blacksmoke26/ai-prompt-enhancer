@@ -88,7 +88,7 @@ export default class AnthropicProvider extends BaseAIProvider {
             content: [
               {
                 type: 'text',
-                text: this.formatPrompt(request.text),
+                text: this.formatPrompt(request),
               },
             ],
           },

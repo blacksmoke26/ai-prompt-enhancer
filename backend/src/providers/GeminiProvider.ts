@@ -144,7 +144,7 @@ export default class GeminiProvider extends BaseAIProvider {
     const body = {
       contents: [
         {role: 'system', parts: [{text: this.formatSystemPrompt(systemPrompt)}]},
-        {role: 'user', parts: [{text: this.formatPrompt(request.text)}]},
+        {role: 'user', parts: [{text: this.formatPrompt(request)}]},
       ],
       temperature: request.temperature ?? 0.7,
       topK: 64,

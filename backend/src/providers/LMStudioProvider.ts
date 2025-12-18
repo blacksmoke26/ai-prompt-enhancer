@@ -142,7 +142,7 @@ export default class LMStudioProvider extends BaseAIProvider {
 
     try {
       const systemPrompt = await this.buildSystemPrompt(request);
-      const fullPrompt = `${this.formatSystemPrompt(systemPrompt)}\n\n` + this.formatPrompt(request.text);
+      const fullPrompt = `${this.formatSystemPrompt(systemPrompt)}\n\n` + this.formatPrompt(request);
 
       const response = await this.client.post('/api/v0/completions', {
         model: request.model,

@@ -91,7 +91,7 @@ export default class QianFanProvider extends BaseAIProvider {
         '/api/v1/services/aigc/text-generation/v1',
         {
           model: request.model,
-          input: `SYSTEM: ${this.formatSystemPrompt(systemPrompt)}\n\nUSER: ${this.formatPrompt(request.text)}`,
+          input: `SYSTEM: ${this.formatSystemPrompt(systemPrompt)}\n\nUSER: ${this.formatPrompt(request.text, request)}`,
           parameters: {
             temperature: request.temperature ?? 0.7,
             top_p: 1.0,
