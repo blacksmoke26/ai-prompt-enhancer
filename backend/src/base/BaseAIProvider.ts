@@ -104,7 +104,7 @@ export default abstract class BaseAIProvider {
   /**
    * Formats a full prompt with system message, user input, and enhanced prompt section.
    *
-   * @param userPrompt - The user's original input prompt
+   * @param request - The request object containing prompt configuration
    * @returns A formatted string containing all prompt components
    *
    * @example
@@ -115,8 +115,11 @@ export default abstract class BaseAIProvider {
    * Developer Note: This method serves as a template for prompt formatting and
    * should be used for logging or display purposes when generating prompts.
    */
-  public formatPrompt(userPrompt: string): string {
-    return `Original prompt: ${userPrompt}\nOutput Format: Markdown\nEnhanced prompt:`;
+  public formatPrompt(request: PromptRequest): string {
+    /*return `Features: Mermaid Chart\n\n` +
+      `Output Format: Markdown\n\nOriginal prompt: ${request.text}\n\n{{enhanced prompt}}`;*/
+
+    return `Output Format: Markdown\n\nOriginal prompt: ${request.text}\n\n{{enhanced prompt}}`;
   }
 
   /**
