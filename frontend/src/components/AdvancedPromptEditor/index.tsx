@@ -5,21 +5,27 @@
  */
 
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {WandSparkles} from 'lucide-react';
+import {ScrollText, WandSparkles} from 'lucide-react';
+import * as Popover from '@radix-ui/react-popover';
 
 // helpers
 import {cn, copyToClipboard, downloadFile} from '~/utils/helpers';
 
 // ui components
 import {Card, CardContent, CardHeader} from '~/components/ui/Card';
+import {Button} from '~/components/ui/Button';
+import {Textarea} from '~/components/ui/Textarea';
 
 // components
 import ActionButtons from './ActionButtons';
 import AutoSaveIndicator from './AutoSaveIndicator';
-import EditorContentWithSmartPanel, {MDXEditorMethods} from '~/components/AdvancedPromptEditor/EditorContentWithSmartPanel.tsx';
+import EditorContentWithSmartPanel, {
+  MDXEditorMethods,
+} from './EditorContentWithSmartPanel.tsx';
 
 // types
 import type {PromptResponse} from '~/types';
+import {useAppStore} from '~/stores/appStore.ts';
 
 /**
  * Configuration props for the Advanced Prompt Editor component
@@ -54,9 +60,6 @@ export interface AdvancedPromptEditorProps {
   /** Additional CSS classes */
   className?: string;
 
-  /** Custom key press handler */
-  onKeyPress?(e: React.KeyboardEvent): void;
-
   /** Show statistics panel */
   showStats?: boolean;
   /** Maximum character limit */
@@ -87,6 +90,9 @@ export interface AdvancedPromptEditorProps {
   displayLineCount?: boolean;
   /** Show/hide line count in stats panel */
   showLineCount?: boolean;
+
+  /** Callback function to update the default system prompt */
+  onSystemPromptChange?(systemPrompt: string): void;
 }
 
 /**
@@ -134,7 +140,6 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
     showActions = true,
     response,
     className,
-    onKeyPress,
     showStats = true,
     maxLength = 10000,
     showTemplates = false,
@@ -159,7 +164,13 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
     autoSaveStatus: 'idle',
     selectedText: '',
   });
+
+  const {config, setConfig} = useAppStore();
+
+  const [localSystemPrompt, setLocalSystemPrompt] = useState<string>(config.defaultSystemPrompt);
   const textareaRef = useRef<MDXEditorMethods>(null);
+  const popoverRef = useRef<HTMLButtonElement>(null);
+
 
   /**
    * Calculates text statistics and handles auto-save
@@ -287,11 +298,55 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
     <div className={cn('w-full', className)}>
       <Card className="border-2 border-border/50">
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex justify-between">
             <div className="flex items-center space-x-4">
-              <h1 className="text-lg font-semibold"><WandSparkles className="display-inline"/> {label || 'Advanced Prompt Editor'}</h1>
+              <h1 className="text-lg font-semibold">
+                <WandSparkles className="display-inline"/> {label || 'Advanced Prompt Editor'}</h1>
               {autoSave && <AutoSaveIndicator autoSaveStatus={state.autoSaveStatus} lastSaved={state.lastSaved}/>}
             </div>
+
+            <Popover.Root>
+              <Popover.Trigger asChild ref={popoverRef}>
+                <Button variant="plain" title="Change System Prompt px-0 text-sm" size="icon">
+                  <ScrollText className="h-10"/>
+                </Button>
+              </Popover.Trigger>
+              <Popover.Content
+                side="bottom"
+                align="end"
+                className="w-96 p-4 rounded bg-background shadow-lg z-50 outline-2 outline-blue-500 outline-solid"
+              >
+                <div className="space-y-2">
+                  <h3 className="font-medium">Default System Prompt</h3>
+                  <Textarea
+                    value={localSystemPrompt}
+                    onChange={(e) => setLocalSystemPrompt(e.target.value)}
+                    placeholder="Enter default system prompt..."
+                    rows={3}
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setLocalSystemPrompt('You are a helpful AI assistant specialised in enhancing and improving prompts.');
+                      }}
+                    >
+                      Reset
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => {
+                        setConfig({defaultSystemPrompt: config.defaultSystemPrompt}, true);
+                        popoverRef.current?.click();
+                      }}
+                    >
+                      Save
+                    </Button>
+                  </div>
+                </div>
+              </Popover.Content>
+            </Popover.Root>
           </div>
           <p className="text-sm">Enter your prompt below and let AI enhance it for better results</p>
         </CardHeader>
