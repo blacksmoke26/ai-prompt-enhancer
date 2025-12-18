@@ -16,6 +16,9 @@
 import {History, Provider} from '~/database/models';
 import {FindOptions, Op} from 'sequelize';
 
+// classes
+import HistoryStats from '~/classes/HistoryStats';
+
 /**
  * Represents a single entry in the prompt history with comprehensive metadata.
  *
@@ -357,31 +360,31 @@ export class HistoryManager {
    *   console.log('Entry updated successfully');
    * }
    */
-   public async updateHistoryItem(id: string, updates: Partial<PromptHistory>): Promise<boolean> {
-     const record = await History.findByPk(id);
+  public async updateHistoryItem(id: string, updates: Partial<PromptHistory>): Promise<boolean> {
+    const record = await History.findByPk(id);
 
-     if (!record) return false;
+    if (!record) return false;
 
-     const updateData: any = {};
+    const updateData: any = {};
 
-     if (updates.rating) {
-       updateData.rating = updates.rating;
-     }
+    if (updates.rating) {
+      updateData.rating = updates.rating;
+    }
 
-     if (updates.notes) {
-       updateData.notes = updates.notes;
-     }
+    if (updates.notes) {
+      updateData.notes = updates.notes;
+    }
 
-     if (Object.keys(updateData).length === 0) {
-       return true;
-     }
+    if (Object.keys(updateData).length === 0) {
+      return true;
+    }
 
-     const [updatedRows] = await History.update(updateData, {
-       where: {id},
-     });
+    const [updatedRows] = await History.update(updateData, {
+      where: {id},
+    });
 
-     return updatedRows > 0;
-   }
+    return updatedRows > 0;
+  }
 
   /**
    * Permanently removes all entries from the history.
@@ -831,100 +834,46 @@ export class HistoryManager {
     const systemPromptPercentage = Number(((systemPromptUsed / len) * 100).toFixed(1));
     const metaPercentage = Number(((withMeta / len) * 100).toFixed(1));
 
-    const mostUsedModel = Object.entries(modelCount).sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'N/A';
-    const mostUsedType = Object.entries(typeCount).sort(([, a], [, b]) => b - a)[0]?.[0] ?? 'N/A';
+    const stats = new HistoryStats(histories);
 
-    const providerUsage = Object.entries(providerModelCount).map(([k, c]) => {
-      const [provider, model] = k.split('|');
-      return {provider, model, count: c};
-    });
-
-    const mostUsedRoles = Object.entries(roleCount)
-      .map(([role, count]) => ({role, count}))
-      .sort((a, b) => b.count - a.count);
-
-    const modelPerformance = Object.entries(modelProcessingTime).map(([model, times]) => ({
-      model,
-      avgProcessingTime: Math.round(times.reduce((a, b) => a + b, 0) / times.length),
-      totalUsage: times.length,
-    })).sort((a, b) => b.totalUsage - a.totalUsage);
-
-    const mostEfficient = Object.entries(modelProcessingTime)
-      .map(([model, times]) => ({
-        model,
-        avgProcessingTime: Math.round(times.reduce((a, b) => a + b, 0) / times.length),
-        avgTokensPerMs: Number((histories.filter(h => h.model === model).reduce((sum, h) => sum + (h.tokensUsed ?? 0), 0) / times.reduce((a, b) => a + b, 0)).toFixed(4)),
-      }))
-      .sort((a, b) => b.avgTokensPerMs - a.avgTokensPerMs)[0] ?? {
-      model: 'N/A',
-      avgProcessingTime: 0,
-      avgTokensPerMs: 0,
-    };
-
-    const enhancementFrequency = Object.entries(typeCount)
-      .map(([type, count]) => ({
-        type,
-        count,
-        percentage: Number(((count / len) * 100).toFixed(1)),
-      }))
-      .sort((a, b) => b.count - a.count);
-
-    const temperatureDistribution = Object.entries(temperatureRanges).map(([range, count]) => ({
-      range,
-      count,
-    }));
-
-    const roleModelDistribution = Object.entries(roleModelCount).map(([k, count]) => {
-      const [role, model] = k.split('|');
-      return {role, model, count};
-    }).sort((a, b) => b.count - a.count);
-
-    const peakHour = Object.entries(hourlyUsage)
-      .sort(([, a], [, b]) => b - a)[0] ?? ['0', 0];
-
-    const monthlyStats = Object.entries(monthlyUsage)
-      .map(([month, count]) => ({month, count}))
-      .sort((a, b) => b.month.localeCompare(a.month));
-
-    const weeklyStats = Object.entries(weeklyUsage)
-      .map(([week, count]) => ({week, count}))
-      .sort((a, b) => b.week.localeCompare(a.week));
-
-    const ratingDistribution = Object.entries(ratingCounts)
-      .map(([rating, count]) => ({
-        rating: Number(rating),
-        count,
-        percentage: Number(((count / len) * 100).toFixed(1)),
-      }))
-      .filter(r => r.count > 0);
+    const [
+      mostUsedModel,
+      mostUsedType,
+      providerUsage,
+      mostUsedRoles,
+      modelPerformance,
+      mostEfficient,
+      enhancementFrequency,
+      temperatureDistribution,
+      roleModelDistribution,
+      peakHour,
+      monthlyStats,
+      weeklyStats,
+      ratingDistribution,
+      preferredTimeSlots,
+      enhancementTypeEfficiency,
+    ] = await Promise.all([
+      stats.getMostUsedModel(modelCount),
+      stats.getMostUsedType(typeCount),
+      stats.getProviderUsage(providerModelCount),
+      stats.getMostUsedRoles(roleCount),
+      stats.getModelPerformance(modelProcessingTime),
+      stats.getMostEfficient(modelProcessingTime),
+      stats.getEnhancementFrequency(typeCount, len),
+      stats.getTemperatureDistribution(temperatureRanges),
+      stats.getRoleModelDistribution(roleModelCount),
+      stats.getPeakHour(hourlyUsage),
+      stats.getMonthlyStats(monthlyUsage),
+      stats.getWeeklyStats(weeklyUsage),
+      stats.getRatingDistribution(ratingCounts, len),
+      stats.getPreferredTimeSlots(hourlyUsage, len),
+      stats.getEnhancementTypeEfficiency(enhancementStats),
+    ]);
 
     const costAnalysis = {
       totalEstimatedCost: Number((totalTokens * 0.00002).toFixed(4)), // Assuming $0.02 per 1K tokens
       avgCostPerRequest: Number(((totalTokens * 0.00002) / len).toFixed(6)),
     };
-
-    const preferredTimeSlots = Object.entries(hourlyUsage)
-      .map(([hour, count]) => ({
-        hour: Number(hour),
-        count,
-        percentage: Number(((count / len) * 100).toFixed(1)),
-      }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5);
-
-    const enhancementTypeEfficiency: {
-      type: string;
-      avgProcessingTime: number;
-      avgTokensUsed: number;
-      successRate: number;
-    }[] = Object.entries(enhancementStats).map(([type, stats]) => ({
-      type,
-      avgProcessingTime: Math.round(stats.processingTime.reduce((a, b) => a + b, 0) / stats.processingTime.length),
-      avgTokensUsed: Math.round(stats.tokensUsed.reduce((a, b) => a + b, 0) / stats.tokensUsed.length),
-      successRate: Number(((stats.ratings.filter(r => r >= 4).length / stats.ratings.length) * 100).toFixed(1)),
-    }));
-
-    enhancementTypeEfficiency.sort((a, b) => b.successRate - a.successRate);
 
     return {
       totalItems: len,
