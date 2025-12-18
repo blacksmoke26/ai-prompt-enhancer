@@ -154,7 +154,6 @@ const PromptEnhancer: React.FC = () => {
         error={error || undefined}
         disabled={loading}
         response={response}
-        onKeyPress={handleKeyPress}
         showStats={true}
         maxLength={10000}
         showTemplates={false}
