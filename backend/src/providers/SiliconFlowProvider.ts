@@ -84,14 +84,14 @@ export default class SiliconFlowProvider extends BaseAIProvider {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Original prompt: ${request.text}\n\nEnhanced prompt:` },
+          { role: 'system', content: this.formatSystemPrompt(systemPrompt) },
+          { role: 'user', content: this.formatPrompt(request.text) },
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
       });
 
-      const enhancedPrompt = response.data.choices?.[0]?.message?.content?.trim() ?? request.text;
+      const enhancedPrompt = this.toPromptResponse(response.data.choices?.[0]?.message?.content, request.text);
 
       return {
         enhancedPrompt,

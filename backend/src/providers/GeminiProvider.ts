@@ -143,8 +143,8 @@ export default class GeminiProvider extends BaseAIProvider {
 
     const body = {
       contents: [
-        {role: 'system', parts: [{text: systemPrompt}]},
-        {role: 'user', parts: [{text: `Original prompt: ${request.text}\n\nEnhanced prompt:`}]},
+        {role: 'system', parts: [{text: this.formatSystemPrompt(systemPrompt)}]},
+        {role: 'user', parts: [{text: this.formatPrompt(request.text)}]},
       ],
       temperature: request.temperature ?? 0.7,
       topK: 64,
@@ -158,8 +158,7 @@ export default class GeminiProvider extends BaseAIProvider {
 
     const response = await this.client.post(endpoint, body);
 
-    const enhancedPrompt =
-      response.data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ?? request.text;
+    const enhancedPrompt = this.toPromptResponse(response.data?.candidates?.[0]?.content?.parts?.[0]?.text,  request.text);
 
     return {
       enhancedPrompt,

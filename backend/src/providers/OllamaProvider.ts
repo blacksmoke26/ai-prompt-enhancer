@@ -167,7 +167,7 @@ export default class OllamaProvider extends BaseAIProvider {
 
     try {
       const systemPrompt = this.buildSystemPrompt(request);
-      const fullPrompt = `${systemPrompt}\n\nOriginal prompt: ${request.text}\n\nEnhanced prompt:`;
+      const fullPrompt = this.formatSystemPrompt(systemPrompt) + `\n\n` + this.formatPrompt(request.text);
 
       const response = await this.client.post('/api/generate', {
         model: request.model,
@@ -179,7 +179,7 @@ export default class OllamaProvider extends BaseAIProvider {
         },
       });
 
-      const enhancedPrompt = response.data.response?.trim() || request.text;
+      const enhancedPrompt = this.toPromptResponse(response?.data?.response?.trim(), request.text);
 
       return {
         enhancedPrompt,

@@ -12,7 +12,7 @@ import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 // types
 import type {ConfigMeta} from '~/database/models';
-import type { AIModel, PromptRequest, PromptResponse } from '~/types';
+import type {AIModel, PromptRequest, PromptResponse} from '~/types';
 
 /**
  * XAI provider for prompt enhancement using XAI's language models.
@@ -78,18 +78,17 @@ export default class XAIProvider extends BaseAIProvider {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          { role: 'system', content: systemPrompt },
+          {role: 'system', content: this.formatSystemPrompt(systemPrompt)},
           {
             role: 'user',
-            content: `Original prompt: ${request.text}\n\nEnhanced prompt:`,
+            content: this.formatPrompt(request.text),
           },
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
       });
 
-      const enhancedPrompt =
-        response.data.choices?.[0]?.message?.content?.trim() ?? request.text;
+      const enhancedPrompt = this.toPromptResponse(response.data.choices?.[0]?.message?.content, request.text);
 
       return {
         enhancedPrompt,
@@ -113,7 +112,7 @@ export default class XAIProvider extends BaseAIProvider {
     try {
       const resp = await this.client.post('/chat/completions', {
         model: 'xai-gpt4',
-        messages: [{ role: 'user', content: 'test' }],
+        messages: [{role: 'user', content: 'test'}],
         max_tokens: 1,
       });
       return !!resp.data.choices;

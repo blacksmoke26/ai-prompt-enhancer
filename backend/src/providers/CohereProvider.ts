@@ -104,18 +104,17 @@ export default class CohereProvider extends BaseAIProvider {
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
-          {role: 'system', content: systemPrompt},
+          {role: 'system', content: this.formatSystemPrompt(systemPrompt)},
           {
             role: 'user',
-            content: `Original prompt: ${request.text}\n\nEnhanced prompt:`,
+            content: this.formatPrompt(request.text),
           },
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
       });
 
-      const enhancedPrompt =
-        response.data.generations?.[0]?.text?.trim() ?? request.text;
+      const enhancedPrompt = this.toPromptResponse(response.data.generations?.[0]?.text, request.text);
 
       return {
         enhancedPrompt,

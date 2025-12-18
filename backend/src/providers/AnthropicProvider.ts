@@ -81,21 +81,21 @@ export default class AnthropicProvider extends BaseAIProvider {
         model: request.model,
         max_tokens: request.maxTokens ?? 2000,
         temperature: request.temperature ?? 0.7,
-        system: systemPrompt,
+        system: this.formatSystemPrompt(systemPrompt),
         messages: [
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: `Original prompt: ${request.text}\n\nEnhanced prompt:`,
+                text: this.formatPrompt(request.text),
               },
             ],
           },
         ],
       });
 
-      const enhanced = response.data.content?.[0]?.text?.trim() ?? request.text;
+      const enhanced = this.toPromptResponse(response.data.content?.[0]?.text, request.text);
 
       return {
         enhancedPrompt: enhanced,

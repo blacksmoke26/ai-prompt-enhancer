@@ -91,7 +91,7 @@ export default class QianFanProvider extends BaseAIProvider {
         '/api/v1/services/aigc/text-generation/v1',
         {
           model: request.model,
-          input: `SYSTEM: ${systemPrompt}\nUSER: Original prompt: ${request.text}\nENHANCE:`,
+          input: `SYSTEM: ${this.formatSystemPrompt(systemPrompt)}\n\nUSER: ${this.formatPrompt(request.text)}`,
           parameters: {
             temperature: request.temperature ?? 0.7,
             top_p: 1.0,
@@ -100,8 +100,7 @@ export default class QianFanProvider extends BaseAIProvider {
         },
       );
 
-      const enhanced = response.data.output?.choices?.[0]?.content?.trim() ??
-        request.text;
+      const enhanced = this.toPromptResponse(response.data.output?.choices?.[0]?.content, request.text);
 
       return {
         enhancedPrompt: enhanced,

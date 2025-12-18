@@ -106,8 +106,7 @@ export default class QwenProvider extends BaseAIProvider {
         max_tokens: request.maxTokens,
       });
 
-      const enhanced = response.data.output?.choices?.[0]?.content?.trim() ??
-        request.text;
+      const enhanced = this.toPromptResponse(response.data.output?.choices?.[0]?.content, request.text);
 
       return {
         enhancedPrompt: enhanced,

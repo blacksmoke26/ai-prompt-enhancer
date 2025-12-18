@@ -95,7 +95,7 @@ export default class HuggingFaceProvider extends BaseAIProvider {
     try {
       const systemPrompt = this.buildSystemPrompt(request);
       const payload = {
-        inputs: `${systemPrompt}\nOriginal prompt: ${request.text}\n\nEnhanced prompt:`,
+        inputs: this.formatSystemPrompt(systemPrompt) + `\n\n` + this.formatPrompt(request.text),
         parameters: {
           max_length: request.maxTokens ?? 2000,
           temperature: request.temperature ?? 0.7,
@@ -104,9 +104,7 @@ export default class HuggingFaceProvider extends BaseAIProvider {
 
       const response = await this.client.post(`/${request.model}`, payload);
 
-      const enhanced = Array.isArray(response.data) && response.data[0]?.generated_text
-        ? response.data[0].generated_text.trim()
-        : request.text;
+      const enhanced = this.toPromptResponse(response.data?.[0].generated_text, request.text);
 
       return {
         enhancedPrompt: enhanced,

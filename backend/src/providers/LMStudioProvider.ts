@@ -142,7 +142,7 @@ export default class LMStudioProvider extends BaseAIProvider {
 
     try {
       const systemPrompt = this.buildSystemPrompt(request);
-      const fullPrompt = `${systemPrompt}\n\nOriginal prompt: ${request.text}\n\nEnhanced prompt:`;
+      const fullPrompt = `${this.formatSystemPrompt(systemPrompt)}\n\n` + this.formatPrompt(request.text);
 
       const response = await this.client.post('/api/v0/completions', {
         model: request.model,
@@ -152,7 +152,7 @@ export default class LMStudioProvider extends BaseAIProvider {
         max_tokens: request.maxTokens || 2000,
       });
 
-      const enhancedPrompt = response.data.choices?.[0]?.text?.trim() || request.text;
+      const enhancedPrompt = this.toPromptResponse(response.data.choices?.[0]?.text, request.text);
 
       return {
         enhancedPrompt,
