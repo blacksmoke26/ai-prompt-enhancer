@@ -21,7 +21,9 @@ import {
 
 // utils
 import {formatNumber} from '~/utils/helpers';
-import {DistributionTabProps} from '~/components/StatsPanel/types.ts';
+
+// types
+import type {DistributionTabProps} from './types';
 
 /**
  * DistributionTab component to display various distribution charts and text metrics.
@@ -45,13 +47,15 @@ import {DistributionTabProps} from '~/components/StatsPanel/types.ts';
  * - Ensure all data arrays are non-empty to avoid rendering issues.
  * - The `COLORS` array should have enough colors for the data points in the temperature distribution chart.
  */
-const DistributionTab: React.FC<DistributionTabProps> = ({
-                                                           stats,
-                                                           temperatureDistributionData,
-                                                           ratingDistributionData,
-                                                           enhancementFrequencyData,
-                                                           COLORS,
-                                                         }) => {
+const DistributionTab: React.FC<DistributionTabProps> = (props) => {
+  const {
+    stats,
+    temperatureDistributionData,
+    ratingDistributionData,
+    enhancementFrequencyData,
+    COLORS,
+  } = props;
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -71,7 +75,7 @@ const DistributionTab: React.FC<DistributionTabProps> = ({
                   dataKey="count"
                   label={({name, percent}) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
                 >
-                  {temperatureDistributionData.map((entry, index) => (
+                  {temperatureDistributionData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]}/>
                   ))}
                 </Pie>
