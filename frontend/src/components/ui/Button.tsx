@@ -5,7 +5,7 @@ import { cn } from '../../utils/helpers';
  * Props for the Button component.
  * Extends HTML button attributes to maintain native button functionality.
  */
-type ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
+type ButtonVariant = 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'plain';
 type ButtonSize = 'default' | 'sm' | 'lg' | 'icon';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -55,6 +55,7 @@ export const Button: React.FC<ButtonProps> = ({
     outline: 'border border-input bg-background hover:bg-accent hover:text-accent-foreground',
     secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
     ghost: 'hover:bg-accent hover:text-accent-foreground',
+    plain: '',
     link: 'text-primary underline-offset-4 hover:underline',
   };
 
