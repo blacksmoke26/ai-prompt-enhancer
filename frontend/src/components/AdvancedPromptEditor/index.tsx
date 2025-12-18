@@ -123,7 +123,7 @@ export interface EditorState {
  * Keyboard shortcuts are handled globally - ensure no conflicts with parent components.
  * Token estimation is approximate (4 chars per token) and may vary by model.
  */
-export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
+const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
   const {
     value,
     onChange,
@@ -342,3 +342,5 @@ export const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props)
     </div>
   );
 };
+
+export default AdvancedPromptEditor;

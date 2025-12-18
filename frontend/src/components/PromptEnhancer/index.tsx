@@ -13,7 +13,7 @@ import { useAppStore } from '~/stores/appStore';
 import { usePromptEnhancer } from '~/hooks/usePromptEnhancer';
 
 // components
-import { AdvancedPromptEditor } from '~/components/AdvancedPromptEditor';
+import AdvancedPromptEditor from '~/components/AdvancedPromptEditor';
 import ErrorAlert from '~/components/PromptEnhancer/ErrorAlert';
 import ActionButtons from '~/components/PromptEnhancer/ActionButtons';
 import QuickStats from '~/components/PromptEnhancer/QuickStats';
