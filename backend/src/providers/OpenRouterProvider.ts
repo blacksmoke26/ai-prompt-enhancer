@@ -99,7 +99,7 @@ export default class OpenRouterProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request);
 
       const response = await this.client.post('/chat/completions', {
         model: request.model,
@@ -147,26 +147,5 @@ export default class OpenRouterProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Build system prompt based on enhancement type and user role
-   * @param request - Prompt request containing enhancement preferences
-   * @returns Complete system prompt string for API call
-   * @developerNote
-   * Combines role-specific persona with enhancement type instructions.
-   * Falls back to general enhancement if specified type not found.
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const systemPrompt = request.systemPrompt ||
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ||
-      enhancementPrompts.enhance;
-
-    const rolePrompt = rolePrompts[request.userRole as keyof typeof rolePrompts] || rolePrompts.general;
-
-    return `${rolePrompt} ${systemPrompt}`;
   }
 }

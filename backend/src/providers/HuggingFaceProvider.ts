@@ -93,7 +93,7 @@ export default class HuggingFaceProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request);
       const payload = {
         inputs: this.formatSystemPrompt(systemPrompt) + `\n\n` + this.formatPrompt(request.text),
         parameters: {
@@ -137,29 +137,5 @@ export default class HuggingFaceProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Builds the system prompt based on request parameters.
-   * @param request - The prompt request containing enhancement type and user role
-   * @returns The constructed system prompt string
-   * @developerNotes
-   * - Combines role-based and enhancement-type prompts
-   * - Falls back to general role if invalid role specified
-   * - Uses 'enhance' type if invalid enhancement type specified
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const systemPrompt =
-      request.systemPrompt ??
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ??
-      enhancementPrompts.enhance;
-
-    const rolePrompt =
-      rolePrompts[request.userRole as keyof typeof rolePrompts] ?? rolePrompts.general;
-
-    return `${rolePrompt} ${systemPrompt}`;
   }
 }

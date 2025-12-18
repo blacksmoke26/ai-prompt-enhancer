@@ -128,7 +128,7 @@ export default class GroqProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    const systemPrompt = this.buildSystemPrompt(request);
+    const systemPrompt = await this.buildSystemPrompt(request);
 
     const response = await this.client.post('/openai/v1/chat/completions', {
       model: request.model,
@@ -176,29 +176,5 @@ export default class GroqProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Builds a system prompt based on enhancement type and user role.
-   *
-   * @param request - The prompt request containing enhancement type and user role
-   * @returns Combined system prompt string
-   *
-   * @developerNote Combines role-specific prompts with enhancement-type prompts.
-   * Falls back to 'enhance' type and 'general' role if invalid values provided.
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const systemPrompt =
-      request.systemPrompt ??
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ??
-      enhancementPrompts.enhance;
-
-    const rolePrompt =
-      rolePrompts[request.userRole as keyof typeof rolePrompts] ?? rolePrompts.general;
-
-    return `${rolePrompt} ${systemPrompt}`;
   }
 }

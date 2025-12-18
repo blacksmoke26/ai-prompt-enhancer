@@ -97,7 +97,7 @@ export default class CozeProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
     try {
-      const systemPrompt = this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request);
 
       const response = await this.client.post('/v1/chat/completions', {
         model: request.model,
@@ -145,30 +145,5 @@ export default class CozeProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Builds a system prompt based on the enhancement type and user role.
-   *
-   * @param request - The prompt request containing enhancement type and user role
-   * @returns A formatted system prompt string
-   *
-   * @developer-note
-   * Combines role-specific prompts with enhancement type instructions.
-   * Falls back to general assistant and enhance type if values are invalid.
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const systemPrompt =
-      request.systemPrompt ||
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ||
-      enhancementPrompts.enhance;
-
-    const rolePrompt =
-      rolePrompts[request.userRole as keyof typeof rolePrompts] || rolePrompts.general;
-
-    return `${rolePrompt} ${systemPrompt}`;
   }
 }

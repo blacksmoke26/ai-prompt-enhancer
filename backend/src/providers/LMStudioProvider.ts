@@ -141,7 +141,7 @@ export default class LMStudioProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request);
       const fullPrompt = `${this.formatSystemPrompt(systemPrompt)}\n\n` + this.formatPrompt(request.text);
 
       const response = await this.client.post('/api/v0/completions', {
@@ -191,42 +191,5 @@ export default class LMStudioProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Builds a system prompt based on the enhancement type and user role.
-   *
-   * @param request - The prompt request containing enhancement preferences
-   * @returns The constructed system prompt string
-   *
-   * @example
-   * ```typescript
-   * const prompt = provider.buildSystemPrompt({
-   *   enhancementType: 'enhance',
-   *   userRole: 'developer'
-   * });
-   * ```
-   *
-   * @developerNote
-   * Combines role-based prompts with enhancement-specific instructions.
-   * Falls back to 'enhance' type and 'general' role if invalid values provided.
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-
-    const rolePrompts = toUserRoles();
-
-    const systemPrompt = request.systemPrompt ||
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ||
-      enhancementPrompts.enhance;
-
-    const rolePrompt = rolePrompts[request.userRole as keyof typeof rolePrompts] || rolePrompts.general;
-
-    console.log({
-      systemPrompt,
-      rolePrompt,
-    });
-
-    return `${rolePrompt} ${systemPrompt}`;
   }
 }

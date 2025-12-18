@@ -104,7 +104,7 @@ export default class CodyProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
     try {
-      const systemPrompt = this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request);
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
@@ -157,44 +157,5 @@ export default class CodyProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Builds system prompt based on request parameters.
-   *
-   * @param request - Prompt request containing enhancement configuration
-   * @returns Formatted system prompt string
-   *
-   * @developerNotes
-   * - Delegates to buildDefaultSystemPrompt implementation
-   * - Allows for future customization of prompt building logic
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    return this.buildDefaultSystemPrompt(request);
-  }
-
-  /**
-   * Creates a comprehensive system prompt combining role and enhancement type.
-   *
-   * @param request - Prompt request with enhancement and role specifications
-   * @returns Complete system prompt for AI model
-   *
-   * @developerNotes
-   * - Supports 4 enhancement types: correct, enhance, proofread, optimize
-   * - Supports 8 user roles: general, developer, writer, researcher, marketer, educator, business, designer
-   * - Falls back to sensible defaults if invalid types provided
-   */
-  private buildDefaultSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const sys =
-      request.systemPrompt ||
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ||
-      enhancementPrompts.enhance;
-
-    const role = rolePrompts[request.userRole as keyof typeof rolePrompts] || rolePrompts.general;
-
-    return `${role} ${sys}`;
   }
 }

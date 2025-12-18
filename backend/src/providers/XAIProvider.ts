@@ -73,7 +73,7 @@ export default class XAIProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request);
 
       const response = await this.client.post('/chat/completions', {
         model: request.model,
@@ -119,25 +119,5 @@ export default class XAIProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Builds a system prompt based on enhancement type and user role.
-   * @param request - Prompt request containing enhancement parameters
-   * @returns Combined system prompt string
-   * @private
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const system =
-      request.systemPrompt ??
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ??
-      enhancementPrompts.enhance;
-
-    const role = rolePrompts[request.userRole as keyof typeof rolePrompts] ?? rolePrompts.general;
-
-    return `${role} ${system}`;
   }
 }

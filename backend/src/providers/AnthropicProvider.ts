@@ -74,7 +74,7 @@ export default class AnthropicProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    const systemPrompt = this.buildSystemPrompt(request);
+    const systemPrompt = await this.buildSystemPrompt(request);
 
     try {
       const response = await this.client.post('/messages', {
@@ -130,25 +130,5 @@ export default class AnthropicProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Builds a system prompt based on the enhancement type and user role.
-   * @param request - The prompt request containing enhancement type and role
-   * @returns Complete system prompt string
-   * @developerNote Combines role-based prompts with enhancement-specific instructions
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const system =
-      request.systemPrompt ??
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ??
-      enhancementPrompts.enhance;
-
-    const role = rolePrompts[request.userRole as keyof typeof rolePrompts] ?? rolePrompts.general;
-
-    return `${role} ${system}`;
   }
 }

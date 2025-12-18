@@ -81,7 +81,7 @@ export default class KimiProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request);
 
       const response = await this.client.post('/v1/chat/completions', {
         model: request.model,
@@ -129,27 +129,5 @@ export default class KimiProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Builds system prompt based on enhancement type and user role.
-   *
-   * @param request - The prompt request containing enhancement preferences
-   * @returns Complete system prompt string
-   * @developer Note: Combines role-specific and enhancement-type prompts
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const systemPrompt =
-      request.systemPrompt ??
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ??
-      enhancementPrompts.enhance;
-
-    const rolePrompt =
-      rolePrompts[request.userRole as keyof typeof rolePrompts] ?? rolePrompts.general;
-
-    return `${rolePrompt} ${systemPrompt}`;
   }
 }

@@ -86,7 +86,7 @@ export default class QianFanProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request);
       const response = await this.client.post(
         '/api/v1/services/aigc/text-generation/v1',
         {
@@ -135,26 +135,5 @@ export default class QianFanProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Construct a system prompt combining role context and enhancement type.
-   *
-   * @param request - Prompt enhancement configuration
-   * @returns Formatted system prompt string for AI model
-   * @private
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const system =
-      request.systemPrompt ??
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ??
-      enhancementPrompts.enhance;
-
-    const role = rolePrompts[request.userRole as keyof typeof rolePrompts] ?? rolePrompts.general;
-
-    return `${role} ${system}`;
   }
 }

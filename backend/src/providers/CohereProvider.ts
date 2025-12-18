@@ -100,7 +100,7 @@ export default class CohereProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
     try {
-      const systemPrompt = this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request);
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
@@ -150,39 +150,5 @@ export default class CohereProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Builds the system prompt based on the request parameters.
-   *
-   * @param request - The prompt request containing enhancement type and user role
-   * @returns Constructed system prompt string
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    return this.buildDefaultSystemPrompt(request);
-  }
-
-  /**
-   * Creates a default system prompt based on enhancement type and user role.
-   *
-   * @param request - The prompt request configuration
-   * @returns Complete system prompt combining role and enhancement instructions
-   *
-   * @developerNotes
-   * Supports multiple enhancement types: correct, enhance, proofread, optimize
-   * Includes 9 predefined user roles for specialized prompt engineering
-   */
-  private buildDefaultSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const system =
-      request.systemPrompt ||
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ||
-      enhancementPrompts.enhance;
-
-    const role = rolePrompts[request.userRole as keyof typeof rolePrompts] || rolePrompts.general;
-
-    return `${role} ${system}`;
   }
 }

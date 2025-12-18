@@ -99,7 +99,7 @@ export default class MistralProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    const systemPrompt = this.buildSystemPrompt(request);
+    const systemPrompt = await this.buildSystemPrompt(request);
 
     try {
       const response = await this.client.post('/chat/completions', {
@@ -152,31 +152,5 @@ export default class MistralProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Constructs a system prompt based on enhancement type and user role.
-   *
-   * @param request - Prompt request containing enhancement and role information
-   * @returns Combined system prompt string
-   *
-   * @developer-notes
-   * - Combines role-based and enhancement-type prompts
-   * - Falls back to general role and enhance type if invalid
-   * - Supports custom system prompts override
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const systemPrompt =
-      request.systemPrompt ??
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ??
-      enhancementPrompts.enhance;
-
-    const rolePrompt =
-      rolePrompts[request.userRole as keyof typeof rolePrompts] ?? rolePrompts.general;
-
-    return `${rolePrompt} ${systemPrompt}`;
   }
 }

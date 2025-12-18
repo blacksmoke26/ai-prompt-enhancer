@@ -80,7 +80,7 @@ export default class SiliconFlowProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
     try {
-      const systemPrompt = this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request);
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
@@ -124,38 +124,5 @@ export default class SiliconFlowProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Builds system prompt for the request.
-   *
-   * @param request - The prompt request
-   * @returns System prompt string
-   * @developerNote Delegates to buildDefaultSystemPrompt
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    return this.buildDefaultSystemPrompt(request);
-  }
-
-  /**
-   * Builds default system prompt based on enhancement type and user role.
-   *
-   * @param request - The prompt request
-   * @returns Formatted system prompt
-   * @developerNote Combines role and enhancement type prompts
-   */
-  private buildDefaultSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const systemPrompt =
-      request.systemPrompt ??
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ??
-      enhancementPrompts.enhance;
-
-    const rolePrompt =
-      rolePrompts[request.userRole as keyof typeof rolePrompts] ?? rolePrompts.general;
-
-    return `${rolePrompt} ${systemPrompt}`;
   }
 }

@@ -97,7 +97,7 @@ export default class DeepSeekProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request);
 
       const response = await this.client.post('/chat/completions', {
         model: request.model,
@@ -147,31 +147,5 @@ export default class DeepSeekProvider extends BaseAIProvider {
     } catch {
       return false;
     }
-  }
-
-  /**
-   * Builds system prompt by combining role and enhancement type contexts.
-   * @param request - Prompt request containing enhancement type and user role
-   * @returns System prompt string
-   * @example
-   * ```typescript
-   * const prompt = provider.buildSystemPrompt({
-   *   enhancementType: 'correct',
-   *   userRole: 'writer'
-   * });
-   * ```
-   * @developerNote Combines role and enhancement prompts for optimal results.
-   */
-  private buildSystemPrompt(request: PromptRequest): string {
-    const enhancementPrompts = toEnhancementTypes();
-    const rolePrompts = toUserRoles();
-
-    const systemPrompt = request.systemPrompt ||
-      enhancementPrompts[request.enhancementType as keyof typeof enhancementPrompts] ||
-      enhancementPrompts.enhance;
-
-    const rolePrompt = rolePrompts[request.userRole as keyof typeof rolePrompts] || rolePrompts.general;
-
-    return `${rolePrompt} ${systemPrompt}`;
   }
 }
