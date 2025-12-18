@@ -37,9 +37,10 @@ export type TabType = 'enhancer' | 'history' | 'stats' | 'settings';
  */
 export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('enhancer');
-  const {loading, error, refreshData} = useAppData();
+  const {loading: appLoading, error, refreshData} = useAppData();
   const {history, loadStats, loadHistory, deleteItem, updateItem, clearHistory, exportHistory} = useHistory();
   const {sidebarOpen} = useAppStore();
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   /**
    * Loads user history on component mount
@@ -51,6 +52,17 @@ export const Dashboard: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /**
+   * Handles refreshing history data
+   */
+  const handleRefreshHistory = async () => {
+    try {
+      setHistoryLoading(true);
+      await loadHistory();
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
 
   /**
    * Navigation tab configuration with icons
@@ -69,7 +81,7 @@ export const Dashboard: React.FC = () => {
    * @example Shows when loading === true
    * @developer notes: Consider adding skeleton loaders for better UX
    */
-  if (loading) {
+  if (appLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -180,10 +192,12 @@ export const Dashboard: React.FC = () => {
                 <DraggableLayout activeTab={activeTab}>
                   <HistoryPanel
                     history={history}
+                    loading={historyLoading}
                     onDelete={deleteItem}
                     onUpdate={updateItem}
                     onExport={exportHistory}
                     onClear={clearHistory}
+                    onRefresh={handleRefreshHistory}
                   />
                 </DraggableLayout>
               )}

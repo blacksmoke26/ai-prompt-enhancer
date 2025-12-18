@@ -15,6 +15,8 @@ import {formatDuration, formatPercentage} from '~/utils/helpers';
 // ui components
 import {Card, CardContent, CardHeader, CardTitle} from '../ui/Card';
 import {Badge} from '../ui/Badge';
+import {Button} from '../ui/Button';
+import {RefreshCw} from 'lucide-react';
 
 // components
 import OverviewTab from './OverviewTab';
@@ -41,8 +43,9 @@ import type {StatsPanelProps} from './types';
  * - Renders system prompt usage statistics with progress bar
  */
 const StatsPanel: React.FC<StatsPanelProps> = () => {
-  const {stats} = useHistory();
+  const {stats, loadStats} = useHistory();
   const [activeTab, setActiveTab] = useState<'overview' | 'usage' | 'performance' | 'distribution'>('overview');
+  const [loading, setLoading] = useState(false);
 
   // Calculate derived metrics
   const totalItems = stats?.totalItems ?? 0;
@@ -97,14 +100,38 @@ const StatsPanel: React.FC<StatsPanelProps> = () => {
       </div>
     ));
 
+  const handleRefresh = async () => {
+    try {
+      setLoading(true);
+      await loadStats();
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-lg flex items-center justify-between">
           <span>Statistics Dashboard</span>
-          <Badge variant="secondary" className="text-xs">
-            {totalItems} prompts
-          </Badge>
+          <div className="flex items-center space-x-2">
+            <Badge variant="secondary" className="text-xs">
+              {totalItems} prompts
+            </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={loading}
+              aria-label="Refresh stats"
+            >
+              {loading ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">

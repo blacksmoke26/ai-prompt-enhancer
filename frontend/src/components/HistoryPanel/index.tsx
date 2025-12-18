@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Download, Trash2 } from 'lucide-react';
+import { Download, Trash2, RefreshCw } from 'lucide-react';
 
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/Card';
 import { Button } from '~/components/ui/Button';
@@ -19,6 +19,7 @@ import type { PromptHistory } from '~/types';
  * @property onExport  Callback invoked with the format (`json`, `csv`, or `txt`) to export
  *                     the current history view.
  * @property onClear   Callback invoked to clear the entire history.
+ * @property onRefresh Callback invoked to refresh the history data.
  *
  * @developer.notes
  * The component is stateless except for UI‑level filters, expanded item, and notes
@@ -31,6 +32,7 @@ export interface HistoryPanelProps {
   onUpdate?: (id: string, updates: { rating?: number; notes?: string }) => void;
   onExport?: (format: 'json' | 'csv' | 'txt') => void;
   onClear?: () => void;
+  onRefresh?: () => void;
 }
 
 /**
@@ -47,6 +49,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   onUpdate = () => {},
   onExport = () => {},
   onClear = () => {},
+  onRefresh = () => {},
 }) => {
   /* Filter state */
   const [searchQuery, setSearchQuery] = useState('');
@@ -149,6 +152,10 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
     setNotesValue('');
   };
 
+  const handleRefresh = () => {
+    onRefresh();
+  };
+
   return (
     <Card className="h-full">
       <CardHeader>
@@ -171,6 +178,19 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
             >
               <Trash2 className="h-4 w-4 mr-2" />
               Clear
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={loading}
+              aria-label="Refresh history"
+            >
+              {loading ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>
