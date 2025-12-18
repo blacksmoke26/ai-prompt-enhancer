@@ -19,6 +19,7 @@ import ActionButtons from '~/components/PromptEnhancer/ActionButtons';
 import QuickStats from '~/components/PromptEnhancer/QuickStats';
 
 // types
+import type {PromptResponse} from '~/types';
 
 /**
  * PromptEnhancer Component
