@@ -116,7 +116,7 @@ export default abstract class BaseAIProvider {
    * should be used for logging or display purposes when generating prompts.
    */
   public formatPrompt(userPrompt: string): string {
-    return `Original prompt: ${userPrompt}\n\nOutput Format: Markdown:`;
+    return `Original prompt: ${userPrompt}\nOutput Format: Markdown\nEnhanced prompt:`;
   }
 
   /**
