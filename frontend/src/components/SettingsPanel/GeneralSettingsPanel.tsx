@@ -15,6 +15,8 @@ import {Textarea} from '~/components/ui/Textarea';
 // types
 import type {AppConfig} from '~/types';
 import type {Theme} from '~/components/ThemeProvider.tsx';
+import {toSelectGroupedOptions} from '~/utils/helpers.ts';
+import {Badge, Brain} from 'lucide-react';
 
 export interface GeneralSettingsPanelProps {
   /** Current application configuration */
@@ -53,7 +55,7 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
         <h3 className="text-lg font-semibold mb-4">Appearance</h3>
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium">Theme</label>
+            <div className="text-sm font-medium mb-2">Theme</div>
             <div className="mt-2">
               <Select
                 value={theme}
@@ -73,17 +75,25 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
         <h3 className="text-lg font-semibold mb-4">Defaults</h3>
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium">Default Model</label>
+            <div className="text-sm font-medium mb-2">Default Model</div>
             <Select
               isSearchable
               value={localConfig.defaultModel}
               onChange={(e) =>
                 setLocalConfig({...localConfig, defaultModel: e as string})
               }
-              options={models.map((model) => ({
-                value: model.id,
-                label: `${model.name} (${model.provider})`,
-              }))}
+              options={toSelectGroupedOptions(models, 'provider')}
+              formatOptionLabel={(option, context) => {
+                return context?.context === 'menu'
+                  ? <div><Brain className="inline-flex" size="16"/> {option.label} <span
+                    className="text-xs">({option.value?.replace?.(option.label + ':', '')})</span><p
+                    className="text-xs pl-5 mt-1">{option.description}</p></div>
+                  : (
+                    <div >
+                      {option.label} <span className="text-xs">({option.value?.replace?.(option.label + ':', '')} | {option.category})</span>
+                    </div>
+                  );
+              }}
             />
           </div>
 
@@ -125,7 +135,7 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
           </div>
 
           <div>
-            <label className="text-sm font-medium">Max History Items</label>
+            <div className="text-sm font-medium mb-2">Max History Items</div>
             <Input
               type="number"
               value={localConfig.maxHistoryItems}
