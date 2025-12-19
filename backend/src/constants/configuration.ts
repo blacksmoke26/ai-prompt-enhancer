@@ -119,4 +119,22 @@ export const configuration: Config[] = [{
   defaultValue: 'all',
 }];
 
+/**
+ * Get default configuration
+ * @returns Default configuration
+ *
+ * @example
+ * ```typescript
+ * const defaultConfig = getDefaultConfig();
+ * console.log(defaultConfig);
+ * ```
+ *  @developerNotes: This function returns an object containing default configuration values for each configuration option.
+ */
+export const getDefaultConfig = () => {
+  return configuration.reduce((acc: Record<string, any>, cur): Record<ConfigKey, any> => {
+    acc[cur.key] = cur.defaultValue;
+    return acc;
+  }, {});
+};
+
 export default configuration;

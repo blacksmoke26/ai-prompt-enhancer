@@ -9,7 +9,7 @@ import {ConfigMeta, Provider, Setting} from '~/database/models';
 
 // constants
 import {configKeys} from '~/constants/providers';
-import defaultConfig from '~/constants/default-config';
+import {getDefaultConfig} from '~/constants/configuration';
 
 // types
 import type {AppConfig} from '~/types';
@@ -172,7 +172,7 @@ export class ConfigManager {
   public async importConfig(configJson: string): Promise<boolean> {
     try {
       const importedConfig = JSON.parse(configJson);
-      await this.saveConfig({...defaultConfig, ...importedConfig});
+      await this.saveConfig({...getDefaultConfig(), ...importedConfig});
       return true;
     } catch (error: any) {
       console.error('Failed to import config:', error);
