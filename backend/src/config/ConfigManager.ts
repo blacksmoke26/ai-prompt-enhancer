@@ -62,8 +62,10 @@ export class ConfigManager {
    * @developerNotes: Always fetches fresh data from database, unlike the internal config property which may be stale.
    */
   public async getConfig(): Promise<AppConfig> {
-    const settings = await Setting.getAllSettings();
-    const providers = await Provider.getAllProviders();
+    const [settings, providers] = await Promise.all([
+      Setting.getAllSettings(),
+      Provider.getAllProviders(),
+    ]);
     return {...settings, ...providers};
   }
 
