@@ -51,6 +51,9 @@ export class EnhancementType extends Model<InferAttributes<EnhancementType>, Inf
    * This field is optional and helps organize enhancement types logically.
    */
   declare category: string;
+
+  /** A flag indicating whether the enhancement type is hidden from the user interface. */
+  declare hidden?: boolean;
 }
 
 EnhancementType.init(
@@ -82,6 +85,11 @@ EnhancementType.init(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    hidden: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
+    }
   },
   {
     sequelize: getInstance(),

@@ -51,6 +51,9 @@ export class UserRole extends Model<InferAttributes<UserRole>, InferCreationAttr
    * This field is optional and helps organize roles logically.
    */
   declare category: string;
+
+  /** A flag indicating whether the user role` is hidden from the user interface. */
+  declare hidden?: boolean;
 }
 
 UserRole.init(
@@ -81,6 +84,11 @@ UserRole.init(
     category: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    hidden: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false
     },
   },
   {

@@ -43,6 +43,8 @@ export interface UserRole {
    * Categories help in organizing roles for easier management and filtering.
    */
   category: string;
+  /** Whether the user role is hidden from the user */
+  hidden?: boolean;
 }
 
 /**

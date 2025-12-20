@@ -31,6 +31,8 @@ export interface EnhancementType {
    * used for grouping related enhancements, such as "AI", "UI", "Performance", etc.
    * Categories help in organizing enhancements for easier management and filtering. */
   category: string;
+  /** Whether the enhancement type is hidden from the user */
+  hidden?: boolean;
 }
 
 /**
