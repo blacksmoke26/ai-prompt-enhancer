@@ -13,8 +13,6 @@ import updateConfig from '~/actions/config/updateConfig';
 import resetConfig from '~/actions/config/resetConfig';
 import exportConfig from '~/actions/config/exportConfig';
 import importConfig from '~/actions/config/importConfig';
-import getEnhancementTypes from '~/actions/config/getEnhancementTypes';
-import getUserRoles from '~/actions/config/getUserRoles';
 
 // types
 import type {FastifyInstance} from 'fastify';
@@ -118,36 +116,6 @@ export default async function configRoutes(fastify: FastifyInstance, options: { 
     } catch (error: any) {
       fastify.log.error('Failed to import config:', error);
       return reply.code(500).send({error: 'Failed to import config'});
-    }
-  });
-
-  /**
-   * Retrieves all available enhancement types for prompts.
-   * @example GET /config/enhancement-types
-   * @developer-note Used to populate dropdown options in UI
-   */
-  fastify.get('/enhancement-types', async (_request, reply) => {
-    try {
-      const types = await getEnhancementTypes();
-      return reply.code(200).send(types);
-    } catch (error: any) {
-      fastify.log.error('Failed to get enhancement types:', error);
-      return reply.code(500).send({error: 'Failed to fetch enhancement types'});
-    }
-  });
-
-  /**
-   * Retrieves all defined user roles in the system.
-   * @example GET /config/user-roles
-   * @developer-note Used for role-based access control configurations
-   */
-  fastify.get('/user-roles', async (_request, reply) => {
-    try {
-      const roles = await getUserRoles();
-      return reply.code(200).send(roles);
-    } catch (error: any) {
-      fastify.log.error('Failed to get user roles:', error);
-      return reply.code(500).send({error: 'Failed to fetch user roles'});
     }
   });
 }

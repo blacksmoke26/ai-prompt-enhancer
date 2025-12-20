@@ -22,6 +22,8 @@ import mainController from './controllers/mainController';
 import promptController from './controllers/promptController';
 import historyController from './controllers/historyController';
 import configController from './controllers/configController';
+import userRoleController from './controllers/userRoleController';
+import enhancementTypeController from './controllers/enhancementTypeController';
 
 // db
 import {initDB} from './database';
@@ -87,6 +89,8 @@ const createServer = async () => {
   fastify.register(promptController, {prefix: '/api/prompts', providerManager, historyManager});
   fastify.register(historyController, {prefix: '/api/history', historyManager});
   fastify.register(configController, {prefix: '/api/config', configManager});
+  fastify.register(enhancementTypeController, {prefix: '/api/enhancement-types'});
+  fastify.register(userRoleController, {prefix: '/api/user-roles'});
 
   /**
    * Handles HEAD requests for all routes.
