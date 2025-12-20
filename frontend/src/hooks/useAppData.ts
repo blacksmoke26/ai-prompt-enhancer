@@ -12,6 +12,8 @@ import {useAppStore} from '~/stores/appStore';
 // services
 import PromptService from '~/services/PromptService';
 import ConfigService from '~/services/ConfigService';
+import UserRoleService from '~/services/UserRoleService';
+import EnhancementTypeService from '~/services/EnhancementTypeService';
 
 /**
  * Custom hook for managing application data loading and state.
@@ -61,8 +63,8 @@ export const useAppData = () => {
       const [models, providers, enhancementTypes, userRoles, appConfig] = await Promise.all([
         PromptService.getModels(),
         PromptService.getProviders(),
-        ConfigService.getEnhancementTypes(),
-        ConfigService.getUserRoles(),
+        EnhancementTypeService.getAll(),
+        UserRoleService.getAll(),
         ConfigService.getConfig(),
       ]);
 

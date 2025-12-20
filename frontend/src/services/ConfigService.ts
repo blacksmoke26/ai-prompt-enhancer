@@ -7,7 +7,7 @@
 import api from '~/utils/api';
 
 // types
-import type { AppConfig, EnhancementType, UserRole } from '~/types';
+import type { AppConfig } from '~/types';
 
 export default abstract class ConfigService {
   /**
@@ -17,7 +17,7 @@ export default abstract class ConfigService {
    * @param {string} defaultMessage - Default error message to use.
    * @throws {Error} - Throws an error with an appropriate message.
    */
-  private static handleApiError(error: any, defaultMessage: string): never {
+  public static handleApiError(error: any, defaultMessage: string): never {
     console.error(error);
     if (error.response?.status === 400) {
       throw new Error('Invalid request data provided');
@@ -158,46 +158,6 @@ export default abstract class ConfigService {
       return data;
     } catch (error) {
       ConfigService.handleApiError(error, 'Unable to import configuration. Please try again.');
-    }
-  }
-
-  /**
-   * Retrieves all available enhancement types.
-   * @returns {Promise<EnhancementType[]>} Array of enhancement type options.
-   * @example
-   * const types = await ConfigService.getEnhancementTypes();
-   * @developerNote
-   * Used to populate dropdown/select components.
-   */
-  public static async getEnhancementTypes(): Promise<EnhancementType[]> {
-    try {
-      const { data } = await api.get<EnhancementType[]>('/config/enhancement-types');
-      if (!Array.isArray(data)) {
-        throw new Error('Invalid response format for enhancement types');
-      }
-      return data;
-    } catch (error) {
-      ConfigService.handleApiError(error, 'Unable to fetch enhancement types. Please try again.');
-    }
-  }
-
-  /**
-   * Retrieves all available user roles.
-   * @returns {Promise<UserRole[]>} Array of user role definitions.
-   * @example
-   * const roles = await ConfigService.getUserRoles();
-   * @developerNote
-   * May include system roles that cannot be modified.
-   */
-  public static async getUserRoles(): Promise<UserRole[]> {
-    try {
-      const { data } = await api.get<UserRole[]>('/config/user-roles');
-      if (!Array.isArray(data)) {
-        throw new Error('Invalid response format for user roles');
-      }
-      return data;
-    } catch (error) {
-      ConfigService.handleApiError(error, 'Unable to fetch user roles. Please try again.');
     }
   }
 }
