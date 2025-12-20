@@ -120,6 +120,12 @@ export interface AppState {
 
   /** Auto-arranges dashboard layout */
   autoArrangeLayout(): void;
+
+  /** Toggles a user role */
+  toggleUserRole(key: string, hidden: boolean): Promise<void>;
+
+  /** Toggles the enhancement type */
+  toggleEnhancementType(key: string, hidden: boolean): Promise<void>;
 }
 
 /**
@@ -165,21 +171,6 @@ export const useAppStore = create<AppState>()(
         if (save) {
           await saveAppConfig(updates);
         }
-
-        // Check if auto-save is enabled in current config
-        // const currentConfig = useAppStore.getState().config;
-        // if (currentConfig.autoSave === true) {
-        //   const debouncedSave = debounce(async () => {
-        //     try {
-        //       const finalConfig = useAppStore.getState().config;
-        //       await saveAppConfig(finalConfig);
-        //     } catch (error) {
-        //       console.error('Auto-save failed:', error);
-        //     }
-        //   }, 3000); // Save after 3 seconds of inactivity
-
-        //   debouncedSave();
-        // }
       },
 
       /** Saves the current configuration to the backend */
@@ -190,6 +181,22 @@ export const useAppStore = create<AppState>()(
           console.error('Failed to save configuration:', error);
           throw error;
         }
+      },
+
+      async toggleUserRole(key: string, hidden: boolean) {
+        set((state) => ({
+          userRoles: state.userRoles.map((role) =>
+            role.id === key ? {...role, hidden} : role
+          ),
+        }));
+      },
+
+      async toggleEnhancementType(key: string, hidden: boolean) {
+        set((state) => ({
+          enhancementTypes: state.enhancementTypes.map((type) =>
+            type.id === key ? {...type, hidden} : type
+          ),
+        }));
       },
 
       // Models and Providers
