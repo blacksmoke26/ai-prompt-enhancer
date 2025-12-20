@@ -9,6 +9,9 @@ import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, M
 // db
 import {getInstance} from '~/database';
 
+// public types
+export type HistoryAttributes = InferAttributes<History>;
+
 /**
  * Represents a history record of provider interactions.
  * @developerNotes

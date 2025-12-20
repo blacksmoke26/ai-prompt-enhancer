@@ -9,6 +9,9 @@ import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, M
 // db
 import {getInstance} from '~/database';
 
+// public types
+export type EnhancementTypeAttributes = InferAttributes<EnhancementType>;
+
 /**
  * Represents a type of enhancement in an application, defining the nature and purpose of enhancements.
  * This class extends Sequelize's Model class to provide database persistence capabilities.

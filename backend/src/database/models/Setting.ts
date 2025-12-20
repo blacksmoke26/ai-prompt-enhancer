@@ -12,6 +12,9 @@ import {getInstance} from '../index';
 // types
 import {ConfigKey, configuration} from '~/constants/configuration';
 
+// public types
+export type SettingAttributes = InferAttributes<Setting>;
+
 /**
  * Represents a setting key-value pair stored in the database.
  *

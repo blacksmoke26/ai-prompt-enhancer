@@ -12,6 +12,9 @@ import {getInstance} from '~/database';
 // constants
 import providers from '~/constants/providers';
 
+// public types
+export type ProviderAttributes = InferAttributes<Provider>;
+
 export interface ConfigMeta {
   [key: string]: any;
 

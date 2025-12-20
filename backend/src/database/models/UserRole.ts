@@ -9,6 +9,9 @@ import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, M
 // db
 import {getInstance} from '~/database';
 
+// public types
+export type UserRoleAttributes = InferAttributes<UserRole>;
+
 /**
  * Represents a user role in an application, defining access permissions and categorization.
  * This class extends Sequelize's Model class to provide database persistence capabilities.
