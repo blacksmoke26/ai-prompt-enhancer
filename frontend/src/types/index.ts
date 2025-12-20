@@ -284,6 +284,8 @@ export interface EnhancementType {
   description: string;
   /** System prompt to use for this enhancement type */
   systemPrompt: string;
+  /** Whether this enhancement type is hidden from the UI */
+  hidden: boolean;
 }
 
 /**
@@ -310,6 +312,8 @@ export interface UserRole {
   description: string;
   /** System prompt to apply for this role */
   systemPrompt: string;
+  /** Whether this user role is hidden from the UI */
+  hidden: boolean;
 }
 
 /**
