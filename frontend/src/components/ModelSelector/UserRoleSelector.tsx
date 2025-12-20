@@ -33,7 +33,7 @@ const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => 
         isSearchable
         value={config.userRole}
         onChange={(e) => setConfig({userRole: e as string}, true)}
-        options={toSelectGroupedOptions(userRoles)}
+        options={toSelectGroupedOptions(userRoles.filter(x => !x.hidden))}
         label={<strong><User2 className="inline-flex display-inline" size="16"/> User Role</strong>}
         formatOptionLabel={(option, context) => {
           return context?.context === 'menu'

@@ -35,7 +35,7 @@ const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({classN
         onChange={(value) => {
           setConfig({enhancementType: value as string}, true);
         }}
-        options={toSelectGroupedOptions(enhancementTypes)}
+        options={toSelectGroupedOptions(enhancementTypes.filter(x => !x.hidden))}
         label={<strong><Type className="inline-flex display-inline" size="16"/> Enhancement Type</strong>}
         formatOptionLabel={(option, context) => {
           return context?.context === 'menu'
