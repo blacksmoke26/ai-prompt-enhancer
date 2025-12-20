@@ -189,6 +189,16 @@ export const useAppStore = create<AppState>()(
             role.id === key ? {...role, hidden} : role
           ),
         }));
+
+        try {
+          await axios.put(`/api/user-roles/${key}`, {hidden}, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+        } catch (error) {
+          console.error('Failed to save configuration:', error);
+        }
       },
 
       async toggleEnhancementType(key: string, hidden: boolean) {
@@ -197,6 +207,16 @@ export const useAppStore = create<AppState>()(
             type.id === key ? {...type, hidden} : type
           ),
         }));
+
+        try {
+          await axios.put(`/api/enhancement-types/${key}`, {hidden}, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+        } catch (error) {
+          console.error('Failed to save configuration:', error);
+        }
       },
 
       // Models and Providers

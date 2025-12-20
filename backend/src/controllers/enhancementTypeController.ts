@@ -7,6 +7,7 @@
 import type {FastifyInstance} from 'fastify';
 
 // actions
+import update from '~/actions/enhancement-type/update';
 import getEnhancementTypes from '~/actions/enhancement-type/getEnhancementTypes';
 
 export default async function enhancementTypeRoutes(fastify: FastifyInstance, options: {}) {
@@ -22,6 +23,22 @@ export default async function enhancementTypeRoutes(fastify: FastifyInstance, op
     } catch (error: any) {
       fastify.log.error('Failed to get enhancement types:', error);
       return reply.code(500).send({error: 'Failed to fetch enhancement types'});
+    }
+  });
+
+  /**
+   * Updates the hidden status of enhancement identified by the provided key.
+   * Example: PUT /123 with body { "hidden": true } returns { "success": true }.
+   */
+  fastify.put<{
+    Params: { key: string };
+    Body: { hidden: boolean }
+  }>('/:key', async (request, reply) => {
+    try {
+      return reply.code(200).send({success: await update(request.params.key, request.body)});
+    } catch (error: any) {
+      fastify.log.error('Failed to update enhancement type:', error);
+      return reply.code(500).send({error: 'Failed to update enhancement type'});
     }
   });
 }
