@@ -17,7 +17,7 @@ import {UserRole as UsrRole} from '~/constants/user-roles';
 export default async function getUserRoles(): Promise<UsrRole[]> {
   try {
     const userRoles = await UserRole.findAll({
-      attributes: ['key', 'name', 'description', 'systemPrompt', 'category'],
+      attributes: ['key', 'name', 'description', 'systemPrompt', 'category', 'hidden'],
       order: [['id', 'ASC']],
       raw: true,
     });
@@ -28,6 +28,7 @@ export default async function getUserRoles(): Promise<UsrRole[]> {
       description: userRole.description,
       systemPrompt: userRole.systemPrompt,
       category: userRole.category,
+      hidden: userRole.hidden,
     }));
   } catch (error: any) {
     throw new Error(`Failed to get user roles: ${error.message}`);
