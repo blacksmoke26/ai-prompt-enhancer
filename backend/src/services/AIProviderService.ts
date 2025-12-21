@@ -29,7 +29,7 @@ import type {AIModel, AIProvider} from '~/types';
  * ```
  * @devnote Ensure provider credentials are properly configured before initialization.
  */
-export class AIProviderManager {
+export default class AIProviderService {
   private providers: Map<string, BaseAIProvider> = new Map();
 
   /**

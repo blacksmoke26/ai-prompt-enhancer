@@ -24,7 +24,7 @@ import type {AppConfig} from '~/types';
  * ```
  * @developerNotes: This class serves as the primary interface for all configuration-related operations. It handles both settings and providers, ensuring data consistency across the application.
  */
-export class ConfigManager {
+export default class ConfigService {
   /**
    * Initializes ConfigManager instance.
    * @example
@@ -110,7 +110,7 @@ export class ConfigManager {
       const providerExist = await Provider.exists(key);
 
       // save providers
-      if ( providerExist ) {
+      if (providerExist) {
         const providerConfig: Partial<ConfigMeta> = {};
 
         for (const [key, val] of Object.entries(value)) {
@@ -142,7 +142,7 @@ export class ConfigManager {
    * @developerNotes: Currently commented out reset logic. Uncomment this.config = {...defaultConfig} to enable full reset functionality.
    */
   public async resetConfig(): Promise<void> {
-    const defaultConfig = await ConfigManager.getDefaultSettings();
+    const defaultConfig = await ConfigService.getDefaultSettings();
     return this.saveConfig(defaultConfig);
   }
 

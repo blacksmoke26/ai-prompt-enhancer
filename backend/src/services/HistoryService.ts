@@ -90,7 +90,7 @@ export interface PromptHistory {
  * The manager automatically handles file operations, including directory creation
  * and error recovery.
  *
- * @class HistoryManager
+ * @class HistoryService
  *
  * @example
  * // Initialize with default path (cwd/history.json)
@@ -135,7 +135,7 @@ export interface PromptHistory {
  * - All timestamps are stored in UTC time format for consistency
  * - The history maintains insertion order with newest entries first
  */
-export class HistoryManager {
+export default class HistoryService {
   private history: PromptHistory[] = [];
 
   /**
