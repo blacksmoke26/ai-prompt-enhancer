@@ -3,14 +3,15 @@
  * @copyright 2025 Junaid Atari
  * @see https://github.com/blacksmoke26
  */
+
 // classes
 import PaginatedList from '~/classes/PaginatedList';
 
 // types
-import type {
+import {
   PaginatedSuccessResponse,
   SuccessOnlyResponse,
-  SuccessResponse,
+  SuccessResponse, SuccessWithCustomResponse,
   SuccessWithMessageResponse,
 } from '~/types/response';
 
@@ -26,7 +27,7 @@ export default abstract class ResponseHelper {
    * @developerNotes Use this method for endpoints that do not need to return any data or message.
    */
   public static successOnly(): SuccessOnlyResponse {
-    return { success: true };
+    return {success: true};
   }
 
   /**
@@ -37,7 +38,22 @@ export default abstract class ResponseHelper {
    * @developerNotes Use `null` for data if no payload is needed, but be cautious of type casting.
    */
   public static successWithData<T>(data: T | null): SuccessResponse<T> {
-    return { success: true, data: (data ?? 'Nothing to be returned') as T };
+    return {success: true, data: (data ?? 'Nothing to be returned') as T};
+  }
+
+  /**
+   * Creates a success response object with a `success` flag set to `true` and merges in any additional custom properties from the provided `params`.
+   * This is a factory method for generating success responses with custom payload data.
+   *
+   * @example
+   * const response = MyResponseUtil.successWithCustom({ data: { id: 1, name: 'Alice' } });
+   * // response: { success: true, data: { id: 1, name: 'Alice' } }
+   *
+   * @param params - An object containing any additional properties to merge into the success response.
+   * @returns A success response object with `success: true` and merged custom properties.
+   */
+  public static successWithCustom<T extends Record<string, any> = Record<string, any>>(params: T): SuccessWithCustomResponse<T> {
+    return {success: true, ...params};
   }
 
   /**
@@ -48,7 +64,7 @@ export default abstract class ResponseHelper {
    * @developerNotes Use this method to provide user-friendly feedback or confirmations.
    */
   public static successWithMessage(message: string): SuccessWithMessageResponse {
-    return { success: true, message };
+    return {success: true, message};
   }
 
   /**
