@@ -1,382 +1,210 @@
-# AI Prompt Enhancer
+# AI Prompt Enhancer v1.3
 
-A professional, feature-rich application for enhancing, correcting, and optimizing AI prompts using multiple AI services including Ollama, OpenAI, OpenRouter, DeepSeek, and more.
+AI Prompt Enhancer is a powerful dual-platform application that helps users improve their AI prompts through intelligent enhancement techniques, providing better results from AI models with minimal effort.
 
 ## 🚀 Features
 
-### Core Functionality
-- **Multi-Provider Support**: Connect to Ollama (local), OpenAI, OpenRouter, DeepSeek, and other cloud AI services
-- **Advanced Prompt Enhancement**: Multiple enhancement types (correct, enhance, proofread, optimize, creative, technical, concise, structured)
-- **User Roles**: Specialized enhancement based on user roles (developer, writer, researcher, marketer, educator, business, designer)
-- **Real-time Processing**: Fast, responsive prompt enhancement with detailed metrics
+### Backend Features
+- **Multi-Provider Support**: Works with various AI providers (OpenAI, Ollama, Gemini, Anthropic, etc.)
+- **Prompt Enhancement**: Transform prompts into more effective versions with different enhancement types
+- **History Tracking**: Complete history of all prompt interactions with database persistence
+- **Real-time Updates**: WebSocket support for real-time notifications
+- **Security**: Built-in rate limiting and security features
+- **Configurable**: Environment-based configuration with database persistence
+- **API Endpoints**: Comprehensive REST API for prompt enhancement and management
 
-### User Interface
-- **Modern, Sleek Design**: Built with React, TypeScript, and Tailwind CSS
-- **Light/Dark Theme**: Automatic system theme detection with manual override
-- **Responsive Layout**: Works seamlessly on desktop, tablet, and mobile devices
-- **Interactive Sidebar**: Collapsible navigation with quick access to all features
-- **Advanced Prompt Editor**: Feature-rich editor with character count, word count, and keyboard shortcuts
-
-### History & Analytics
-- **Prompt History**: Complete history of all prompt enhancements with search and filtering
-- **Rating System**: Rate and add notes to enhanced prompts
-- **Usage Statistics**: Detailed analytics including token usage, processing times, and most-used models
-- **Export Functionality**: Export history and prompts in multiple formats (JSON, CSV, TXT)
-
-### Configuration & Extensibility
-- **Plugin Architecture**: Easy to extend with new AI providers
-- **Configuration Management**: Save, restore, and export application settings
-- **API Integration**: RESTful API with WebSocket support for real-time updates
-- **Environment Configuration**: Flexible configuration through environment variables
+### Frontend Features
+- **Rich Text Editor**: Markdown support with real-time statistics
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Theme Support**: Light, dark, and system themes
+- **Keyboard Shortcuts**: Quick enhancement with Ctrl/Cmd + Enter
+- **Statistics Dashboard**: Visualize usage metrics and performance
+- **History Management**: Track and review your prompt enhancement history
 
 ## 🛠️ Technology Stack
 
 ### Backend
-- **Framework**: Fastify (Node.js)
+- **Framework**: Fastify (high-performance Node.js web framework)
 - **Language**: TypeScript
-- **Architecture**: Modular, plugin-based design
-- **Communication**: REST API + WebSocket
-- **Validation**: Joi for request validation
-- **Logging**: Winston for structured logging
+- **Database**: SQLite with Sequelize ORM
+- **API**: RESTful API with WebSocket support
+- **Security**: Fastify CORS, Helmet, and rate limiting
 
 ### Frontend
-- **Framework**: React 18 with TypeScript
+- **Framework**: React 19 with TypeScript
 - **Build Tool**: Vite
-- **Styling**: Tailwind CSS with shadcn/ui components
 - **State Management**: Zustand
-- **Data Fetching**: TanStack Query
-- **UI Components**: Lucide React icons
-- **Notifications**: React Hot Toast
+- **UI Library**: Radix UI Themes with custom components
+- **Styling**: Tailwind CSS
+- **Data Visualization**: Recharts
+- **Rich Text Editor**: @mdxeditor/editor
+- **HTTP Client**: Axios
 
-### AI Providers
-- **Ollama**: Local AI model support
-- **OpenAI**: GPT models and API
-- **OpenRouter**: Multiple model access
-- **DeepSeek**: Advanced AI models
-- **Extensible**: Plugin system for adding more providers
+## 📁 Project Structure
 
-## 📦 Installation
+```
+ai-prompt-enhancer-v1.3/
+├── backend/              # Node.js backend API
+│   ├── src/              # Source code
+│   ├── database/         # Database models and migrations
+│   ├── docs/             # Documentation
+│   └── package.json      # Backend dependencies
+├── frontend/             # React frontend application
+│   ├── src/              # Source code
+│   ├── public/           # Static assets
+│   └── package.json      # Frontend dependencies
+├── package.json          # Root package.json with scripts
+└── README.md             # This file
+```
+
+## 📖 Documentation
+
+- [Backend Documentation](backend/README.md)
+- [Frontend Documentation](frontend/README.md)
+- [Architecture Overview](frontend/docs/ARCHITECTURE.md)
+- [Component Documentation](frontend/docs/COMPONENTS.md)
+
+## 🚀 Getting Started
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js v22 or higher
 - npm or yarn
-- Ollama (for local models) - optional
+- Git
 
-### Quick Setup
+### Installation
 
-1. **Clone the repository**
+```bash
+# Clone the repository
+git clone https://github.com/blacksmoke26/ai-prompt-enhancer-v1.3.git
+
+# Navigate to project directory
+cd ai-prompt-enhancer-v1.3
+
+# Install all dependencies
+npm run install:all
+```
+
+### Development
+
+```bash
+# Start both frontend and backend in development mode
+npm run dev
+
+# Or start backend only
+npm run dev:backend
+
+# Or start frontend only
+npm run dev:frontend
+```
+
+### Production
+
+```bash
+# Build frontend
+npm run build
+
+# Start backend server
+npm run start
+```
+
+## 📊 Usage
+
+1. **Start the application**:
    ```bash
-   git clone <repository-url>
-   cd ai-prompt-enhancer
-   ```
-
-2. **Run the setup script**
-   ```bash
-   ./setup.sh
-   ```
-
-3. **Configure environment variables**
-   ```bash
-   cp backend/.env.example backend/.env
-   # Edit backend/.env with your API keys
-   ```
-
-4. **Start the development servers**
-   
-   Terminal 1 (Backend):
-   ```bash
-   cd backend
    npm run dev
    ```
-   
-   Terminal 2 (Frontend):
-   ```bash
-   cd frontend
-   npm run dev
-   ```
 
-5. **Open the application**
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:3000
-   - Health Check: http://localhost:3000/health
+2. **Access the frontend**:
+   - Open your browser and navigate to `http://localhost:5173`
 
-## ⚙️ Configuration
+3. **Enter your prompt**: Type or paste your AI prompt in the editor
 
-### Environment Variables
+4. **Select AI model**: Choose from available AI models and providers
 
-Create a `.env` file in the `backend` directory:
+5. **Enhance**: Click the "Enhance" button or press Ctrl/Cmd + Enter
 
-```env
-# Server Configuration
-NODE_ENV=development
-PORT=3000
-HOST=0.0.0.0
+6. **Review results**: View enhanced prompt with statistics
 
-# Ollama Configuration
-OLLAMA_URL=http://localhost:11434
-OLLAMA_TIMEOUT=30000
+7. **Save to history**: All enhancements are automatically saved for future reference
 
-# OpenAI Configuration (Optional)
-OPENAI_API_KEY=your_openai_api_key_here
-OPENAI_BASE_URL=https://api.openai.com/v1
+## 📁 Key Components
 
-# OpenRouter Configuration (Optional)
-OPENROUTER_API_KEY=your_openrouter_api_key_here
+### Backend Components
+- **API Routes**: REST endpoints for prompt enhancement, history management, and configuration
+- **Providers**: Implementation for multiple AI providers (OpenAI, Ollama, etc.)
+- **Database**: SQLite with Sequelize ORM for storing history and configurations
+- **Services**: Business logic for prompt enhancement and management
+- **WebSocket**: Real-time communication for updates
 
-# DeepSeek Configuration (Optional)
-DEEPSEEK_API_KEY=your_deepseek_api_key_here
-```
+### Frontend Components
+- **Dashboard**: Main application container with tab navigation
+- **PromptEnhancer**: Core interface for prompt editing and enhancement
+- **HistoryPanel**: Prompt history management with filtering and search
+- **StatsPanel**: Data visualization with charts and metrics
+- **Settings**: Configuration panel for application preferences
 
-### AI Provider Setup
+## 🎨 Theming
 
-#### Ollama (Local)
-1. Install Ollama: https://ollama.ai/
-2. Pull models: `ollama pull llama2` (or any other model)
-3. Configure OLLAMA_URL in environment (default: http://localhost:11434)
+The application supports three theme modes:
+- **Light**: Traditional light theme
+- **Dark**: Dark theme for comfortable nighttime usage
+- **System**: Automatically follows your operating system theme
 
-#### OpenAI
-1. Get API key from https://platform.openai.com/
-2. Set OPENAI_API_KEY in environment
+## 📱 Responsive Design
 
-#### OpenRouter
-1. Get API key from https://openrouter.ai/
-2. Set OPENROUTER_API_KEY in environment
+The application features a mobile-first responsive design:
+- Collapsible sidebar on mobile devices
+- Adaptive grid layouts
+- Touch-friendly controls
+- Optimized touch targets
 
-#### DeepSeek
-1. Get API key from https://platform.deepseek.com/
-2. Set DEEPSEEK_API_KEY in environment
+## 📖 Supported AI Providers
 
-## 📖 Usage
+The AI Prompt Enhancer supports the following AI providers:
+- Ollama
+- OpenAI
+- OpenRouter
+- Deepseek
+- Coze
+- Qianfan (Baidu)
+- Gemini (Google)
+- Kimi (Moonshot)
+- Groq
+- Anthropic
+- Mistral
+- Nvidia
+- Cohere
+- Cody (Sourcegraph)
+- XAI
+- HuggingFace
+- SiliconFlow
+- Zhipu
+- Qwen (Aliyun)
+- LM Studio
 
-### Basic Usage
-1. **Enter Your Prompt**: Type or paste your prompt in the editor
-2. **Select Configuration**: Choose AI model, enhancement type, and user role
-3. **Enhance**: Click "Enhance Prompt" or press Ctrl+Enter
-4. **Review**: View the enhanced prompt with metrics
-5. **Save**: Results are automatically saved to history
+## 📈 Roadmap
 
-### Enhancement Types
-- **Correct**: Fix grammar, spelling, and clarity issues
-- **Enhance**: Add details and make more specific
-- **Proofread**: Review for effectiveness and quality
-- **Optimize**: Optimize for AI model performance
-- **Creative**: Add creative and imaginative elements
-- **Technical**: Add technical details and precision
-- **Concise**: Remove unnecessary words, improve efficiency
-- **Structured**: Add clear sections and formatting
-
-### User Roles
-- **General**: Everyday prompt enhancement
-- **Developer**: Programming and technical prompts
-- **Writer**: Creative writing and content
-- **Researcher**: Academic and research prompts
-- **Marketer**: Marketing and promotional content
-- **Educator**: Educational content
-- **Business**: Corporate communication
-- **Designer**: Design and visual prompts
-
-### History Management
-- **Search**: Filter history by content, model, or type
-- **Rate**: Add star ratings to enhanced prompts
-- **Notes**: Add personal notes and observations
-- **Export**: Download history in JSON, CSV, or TXT format
-
-## 🔧 Development
-
-### Project Structure
-```
-ai-prompt-enhancer/
-├── backend/                 # Fastify API server
-│   ├── src/
-│   │   ├── config/         # Configuration management
-│   │   ├── controllers/    # Route handlers
-│   │   ├── services/       # Business logic and AI providers
-│   │   ├── middleware/     # Custom middleware
-│   │   ├── types/          # TypeScript definitions
-│   │   └── utils/          # Utility functions
-│   ├── package.json
-│   └── tsconfig.json
-├── frontend/               # React application
-│   ├── src/
-│   │   ├── components/     # React components
-│   │   ├── pages/          # Page components
-│   │   ├── hooks/          # Custom React hooks
-│   │   ├── stores/         # Zustand stores
-│   │   ├── utils/          # Utility functions
-│   │   └── types/          # TypeScript definitions
-│   ├── package.json
-│   └── vite.config.ts
-└── README.md
-```
-
-### Adding New AI Providers
-
-1. **Create Provider Class**
-   ```typescript
-   // backend/src/services/NewProvider.ts
-   import BaseAIProvider from './BaseAIProvider'; 
-   import type {ConfigMeta} from '~/database/models/Provider';
-   
-   export class NewProvider extends BaseAIProvider {
-     constructor(config: ConfigMeta) {
-       super('NewProvider', {baseUrl: config?.baseUrl || 'https://api.newprovider.com'});
-       this.client.defaults.headers.common['Authorization'] = `Bearer ${apiKey}`;
-     }
-   
-     async getModels(): Promise<AIModel[]> {
-       // Implementation
-     }
-   
-     async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
-       // Implementation
-     }
-   
-     async isAvailable(): Promise<boolean> {
-       // Implementation
-     }
-   }
-   ```
-
-2. **Register Provider**
-   ```typescript
-   // backend/src/services/AIProviderManager.ts
-   // Add to initializeProviders() method
-   if (config.newprovider?.apiKey) {
-     this.providers.set('newprovider', new NewProvider(config.newprovider.apiKey));
-   }
-   ```
-
-3. **Update Configuration**
-   ```typescript
-   // backend/src/types/index.ts
-   export interface AppConfig {
-     // ... existing config
-     newprovider?: {
-       apiKey: string;
-     };
-   }
-   ```
-
-### API Endpoints
-
-#### Prompt Enhancement
-- `POST /api/prompts/enhance` - Enhance a prompt
-- `GET /api/prompts/models` - Get available models
-- `GET /api/prompts/providers` - Get provider status
-
-#### History Management
-- `GET /api/history` - Get prompt history
-- `DELETE /api/history/:id` - Delete history item
-- `PUT /api/history/:id` - Update history item
-- `GET /api/history/export` - Export history
-
-#### Configuration
-- `GET /api/config` - Get application config
-- `PUT /api/config` - Update config
-- `GET /api/config/enhancement-types` - Get enhancement types
-- `GET /api/config/user-roles` - Get user roles
-
-## 🧪 Testing
-
-### Backend Tests
-```bash
-cd backend
-npm test
-```
-
-### Frontend Tests
-```bash
-cd frontend
-npm test
-```
-
-### Linting
-```bash
-# Backend
-cd backend
-npm run lint
-
-# Frontend
-cd frontend
-npm run lint
-```
-
-## 📊 Performance
-
-### Optimization Features
-- **Caching**: Intelligent response caching
-- **Connection Pooling**: Efficient API connection management
-- **Lazy Loading**: Components load on demand
-- **Code Splitting**: Optimized bundle sizes
-- **Image Optimization**: Automatic image compression
-
-### Metrics
-- **Response Time**: Average < 2 seconds for most enhancements
-- **Memory Usage**: Optimized for large prompt histories
-- **Bundle Size**: < 2MB for the entire application
-- **API Efficiency**: Minimal token usage through optimization
-
-## 🔒 Security
-
-### Security Features
-- **API Key Protection**: Environment variable storage
-- **Rate Limiting**: Built-in rate limiting for API endpoints
-- **Input Validation**: Comprehensive input sanitization
-- **CORS Configuration**: Secure cross-origin requests
-- **Helmet.js**: Security headers and protections
-
-### Best Practices
-- No sensitive data in client-side code
-- Secure API key handling
-- Input validation and sanitization
-- Rate limiting and abuse prevention
-- Regular security updates
+See [ROADMAP.md](ROADMAP.md) for current status and planned features.
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch: `git checkout -b feature-name`
-3. Commit changes: `git commit -am 'Add feature'`
-4. Push to branch: `git push origin feature-name`
-5. Submit a pull request
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+5. Follow the existing code style and documentation conventions
 
-### Development Guidelines
-- Follow TypeScript best practices
-- Write comprehensive tests
-- Update documentation
-- Use conventional commit messages
-- Ensure code passes all linting checks
-
-## 📝 License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 📞 Support
 
-- **Issues**: Report bugs and request features via GitHub Issues
-- **Documentation**: Check this README and inline code documentation
-- **Community**: Join discussions in GitHub Discussions
+For support, please open an issue on the [GitHub repository](https://github.com/blacksmoke26/ai-prompt-enhancer-v1.3/issues).
 
-## 🗺️ Roadmap
+## 🙏 Acknowledgments
 
-### Upcoming Features
-- [ ] Additional AI provider integrations
-- [ ] Prompt templates and library
-- [ ] Advanced analytics dashboard
-- [ ] Team collaboration features
-- [ ] Batch prompt processing
-- [ ] Custom model fine-tuning support
-- [ ] Mobile application
-- [ ] Browser extension
-- [ ] API documentation and playground
-- [ ] Integration with popular tools and platforms
-
-### Version History
-- **v1.0.0** - Initial release with core functionality
-- **v1.1.0** - Added history and analytics
-- **v1.2.0** - Enhanced UI and additional providers
-- **v2.0.0** - Plugin architecture and extensibility
-
----
-
-**Built with ❤️ by the AI Prompt Enhancer Team**
+- Built with Fastify and React 19
+- Utilizes modern full-stack development practices
+- Inspired by the need for better AI prompt engineering tools
