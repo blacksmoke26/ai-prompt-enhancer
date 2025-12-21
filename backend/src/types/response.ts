@@ -33,6 +33,23 @@ export interface SuccessResponse<T = unknown> extends ISuccessResponse {
 }
 
 /**
+ * A generic type that combines the `SuccessOnlyResponse` interface with additional custom properties from type `T`.
+ * This is useful for responses that include both standard success metadata and custom data.
+ *
+ * @example
+ * ```ts
+ * type UserResponse = SuccessCustomResponse<{ data: User }>;
+ * // Equivalent to: { statusCode: number; message: string; data: User }
+ * ```
+ *
+ * @developerNotes:
+ * - `T` should be an object type with additional properties to be merged into the success response.
+ * - `SuccessOnlyResponse` is expected to contain standard success metadata like `statusCode` and `message`.
+ * - This type is commonly used in API response structures to include both success status and custom payload data.
+ */
+export type SuccessWithCustomResponse<T> = SuccessOnlyResponse & T;
+
+/**
  * Success response containing a message instead of data.
  * @example { "success": true, "message": "Operation completed successfully" }
  */
