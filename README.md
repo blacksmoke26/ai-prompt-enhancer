@@ -43,7 +43,7 @@ AI Prompt Enhancer is a powerful dual-platform application that helps users impr
 ## 📁 Project Structure
 
 ```
-ai-prompt-enhancer-v1.3/
+ai-prompt-enhancer/
 ├── backend/              # Node.js backend API
 │   ├── src/              # Source code
 │   ├── database/         # Database models and migrations
@@ -76,10 +76,10 @@ ai-prompt-enhancer-v1.3/
 
 ```bash
 # Clone the repository
-git clone https://github.com/blacksmoke26/ai-prompt-enhancer-v1.3.git
+git clone https://github.com/blacksmoke26/ai-prompt-enhancer.git
 
 # Navigate to project directory
-cd ai-prompt-enhancer-v1.3
+cd ai-prompt-enhancer
 
 # Install all dependencies
 npm run install:all
@@ -201,7 +201,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, please open an issue on the [GitHub repository](https://github.com/blacksmoke26/ai-prompt-enhancer-v1.3/issues).
+For support, please open an issue on the [GitHub repository](https://github.com/blacksmoke26/ai-prompt-enhancer/issues).
 
 ## 🙏 Acknowledgments
 
