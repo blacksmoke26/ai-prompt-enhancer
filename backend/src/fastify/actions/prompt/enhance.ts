@@ -5,7 +5,7 @@
  */
 
 // classes
-import {AIProviderManager} from '~/services/AIProviderManager';
+import AIProviderService from '~/services/AIProviderService';
 
 // db
 import {History, Provider} from '~/database/models';
@@ -14,6 +14,7 @@ import {History, Provider} from '~/database/models';
 import {toProviderName} from '~/utils/provider';
 
 // types
+import type {FastifyInstance} from 'fastify';
 import type {PromptRequest, PromptResponse} from '~/types';
 
 /**
@@ -22,13 +23,14 @@ import type {PromptRequest, PromptResponse} from '~/types';
  * @param promptRequest - Request containing prompt and enhancement details
  * @returns Enhanced prompt response
  */
-export default async function enhancePrompt(
-  providerManager: AIProviderManager,
+const enhance = async (
+  providerManager: AIProviderService,
   promptRequest: PromptRequest,
-): Promise<PromptResponse> {
+): Promise<PromptResponse> => {
   try {
     // Extract provider name from model ID
     const provider = providerManager.getProvider(promptRequest.provider);
+
     const providerRecord = await Provider.findOne({
       where: {name: toProviderName(promptRequest.provider), enabled: true},
       attributes: ['id'],
@@ -68,4 +70,27 @@ export default async function enhancePrompt(
   } catch (error: any) {
     throw new Error(`Prompt enhancement failed: ${error.message}`);
   }
+};
+
+export default (fastify: FastifyInstance) => {
+  /**
+   * Enhances a prompt using the specified AI provider
+   * @example
+   * // POST /enhance
+   * // Body: { model: "openai:gpt-4", prompt: "Hello world" }
+   * @developer_notes Provider name is extracted from model ID format "provider:model"
+   */
+  fastify.post<{ Body: PromptRequest }>('/enhance', async function (this, request, reply) {
+    try {
+      const response = await enhance(this.providerService, request.body);
+
+      return reply.code(200).send(response);
+    } catch (error: any) {
+      fastify.log.error('Prompt enhancement failed:', error);
+      return reply.code(500).send({
+        error: 'Failed to enhance prompt',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
+  });
 }
