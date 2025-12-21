@@ -2,6 +2,7 @@
   "name": "ai-prompt-enhancer-frontend",
   "version": "1.0.0",
   "description": "Frontend for AI Prompt Enhancement Utility",
+  "author": "Junaid Atari",
   "type": "module",
   "scripts": {
     "dev": "vite",

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend API for AI Prompt Enhancement Utility",
   "main": "dist/index.js",
+  "author": "Junaid Atari",
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
@@ -53,6 +54,5 @@
     "ollama",
     "fastify"
   ],
-  "author": "AI Prompt Enhancer Team",
   "license": "MIT"
 }
