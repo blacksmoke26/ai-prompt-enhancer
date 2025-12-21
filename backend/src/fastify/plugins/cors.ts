@@ -14,12 +14,12 @@ import env from '@junaidatari/env-binder';
 import {FastifyInstance, FastifyRequest} from 'fastify';
 
 /**
- * Configuration for allowed origins, derived from environment variable `CORS_ALLOWED_ORIGIN`.
+ * Configuration for allowed origins, derived from environment variable `CORS_ALLOWED_ORIGINS`.
  * Converts URLs to hostnames (e.g., `https://example.com/` → `example.com`).
  * @example
  * // If `CORS_ALLOWED_ORIGIN` is ["https://example.com/"], this becomes ["example.com"]
  */
-const originHostnames = env.getStringArray<string>('CORS_ALLOWED_ORIGIN', []).map((o) => new URL(o).hostname);
+const originHostnames = env.getStringArray<string>('CORS_ALLOWED_ORIGINS', []).map((o) => new URL(o).hostname);
 
 /**
  * List of allowed IP addresses from the `CORS_ALLOWED_IPS` environment variable.

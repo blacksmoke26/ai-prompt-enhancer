@@ -28,7 +28,7 @@ declare module '@junaidatari/env-binder' {
      * @example 'http://example.com'
      * @developerNote Leave empty to disable CORS or specify origins for security.
      */
-    CORS_ALLOWED_ORIGIN: string;
+    CORS_ALLOWED_ORIGINS: string;
 
     /**
      * Comma-separated list of allowed IP addresses for CORS.
