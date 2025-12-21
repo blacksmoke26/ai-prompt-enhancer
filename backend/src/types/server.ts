@@ -10,7 +10,7 @@ import PaginationQuery from '~/classes/PaginationQuery';
 // services
 import ConfigService from '~/services/ConfigService';
 import HistoryService from '~/services/HistoryService';
-import AIProviderService from '~/services/AIProviderService';
+import ProviderService from '~/services/ProviderService';
 
 // types
 import type {FastifySchema} from 'fastify';
@@ -85,7 +85,7 @@ declare module 'fastify' {
     /** History manager instance */
     historyService: InstanceType<typeof HistoryService>;
     /** Provider manager instance */
-    providerService: InstanceType<typeof AIProviderService>;
+    providerService: InstanceType<typeof ProviderService>;
   }
 
   /**

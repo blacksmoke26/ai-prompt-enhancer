@@ -5,7 +5,7 @@
  */
 
 // classes
-import AIProviderService from '~/services/AIProviderService';
+import ProviderService from '~/services/ProviderService';
 
 // db
 import {History, Provider} from '~/database/models';
@@ -24,7 +24,7 @@ import type {PromptRequest, PromptResponse} from '~/types';
  * @returns Enhanced prompt response
  */
 const enhance = async (
-  providerManager: AIProviderService,
+  providerManager: ProviderService,
   promptRequest: PromptRequest,
 ): Promise<PromptResponse> => {
   try {

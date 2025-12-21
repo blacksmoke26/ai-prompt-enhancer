@@ -5,7 +5,7 @@
  */
 
 // classes
-import AIProviderService from '~/services/AIProviderService';
+import ProviderService from '~/services/ProviderService';
 
 // types
 import type {FastifyInstance} from 'fastify';
@@ -25,7 +25,7 @@ import type {AppDecorator} from '~/types/server';
  * - This function is an async plugin and should be registered using `fastify.register()` with `await`.
  */
 export default async (app: FastifyInstance): Promise<AppDecorator> => {
-  const service = new AIProviderService();
+  const service = new ProviderService();
   await service.load();
 
   return {
