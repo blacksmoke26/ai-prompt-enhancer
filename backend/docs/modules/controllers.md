@@ -5,12 +5,12 @@ The API controllers module handles all incoming HTTP requests and route manageme
 
 ## Architecture
 Controllers are organized based on their functionality:
-- `mainController.ts`: Main application endpoints and health checks
-- `promptController.ts`: Prompt enhancement and model management
-- `historyController.ts`: History record management
-- `configController.ts`: Configuration management for providers
-- `enhancementTypeController.ts`: Enhancement type management
-- `userRoleController.ts`: User role management
+- `main.controller.ts`: Main application endpoints and health checks
+- `prompt.controller.ts`: Prompt enhancement and model management
+- `history.controller.ts`: History record management
+- `config.controller.ts`: Configuration management for providers
+- `enhancement-type.controller.ts`: Enhancement type management
+- `user-role.controller.ts`: User role management
 
 ## Controller Structure
 
@@ -24,19 +24,19 @@ export default async function controllerName(fastify, options) {
 }
 ```
 
-## Main Controller (`mainController.ts`)
+## Main Controller (`main.controller.ts`)
 
 Handles core application endpoints:
 - `/health` - Health check endpoint
 - `/test` - Provider availability test endpoint
 
-## Prompt Controller (`promptController.ts`)
+## Prompt Controller (`prompt.controller.ts`)
 
 Manages prompt enhancement operations:
 - `POST /api/prompts/enhance` - Enhance a prompt using configured provider
 - `GET /api/prompts/models` - Get available models from all providers
 
-## History Controller (`historyController.ts`)
+## History Controller (`history.controller.ts`)
 
 Handles history record management:
 - `GET /api/history` - Get all history records
@@ -44,19 +44,19 @@ Handles history record management:
 - `DELETE /api/history/:id` - Delete specific history record
 - `DELETE /api/history` - Delete all history records
 
-## Configuration Controller (`configController.ts`)
+## Configuration Controller (`config.controller.ts`)
 
 Manages provider configuration:
 - `GET /api/config/providers` - Get all providers
 - `GET /api/config/providers/:name/test` - Test specific provider
 - `PUT /api/config/providers/:name` - Update provider configuration
 
-## Enhancement Type Controller (`enhancementTypeController.ts`)
+## Enhancement Type Controller (`enhancement-type.controller.ts`)
 
 Manages enhancement types:
 - `GET /api/enhancement-types` - Get all enhancement types
 
-## User Role Controller (`userRoleController.ts`)
+## User Role Controller (`user-role.controller.ts`)
 
 Manages user roles:
 - `GET /api/user-roles` - Get all user roles

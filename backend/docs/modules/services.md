@@ -5,14 +5,14 @@ The services module contains the core business logic of the AI Prompt Enhancer b
 
 ## Architecture
 The services module follows a clear separation of concerns:
-- `AIProviderManager`: Manages multiple AI provider implementations and their lifecycle
-- `HistoryManager`: Handles history record operations and persistence
+- `ProviderService`: Manages multiple AI provider implementations and their lifecycle
+- `HistoryService`: Handles history record operations and persistence
 - Other service classes for specific business logic
 
-## AI Provider Manager (`AIProviderManager.ts`)
+## AI Provider Service (`ProviderService.ts`)
 
 ### Overview
-The `AIProviderManager` is responsible for initializing, managing, and providing access to various AI service providers. It acts as a central hub for all AI provider interactions.
+The `ProviderService` is responsible for initializing, managing, and providing access to various AI service providers. It acts as a central hub for all AI provider interactions.
 
 ### Key Features
 - Dynamic provider loading based on database configuration
@@ -31,19 +31,19 @@ The `AIProviderManager` is responsible for initializing, managing, and providing
 
 ### Usage Example
 ```typescript
-const providerManager = new AIProviderManager();
-await providerManager.load();
+const providerService = new ProviderService();
+await providerService.load();
 
-const openai = providerManager.getProvider('openai');
-if (openai && await providerManager.testProvider('openai')) {
-  const models = await providerManager.getAllModels();
+const openai = providerService.getProvider('openai');
+if (openai && await providerService.testProvider('openai')) {
+  const models = await providerService.models();
 }
 ```
 
-## History Manager (`HistoryManager.ts`)
+## History Service (`HistoryService.ts`)
 
 ### Overview
-The `HistoryManager` handles all operations related to prompt enhancement history records. It provides methods for creating, retrieving, updating, and deleting history entries.
+The `HistoryService` handles all operations related to prompt enhancement history records. It provides methods for creating, retrieving, updating, and deleting history entries.
 
 ### Key Features
 - CRUD operations for history records
@@ -63,9 +63,9 @@ The `HistoryManager` handles all operations related to prompt enhancement histor
 
 ### Usage Example
 ```typescript
-const historyManager = new HistoryManager();
+const historyService = new HistoryService();
 
-const historyRecord = await historyManager.create({
+const historyRecord = await History.create({
   providerId: 1,
   originalPrompt: "Explain quantum computing",
   enhancedPrompt: "Quantum computing is a computational paradigm...",
@@ -73,7 +73,7 @@ const historyRecord = await historyManager.create({
   // ... other fields
 });
 
-const records = await historyManager.getAll({ limit: 10, offset: 0 });
+const records = await historyService.getHistory({ limit: 10, offset: 0 });
 ```
 
 ## Service Integration
@@ -118,18 +118,18 @@ Services should be tested for:
 ### Initializing Services
 ```typescript
 // Initialize managers in main server
-const configManager = new ConfigManager();
-const providerManager = new AIProviderManager();
-await providerManager.load();
-const historyManager = new HistoryManager();
+const configService = new ConfigService();
+const providerService = new ProviderService();
+await providerService.load();
+const historyService = new HistoryService();
 ```
 
 ### Using Services in Controllers
 ```typescript
-fastify.post('/api/prompts/enhance', async (request, reply) => {
+fastify.post('/api/prompts/enhance', async function (this, request, reply) {
   const { prompt, provider, model } = request.body;
   
-  const providerInstance = providerManager.getProvider(provider);
+  const providerInstance = this.providerService.getProvider(provider);
   if (!providerInstance) {
     throw new Error('Provider not found');
   }
@@ -137,7 +137,7 @@ fastify.post('/api/prompts/enhance', async (request, reply) => {
   const result = await providerInstance.enhancePrompt(prompt, model);
   
   // Save to history
-  const historyRecord = await historyManager.create({
+  const historyRecord = await History.create({
     providerId: providerInstance.id,
     originalPrompt: prompt,
     enhancedPrompt: result.enhancedPrompt,

@@ -5,15 +5,15 @@ The configuration management module handles application-wide settings and provid
 
 ## Architecture
 The configuration management follows a modular approach:
-- `ConfigManager.ts` - Main configuration manager class
-- `ConfigProvider.ts` - Provider-specific configuration handling
+- `ConfigService.ts` - Main configuration manager class
+- `ProviderService.ts` - Provider-specific configuration handling
 - Configuration persistence in database models
 - Environment variable integration
 
-## ConfigManager Class (`ConfigManager.ts`)
+## ConfigService Class (`ConfigService.ts`)
 
 ### Overview
-The `ConfigManager` class serves as the central point for managing all application configurations, including:
+The `ConfigService` class serves as the central point for managing all application configurations, including:
 - Application-wide settings
 - Provider configurations
 - User roles and permissions
@@ -38,20 +38,20 @@ The `ConfigManager` class serves as the central point for managing all applicati
 
 ### Usage Example
 ```typescript
-const configManager = new ConfigManager();
+const configService = new ConfigService();
 
 // Get all providers
-const providers = await configManager.getAllProviders();
+const providers = await configService.getAllProviders();
 
 // Update provider configuration
-await configManager.updateProviderConfig('openai', {
+await configService.updateProviderConfig('openai', {
   baseUrl: 'https://api.openai.com/v1',
   apiKey: 'sk-1234567890',
   timeout: 30000
 });
 
 // Get application settings
-const settings = await configManager.getSettings();
+const settings = await configService.getSettings();
 ```
 
 ## Configuration Storage
@@ -135,22 +135,22 @@ Controllers use the configuration manager for:
 
 ### Initializing Configuration Manager
 ```typescript
-import {ConfigManager} from '~/config/ConfigManager';
+import ConfigService from '~/config/ConfigService';
 
-const configManager = new ConfigManager();
+const configService = new ConfigService();
 // Configuration is automatically loaded on instantiation
 ```
 
 ### Updating Configuration
 ```typescript
 // Update application settings
-await configManager.updateSettings({
+await configService.updateSettings({
   maxHistoryRecords: 5000,
   enableLogging: false
 });
 
 // Update provider configuration
-await configManager.updateProviderConfig('openai', {
+await configService.updateProviderConfig('openai', {
   apiKey: 'new-api-key-here'
 });
 ```
@@ -159,7 +159,7 @@ await configManager.updateProviderConfig('openai', {
 ```typescript
 // Validate provider configuration before saving
 try {
-  const isValid = await configManager.validateConfig({
+  const isValid = await configService.validateConfig({
     name: 'openai',
     config: {
       baseUrl: 'https://api.openai.com/v1',
