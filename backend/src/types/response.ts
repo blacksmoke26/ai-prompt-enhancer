@@ -50,6 +50,23 @@ export interface SuccessResponse<T = unknown> extends ISuccessResponse {
 export type SuccessWithCustomResponse<T> = SuccessOnlyResponse & T;
 
 /**
+ * Represents a successful custom response, aliasing the generic type parameter `T`.
+ * This type is used to denote that the response structure is directly equivalent to the provided data type.
+ *
+ * @example
+ * ```ts
+ * type MyResponse = SuccessCustomResponse<{ data: string }>;
+ * ```
+ * @developerNotes:
+ * - This is a simple type alias, used for consistency in API responses where the structure of the response is
+ *   identical to the data type itself.
+ * - It is commonly used in scenarios where a generic response object is not required, and the actual payload
+ *   should be directly returned as the response.
+ * - Ensure that any usage of this type clearly communicates that the response data is the same as the type `T`.
+ */
+export type SuccessCustomResponse<T> = T;
+
+/**
  * Success response containing a message instead of data.
  * @example { "success": true, "message": "Operation completed successfully" }
  */
