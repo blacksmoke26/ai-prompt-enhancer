@@ -62,10 +62,7 @@ export async function appInstance(): Promise<FastifyInstance> {
       return;
     }
 
-    reply.code(500).send({
-      error: 'Internal Server Error',
-      message: env.is('development') ? error.message : 'Something went wrong',
-    });
+    reply.send(error);
   });
 
   await genericPlugin(fastify);
