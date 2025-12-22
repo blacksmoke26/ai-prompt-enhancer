@@ -116,8 +116,21 @@ export const configuration: Config[] = [{
   key: 'wordFrequency',
   type: 'string',
   description: 'Default Intelligent Word Analysis frequency',
-  defaultValue: 'all',
+  defaultValue: JSON.stringify('all'),
 }];
+
+export const getConfigKeys = (): string[] => configuration.map(c => c.key);
+
+export const getConfigJsonSchema = (): JSONSchema7 => {
+  return {
+    type: 'object',
+    properties: Object.fromEntries(configuration.map(c => [c.key, {
+      type: c.type,
+      description: c.description,
+      default: c?.defaultValue?.replaceAll?.('"', '') ?? null,
+    }])),
+  };
+};
 
 /**
  * Get default configuration

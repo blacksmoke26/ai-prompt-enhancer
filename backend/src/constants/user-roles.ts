@@ -4,6 +4,9 @@
  * @see https://github.com/blacksmoke26
  */
 
+// types
+import type {JSONSchema7} from 'json-schema';
+
 /**
  * Represents a user role definition with metadata, permissions, and categorization.
  *
@@ -46,6 +49,41 @@ export interface UserRole {
   /** Whether the user role is hidden from the user */
   hidden?: boolean;
 }
+
+/**
+ * Generates a JSON Schema 7 object defining the structure for user roles entries.
+ * @returns {JSONSchema7} A JSON schema object with properties and required fields for user roles data.
+ * @example
+ * getUserRolesJsonSchema();
+ * // Returns:
+ * // {
+ * //   type: 'object',
+ * //   properties: {
+ * //     id: { type: 'string' },
+ * //     name: { type: 'string' },
+ * //     description: { type: 'string' },
+ * //     systemPrompt: { type: 'string' },
+ * //     category: { type: 'string' },
+ * //     hidden: { type: 'boolean' },
+ * //   },
+ * //   required: ['id', 'name', 'description', 'systemPrompt', 'category'],
+ * // }
+ * @developerNotes
+ * - Used for validating user roles data structures (e.g., in form inputs or API responses).
+ * - 'hidden' is optional and not included in the required fields.
+ */
+export const getUserRolesJsonSchema = (): JSONSchema7 => ({
+  type: 'object',
+  properties: {
+    id: {type: 'string'},
+    name: {type: 'string'},
+    description: {type: 'string'},
+    systemPrompt: {type: 'string'},
+    category: {type: 'string'},
+    hidden: {type: 'boolean'},
+  },
+  required: ['id', 'name', 'description', 'systemPrompt', 'category'],
+});
 
 /**
  * Available user roles with their descriptions and system prompts

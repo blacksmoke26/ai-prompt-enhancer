@@ -26,6 +26,7 @@ import ZhipuProvider from '~/providers/ZhipuProvider';
 import OllamaProvider from '~/providers/OllamaProvider';
 import QwenProvider from '~/providers/QwenProvider';
 import LMStudioProvider from '~/providers/LMStudioProvider';
+import {JSONSchema7} from 'json-schema';
 
 export type ProviderName =
   'ollama'
@@ -101,7 +102,13 @@ const providers: ProviderConfig[] = [
   {caption: 'Deepseek', name: 'deepseek', baseUrl: 'https://api.deepseek.com', apiKey: '', timeout: 30000},
   {caption: 'Coze', name: 'coze', baseUrl: 'https://api.coze.cn', apiKey: '', timeout: 30000},
   {caption: 'Qianfan', name: 'qianfan', baseUrl: 'https://aip.baidubce.com', apiKey: '', timeout: 30000},
-  {caption: 'Gemini', name: 'gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta', apiKey: '', timeout: 30000},
+  {
+    caption: 'Gemini',
+    name: 'gemini',
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+    apiKey: '',
+    timeout: 30000,
+  },
   {caption: 'Kimi', name: 'kimi', baseUrl: 'https://api.moonshot.cn', apiKey: '', timeout: 30000},
   {caption: 'Groq', name: 'groq', baseUrl: 'https://api.groq.com', apiKey: '', timeout: 30000},
   {caption: 'Anthropic', name: 'anthropic', baseUrl: 'https://api.anthropic.com', apiKey: '', timeout: 30000},
@@ -110,12 +117,84 @@ const providers: ProviderConfig[] = [
   {caption: 'Cohere', name: 'cohere', baseUrl: 'https://api.cohere.ai', apiKey: '', timeout: 30000},
   {caption: 'Cody', name: 'cody', baseUrl: 'https://sourcegraph.com', apiKey: '', timeout: 30000},
   {caption: 'xAI', name: 'xai', baseUrl: 'https://api.x.ai', apiKey: '', timeout: 30000},
-  {caption: 'HuggingFace', name: 'huggingface', baseUrl: 'https://api-inference.huggingface.co/models', apiKey: '', timeout: 30000},
+  {
+    caption: 'HuggingFace',
+    name: 'huggingface',
+    baseUrl: 'https://api-inference.huggingface.co/models',
+    apiKey: '',
+    timeout: 30000,
+  },
   {caption: 'SiliconFlow', name: 'siliconflow', baseUrl: 'https://api.siliconflow.cn', apiKey: '', timeout: 30000},
   {caption: 'Zhipu', name: 'zhipu', baseUrl: 'https://api.z.ai/api/paas/v4', apiKey: '', timeout: 30000},
   {caption: 'Qwen', name: 'qwen', baseUrl: 'https://dashscope.aliyuncs.com', apiKey: '', timeout: 30000},
   {caption: 'LM Studio', name: 'lmstudio', baseUrl: 'http://localhost:1234', timeout: 30000},
 ];
+
+/**
+ * Retrieves an array of provider names from the providers list.
+ * @returns {string[]} An array of provider names.
+ * @example
+ * const providers = [{ name: 'ollama' }, { name: 'groq' }];
+ * getProvidersName(); // returns ['ollama', 'groq']
+ * @developerNotes Assumes `providers` is an array of objects with a `name` property.
+ */
+export const getProvidersName = (): string[] => providers.map(p => p.name);
+
+/**
+ * Generates a JSON Schema 7 compliant array of objects representing provider configurations.
+ * Each object includes fields like enabled, apiKey, baseUrl, and timeout.
+ * @returns {JSONSchema7[]} Array of JSON schema objects for provider configurations.
+ * @example
+ * // Returns schema for a provider like 'ollama'
+ * [
+ *   {
+ *     type: 'object',
+ *     properties: {
+ *       enabled: { type: 'boolean' },
+ *       apiKey: { type: 'string' },
+ *       baseUrl: { type: 'string' },
+ *       timeout: { type: 'integer' },
+ *     },
+ *     required: ['enabled', 'apiKey', 'baseUrl', 'timeout'],
+ *   }
+ * ]
+ * @developerNotes Assumes `providers` is an array of provider objects. All generated schemas have the same structure.
+ */
+export const getProvidersJsonSchema = (): JSONSchema7 => {
+  const schema: JSONSchema7 = {
+    type: 'object',
+    properties: {} as Record<string, any>
+  };
+
+  providers.forEach(p => {
+    if (schema.properties) {
+      schema.properties[p.name] = {
+        type: 'object',
+        properties: {
+          enabled: {
+            type: 'boolean',
+          },
+          apiKey: {
+            type: 'string',
+          },
+          baseUrl: {
+            type: 'string',
+          },
+          timeout: {
+            type: 'integer',
+          },
+        },
+        required: [
+          'enabled',
+          'apiKey',
+          'baseUrl',
+        ],
+      };
+    }
+  })
+
+  return schema;
+};
 
 // provider imports
 export const providersClasses: Record<ProviderName | string, new (...args: any[]) => BaseAIProvider> = {
