@@ -4,26 +4,36 @@
  * @see https://github.com/blacksmoke26
  */
 
-import type { JSONSchema7 } from 'json-schema';
+import type {JSONSchema7} from 'json-schema';
 
-export default {
-  description: 'Bad Request',
-  type: 'object',
-  properties: {
-    statusCode: {
-      type: 'number',
-      description: 'HTTP status code',
-      examples: [400]
+/**
+ * Generates a JSON Schema for a bad request response with an optional error message.
+ *
+ * @param [message] - An optional error message to include in the response.
+ * @param [error] - An optional error name to include in the response.
+ * @returns A JSONSchema7 object representing the bad request response with the provided error message.
+ */
+export default (message?: string, error?: string): JSONSchema7 => {
+  return {
+    description: 'Bad Request',
+    type: 'object',
+    properties: {
+      statusCode: {
+        type: 'number',
+        description: 'HTTP status code',
+        examples: [400],
+      },
+      error: {
+        type: 'string',
+        description: 'Error name',
+        examples: [error ?? 'Bad request'],
+      },
+      message: {
+        type: 'string',
+        description: 'Error details',
+        examples: [message ?? 'An unknown error occurred'],
+      },
     },
-    error: {
-      type: 'string',
-      description: 'Error name',
-      examples: ['Bad request']
-    },
-    message: {
-      type: 'string',
-      description: 'Error details',
-      examples: ['An unknown error occurred']
-    },
-  },
-} as JSONSchema7;
+  };
+};
+
