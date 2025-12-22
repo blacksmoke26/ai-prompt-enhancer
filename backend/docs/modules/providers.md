@@ -1,197 +1,85 @@
-# Providers Module Documentation
+# Providers Module
 
-## Overview
-The providers module contains implementations for various AI/ML service providers that the AI Prompt Enhancer can interact with. Each provider has its own implementation class that extends the base `BaseAIProvider` class, providing specific functionality for that provider's API.
+The providers module is responsible for implementing support for various AI/ML providers. It provides a unified interface for interacting with different AI services through provider-specific implementations.
 
 ## Architecture
-The providers module follows a consistent pattern:
-- Base class `BaseAIProvider` in `src/base/` defines common interfaces and methods
-- Individual provider implementations in `src/providers/` extend the base class
-- Provider classes are registered in `src/constants/providers.ts` for easy access
 
-## Base Provider Class (`BaseAIProvider.ts`)
+The providers module follows a base class pattern where each provider extends the `BaseAIProvider` class. This ensures consistent interfaces across different providers while allowing provider-specific implementations.
 
-### Overview
-The `BaseAIProvider` class serves as the foundation for all provider implementations. It defines the common interface and shared functionality that all AI providers must implement.
+## Supported Providers
 
-### Key Methods
-- `isAvailable()`: Check if provider is reachable and properly configured
-- `getModels()`: Retrieve available models from the provider
-- `enhancePrompt(prompt, options)`: Enhance a prompt using the provider
-- `testConnection()`: Test the connection to the provider API
-- `getProviderInfo()`: Get information about the provider
+The AI Prompt Enhancer supports the following AI providers:
 
-### Properties
-- `name`: Provider name
-- `baseUrl`: Base URL for API endpoints
-- `apiKey`: API authentication key (if required)
-- `timeout`: Request timeout in milliseconds
-- `config`: Provider-specific configuration
+- **Ollama** - Local LLM models
+- **OpenAI** - GPT models
+- **OpenRouter** - Open source model router
+- **Deepseek** - Deepseek AI models
+- **Coze** - Coze AI platform
+- **Qianfan** (Baidu) - Baidu's Qianfan models
+- **Gemini** (Google) - Google's generative models
+- **Kimi** (Moonshot) - Moonshot AI models
+- **Groq** - High-performance LLM inference
+- **Anthropic** - Claude models
+- **Mistral** - Mistral AI models
+- **Nvidia** - NVIDIA AI models
+- **Cohere** - Cohere AI platform
+- **Cody** (Sourcegraph) - Sourcegraph's AI assistant
+- **XAI** -xAI models
+- **HuggingFace** - Hugging Face models
+- **SiliconFlow** - SiliconFlow AI platform
+- **Zhipu** - Zhipu AI models
+- **Qwen** (Aliyun) - Alibaba's Qwen models
+- **LM Studio** - Local model inference
 
-## Individual Provider Implementations
+## Provider Implementation
 
-### Ollama Provider (`OllamaProvider.ts`)
-- Connects to local Ollama service
-- Supports local LLM models
-- No API key required
-- Default URL: `http://localhost:11434`
+Each provider is implemented as a separate class in `src/providers/` directory:
 
-### OpenAI Provider (`OpenAIProvider.ts`)
-- Connects to OpenAI API
-- Supports GPT models
-- Requires API key
-- Default URL: `https://api.openai.com/v1`
+- `OllamaProvider.ts`
+- `OpenAIProvider.ts`
+- `GeminiProvider.ts`
+- `AnthropicProvider.ts`
+- `MistralProvider.ts`
+- And 10+ more provider-specific implementations
 
-### OpenRouter Provider (`OpenRouterProvider.ts`)
-- Connects to OpenRouter API
-- Supports multiple models from various providers
-- Requires API key
-- Default URL: `https://openrouter.ai/api/v1`
+Each provider class:
+1. Extends the `BaseAIProvider` abstract class
+2. Implements the required methods for prompt enhancement
+3. Handles provider-specific configuration and authentication
+4. Manages API requests and responses
+5. Processes provider-specific response formats
 
-### DeepSeek Provider (`DeepSeekProvider.ts`)
-- Connects to DeepSeek API
-- Supports DeepSeek models
-- Requires API key
-- Default URL: `https://api.deepseek.com`
+## Base Provider Interface
 
-### Gemini Provider (`GeminiProvider.ts`)
-- Connects to Google's Gemini API
-- Supports Google's generative models
-- Requires API key
-- Default URL: `https://generativelanguage.googleapis.com/v1beta`
+All providers must implement the following methods from `BaseAIProvider`:
 
-### And many more...
-- Anthropic Provider
-- Mistral Provider
-- Qwen Provider
-- HuggingFace Provider
-- And others listed in the supported providers section
+- `testConnection()` - Tests the provider connection
+- `enhancePrompt()` - Enhances a prompt using the provider
+- `getModels()` - Retrieves available models from the provider
+- `getProviderInfo()` - Returns provider information
 
-## Provider Configuration
+## Configuration
 
-### Configuration Structure
-Each provider accepts configuration through:
-```typescript
-{
-  baseUrl: string,
-  apiKey?: string,
-  timeout?: number,
-  [key: string]: any
-}
-```
+Provider configuration is stored in the database in the `Providers` table and includes:
+- Provider name and caption
+- Base URL for the API
+- API key or authentication credentials
+- Enabled status
+- Provider-specific settings
 
-### Provider Registration
-Providers are registered in `src/constants/providers.ts`:
-- `providers` array defines default configurations
-- `providersClasses` maps provider names to their implementation classes
-- `configKeys` defines valid configuration keys
+## Usage
 
-## Usage Examples
+Providers are automatically loaded and managed by the application. The system will:
+1. Load all configured providers from the database
+2. Make them available through the API
+3. Handle authentication and request routing
+4. Provide consistent response formats regardless of the provider used
 
-### Initializing a Provider
-```typescript
-import { providersClasses } from '~/constants/providers';
+## Provider-Specific Features
 
-const OllamaProvider = providersClasses['ollama'];
-const provider = new OllamaProvider({
-  baseUrl: 'http://localhost:11434',
-  timeout: 30000
-});
-```
-
-### Using a Provider
-```typescript
-// Check if provider is available
-const isAvailable = await provider.isAvailable();
-
-// Get available models
-const models = await provider.getModels();
-
-// Enhance a prompt
-const result = await provider.enhancePrompt("Explain quantum computing", {
-  model: "llama2",
-  temperature: 0.7
-});
-```
-
-## Best Practices
-
-### 1. Error Handling
-- Implement proper error handling for API calls
-- Handle rate limiting gracefully
-- Log provider-specific errors appropriately
-- Provide fallback mechanisms when possible
-
-### 2. Security
-- Never expose API keys in client-side code
-- Implement secure storage for API credentials
-- Validate provider configurations
-- Use HTTPS when possible
-
-### 3. Performance
-- Implement connection pooling where appropriate
-- Use caching for frequently accessed data
-- Handle timeouts properly
-- Monitor API usage and costs
-
-### 4. Testing
-- Mock API calls during testing
-- Test provider availability
-- Test model discovery
-- Test error scenarios
-
-## Integration with AI Provider Manager
-
-The `AIProviderManager` uses the providers in the following way:
-1. Loads provider configurations from database
-2. Instantiates provider classes based on registered implementations
-3. Provides access to providers through `getProvider()` method
-4. Handles provider testing and availability checks
-
-## Testing Considerations
-
-### Unit Testing
-- Mock API endpoints
-- Test provider instantiation
-- Test model discovery
-- Test error handling scenarios
-
-### Integration Testing
-- Test actual API connectivity
-- Test real provider responses
-- Test configuration loading
-- Test error conditions
-
-## Security Considerations
-
-### API Key Management
-- Store API keys securely (environment variables)
-- Never log API keys
-- Implement proper access controls
-- Rotate keys regularly
-
-### Network Security
-- Use HTTPS for all API calls
-- Implement proper timeouts
-- Validate provider endpoints
-- Monitor for security issues
-
-## Common Issues and Solutions
-
-### 1. Connection Problems
-- Check network connectivity
-- Verify API endpoints
-- Confirm API keys are valid
-- Check provider status pages
-
-### 2. Authentication Issues
-- Verify API keys are correct
-- Check provider permissions
-- Ensure proper authentication headers
-- Review provider documentation for auth requirements
-
-### 3. Rate Limiting
-- Implement proper rate limiting in application
-- Handle rate limit errors gracefully
-- Consider caching for repeated requests
-- Monitor usage patterns
+Each provider implementation may include:
+- Custom headers or authentication methods
+- Provider-specific rate limiting
+- Model-specific parameters
+- Response format handling
+- Error message translation

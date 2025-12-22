@@ -1,235 +1,96 @@
-# Configuration Management Documentation
+# Configuration Module
 
-## Overview
-The configuration management module handles application-wide settings and provider configurations for the AI Prompt Enhancer backend. It provides a centralized way to manage both application settings and AI provider credentials.
+The configuration module handles application settings and environment variable management for the AI Prompt Enhancer backend.
 
 ## Architecture
-The configuration management follows a modular approach:
-- `ConfigService.ts` - Main configuration manager class
-- `ProviderService.ts` - Provider-specific configuration handling
-- Configuration persistence in database models
-- Environment variable integration
 
-## ConfigService Class (`ConfigService.ts`)
+The configuration module follows a centralized approach where:
+- Environment variables are loaded and processed
+- Default configurations are provided
+- Configuration validation and sanitization occurs
+- Settings are accessible throughout the application
 
-### Overview
-The `ConfigService` class serves as the central point for managing all application configurations, including:
-- Application-wide settings
-- Provider configurations
-- User roles and permissions
-- Enhancement types
+## Configuration Sources
 
-### Key Features
-- Centralized configuration access
-- Database-backed configuration storage
-- Configuration validation and sanitization
-- Caching for frequently accessed settings
-- Change tracking and notifications
+### Environment Variables
+Configuration is primarily managed through environment variables loaded from `.env` files:
 
-### Methods
-- `getSettings()`: Get all application settings
-- `updateSettings(settings)`: Update application settings
-- `getProviderConfig(providerName)`: Get specific provider configuration
-- `updateProviderConfig(providerName, config)`: Update provider configuration
-- `getAllProviders()`: Get all configured providers
-- `getEnhancementTypes()`: Get available enhancement types
-- `getUserRoles()`: Get available user roles
-- `validateConfig(config)`: Validate configuration data
+```env
+# Server configuration
+HOST=0.0.0.0
+PORT=3000
+LOG_LEVEL=info
 
-### Usage Example
-```typescript
-const configService = new ConfigService();
+# Database
+SQLITE_STORAGE=database/database.sqlite
 
-// Get all providers
-const providers = await configService.getAllProviders();
+# CORS configuration
+CORS_ALLOWED_ORIGINS=
+CORS_ALLOWED_IPS=
+CORS_ALLOWED_ORIGIN_HEADERS=
 
-// Update provider configuration
-await configService.updateProviderConfig('openai', {
-  baseUrl: 'https://api.openai.com/v1',
-  apiKey: 'sk-1234567890',
-  timeout: 30000
-});
+# Rate limiting
+RATE_LIMIT_MAX=100
+RATE_LIMIT_TIME_WINDOW='1 minute'
 
-// Get application settings
-const settings = await configService.getSettings();
+# Logging
+LOGGING_FASTIFY_SERVER=true
 ```
-
-## Configuration Storage
-
-### Database Models
-Configuration data is stored in the database using:
-- `Setting` model for application-wide settings
-- `Provider` model for provider configurations
-- `UserRole` model for user roles
-- `EnhancementType` model for enhancement types
 
 ### Configuration Structure
-```typescript
-// Application Settings
-{
-  appName: 'AI Prompt Enhancer',
-  version: '1.0.0',
-  maxHistoryRecords: 1000,
-  defaultEnhancementType: 'clarify',
-  enableLogging: true
-}
-
-// Provider Configuration
-{
-  name: 'openai',
-  caption: 'OpenAI',
-  config: {
-    baseUrl: 'https://api.openai.com/v1',
-    apiKey: 'sk-1234567890',
-    timeout: 30000
-  },
-  enabled: true
-}
-```
-
-## Environment Variables
-
-The application supports the following environment variables:
-- `PORT` - Server port (default: 3000)
-- `HOST` - Server host (default: 0.0.0.0)
+The configuration system supports the following key settings:
+- `HOST` - Server host address (default: 0.0.0.0)
+- `PORT` - Server port number (default: 3000)
 - `LOG_LEVEL` - Logging level (default: info)
 - `SQLITE_STORAGE` - Path to SQLite database file (default: database/database.sqlite)
-- `NODE_ENV` - Environment mode (development, production, test)
+- `CORS_ALLOWED_ORIGINS` - Comma-separated list of allowed CORS origins
+- `CORS_ALLOWED_IPS` - Comma-separated list of allowed CORS IPs
+- `RATE_LIMIT_MAX` - Maximum requests per time window (default: 100)
+- `RATE_LIMIT_TIME_WINDOW` - Time window for rate limiting (default: '1 minute')
+- `LOGGING_FASTIFY_SERVER` - Enable Fastify server logging (default: true)
 
-## Integration with Other Modules
+## Configuration Loading
 
-### Provider Manager
-The configuration manager integrates with the `AIProviderManager` to:
-- Load provider configurations from database
-- Validate provider settings before initialization
-- Handle configuration updates for running providers
+The configuration is loaded during application startup:
+1. `.env` file is loaded using dotenv
+2. Environment variables are processed and validated
+3. Default values are applied for missing settings
+4. Configuration is made available to all application modules
 
-### Controllers
-Controllers use the configuration manager for:
-- Provider availability checks
-- Configuration validation
-- Access to enhancement types and user roles
-- Settings-based routing and behavior
+## Configuration Management
+
+### Default Configuration
+The application provides sensible defaults for all configuration options to ensure it runs out-of-the-box.
+
+### Runtime Configuration
+Some settings can be modified at runtime through:
+- Database settings table
+- API endpoints for configuration updates
+- Environment variable overrides
+
+## Usage
+
+Configuration is accessed throughout the application using:
+- Direct environment variable access
+- Configuration service for centralized access
+- Database settings for persistent configuration
 
 ## Best Practices
 
-### 1. Security
-- Never expose API keys in logs or responses
-- Store sensitive configuration in environment variables
-- Implement proper access controls for configuration updates
-- Validate all configuration inputs
+### Security
+- Never commit sensitive configuration to version control
+- Use environment variables for API keys and secrets
+- Implement proper validation for configuration values
+- Use different configuration files for different environments
 
-### 2. Performance
-- Cache frequently accessed configurations
-- Use efficient database queries for configuration lookups
-- Implement proper error handling for configuration loading
-- Consider lazy loading for non-critical configurations
+### Performance
+- Load configuration once during startup
+- Cache configuration values where appropriate
+- Validate configuration early in the application lifecycle
+- Minimize configuration changes during runtime
 
-### 3. Maintainability
-- Keep configuration structure consistent
-- Document configuration options clearly
-- Implement configuration validation
-- Use versioning for configuration schemas
-
-## Usage Examples
-
-### Initializing Configuration Manager
-```typescript
-import ConfigService from '~/config/ConfigService';
-
-const configService = new ConfigService();
-// Configuration is automatically loaded on instantiation
-```
-
-### Updating Configuration
-```typescript
-// Update application settings
-await configService.updateSettings({
-  maxHistoryRecords: 5000,
-  enableLogging: false
-});
-
-// Update provider configuration
-await configService.updateProviderConfig('openai', {
-  apiKey: 'new-api-key-here'
-});
-```
-
-### Configuration Validation
-```typescript
-// Validate provider configuration before saving
-try {
-  const isValid = await configService.validateConfig({
-    name: 'openai',
-    config: {
-      baseUrl: 'https://api.openai.com/v1',
-      apiKey: 'sk-1234567890'
-    }
-  });
-  if (isValid) {
-    // Proceed with saving configuration
-  }
-} catch (error) {
-  // Handle validation errors
-}
-```
-
-## Testing Considerations
-
-### Unit Testing
-- Test configuration loading and saving
-- Test validation logic
-- Test error conditions and edge cases
-- Test integration with database models
-- Mock external dependencies for provider tests
-
-### Integration Testing
-- Test full configuration workflow
-- Test database persistence
-- Test concurrent configuration updates
-- Test configuration propagation to other modules
-
-## Security Considerations
-
-### Sensitive Data Handling
-- API keys and credentials should never be logged
-- Configuration should be encrypted at rest
-- Access to configuration endpoints should be restricted
-- Implement proper authentication for configuration updates
-
-### Access Control
-- Only authorized users should be able to modify configurations
-- Implement role-based access control for configuration management
-- Log all configuration changes for audit purposes
-- Provide backup mechanisms for configuration data
-
-## Performance Considerations
-
-### Caching Strategy
-- Cache frequently accessed configuration data
-- Implement cache invalidation for updates
-- Consider using memory caching for performance
-- Handle cache misses gracefully
-
-### Database Optimization
-- Use indexes on frequently queried configuration fields
-- Optimize queries for configuration lookups
-- Implement proper connection pooling
-- Monitor query performance for configuration operations
-
-## Common Issues and Solutions
-
-### 1. Configuration Loading Failures
-- Ensure database is initialized before loading configurations
-- Handle database connection errors gracefully
-- Implement fallback to default configurations
-
-### 2. Validation Errors
-- Provide clear error messages for invalid configurations
-- Validate required fields before saving
-- Use consistent validation patterns across all configurations
-
-### 3. Concurrency Issues
-- Implement proper locking mechanisms for concurrent updates
-- Use database transactions for related configuration changes
-- Handle race conditions in configuration updates
+### Development
+- Use `.env.sample` as a template for new environments
+- Implement environment-specific configuration files
+- Test configuration changes in staging environments
+- Document all configuration options thoroughly

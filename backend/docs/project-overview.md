@@ -31,6 +31,8 @@ The AI Prompt Enhancer is a comprehensive backend service designed to provide pr
 - TypeScript type safety
 - Comprehensive API endpoints
 - Environment-based configuration
+- API documentation with Swagger
+- Validation and error handling
 
 ## Architecture Overview
 
@@ -45,8 +47,11 @@ src/
 ├── constants/        # Application constants
 ├── controllers/      # API route handlers
 ├── database/         # Database models, migrations, seeders
+├── fastify/          # Fastify specific configurations and bootstrapping
+├── helpers/          # Helper functions and utilities
 ├── middleware/       # Custom middleware functions
 ├── providers/        # Provider-specific implementations
+├── schemas/          # JSON schemas for validation
 ├── services/         # Business logic services
 ├── types/            # TypeScript type definitions
 └── utils/            # Utility functions
@@ -60,6 +65,7 @@ src/
 - **Database**: SQLite with Sequelize ORM
 - **API**: RESTful endpoints with WebSocket support
 - **Authentication**: Environment-based security
+- **Documentation**: Swagger/OpenAPI
 
 ### AI Provider Integration
 - **OpenAI**: GPT models
@@ -82,10 +88,13 @@ src/
 ### Main Endpoints
 - `GET /api/health` - Health check
 - `GET /api/test` - Provider testing
+- `GET /api/docs` - API documentation with Swagger
 
 ### Prompt Management
 - `POST /api/prompts/enhance` - Enhance prompts
 - `GET /api/prompts/models` - Get available models
+- `GET /api/prompts/providers` - Get all configured providers
+- `GET /api/prompts/:provider/test` - Test specific provider
 
 ### History Management
 - `GET /api/history` - Get history records
@@ -138,6 +147,10 @@ The application uses environment variables for configuration. Key variables incl
 - `PORT` - Server port
 - `HOST` - Server host
 - `SQLITE_STORAGE` - Database file path
+- `CORS_ALLOWED_ORIGINS` - Comma-separated list of allowed CORS origins
+- `CORS_ALLOWED_IPS` - Comma-separated list of allowed CORS IPs
+- `RATE_LIMIT_MAX` - Maximum requests per time window
+- `RATE_LIMIT_TIME_WINDOW` - Time window for rate limiting
 - Provider-specific API keys
 
 ## Development

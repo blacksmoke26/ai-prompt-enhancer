@@ -27,6 +27,8 @@ AI Prompt Enhancer is a backend service that provides an API for enhancing AI pr
 - Configurable settings and user roles
 - Database persistence with Sequelize ORM
 - Environment-based configuration
+- API documentation with Swagger
+- Validation and error handling
 
 ## Architecture
 
@@ -41,8 +43,11 @@ src/
 ├── constants/        # Application constants
 ├── controllers/      # Fastify route controllers
 ├── database/         # Database models, migrations, and seeders
+├── fastify/          # Fastify specific configurations and bootstrapping
+├── helpers/          # Helper functions and utilities
 ├── middleware/       # Custom middleware functions
 ├── providers/        # Provider-specific implementations
+├── schemas/          # JSON schemas for validation
 ├── services/         # Business logic services
 ├── types/            # TypeScript type definitions
 └── utils/            # Utility functions
@@ -60,6 +65,7 @@ For detailed module documentation, see the [docs/modules](docs/modules) director
 - `src/base/` - Base classes for providers and other components
 - `src/config/` - Configuration management
 - `src/utils/` - Utility functions
+- `src/fastify/` - Fastify specific bootstrapping and configuration
 
 ## Installation
 
@@ -84,6 +90,10 @@ The application uses environment variables for configuration. Key configuration 
 - `HOST` - Server host (default: 0.0.0.0)
 - `LOG_LEVEL` - Logging level (default: info)
 - `SQLITE_STORAGE` - Path to SQLite database file (default: database/database.sqlite)
+- `CORS_ALLOWED_ORIGINS` - Comma-separated list of allowed CORS origins
+- `CORS_ALLOWED_IPS` - Comma-separated list of allowed CORS IPs
+- `RATE_LIMIT_MAX` - Maximum requests per time window (default: 100)
+- `RATE_LIMIT_TIME_WINDOW` - Time window for rate limiting (default: '1 minute')
 
 ## API Endpoints
 
@@ -91,11 +101,14 @@ The application uses environment variables for configuration. Key configuration 
 
 - `GET /api/health` - Health check endpoint
 - `GET /api/test` - Test provider availability
+- `GET /api/docs` - API documentation with Swagger
 
 ### Prompt Endpoints
 
 - `POST /api/prompts/enhance` - Enhance a prompt using configured provider
 - `GET /api/prompts/models` - Get available models from all providers
+- `GET /api/prompts/providers` - Get all configured providers
+- `GET /api/prompts/:provider/test` - Test specific provider
 
 ### History Endpoints
 

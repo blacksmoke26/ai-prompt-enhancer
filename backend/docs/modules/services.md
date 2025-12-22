@@ -1,176 +1,101 @@
-# Services Module Documentation
+# Services Module
 
-## Overview
-The services module contains the core business logic of the AI Prompt Enhancer backend. It provides abstractions for managing AI providers, handling history records, and implementing application-specific functionality that sits between the API controllers and database models.
+The services module contains the core business logic for the AI Prompt Enhancer backend. Services encapsulate the application's functionality and provide a clean separation between the API layer and the data layer.
 
 ## Architecture
-The services module follows a clear separation of concerns:
-- `ProviderService`: Manages multiple AI provider implementations and their lifecycle
-- `HistoryService`: Handles history record operations and persistence
-- Other service classes for specific business logic
 
-## AI Provider Service (`ProviderService.ts`)
+The services module follows a clean architecture pattern where each service handles specific business logic operations:
 
-### Overview
-The `ProviderService` is responsible for initializing, managing, and providing access to various AI service providers. It acts as a central hub for all AI provider interactions.
+- `PromptService.ts` - Core prompt enhancement and management
+- `HistoryService.ts` - History record operations and management
+- `ProviderService.ts` - Provider configuration and management
+- `ConfigService.ts` - Application configuration operations
+- `UserRoleService.ts` - User role and permission management
+- `EnhancementTypeService.ts` - Enhancement type operations
 
-### Key Features
-- Dynamic provider loading based on database configuration
-- Provider availability testing
-- Model discovery from all configured providers
-- Provider-specific configuration management
-- Caching and refresh mechanisms
+## Key Services
 
-### Methods
-- `load()`: Initializes all configured providers
-- `getAllProviders()`: Retrieves all providers with availability status
-- `getAllModels()`: Gets all available models from all providers
-- `getProvider(providerName)`: Gets a specific provider instance
-- `refreshProviders()`: Reloads all providers
-- `testProvider(providerName)`: Tests if a specific provider is available
+### PromptService (`PromptService.ts`)
+Handles all prompt enhancement operations:
+- Prompt enhancement using configured AI providers
+- Model selection and configuration
+- Enhancement type processing
+- Response formatting and validation
+- Integration with provider implementations
 
-### Usage Example
-```typescript
-const providerService = new ProviderService();
-await providerService.load();
+### HistoryService (`HistoryService.ts`)
+Manages history records and tracking:
+- Creating and storing enhancement history
+- Retrieving history records by ID or filters
+- Deleting history records
+- Searching and filtering history
+- Managing metadata and ratings
 
-const openai = providerService.getProvider('openai');
-if (openai && await providerService.testProvider('openai')) {
-  const models = await providerService.models();
-}
-```
+### ProviderService (`ProviderService.ts`)
+Handles provider configuration and management:
+- Loading and validating provider configurations
+- Testing provider connectivity
+- Managing provider availability
+- Provider-specific configuration handling
+- Integration with provider implementations
 
-## History Service (`HistoryService.ts`)
+### ConfigService (`ConfigService.ts`)
+Manages application-wide configuration:
+- Reading and updating configuration settings
+- Environment variable handling
+- Configuration validation
+- Settings persistence
+- Default configuration management
 
-### Overview
-The `HistoryService` handles all operations related to prompt enhancement history records. It provides methods for creating, retrieving, updating, and deleting history entries.
+### UserRoleService (`UserRoleService.ts`)
+Handles user roles and permissions:
+- Managing user role definitions
+- Permission checking and validation
+- Role-based access control
+- Role assignment and management
+- User authentication integration
 
-### Key Features
-- CRUD operations for history records
-- Integration with database models
-- History filtering and searching capabilities
-- Data validation and sanitization
-- Performance considerations for large datasets
+### EnhancementTypeService (`EnhancementTypeService.ts`)
+Manages enhancement types and their definitions:
+- Retrieving available enhancement types
+- Managing enhancement type metadata
+- Validation of enhancement type usage
+- Default enhancement type handling
 
-### Methods
-- `create(record)`: Creates a new history record
-- `getAll(options)`: Gets all history records with optional filtering
-- `getById(id)`: Gets a specific history record
-- `update(id, data)`: Updates a history record
-- `delete(id)`: Deletes a specific history record
-- `deleteAll()`: Deletes all history records
-- `search(filters)`: Searches history records based on criteria
+## Service Architecture
 
-### Usage Example
-```typescript
-const historyService = new HistoryService();
+Each service follows a consistent pattern:
+1. **Dependency Injection**: Services receive dependencies through constructor
+2. **Method Organization**: Clear separation of concerns with focused methods
+3. **Error Handling**: Standardized error handling and propagation
+4. **Database Integration**: Proper database interaction through ORM
+5. **Validation**: Input validation using schema definitions
 
-const historyRecord = await History.create({
-  providerId: 1,
-  originalPrompt: "Explain quantum computing",
-  enhancedPrompt: "Quantum computing is a computational paradigm...",
-  model: "gpt-4",
-  // ... other fields
-});
+## Usage
 
-const records = await historyService.getHistory({ limit: 10, offset: 0 });
-```
+Services are automatically injected and used by:
+- Controllers for business logic processing
+- Actions for API endpoint handling
+- Other services for cross-service operations
+- Middleware for application-level processing
 
-## Service Integration
+## Development
 
-### Relationship with Other Modules
-- **Database Models**: Services interact with database models for data persistence
-- **Controllers**: Services implement business logic that controllers call
-- **Providers**: Services utilize provider implementations for AI operations
-- **Configuration**: Services read from configuration managers for settings
-
-### Error Handling
-Services implement comprehensive error handling:
-- Database operation failures
-- Provider-specific errors
-- Validation errors
-- Resource availability issues
+When creating or modifying services:
+1. Follow the existing service pattern and naming conventions
+2. Ensure proper dependency injection
+3. Implement comprehensive error handling
+4. Use appropriate database operations
+5. Add thorough documentation and comments
+6. Test service methods thoroughly
 
 ## Best Practices
 
-### 1. Service Layer Design
-- Keep business logic in services, not controllers
-- Use dependency injection for services
-- Implement proper error propagation
-- Ensure thread safety where needed
-
-### 2. Performance Considerations
-- Implement caching for frequently accessed data
-- Optimize database queries
-- Handle large datasets efficiently
-- Use pagination for large result sets
-
-### 3. Testing
-Services should be tested for:
-- Business logic correctness
-- Integration with database models
-- Error condition handling
-- Provider interaction scenarios
-- Performance under load
-
-## Usage Examples
-
-### Initializing Services
-```typescript
-// Initialize managers in main server
-const configService = new ConfigService();
-const providerService = new ProviderService();
-await providerService.load();
-const historyService = new HistoryService();
-```
-
-### Using Services in Controllers
-```typescript
-fastify.post('/api/prompts/enhance', async function (this, request, reply) {
-  const { prompt, provider, model } = request.body;
-  
-  const providerInstance = this.providerService.getProvider(provider);
-  if (!providerInstance) {
-    throw new Error('Provider not found');
-  }
-  
-  const result = await providerInstance.enhancePrompt(prompt, model);
-  
-  // Save to history
-  const historyRecord = await History.create({
-    providerId: providerInstance.id,
-    originalPrompt: prompt,
-    enhancedPrompt: result.enhancedPrompt,
-    // ... other fields
-  });
-  
-  return historyRecord;
-});
-```
-
-## Testing Considerations
-
-### Unit Testing
-- Mock database interactions
-- Mock provider implementations
-- Test error conditions
-- Test boundary cases
-
-### Integration Testing
-- Test database operations
-- Test provider integration
-- Test service-to-service interactions
-- Test end-to-end workflows
-
-## Security Considerations
-
-### Data Validation
-- Validate all inputs to service methods
-- Sanitize data before database operations
-- Implement proper access controls
-
-### Provider Security
-- Secure API key handling
-- Implement proper authentication
-- Rate limiting for provider calls
-- Error message sanitization
+- Keep services focused on single responsibilities
+- Maintain clear separation between services
+- Use dependency injection for better testability
+- Implement proper error handling and logging
+- Ensure services are stateless where possible
+- Follow consistent method naming and return patterns
+- Validate inputs and outputs properly
+- Document service interfaces and usage
