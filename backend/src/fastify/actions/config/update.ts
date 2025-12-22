@@ -4,9 +4,17 @@
  * @see https://github.com/blacksmoke26
  */
 
+// schemas
+import schema from './schemas/update.schema';
+
+// helpers
+import ErrorHelper from '~/helpers/ErrorHelper';
+import ResponseHelper from '~/helpers/ResponseHelper';
+
 // utils
 import type {AppConfig} from '~/types';
 import type {FastifyInstance} from 'fastify';
+import type {SuccessResponse} from '~/types/response';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -14,14 +22,16 @@ export default (fastify: FastifyInstance) => {
    * @example PUT /config with body: {"setting": "value"}
    * @developer-note All updates are validated against configUpdateSchema
    */
-  fastify.put<{ Body: AppConfig }>('/', async function (this: FastifyInstance, request, reply) {
+  fastify.put<{
+    Body: AppConfig;
+    Reply: SuccessResponse<AppConfig>;
+  }>('/', {schema}, async function (this: FastifyInstance, request, reply) {
     try {
-      const updates = request.body;
-      const updatedConfig = await this.configService.updateConfig(updates);
-      return reply.code(200).send(updatedConfig);
+      await this.configService.updateConfig(request.body);
+      return ResponseHelper.successWithData(await this.configService.getConfig());
     } catch (error: any) {
       fastify.log.error('Failed to update config:', error);
-      return reply.code(500).send({error: 'Failed to update config'});
+      ErrorHelper.throwWithStatus('Failed to update config');
     }
   });
 }

@@ -4,8 +4,17 @@
  * @see https://github.com/blacksmoke26
  */
 
+// helpers
+import ErrorHelper from '~/helpers/ErrorHelper';
+import ResponseHelper from '~/helpers/ResponseHelper';
+
+// schemas
+import schema from './schemas/import.schema';
+
 // classes
 import type {FastifyInstance} from 'fastify';
+import type {SuccessResponse} from '~/types/response';
+import type {AppConfig} from '~/types';
 
 /**
  * Imports configuration from a JSON string
@@ -13,21 +22,15 @@ import type {FastifyInstance} from 'fastify';
  * @param configJson - JSON string containing configuration
  * @returns Boolean indicating success or failure
  */
-const importConfig = async (fastify: FastifyInstance, configJson: string): Promise<boolean> => {
-  try {
-    if (!configJson) {
-      throw new Error('configJson is required');
-    }
+const importConfig = async (fastify: FastifyInstance, configJson: string): Promise<void> => {
+  if (!configJson.trim()) {
+    ErrorHelper.throwWithStatus('configJson is required', 422);
+  }
 
-    const success = await fastify.configService.importConfig(configJson);
+  const success = await fastify.configService.importConfig(configJson);
 
-    if (!success) {
-      throw new Error('Invalid config JSON');
-    }
-
-    return success;
-  } catch (error: any) {
-    throw new Error(`Failed to import config: ${error.message}`);
+  if (!success) {
+    ErrorHelper.throwWithStatus('Failed to import config', 400);
   }
 };
 
@@ -38,19 +41,12 @@ export default (fastify: FastifyInstance) => {
    * @example POST /config/import with body: {"configJson": "{}"}
    * @developer-note Invalid JSON will be rejected - validate before sending
    */
-  fastify.post<{ Body: { configJson: string } }>('/import', async function (this, request, reply) {
-    try {
-      const {configJson} = request?.body ?? {};
+  fastify.post<{
+    Body: { configJson: string };
+    Reply: SuccessResponse<AppConfig>
+  }>('/import', {schema}, async function (this, request, reply) {
+    await importConfig(fastify, request.body.configJson);
 
-      const success = await importConfig(fastify, configJson);
-
-      if (!success) {
-        return reply.code(400).send({error: 'Invalid config JSON'});
-      }
-      return reply.code(200).send(await this.configService.getConfig());
-    } catch (error: any) {
-      fastify.log.error('Failed to import config:', error);
-      return reply.code(500).send({error: 'Failed to import config'});
-    }
+    return ResponseHelper.successWithData(await this.configService.getConfig());
   });
 }

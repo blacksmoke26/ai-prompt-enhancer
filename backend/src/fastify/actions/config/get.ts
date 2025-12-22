@@ -4,8 +4,17 @@
  * @see https://github.com/blacksmoke26
  */
 
+// helpers
+import ErrorHelper from '~/helpers/ErrorHelper';
+import ResponseHelper from '~/helpers/ResponseHelper';
+
+// schemas
+import schema from './schemas/get.schema';
+
 // classes
 import type {FastifyInstance} from 'fastify';
+import type {AppConfig} from '~/types';
+import type {SuccessResponse} from '~/types/response';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -13,13 +22,13 @@ export default (fastify: FastifyInstance) => {
    * @example GET /config
    * @developer-note Returns the full config object with all settings
    */
-  fastify.get('/', async (_request, reply) => {
+  fastify.get<{ Reply: SuccessResponse<AppConfig> }>('/', {schema}, async (_request, reply) => {
     try {
       const config = await fastify.configService.getConfig();
-      return reply.code(200).send(config);
+      return ResponseHelper.successWithData(config);
     } catch (error: any) {
       fastify.log.error('Failed to get config:', error);
-      return reply.code(500).send({error: 'Failed to fetch config'});
+      ErrorHelper.throwWithStatus('Failed to fetch config');
     }
   });
 }
