@@ -81,6 +81,26 @@ export enum ErrorCodes {
 }
 
 /**
+ * Enum representing standardized error codes used across the application.
+ * Each error code maps to a specific HTTP status and human-readable message.
+ * @developerNotes Extend this enum when introducing new error types, ensuring consistent naming and mapping.
+ */
+export type ErrorCode =
+  | 'UNKNOWN_ERROR'
+  | 'NOT_FOUND'
+  | 'BAD_REQUEST'
+  | 'UNAUTHORIZED'
+  | 'FORBIDDEN'
+  | 'UNAVAILABLE'
+  | 'UNPROCESSABLE'
+  | 'PROCESS_FAILED'
+  | 'DUPLICATE_ENTRY'
+  | 'ACCESS_DENIED'
+  | 'ACCESS_REVOKED'
+  | 'VALIDATE_ERROR'
+  | string;
+
+/**
  * Helper class for managing error codes, messages, and HTTP status codes.
  * Provides utility methods to generate and throw standardized validation errors.
  */
@@ -201,7 +221,7 @@ export default abstract class ErrorHelper {
     return new ValidationError(
       this.getErrorMessage(errorCode),
       this.getStatusCode(errorCode),
-      this.getErrorCode(errorCode)
+      this.getErrorCode(errorCode),
     );
   }
 
@@ -229,7 +249,7 @@ export default abstract class ErrorHelper {
   public static withMessageStatusCode(
     message: string,
     statusCode: number = 400,
-    errorCode: ErrorCodes = ErrorCodes.BadRequest
+    errorCode: ErrorCodes = ErrorCodes.BadRequest,
   ): ValidationError {
     return new ValidationError(message, statusCode, this.getErrorCode(errorCode));
   }
@@ -246,7 +266,7 @@ export default abstract class ErrorHelper {
   public static withMessageStatusErrorCode(
     message: string,
     statusCode: number = 400,
-    errorCode: string = 'BAD_REQUEST'
+    errorCode: ErrorCode = 'BAD_REQUEST',
   ): ValidationError {
     return new ValidationError(message, statusCode, errorCode);
   }
@@ -262,7 +282,7 @@ export default abstract class ErrorHelper {
     throw new ValidationError(
       message ?? this.getErrorMessage(errorCode),
       this.getStatusCode(errorCode),
-      this.getErrorCode(errorCode)
+      this.getErrorCode(errorCode),
     );
   }
 
@@ -277,7 +297,7 @@ export default abstract class ErrorHelper {
   public static throwWithStatus(
     message: string = 'An unknown error occurred',
     statusCode: number = 400,
-    errorCode: string = 'BAD_REQUEST'
+    errorCode: ErrorCode = 'BAD_REQUEST',
   ): never {
     throw new ValidationError(message, statusCode ?? this.getStatusCode(ErrorCodes.BadRequest), errorCode ?? this.getErrorCode(ErrorCodes.BadRequest));
   }
