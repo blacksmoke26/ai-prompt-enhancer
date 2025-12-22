@@ -19,66 +19,10 @@ import {FindOptions, Op} from 'sequelize';
 // classes
 import HistoryStats from '~/classes/HistoryStats';
 
-/**
- * Represents a single entry in the prompt history with comprehensive metadata.
- *
- * This interface captures all relevant information about a prompt interaction,
- * including the original input, enhanced output, model details, and performance
- * metrics for analytics and debugging purposes.
- *
- * @interface PromptHistory
- *
- * @remarks
- * The `provider` field is optional and becomes particularly useful in multi-provider
- * environments where you might be switching between different AI services. This allows
- * for provider-specific analytics and cost tracking.
- *
- * @example
- * const entry: PromptHistory = {
- *   id: 'abc123',
- *   originalPrompt: 'Check grammar',
- *   enhancedPrompt: 'Please review and correct any grammatical errors in the text',
- *   model: 'gpt-4',
- *   enhancementType: 'grammar',
- *   userRole: 'student',
- *   provider: 'OpenAI',
- *   timestamp: new Date('2025-01-15T10:30:00Z'),
- *   tokensUsed: 25,
- *   processingTime: 1250
- * };
- */
-export interface PromptHistory {
-  /** Unique identifier for the history entry, auto-generated */
-  id: string;
-  /** The original, unmodified prompt text provided by the user */
-  originalPrompt: string;
-  /** The AI-enhanced or processed version of the prompt */
-  enhancedPrompt: string;
-  /** The AI model name/identifier used for enhancement (e.g., "gpt-4", "claude-3") */
-  model: string;
-  /** The type of enhancement applied (e.g., "grammar", "style", "expansion") */
-  enhancementType: string;
-  /** The role or category of the user making the request (e.g., "developer", "content-writer") */
-  userRole: string;
-  /** The system prompt used for the request */
-  systemPrompt?: string;
-  /** Optional AI service provider name (e.g., "OpenAI", "Anthropic", "Google") */
-  provider?: string;
-  /** Exact date and time when the prompt was processed */
-  timestamp: Date;
-  /** Number of tokens consumed during processing, if available */
-  tokensUsed?: number;
-  /** Time taken to process the prompt in milliseconds */
-  processingTime: number;
-  /** Temperature setting for randomness in output (0-1) */
-  temperature?: number;
-  /** Maximum tokens allowed in the response */
-  maxTokens?: number;
-  /** Rating given to the response (1-5) */
-  rating: number;
-  /** Any additional notes about the response */
-  notes: string | null;
-}
+// types
+import type {PromptHistory, HistoryStatistics} from '~/types/history-service';
+
+export {PromptHistory, HistoryStatistics};
 
 /**
  * A comprehensive manager for prompt history with full CRUD operations, analytics,
@@ -591,49 +535,7 @@ export default class HistoryService {
    *   console.log(`${role}: ${count} entries (${(count/stats.totalItems*100).toFixed(1)}%)`);
    * });
    */
-  public async getStats(): Promise<{
-    totalItems: number;
-    totalTokensUsed: number;
-    averageProcessingTime: number;
-    mostUsedModel: string;
-    mostUsedEnhancementType: string;
-    providerUsage: { provider: string; model: string; count: number }[];
-    mostUsedRoles: { role: string; count: number }[];
-    totalWords: number;
-    totalLines: number;
-    totalChars: number;
-    averageTokensUsed: number;
-    maxTokensUsed: number;
-    averageRating: number;
-    topRatedEntries: number;
-    averageTemperature: number;
-    temperatureDistribution: { range: string; count: number }[];
-    enhancementFrequency: { type: string; count: number; percentage: number }[];
-    modelPerformance: { model: string; avgProcessingTime: number; totalUsage: number }[];
-    roleModelDistribution: { role: string; model: string; count: number }[];
-    dateRange: { earliest: Date; latest: Date };
-    peakUsageHour: { hour: number; count: number };
-    monthlyUsage: { month: string; count: number }[];
-    averageMaxTokens: number;
-    minTokensUsed: number;
-    promptEnhancementRatio: number;
-    systemPromptUsage: { used: number; notUsed: number; percentage: number };
-    ratingDistribution: { rating: number; count: number; percentage: number }[];
-    costAnalysis: { totalEstimatedCost: number; avgCostPerRequest: number };
-    weeklyUsage: { week: string; count: number }[];
-    longestPrompt: { originalLength: number; enhancedLength: number; ratio: number };
-    shortestPrompt: { originalLength: number; enhancedLength: number; ratio: number };
-    averagePromptLength: { original: number; enhanced: number };
-    mostEfficientModel: { model: string; avgProcessingTime: number; avgTokensPerMs: number };
-    preferredTimeSlots: { hour: number; count: number; percentage: number }[];
-    enhancementTypeEfficiency: {
-      type: string;
-      avgProcessingTime: number;
-      avgTokensUsed: number;
-      successRate: number
-    }[];
-    metaFieldUsage: { withMeta: number; withoutMeta: number; percentage: number };
-  }> {
+  public async getStats(): Promise<HistoryStatistics> {
     const histories = await History.findAll({
       raw: true,
       order: [['createdAt', 'DESC']],
