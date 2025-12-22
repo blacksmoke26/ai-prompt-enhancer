@@ -5,7 +5,7 @@
  */
 
 // errors
-import ValidationError from '~/errors/ValidationError';
+import ValidationError from '~/fastify/errors/ValidationError';
 
 /**
  * Enum representing standardized error codes used across the application.
