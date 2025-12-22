@@ -7,8 +7,17 @@
 // db
 import {EnhancementType} from '~/database/models';
 
+// helpers
+import ErrorHelper from '~/helpers/ErrorHelper';
+import ResponseHelper from '~/helpers/ResponseHelper';
+
+// schemas
+import schema from './schemas/get.schema';
+
 // types
 import type {FastifyInstance} from 'fastify';
+import type {SuccessResponse} from '~/types/response';
+import type {EnhancementType as Enhancement} from '~/constants/enhancement-types';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -16,26 +25,27 @@ export default (fastify: FastifyInstance) => {
    * @example GET /config/enhancement-types
    * @developer-note Used to populate dropdown options in UI
    */
-  fastify.get('/', async (_request, reply) => {
+  fastify.get<{ Reply: SuccessResponse<Enhancement[]>; }>('/', {schema}, async () => {
     try {
-      const enhancementTypes = await EnhancementType.findAll({
+      const records = await EnhancementType.findAll({
         attributes: ['id', 'key', 'name', 'description', 'systemPrompt', 'category', 'hidden'],
         order: [['id', 'ASC']],
         raw: true,
       });
 
-      const types = enhancementTypes.map(enhancementType => ({
-        id: enhancementType.key,
-        name: enhancementType.name,
-        description: enhancementType.description,
-        systemPrompt: enhancementType.systemPrompt,
-        category: enhancementType.category,
-        hidden: enhancementType.hidden,
+      const list = records.map(record => ({
+        id: record.key,
+        name: record.name,
+        description: record.description,
+        systemPrompt: record.systemPrompt,
+        category: record.category,
+        hidden: Boolean(record.hidden),
       }));
-      return reply.code(200).send(types);
+
+      return ResponseHelper.successWithData(list);
     } catch (error: any) {
       fastify.log.error('Failed to get enhancement types:', error);
-      return reply.code(500).send({error: 'Failed to fetch enhancement types'});
+      ErrorHelper.throwWithStatus('Failed to fetch enhancement types');
     }
   });
 }
