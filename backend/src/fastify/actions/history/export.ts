@@ -4,14 +4,38 @@
  * @see https://github.com/blacksmoke26
  */
 
+// helpers
+import ErrorHelper from '~/helpers/ErrorHelper';
+
 // utils
 import {exportSchema} from '~/utils/validation';
+
+// schemas
+import schema from './schemas/export.schema';
 
 // types
 import type {FastifyInstance} from 'fastify';
 
-interface RequestQuery {
+/**
+ * Represents query parameters for a request, specifying the desired data format and optional result limit.
+ * @example
+ * { format: 'json', limit: '10' }
+ *
+ * Developer Notes:
+ * - Ensure `format` is one of the allowed values: 'json', 'csv', or 'txt'.
+ * - `limit` is optional and should be provided as a string, even if numeric (server may handle it flexibly).
+ */
+export interface RequestQuery {
+  /**
+   * The desired format for the response data.
+   * Must be one of 'json', 'csv', or 'txt'.
+   */
   format: 'json' | 'csv' | 'txt';
+
+  /**
+   * Optional maximum number of results to return.
+   * The server may interpret this as a string for flexibility, though typically represents a numeric value.
+   */
   limit?: string;
 }
 
@@ -28,13 +52,14 @@ export default (fastify: FastifyInstance) => {
    */
   fastify.get<{
     Querystring: RequestQuery;
-  }>('/export', async function (this, request, reply) {
+  }>('/export', {schema}, async function (this, request, reply) {
     try {
       const {format, limit} = request.query;
 
       const {error, value} = exportSchema.validate({format, limit});
+
       if (error) {
-        throw new Error(`Validation failed: ${error.details.map(detail => detail.message).join(', ')}`);
+        ErrorHelper.throwWithStatus(`Validation failed: ${error.details.map(detail => detail.message).join(', ')}`, 422);
       }
 
       const exportData = await this.historyService.exportHistory(value.format);
@@ -53,7 +78,7 @@ export default (fastify: FastifyInstance) => {
       return reply.code(200).send(exportData);
     } catch (error: any) {
       fastify.log.error('Failed to export history:', error);
-      return reply.code(500).send({error: 'Failed to export history'});
+      ErrorHelper.throwWithStatus('Failed to export history');
     }
   });
 }

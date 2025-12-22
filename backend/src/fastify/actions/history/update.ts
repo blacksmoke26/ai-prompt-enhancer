@@ -7,12 +7,16 @@
 // utils
 import {historyUpdateSchema} from '~/utils/validation';
 
+// schemas
+import schema from './schemas/update.schema';
+
 // types
 import type {FastifyInstance} from 'fastify';
+import ErrorHelper from '~/helpers/ErrorHelper';
 
 export default (fastify: FastifyInstance) => {
   /**
-   * Updates a history item with rating or notes
+   * Updates a history item
    * @example
    * // PUT /history/123
    * // Body: { rating: 5, notes: "Excellent response" }
@@ -25,23 +29,23 @@ export default (fastify: FastifyInstance) => {
   fastify.put<{
     Params: { id: string };
     Body: { rating?: number; notes?: string };
-  }>('/:id', async function (this, request, reply) {
+  }>('/:id', {schema}, async function (this, request, reply) {
     try {
       const {error, value} = historyUpdateSchema.validate(request.body);
       if (error) {
-        throw new Error(`Validation failed: ${error.details.map(detail => detail.message).join(', ')}`);
+        ErrorHelper.throwWithStatus('Validation failed', 422, 'VALIDATION_FAILED');
       }
 
       const success = await this.historyService.updateHistoryItem(request.params.id, value);
 
       if (!success) {
-        return reply.code(404).send({error: 'History item not found'});
+        ErrorHelper.throwWithStatus('History item not found', 404, 'NOT_FOUND');
       }
 
       return reply.code(200).send({success: true});
     } catch (error: any) {
       fastify.log.error('Failed to update history item:', error);
-      return reply.code(500).send({error: 'Failed to update history item'});
+      ErrorHelper.throwWithStatus('Failed to update history item', 400);
     }
   });
 }

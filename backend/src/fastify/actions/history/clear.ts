@@ -4,8 +4,16 @@
  * @see https://github.com/blacksmoke26
  */
 
+// helpers
+import ErrorHelper from '~/helpers/ErrorHelper';
+import ResponseHelper from '~/helpers/ResponseHelper';
+
+// schemas
+import schema from './schemas/clear.schema';
+
 // types
 import type {FastifyInstance} from 'fastify';
+import type {SuccessOnlyResponse} from '~/types/response';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -17,13 +25,13 @@ export default (fastify: FastifyInstance) => {
    * - Operation is permanent and irreversible
    * - Consider adding confirmation for production use
    */
-  fastify.delete('/', async function (this, request, reply ) {
+  fastify.patch<{ Reply: SuccessOnlyResponse }>('/', {schema}, async function (this) {
     try {
       await this.historyService.clearHistory();
-      return reply.code(200).send({ success: true });
+      return ResponseHelper.successOnly();
     } catch (error: any) {
       fastify.log.error('Failed to clear history:', error);
-      return reply.code(500).send({ error: 'Failed to clear history' });
+      ErrorHelper.throwWithStatus('Failed to clear history');
     }
   });
 }

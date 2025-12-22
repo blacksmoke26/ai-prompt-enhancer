@@ -4,8 +4,17 @@
  * @see https://github.com/blacksmoke26
  */
 
+// helpers
+import ErrorHelper from '~/helpers/ErrorHelper';
+import ResponseHelper from '~/helpers/ResponseHelper';
+
+// schemas
+import schema from './schemas/stats.schema';
+
 // types
 import type {FastifyInstance} from 'fastify';
+import type {SuccessResponse} from '~/types/response';
+import type {HistoryStatistics} from '~/types/history-service';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -17,13 +26,14 @@ export default (fastify: FastifyInstance) => {
    * - Computed values are calculated on each request
    * - Returns empty object if no history exists
    */
-  fastify.get('/stats', async function (this, request, reply) {
+  fastify.get<{ Reply: SuccessResponse<HistoryStatistics> }>('/stats', {schema}, async function (this, request, reply) {
     try {
       const stats = await this.historyService.getStats();
-      return reply.code(200).send(stats);
+      return ResponseHelper.successWithData(stats);
+      ;
     } catch (error: any) {
       fastify.log.error('Failed to get history stats:', error);
-      return reply.code(500).send({error: 'Failed to fetch history stats'});
+      ErrorHelper.throwWithStatus('Failed to get history stats');
     }
   });
 }

@@ -4,8 +4,15 @@
  * @see https://github.com/blacksmoke26
  */
 
+// schemas
+import schema from './schemas/get.schema';
+
 // types
 import type {FastifyInstance} from 'fastify';
+import ResponseHelper from '~/helpers/ResponseHelper';
+import {SuccessResponse} from '~/types/response';
+import {PromptHistory} from '~/services/HistoryService';
+import ErrorHelper from '~/helpers/ErrorHelper';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -18,8 +25,9 @@ export default (fastify: FastifyInstance) => {
    * - Search performs case-insensitive text matching
    */
   fastify.get<{
-    Querystring: { limit?: string; search?: string }
-  }>('/', async function (this, request, reply) {
+    Querystring: { limit?: string; search?: string };
+    Reply: SuccessResponse<PromptHistory[]>
+  }>('/', {schema}, async function (this, request, reply) {
     try {
       const {limit, search} = request.query;
 
@@ -31,10 +39,10 @@ export default (fastify: FastifyInstance) => {
         history = await this.historyService.getHistory(limit ? parseInt(limit) : undefined);
       }
 
-      return reply.code(200).send(history);
+      return ResponseHelper.successWithData(history);
     } catch (error: any) {
       fastify.log.error('Failed to get history:', error);
-      return reply.code(500).send({error: 'Failed to fetch history'});
+      ErrorHelper.throwWithStatus('Failed to get history');
     }
   });
 }
