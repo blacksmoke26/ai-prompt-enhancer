@@ -15,23 +15,23 @@ import type {JSONSchema7} from 'json-schema';
  */
 export default (message?: string, error?: string): JSONSchema7 => {
   return {
-    description: 'Internal Server Error',
+    description: 'Service Unavailable',
     type: 'object',
     properties: {
       statusCode: {
         type: 'number',
         description: 'HTTP status code',
-        examples: [500],
+        examples: [503],
       },
       error: {
         type: 'string',
         description: 'Error name',
-        examples: [error ?? 'Internal Server Error'],
+        examples: [error ?? 'Service Unavailable'],
       },
       message: {
         type: 'string',
         description: 'Error details',
-        examples: [message ?? 'Internal Server Error'],
+        examples: [message ?? 'Service Unavailable'],
       },
     },
   };
