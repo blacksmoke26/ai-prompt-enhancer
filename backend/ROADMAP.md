@@ -64,8 +64,8 @@ This roadmap outlines the planned features, improvements, and development priori
    - Documentation improvements
 
 ## Technology Stack Improvements
-- [ ] Upgrade to latest Fastify version
-- [ ] Swagger API with Scalar
+- [x] Upgrade to latest Fastify version
+- [x] Swagger API with Scalar
 - [ ] Migration to newer TypeScript features
 - [ ] Enhanced testing framework
 - [ ] Improved monitoring and observability
