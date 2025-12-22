@@ -208,3 +208,7 @@ For support, please open an issue on the [GitHub repository](https://github.com/
 - Built with Fastify and React 19
 - Utilizes modern full-stack development practices
 - Inspired by the need for better AI prompt engineering tools
+
+## Copyright ©️
+
+Developed with ❤️ by Junaid Atari

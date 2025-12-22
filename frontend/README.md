@@ -2,6 +2,26 @@
 
 > **AI Prompt Enhancer** is a modern web application designed to help users improve their AI prompts through intelligent enhancement techniques, providing better results from AI models with minimal effort.
 
+## 📋 Application Overview
+
+The AI Prompt Enhancer is a comprehensive tool that transforms how users interact with AI models. By providing intelligent prompt enhancement capabilities, it helps users craft more effective prompts that yield better results from AI systems. The application offers a rich, intuitive interface with advanced features for prompt engineering, history management, and performance analytics.
+
+## 🎯 Key Benefits
+
+- **Improved AI Results**: Transform vague or ineffective prompts into precise, actionable ones
+- **Time Efficiency**: Save time by automating prompt refinement processes
+- **Consistent Quality**: Maintain consistent prompt quality across different use cases
+- **Learning Tool**: Understand what makes prompts effective through statistics and analytics
+- **Multi-Provider Support**: Work with various AI providers (OpenAI, Anthropic, etc.)
+- **Customizable Workflows**: Adapt the tool to your specific needs with user roles and templates
+
+## 🎯 Target Users
+
+- **Content Creators**: Writers, marketers, and researchers looking to improve AI-generated content
+- **Developers**: Building AI applications who need effective prompt engineering
+- **Students & Researchers**: Enhancing their AI research and writing processes
+- **Professionals**: Anyone using AI tools who wants better results with less effort
+
 ## 🚀 Features
 
 - **Prompt Enhancement**: Transform your prompts into more effective versions
@@ -12,6 +32,9 @@
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 - **Theme Support**: Light, dark, and system themes
 - **Keyboard Shortcuts**: Quick enhancement with Ctrl/Cmd + Enter
+- **Template System**: Predefined prompt templates for common use cases
+- **Export Functionality**: Export history and enhanced prompts
+- **Role-Based Customization**: Different enhancement approaches based on user roles
 
 ## 🛠️ Technology Stack
 
@@ -25,6 +48,7 @@
 - **Rich Text Editor**: @mdxeditor/editor
 - **Drag and Drop**: @dnd-kit
 - **HTTP Client**: Axios
+- **Testing**: Jest and React Testing Library
 
 ## 📁 Project Structure
 
@@ -43,7 +67,10 @@ frontend/
 │   └── main.tsx              # Entry point
 ├── docs/                     # Documentation
 │   ├── ARCHITECTURE.md       # Architecture documentation
-│   └── COMPONENTS.md         # Component documentation
+│   ├── COMPONENTS.md         # Component documentation
+│   └── TESTING.md            # Testing documentation
+├── tests/                    # Test files
+│   └── __mocks__/            # Mock files for testing
 ├── public/                   # Static assets
 └── ROADMAP.md                # Development roadmap
 ```
@@ -52,6 +79,7 @@ frontend/
 
 - [Architecture Documentation](docs/ARCHITECTURE.md)
 - [Component Documentation](docs/COMPONENTS.md)
+- [Testing Documentation](docs/TESTING.md)
 - [Development Roadmap](ROADMAP.md)
 
 ## 🚀 Getting Started
@@ -91,6 +119,12 @@ npm run lint
 
 # Run linting with auto-fix
 npm run lint:fix
+
+# Run tests
+npm run test
+
+# Run tests with coverage
+npm run test:coverage
 ```
 
 ## 📊 Usage
@@ -116,6 +150,7 @@ Core interface for:
 - Real-time statistics and word count
 - Enhancement controls and action buttons
 - Error handling and user feedback
+- Template insertion capabilities
 
 ### HistoryPanel
 Prompt history management with:
@@ -123,12 +158,14 @@ Prompt history management with:
 - Editable history entries
 - Export and clear functionality
 - Refresh capabilities
+- Rating and note system for history items
 
 ### StatsPanel
 Data visualization with:
 - Usage statistics charts
 - Performance metrics
 - Prompt enhancement trends
+- Interactive data visualizations
 
 ## 🎨 Theming
 
@@ -144,17 +181,13 @@ The application features a mobile-first responsive design:
 - Adaptive grid layouts
 - Touch-friendly controls
 - Optimized touch targets
+- Mobile navigation bar
 
 ## 🔧 Configuration
 
 ### Environment Variables
 
-Create a `.env` file in the project root with:
-
-```env
-VITE_API_BASE_URL=http://localhost:3000/api
-VITE_APP_NAME=AI Prompt Enhancer
-```
+Copy `.env.sample` as `.env` file in the project root directory.
 
 ### Application Settings
 
@@ -165,6 +198,8 @@ The application allows customization of:
 - User roles
 - Temperature and token limits
 - Default system prompts
+- Theme preferences
+- Auto-save behavior
 
 ## 📈 Roadmap
 
@@ -191,3 +226,8 @@ For support, please open an issue on the [GitHub repository](https://github.com/
 - Built with React 19 and TypeScript
 - Utilizes modern frontend development practices
 - Inspired by the need for better AI prompt engineering tools
+- Uses state-of-the-art UI components and design patterns
+
+## Copyright ©️
+
+Developed with ❤️ by Junaid Atari
