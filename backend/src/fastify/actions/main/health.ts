@@ -7,8 +7,12 @@
 // helpers
 import ResponseHelper from '~/helpers/ResponseHelper';
 
+// schemas
+import schema from './schemas/health.schema';
+
 // types
 import type {FastifyInstance} from 'fastify';
+import type {SuccessCustomResponse} from '~/types/response';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -19,7 +23,9 @@ export default (fastify: FastifyInstance) => {
    * // Response
    * { "success": true, "status": "ok", "timestamp": "2023-01-01T00:00:00.000Z" }
    */
-  fastify.get('/health', async () => {
+  fastify.get<{
+    Reply: SuccessCustomResponse<{ status: string; timestamp: string; }>
+  }>('/health', {schema}, async () => {
     return ResponseHelper.successWithCustom(
       {status: 'ok', timestamp: new Date().toISOString()},
     );

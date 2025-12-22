@@ -21,7 +21,9 @@ export default (fastify: FastifyInstance) => {
    * @developerNote
    * This endpoint is used for testing purposes.
    */
-  fastify.get<{ Params: { name: string } }>('/test-provider/:name', async function (this, request, _reply) {
+  fastify.get<{
+    Params: { name: string }
+  }>('/test-provider/:name', {schema: {hide: true}}, async function (this, request, _reply) {
     const provider = this.providerService.getProvider(request.params.name);
 
     if (!provider) {
