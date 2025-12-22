@@ -7,11 +7,19 @@
 // db
 import {Provider} from '~/database/models';
 
+// helpers
+import ErrorHelper from '~/helpers/ErrorHelper';
+import ResponseHelper from '~/helpers/ResponseHelper';
+
 // utils
 import {toProviderName} from '~/utils/provider';
 
+// schemas
+import schema from './schemas/test.schema';
+
 // types
 import type {FastifyInstance} from 'fastify';
+import type {SuccessResponse} from '~/types/response';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -24,7 +32,8 @@ export default (fastify: FastifyInstance) => {
   fastify.post<{
     Body: { enabled: boolean; apiKey: string; timeout: number; baseUrl: string; };
     Params: { providerName: string; };
-  }>('/providers/:providerName/test', async function (this, request, reply) {
+    Reply: SuccessResponse<{ providerName: string; available: boolean; }>;
+  }>('/providers/:providerName/test', {schema}, async function (this, request) {
     try {
       const {providerName} = request.params;
       const isAvailable = await this.providerService.testProvider(providerName);
@@ -45,14 +54,13 @@ export default (fastify: FastifyInstance) => {
         //</editor-fold>
       }
 
-      return reply.code(200).send({
+      return ResponseHelper.successWithData({
         providerName,
         available: isAvailable,
       });
     } catch (error: any) {
       fastify.log.error('Provider test failed:', error);
-      return reply.code(500).send({error: 'Failed to test provider'});
+      ErrorHelper.throwWithStatus('Failed to test provider');
     }
   });
-
 }

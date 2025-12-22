@@ -4,8 +4,17 @@
  * @see https://github.com/blacksmoke26
  */
 
+// helpers
+import ErrorHelper from '~/helpers/ErrorHelper';
+import ResponseHelper from '~/helpers/ResponseHelper';
+
+// schemas
+import schema from './schemas/providers.schema';
+
 // types
 import type {FastifyInstance} from 'fastify';
+import type {AIProvider} from '~/types';
+import type {SuccessResponse} from '~/types/response';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -15,13 +24,13 @@ export default (fastify: FastifyInstance) => {
    * // Response: [{ name: "openai", status: "active" }]
    * @developer_notes Includes provider status and configuration info
    */
-  fastify.get('/providers', async function (this, request, reply) {
+  fastify.get<{ Reply: SuccessResponse<AIProvider[]> }>('/providers', {schema}, async function (this) {
     try {
-      const models = await this.providerService.getAllProviders();
-      return reply.code(200).send(models);
+      const providers = await this.providerService.getAllProviders();
+      return ResponseHelper.successWithData(providers);
     } catch (error: any) {
-      fastify.log.error('Failed to get models:', error);
-      return reply.code(500).send({error: 'Failed to fetch models'});
+      fastify.log.error('Failed to get providers:', error);
+      ErrorHelper.throwWithStatus('Failed to get providers');
     }
   });
 }

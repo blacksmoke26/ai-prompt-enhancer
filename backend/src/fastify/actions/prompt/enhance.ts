@@ -7,6 +7,13 @@
 // classes
 import ProviderService from '~/services/ProviderService';
 
+// schemas
+import schema from './schemas/enhance.schema';
+
+// helpers
+import ErrorHelper from '~/helpers/ErrorHelper';
+import ResponseHelper from '~/helpers/ResponseHelper';
+
 // db
 import {History, Provider} from '~/database/models';
 
@@ -15,6 +22,7 @@ import {toProviderName} from '~/utils/provider';
 
 // types
 import type {FastifyInstance} from 'fastify';
+import type {SuccessResponse} from '~/types/response';
 import type {PromptRequest, PromptResponse} from '~/types';
 
 /**
@@ -38,12 +46,12 @@ const enhance = async (
     });
 
     if (!provider || !providerRecord) {
-      throw new Error(`Provider ${promptRequest.provider} not found`);
+      ErrorHelper.throwWithStatus(`Provider ${promptRequest.provider} not found`, 404);
     }
 
     // Check if provider is available
     if (!(await provider.isAvailable())) {
-      throw new Error(`Provider ${promptRequest.provider} is not available`);
+      ErrorHelper.throwWithStatus(`Provider ${promptRequest.provider} is not available`, 503);
     }
 
     // Enhance the prompt
@@ -68,7 +76,7 @@ const enhance = async (
 
     return response;
   } catch (error: any) {
-    throw new Error(`Prompt enhancement failed: ${error.message}`);
+    ErrorHelper.throwWithStatus(`Prompt enhancement failed: ${error.message}`, error?.statusCode || 500);
   }
 };
 
@@ -76,21 +84,15 @@ export default (fastify: FastifyInstance) => {
   /**
    * Enhances a prompt using the specified AI provider
    * @example
-   * // POST /enhance
+   * // POST /prompts/enhance
    * // Body: { model: "openai:gpt-4", prompt: "Hello world" }
    * @developer_notes Provider name is extracted from model ID format "provider:model"
    */
-  fastify.post<{ Body: PromptRequest }>('/enhance', async function (this, request, reply) {
-    try {
-      const response = await enhance(this.providerService, request.body);
-
-      return reply.code(200).send(response);
-    } catch (error: any) {
-      fastify.log.error('Prompt enhancement failed:', error);
-      return reply.code(500).send({
-        error: 'Failed to enhance prompt',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      });
-    }
+  fastify.post<{
+    Body: PromptRequest;
+    Reply: SuccessResponse<PromptResponse>
+  }>('/enhance', {schema}, async function (this, request, reply) {
+    const response = await enhance(this.providerService, request.body);
+    return ResponseHelper.successWithData(response);
   });
 }
