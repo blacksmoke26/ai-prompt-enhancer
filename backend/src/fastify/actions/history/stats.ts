@@ -26,11 +26,10 @@ export default (fastify: FastifyInstance) => {
    * - Computed values are calculated on each request
    * - Returns empty object if no history exists
    */
-  fastify.get<{ Reply: SuccessResponse<HistoryStatistics> }>('/stats', {schema}, async function (this, request, reply) {
+  fastify.get<{ Reply: SuccessResponse<HistoryStatistics> }>('/stats', {schema}, async function (this) {
     try {
       const stats = await this.historyService.getStats();
       return ResponseHelper.successWithData(stats);
-      ;
     } catch (error: any) {
       fastify.log.error('Failed to get history stats:', error);
       ErrorHelper.throwWithStatus('Failed to get history stats');
