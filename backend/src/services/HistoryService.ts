@@ -359,7 +359,7 @@ export default class HistoryService {
    * console.log('All history cleared');
    */
   public async clearHistory(): Promise<void> {
-    await History.destroy({});
+    await History.truncate();
   }
 
   /**
