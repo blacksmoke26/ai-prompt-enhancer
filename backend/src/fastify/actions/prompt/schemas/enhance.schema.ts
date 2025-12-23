@@ -86,6 +86,12 @@ export default {
         description: 'Additional user instructions for the AI',
         examples: ['Include code examples'],
       },
+      timestamp: {
+        type: 'string',
+        format: 'date-time',
+        description: 'Timestamp when the response was generated',
+        examples: ['2023-05-15T10:30:00Z'],
+      },
     },
     required: ['text', 'provider', 'model'],
     additionalProperties: false,

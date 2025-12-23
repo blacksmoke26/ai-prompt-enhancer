@@ -136,6 +136,11 @@ export interface PromptRequest {
    * @example "Include code examples"
    */
   customInstructions?: string;
+  /**
+   * Timestamp when the request was made
+   * @example "2023-05-15T10:30:00Z"
+   */
+  timestamp?: string;
 }
 
 /**

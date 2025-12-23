@@ -76,7 +76,6 @@ export default abstract class PromptService {
     try {
       const {data} = await api.post<{ data: PromptResponse }>('/prompts/enhance', {
         ...request,
-        prompt: request.text.trim(),
         timestamp: new Date().toISOString(),
       });
 
