@@ -13,6 +13,7 @@ import schema from './schemas/update.schema';
 // types
 import type {FastifyInstance} from 'fastify';
 import ErrorHelper from '~/helpers/ErrorHelper';
+import ResponseHelper from '~/helpers/ResponseHelper';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -42,7 +43,7 @@ export default (fastify: FastifyInstance) => {
         ErrorHelper.throwWithStatus('History item not found', 404, 'NOT_FOUND');
       }
 
-      return reply.code(200).send({success: true});
+      return ResponseHelper.successOnly();
     } catch (error: any) {
       fastify.log.error('Failed to update history item:', error);
       ErrorHelper.throwWithStatus('Failed to update history item', 400);
