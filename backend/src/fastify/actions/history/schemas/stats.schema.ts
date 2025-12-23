@@ -38,186 +38,43 @@ export default {
         },
         providerUsage: {
           type: 'array',
-          items: [
-            {
-              type: 'object',
-              properties: {
-                provider: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
+          items: {
+            type: 'object',
+            properties: {
+              provider: {
+                type: 'string',
               },
-              required: [
-                'provider',
-                'model',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                provider: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
+              model: {
+                type: 'string',
               },
-              required: [
-                'provider',
-                'model',
-                'count',
-              ],
+              count: {
+                type: 'integer',
+              },
             },
-          ],
+            required: [
+              'provider',
+              'model',
+              'count',
+            ],
+          },
         },
         mostUsedRoles: {
           type: 'array',
-          items: [
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
+          items: {
+            type: 'object',
+            properties: {
+              role: {
+                type: 'string',
               },
-              required: [
-                'role',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
+              count: {
+                type: 'integer',
               },
-              required: [
-                'role',
-                'count',
-              ],
             },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'count',
-              ],
-            },
-          ],
+            required: [
+              'role',
+              'count',
+            ],
+          },
         },
         totalWords: {
           type: 'integer',
