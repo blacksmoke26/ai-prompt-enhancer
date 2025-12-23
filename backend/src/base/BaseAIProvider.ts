@@ -6,10 +6,12 @@
 
 import axios, {AxiosInstance} from 'axios';
 
+// classes
+import PromptFormatter from '~/classes/PromptFormatter';
+
 // types
-import {ConfigMeta, EnhancementType, UserRole} from '~/database/models';
+import type {ConfigMeta} from '~/database/models';
 import type {PromptRequest, PromptResponse, AIModel} from '~/types';
-import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
 
 /**
  * Abstract base class for AI provider implementations.
@@ -102,24 +104,29 @@ export default abstract class BaseAIProvider {
   }
 
   /**
-   * Formats a full prompt with system message, user input, and enhanced prompt section.
-   *
-   * @param request - The request object containing prompt configuration
-   * @returns A formatted string containing all prompt components
-   *
+   * Formats a prompt request into a structured string, including optional metadata and the original prompt.
    * @example
-   * formatFullPrompt("Explain quantum physics")
-   * // Returns:
-   * // "You are an AI assistant\n\nOriginal prompt: Explain quantum physics\n\nEnhanced prompt:"
-   *
-   * Developer Note: This method serves as a template for prompt formatting and
-   * should be used for logging or display purposes when generating prompts.
+   * const request = {
+   *   format: 'json',
+   *   userRole: 'Analyst',
+   *   targetAudience: 'Managers',
+   *   tone: 'Professional',
+   *   text: 'Generate a report',
+   * };
+   * formatPrompt(request);
+   * // returns:
+   * // Output Format: JSON
+   * // User Role: Analyst
+   * // Target Audience: Managers
+   * // Tone: Professional
+   * // Original prompt: Generate a report
+   * //
+   * // {{enhanced prompt}}
+   * @param {PromptRequest} request - The prompt request object containing metadata and the original text.
+   * @returns {string} - A formatted string representing the prompt with metadata and the original text.
    */
   public formatPrompt(request: PromptRequest): string {
-    /*return `Features: Mermaid Chart\n\n` +
-      `Output Format: Markdown\n\nOriginal prompt: ${request.text}\n\n{{enhanced prompt}}`;*/
-
-    return `Output Format: Markdown\n\nOriginal prompt: ${request.text}\n\n{{enhanced prompt}}`;
+    return PromptFormatter.formatPrompt(request, this.name);
   }
 
   /**
@@ -132,7 +139,7 @@ export default abstract class BaseAIProvider {
    * @note This method is a no-op by default and should be overridden in subclasses to implement custom formatting logic.
    */
   public formatSystemPrompt(systemPrompt: string): string {
-    return systemPrompt;
+    return PromptFormatter.formatSystemPrompt(systemPrompt, this.name);
   }
 
   /**
@@ -154,7 +161,7 @@ export default abstract class BaseAIProvider {
    * and provides a fallback mechanism for cases where the model's response is missing.
    */
   public toPromptResponse(enhancedResponse: string, userPrompt: string): string {
-    return String(enhancedResponse || '')?.trim?.() || userPrompt;
+    return PromptFormatter.toPromptResponse(enhancedResponse, userPrompt, this.name);
   }
 
   /**
@@ -175,21 +182,6 @@ export default abstract class BaseAIProvider {
    * - Override this method for custom prompt construction logic.
    */
   public async buildSystemPrompt(request: PromptRequest): Promise<string> {
-    const typeRecord = await EnhancementType.findOne({
-      attributes: ['systemPrompt'],
-      where: {key: request.enhancementType},
-      raw: true,
-    });
-
-    const userRecord = await UserRole.findOne({
-      attributes: ['systemPrompt'],
-      where: {key: request.userRole},
-      raw: true,
-    });
-
-    const systemPrompt = typeRecord?.systemPrompt || 'You are a grammar and spelling expert. Correct any grammatical errors, spelling mistakes, and improve the clarity of the given prompt while preserving the original intent.';
-    const rolePrompt = userRecord?.systemPrompt || 'You are a helpful AI assistant. Provide clear, accurate, and useful responses to enhance the user\'s prompt.';
-
-    return `${rolePrompt} ${systemPrompt}`;
+    return PromptFormatter.buildSystemPrompt(request, this.name);
   }
 }

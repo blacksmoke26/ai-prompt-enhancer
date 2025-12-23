@@ -137,6 +137,11 @@ export interface PromptRequest {
    */
   customInstructions?: string;
   /**
+   * Output format for the enhanced response
+   * @example 'markdown'
+   */
+  format?: 'markdown' | 'json' | 'text';
+  /**
    * Timestamp when the request was made
    * @example "2023-05-15T10:30:00Z"
    */
