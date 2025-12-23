@@ -1,3 +1,5 @@
+// noinspection SuspiciousTypeOfGuard,ExceptionCaughtLocallyJS
+
 /**
  * @author Junaid Atari <mj.atari@gmail.com>
  * @copyright 2025 Junaid Atari
@@ -7,7 +9,7 @@
 import api from '~/utils/api';
 
 // types
-import type { PromptHistory, HistoryStats } from '~/types';
+import type {PromptHistory, HistoryStats} from '~/types';
 
 /**
  * History service class for managing prompt history operations
@@ -33,7 +35,7 @@ export default abstract class HistoryService {
 
     return {
       start: startDate.toISOString(),
-      end: endDate.toISOString()
+      end: endDate.toISOString(),
     };
   }
 
@@ -71,7 +73,7 @@ export default abstract class HistoryService {
     dateRange?: { start: string; end: string },
     category?: string,
     sortBy?: 'date' | 'rating' | 'usage',
-    sortOrder?: 'asc' | 'desc'
+    sortOrder?: 'asc' | 'desc',
   ): Promise<PromptHistory[]> {
     try {
       const params = new URLSearchParams();
@@ -104,14 +106,14 @@ export default abstract class HistoryService {
         params.append('sortOrder', sortOrder);
       }
 
-      const response = await api.get(`/history${params.toString() ? `?${params.toString()}` : ''}`);
+      const {data} = await api.get(`/history${params.toString() ? `?${params.toString()}` : ''}`);
 
-      if (!response.data || !Array.isArray(response.data)) {
+      if (!data.data || !Array.isArray(data.data)) {
         console.warn('Invalid response format from history API');
         return [];
       }
 
-      return response.data;
+      return data.data;
     } catch (error) {
       console.error('Failed to retrieve history:', error);
       throw new Error('Unable to fetch history. Please try again later.');
@@ -129,8 +131,8 @@ export default abstract class HistoryService {
   static async getStats(refreshCache: boolean = false): Promise<HistoryStats> {
     try {
       const params = refreshCache ? '?refresh=true' : '';
-      const { data } = await api.get<HistoryStats>(`/history/stats${params}`);
-      return data;
+      const {data} = await api.get<{ data: HistoryStats }>(`/history/stats${params}`);
+      return data.data;
     } catch (error) {
       console.error('Failed to retrieve statistics:', error);
       throw new Error('Unable to fetch statistics. Please try again later.');
@@ -154,30 +156,30 @@ export default abstract class HistoryService {
   /**
    * Permanently deletes a specific history item
    * @param id - Unique identifier of the history item
-   * @param confirmDelete - Confirmation flag to prevent accidental deletion
    * @returns Success status of the operation
    * @example
    * await HistoryService.deleteHistoryItem("abc-123", true);
    * @developerNote This action is irreversible
    */
-  static async deleteHistoryItem(id: string, confirmDelete: boolean = false): Promise<{ success: boolean; message?: string }> {
+  static async deleteHistoryItem(id: string): Promise<{
+    success: boolean;
+    message?: string
+  }> {
     const validId = this.validateId(id);
     if (!validId) {
-      return { success: false, message: 'Invalid history item ID' };
-    }
-
-    if (!confirmDelete) {
-      return { success: false, message: 'Deletion not confirmed' };
+      return {success: false, message: 'Invalid history item ID'};
     }
 
     try {
-      const response = await api.delete(`/history/${encodeURIComponent(validId)}`);
+      const {data} = await api.delete<{
+        data: { success: boolean; message?: string }
+      }>(`/history/${encodeURIComponent(validId)}`);
 
-      if (response.data?.success) {
-        return { success: true, message: 'History item deleted successfully' };
+      if (data.data?.success) {
+        return {success: true, message: 'History item deleted successfully'};
       }
 
-      return { success: false, message: response.data?.message || 'Failed to delete history item' };
+      return {success: false, message: data.data?.message || 'Failed to delete history item'};
     } catch (error) {
       console.error('Failed to delete history item:', error);
       throw new Error('Unable to delete history item. Please try again later.');
@@ -192,7 +194,11 @@ export default abstract class HistoryService {
    * const valid = HistoryService.validateUpdates({ rating: 5, notes: "Great" });
    * @developerNote Enforces rating range (1-5) and string length limits
    */
-  private static validateUpdates(updates: { rating?: number; notes?: string; category?: string }): { rating?: number; notes?: string; category?: string } | null {
+  private static validateUpdates(updates: { rating?: number; notes?: string; category?: string }): {
+    rating?: number;
+    notes?: string;
+    category?: string
+  } | null {
     const sanitized: { rating?: number; notes?: string; category?: string } = {};
 
     if (updates.rating !== undefined) {
@@ -228,30 +234,29 @@ export default abstract class HistoryService {
    */
   static async updateHistoryItem(
     id: string,
-    updates: { rating?: number; notes?: string; category?: string }
-  ): Promise<{ success: boolean; message?: string; data?: PromptHistory }> {
+    updates: { rating?: number; notes?: string; },
+  ): Promise<{ success: boolean; message?: string; }> {
     const validId = this.validateId(id);
     if (!validId) {
-      return { success: false, message: 'Invalid history item ID' };
+      return {success: false, message: 'Invalid history item ID'};
     }
 
     const sanitizedUpdates = this.validateUpdates(updates);
     if (!sanitizedUpdates) {
-      return { success: false, message: 'No valid fields to update' };
+      return {success: false, message: 'No valid fields to update'};
     }
 
     try {
-      const response = await api.put(`/history/${encodeURIComponent(validId)}`, sanitizedUpdates);
+      const {data} = await api.put<{ success: boolean; }>(`/history/${encodeURIComponent(validId)}`, sanitizedUpdates);
 
-      if (response.data?.success) {
+      if (data?.success) {
         return {
           success: true,
           message: 'History item updated successfully',
-          data: response.data.data
         };
       }
 
-      return { success: false, message: response.data?.message || 'Failed to update history item' };
+      return {success: false, message: 'Failed to update history item'};
     } catch (error) {
       console.error('Failed to update history item:', error);
       throw new Error('Unable to update history item. Please try again later.');
@@ -260,25 +265,20 @@ export default abstract class HistoryService {
 
   /**
    * Permanently removes all items from history
-   * @param confirmation - Confirmation string to prevent accidental deletion
    * @returns Success status of the operation
    * @example
-   * await HistoryService.clearHistory("DELETE_ALL_HISTORY");
+   * await HistoryService.clearHistory();
    * @developerNote This action cannot be undone and affects all users in shared environments
    */
-  static async clearHistory(confirmation?: string): Promise<{ success: boolean; message?: string }> {
-    if (confirmation !== "DELETE_ALL_HISTORY") {
-      return { success: false, message: 'Invalid confirmation. Use "DELETE_ALL_HISTORY" to confirm' };
-    }
-
+  static async clearHistory(): Promise<{ success: boolean; message?: string }> {
     try {
-      const response = await api.delete('/history');
+      const {data} = await api.patch<{ success: boolean }>('/history');
 
-      if (response.data?.success) {
-        return { success: true, message: 'All history cleared successfully' };
+      if (data?.success) {
+        return {success: true, message: 'All history cleared successfully'};
       }
 
-      return { success: false, message: response.data?.message || 'Failed to clear history' };
+      return {success: false, message: 'Failed to clear history'};
     } catch (error) {
       console.error('Failed to clear history:', error);
       throw new Error('Unable to clear history. Please try again later.');
@@ -321,7 +321,7 @@ export default abstract class HistoryService {
       search?: string;
       dateRange?: { start: string; end: string };
       category?: string;
-    }
+    },
   ): Promise<void> {
     if (!['json', 'csv', 'txt'].includes(format)) {
       throw new Error('Invalid export format. Must be json, csv, or txt');

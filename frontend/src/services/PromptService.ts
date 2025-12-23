@@ -1,3 +1,5 @@
+// noinspection ExceptionCaughtLocallyJS
+
 /**
  * @author Junaid Atari <mj.atari@gmail.com>
  * @copyright 2025 Junaid Atari
@@ -21,7 +23,7 @@ export default abstract class PromptService {
    * @type {number}
    * @default 10000
    */
-  private static readonly MAX_PROMPT_LENGTH = 10000;
+  private static readonly MAX_PROMPT_LENGTH: number = 10000;
 
   /**
    * Default timeout duration in milliseconds for standard API requests.
@@ -31,7 +33,7 @@ export default abstract class PromptService {
    * @type {number}
    * @default 10000 (10 seconds)
    */
-  private static readonly DEFAULT_TIMEOUT = 10000;
+  private static readonly DEFAULT_TIMEOUT: number = 10000;
 
   /**
    * Extended timeout duration in milliseconds for provider health check operations.
@@ -41,7 +43,7 @@ export default abstract class PromptService {
    * @type {number}
    * @default 15000 (15 seconds)
    */
-  private static readonly HEALTH_CHECK_TIMEOUT = 15000;
+  private static readonly HEALTH_CHECK_TIMEOUT: number = 15000;
 
   /**
    * Regular expression pattern for validating provider name formats.
@@ -54,7 +56,7 @@ export default abstract class PromptService {
    * @type {RegExp}
    * @pattern ^[a-zA-Z0-9_-]+$
    */
-  private static readonly PROVIDER_NAME_REGEX = /^[a-zA-Z0-9_-]+$/;
+  private static readonly PROVIDER_NAME_REGEX: RegExp = /^[a-zA-Z0-9_-]+$/;
 
   /**
    * Enhances a prompt using AI to improve clarity and effectiveness.
@@ -72,17 +74,17 @@ export default abstract class PromptService {
     this.validatePromptRequest(request);
 
     try {
-      const response = await api.post('/prompts/enhance', {
+      const {data} = await api.post<{ data: PromptResponse }>('/prompts/enhance', {
         ...request,
         prompt: request.text.trim(),
         timestamp: new Date().toISOString(),
       });
 
-      if (!response.data?.enhancedPrompt) {
+      if (!data.data?.enhancedPrompt) {
         throw new Error('Invalid response received from enhancement service');
       }
 
-      return response.data;
+      return data.data;
     } catch (error: any) {
       this.handleApiError(error);
       throw error;
@@ -100,15 +102,15 @@ export default abstract class PromptService {
    */
   static async getModels(): Promise<AIModel[]> {
     try {
-      const response = await api.get('/prompts/models', {
+      const {data} = await api.get<{ data: AIModel[] }>('/prompts/models', {
         timeout: this.DEFAULT_TIMEOUT,
       });
 
-      if (!Array.isArray(response.data)) {
+      if (!Array.isArray(data.data)) {
         throw new Error('Invalid response format: expected array of models');
       }
 
-      return response.data.filter(this.isValidModel);
+      return data.data.filter(this.isValidModel);
     } catch (error: any) {
       this.handleFetchError(error, 'models');
     }
@@ -125,15 +127,15 @@ export default abstract class PromptService {
    */
   static async getProviders(): Promise<AIProvider[]> {
     try {
-      const response = await api.get<AIProvider[]>('/prompts/providers', {
+      const {data} = await api.get<{ data: AIProvider[] }>('/prompts/providers', {
         timeout: this.DEFAULT_TIMEOUT,
       });
 
-      if (!Array.isArray(response.data)) {
+      if (!Array.isArray(data.data)) {
         throw new Error('Invalid response format: expected array of providers');
       }
 
-      return response.data.filter(this.isValidProvider);
+      return data.data.filter(this.isValidProvider);
     } catch (error: any) {
       this.handleFetchError(error, 'providers');
     }
@@ -158,17 +160,23 @@ export default abstract class PromptService {
     this.validateProviderName(providerName);
 
     try {
-      const response = await api.post(`/prompts/providers/${encodeURIComponent(providerName)}/test`, config, {
+      const response = await api.post<{
+        data: {
+          providerName: string;
+          available: boolean;
+          lastChecked: string
+        }
+      }>(`/prompts/providers/${encodeURIComponent(providerName)}/test`, config, {
         timeout: this.HEALTH_CHECK_TIMEOUT,
       });
 
-      if (typeof response.data?.available !== 'boolean') {
+      if (typeof response.data.data?.available !== 'boolean') {
         throw new Error('Invalid response from provider health check');
       }
 
       return {
         providerName,
-        available: response.data.available,
+        available: response.data.data.available,
         lastChecked: new Date().toISOString(),
       };
     } catch (error: any) {
@@ -202,6 +210,7 @@ export default abstract class PromptService {
    * @developerNote This validation ensures consistent prompt formatting and prevents oversized requests.
    */
   private static validatePromptRequest(request: PromptRequest): void {
+    // noinspection SuspiciousTypeOfGuard
     if (!request?.text || typeof request.text !== 'string') {
       throw new Error('Invalid prompt provided');
     }
@@ -229,6 +238,7 @@ export default abstract class PromptService {
    * @developerNote Ensures provider names are URL-safe and follow naming conventions.
    */
   private static validateProviderName(providerName: string): void {
+    // noinspection SuspiciousTypeOfGuard
     if (!providerName || typeof providerName !== 'string') {
       throw new Error('Provider name must be a non-empty string');
     }

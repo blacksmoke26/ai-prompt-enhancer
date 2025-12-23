@@ -1,3 +1,5 @@
+// noinspection ExceptionCaughtLocallyJS
+
 /**
  * @author Junaid Atari <mj.atari@gmail.com>
  * @copyright 2025 Junaid Atari
@@ -7,7 +9,7 @@
 import api from '~/utils/api';
 
 // types
-import type { AppConfig } from '~/types';
+import type {AppConfig} from '~/types';
 
 export default abstract class ConfigService {
   /**
@@ -40,11 +42,11 @@ export default abstract class ConfigService {
    */
   public static async getConfig(): Promise<AppConfig> {
     try {
-      const { data } = await api.get<AppConfig>('/config');
-      if (!data) {
+      const {data} = await api.get<{ data: AppConfig }>('/config');
+      if (!data?.data) {
         throw new Error('No configuration data received');
       }
-      return data;
+      return data?.data;
     } catch (error) {
       ConfigService.handleApiError(error, 'Unable to fetch configuration. Please try again.');
     }
@@ -65,11 +67,11 @@ export default abstract class ConfigService {
     }
 
     try {
-      const { data } = await api.put<AppConfig>('/config', config);
-      if (!data) {
+      const {data} = await api.put<{ data: AppConfig }>('/config', config);
+      if (!data?.data) {
         throw new Error('No configuration data received after update');
       }
-      return data;
+      return data?.data;
     } catch (error) {
       ConfigService.handleApiError(error, 'Unable to update configuration. Please try again.');
     }
@@ -85,11 +87,11 @@ export default abstract class ConfigService {
    */
   public static async resetConfig(): Promise<AppConfig> {
     try {
-      const { data } = await api.post<AppConfig>('/config/reset');
-      if (!data) {
+      const {data} = await api.post<{ data: AppConfig }>('/config/reset');
+      if (!data?.data) {
         throw new Error('Failed to reset configuration');
       }
-      return data;
+      return data?.data;
     } catch (error) {
       ConfigService.handleApiError(error, 'Unable to reset configuration. Please try again.');
     }
@@ -108,11 +110,12 @@ export default abstract class ConfigService {
     }
 
     try {
-      const { data } = await api.get('/config/export', { responseType: 'blob' });
+      const {data} = await api.get<AppConfig>('/config/export', {responseType: 'blob'});
       if (!data) {
         throw new Error('No data received for export');
       }
 
+      // @ts-ignore
       const url = window.URL.createObjectURL(new Blob([data]));
       const link = document.createElement('a');
       link.href = url;
@@ -151,11 +154,11 @@ export default abstract class ConfigService {
     }
 
     try {
-      const { data } = await api.post<AppConfig>('/config/import', { configJson });
-      if (!data) {
+      const {data} = await api.post<{ data: AppConfig }>('/config/import', {configJson});
+      if (!data?.data) {
         throw new Error('Failed to import configuration');
       }
-      return data;
+      return data?.data;
     } catch (error) {
       ConfigService.handleApiError(error, 'Unable to import configuration. Please try again.');
     }

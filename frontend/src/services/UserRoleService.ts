@@ -1,3 +1,5 @@
+// noinspection ExceptionCaughtLocallyJS
+
 /**
  * @author Junaid Atari <mj.atari@gmail.com>
  * @copyright 2025 Junaid Atari
@@ -10,7 +12,7 @@ import api from '~/utils/api';
 import ConfigService from '~/services/ConfigService';
 
 // types
-import type { UserRole } from '~/types';
+import type {UserRole} from '~/types';
 
 export default abstract class UserRoleService {
   /**
@@ -23,11 +25,11 @@ export default abstract class UserRoleService {
    */
   public static async getAll(): Promise<UserRole[]> {
     try {
-      const { data } = await api.get<UserRole[]>('/user-roles');
-      if (!Array.isArray(data)) {
+      const {data} = await api.get<{ data: UserRole[] }>('/user-roles');
+      if (!Array.isArray(data?.data)) {
         throw new Error('Invalid response format for user roles');
       }
-      return data;
+      return data?.data;
     } catch (error) {
       ConfigService.handleApiError(error, 'Unable to fetch user roles. Please try again.');
     }

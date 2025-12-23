@@ -1,3 +1,5 @@
+// noinspection ExceptionCaughtLocallyJS
+
 /**
  * @author Junaid Atari <mj.atari@gmail.com>
  * @copyright 2025 Junaid Atari
@@ -23,11 +25,11 @@ export default abstract class EnhancementTypeService {
    */
   public static async getAll(): Promise<EnhancementType[]> {
     try {
-      const { data } = await api.get<EnhancementType[]>('/enhancement-types');
-      if (!Array.isArray(data)) {
+      const { data } = await api.get<{data: EnhancementType[]}>('/enhancement-types');
+      if (!Array.isArray(data.data)) {
         throw new Error('Invalid response format for enhancement types');
       }
-      return data;
+      return data.data;
     } catch (error) {
       ConfigService.handleApiError(error, 'Unable to fetch enhancement types. Please try again.');
     }
