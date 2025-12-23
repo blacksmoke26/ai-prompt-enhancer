@@ -73,10 +73,11 @@ const DistributionTab: React.FC<DistributionTabProps> = (props) => {
                   outerRadius={80}
                   fill="#8884d8"
                   dataKey="count"
+                  nameKey="range"
                   label={({name, percent}) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
                 >
                   {temperatureDistributionData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]}/>
+                    <Cell name={_.range} key={`cell-${index}`} fill={COLORS[index % COLORS.length]}/>
                   ))}
                 </Pie>
                 <Tooltip/>
