@@ -1,11 +1,22 @@
-import React, { useState, useMemo } from 'react';
-import { Download, Trash2, RefreshCw } from 'lucide-react';
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
 
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/Card';
-import { Button } from '~/components/ui/Button';
+import React, {useState, useMemo} from 'react';
+import {Download, Trash2, RefreshCw} from 'lucide-react';
+
+import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
+import {Button} from '~/components/ui/Button';
+import {ConfirmDialog} from '~/components/ui/ConfirmDialog';
+
+// components
 import FilterPanel from './FilterPanel';
 import HistoryItem from './HistoryItem';
-import type { PromptHistory } from '~/types';
+
+// types
+import type {PromptHistory} from '~/types';
 
 /**
  * Props for the {@link HistoryPanel} component.
@@ -42,15 +53,22 @@ export interface HistoryPanelProps {
  * advanced filter UI via {@link FilterPanel}.  The panel is fully typed and
  * includes comprehensive developer documentation.
  */
-const HistoryPanel: React.FC<HistoryPanelProps> = ({
-  history,
-  loading = false,
-  onDelete = () => {},
-  onUpdate = () => {},
-  onExport = () => {},
-  onClear = () => {},
-  onRefresh = () => {},
-}) => {
+const HistoryPanel: React.FC<HistoryPanelProps> = (props) => {
+  const {
+    history,
+    loading = false,
+    onDelete = () => {
+    },
+    onUpdate = () => {
+    },
+    onExport = () => {
+    },
+    onClear = () => {
+    },
+    onRefresh = () => {
+    },
+  } = props;
+
   /* Filter state */
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedModel, setSelectedModel] = useState<string>('');
@@ -71,19 +89,19 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
   /* Derived data */
   const models = useMemo(
     () => Array.from(new Set(history.map((h) => h.model))),
-    [history]
+    [history],
   );
   const roles = useMemo(
     () => Array.from(new Set(history.map((h) => h.userRole))),
-    [history]
+    [history],
   );
   const enhancementTypes = useMemo(
     () => Array.from(new Set(history.map((h) => h.enhancementType))),
-    [history]
+    [history],
   );
   const providers = useMemo(
     () => Array.from(new Set(history.map((h) => h.provider))),
-    [history]
+    [history],
   );
 
   const filteredHistory = useMemo(() => {
@@ -141,8 +159,9 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
     setNotesValue(current ?? '');
   };
 
-  const saveNotes = (id: string) => {
-    onUpdate(id, { notes: notesValue.trim() || undefined });
+  const saveNotes = (id: string, value: string) => {
+    onUpdate(id, {notes: value});
+    console.log('Triggered', value);
     setEditingNotesId(null);
     setNotesValue('');
   };
@@ -167,18 +186,24 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
               size="sm"
               onClick={() => onExport('json')}
             >
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="h-4 w-4 mr-2"/>
               Export
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClear}
-              disabled={history.length === 0}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Clear
-            </Button>
+            <ConfirmDialog
+              title="Remove history"
+              description="Do you want to clear the complete history? This cannot bedone."
+              confirmCaption="Clear"
+              triggerElement={(
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled={history.length === 0}
+                >
+                  <Trash2 className="h-4 w-4 mr-2"/>
+                  Clear
+                </Button>
+              )}
+              onConfirmClick={onClear}/>
             <Button
               variant="ghost"
               size="sm"
@@ -187,9 +212,9 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
               aria-label="Refresh history"
             >
               {loading ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
+                <RefreshCw className="h-4 w-4 animate-spin"/>
               ) : (
-                <RefreshCw className="h-4 w-4" />
+                <RefreshCw className="h-4 w-4"/>
               )}
             </Button>
           </div>
@@ -218,7 +243,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
       <CardContent>
         {loading ? (
           <div className="flex items-center justify-center h-32">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary" />
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"/>
           </div>
         ) : filteredHistory.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
@@ -228,17 +253,15 @@ const HistoryPanel: React.FC<HistoryPanelProps> = ({
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {filteredHistory.map((item) => (
               <HistoryItem
-                onCopyPrompt={() => {}}
                 key={item.id}
                 item={item}
                 isExpanded={expandedItemId === item.id}
                 onToggleExpand={() => toggleExpand(item.id)}
                 onDelete={() => onDelete(item.id)}
-                onRatingChange={(id, rating) => onUpdate(id, { rating })}
+                onRatingChange={(id, rating) => onUpdate(id, {rating})}
                 isEditingNotes={editingNotesId === item.id}
                 notesValue={notesValue}
-                onNotesChange={setNotesValue}
-                onNotesSave={() => saveNotes(item.id)}
+                onNotesSave={value => saveNotes(item.id, value)}
                 onNotesCancel={cancelNotes}
                 onEditNotes={() => startEditingNotes(item.id, item.notes)}
               />

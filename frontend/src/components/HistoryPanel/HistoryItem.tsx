@@ -11,6 +11,7 @@ import {Eye, Trash2, Edit, Copy, Check} from 'lucide-react';
 import {Badge} from '~/components/ui/Badge';
 import {Button} from '~/components/ui/Button';
 import Markdown from '~/components/ui/Markdown';
+import {ConfirmDialog} from '~/components/ui/ConfirmDialog';
 
 // utils
 import {formatDate, formatDuration, truncateText} from '~/utils/helpers';
@@ -84,15 +85,9 @@ export interface HistoryItemProps {
   notesValue: string;
 
   /**
-   * Callback to update the notes input value.
-   * @param value - The new notes text.
-   */
-  onNotesChange(value: string): void;
-
-  /**
    * Callback to save the edited notes.
    */
-  onNotesSave(): void;
+  onNotesSave(notes: string): void;
 
   /**
    * Callback to cancel edits and revert to the original notes.
@@ -103,13 +98,6 @@ export interface HistoryItemProps {
    * Callback to initiate editing the notes section.
    */
   onEditNotes(): void;
-
-  /**
-   * Callback to copy the prompt text (with optional enhanced version).
-   * @param prompt - The prompt text to copy.
-   * @param isEnhanced - Whether to copy the enhanced version of the prompt.
-   */
-  onCopyPrompt(prompt: string, isEnhanced: boolean): void;
 }
 
 /**
@@ -128,11 +116,9 @@ const HistoryItem: React.FC<HistoryItemProps> = (props) => {
     onRatingChange,
     isEditingNotes,
     notesValue,
-    onNotesChange,
     onNotesSave,
     onNotesCancel,
     onEditNotes,
-    onCopyPrompt,
   } = props;
 
   const [copied, setCopied] = React.useState<{ original?: boolean; enhanced?: boolean }>({});
@@ -170,15 +156,23 @@ const HistoryItem: React.FC<HistoryItemProps> = (props) => {
           >
             <Eye className="h-4 w-4"/>
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onDelete}
-            className="h-7 w-7 text-destructive hover:text-destructive"
-            aria-label="Delete"
-          >
-            <Trash2 className="h-4 w-4"/>
-          </Button>
+          <ConfirmDialog
+            title="Remove history"
+            description="Do you want to remove this history item?"
+            cancelCaption="Cancel"
+            confirmCaption="Remove"
+            onConfirmClick={onDelete}
+            triggerElement={(
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-destructive hover:text-destructive"
+                aria-label="Delete"
+              >
+                <Trash2 className="h-4 w-4"/>
+              </Button>
+            )}
+          />
         </div>
       </div>
 
@@ -313,7 +307,7 @@ const HistoryItem: React.FC<HistoryItemProps> = (props) => {
           />
         ) : (
           <p className="text-sm text-muted-foreground">
-            {item.notes || <span className="italic">No notes</span>}
+            {item?.notes || <span className="italic">No notes</span>}
           </p>
         )}
       </div>
