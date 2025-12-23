@@ -245,573 +245,88 @@ export default {
         },
         temperatureDistribution: {
           type: 'array',
-          items: [
-            {
-              type: 'object',
-              properties: {
-                range: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
+          items: {
+            type: 'object',
+            properties: {
+              range: {
+                type: 'string',
               },
-              required: [
-                'range',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                range: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
+              count: {
+                type: 'integer',
+                minimum: 0,
               },
-              required: [
-                'range',
-                'count',
-              ],
             },
-            {
-              type: 'object',
-              properties: {
-                range: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'range',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                range: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'range',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                range: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'range',
-                'count',
-              ],
-            },
-          ],
+            required: [
+              'range',
+              'count',
+            ],
+          },
         },
         enhancementFrequency: {
           type: 'array',
-          items: [
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
+          items: {
+            type: 'object',
+            properties: {
+              type: {
+                type: 'string',
               },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
+              count: {
+                type: 'integer',
               },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
+              percentage: {
+                type: 'integer',
               },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
             },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'count',
-                'percentage',
-              ],
-            },
-          ],
+            required: [
+              'type',
+              'count',
+              'percentage',
+            ],
+          },
         },
         modelPerformance: {
           type: 'array',
-          items: [
-            {
-              type: 'object',
-              properties: {
-                model: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                totalUsage: {
-                  type: 'integer',
-                },
+          items: {
+            type: 'object',
+            properties: {
+              model: {
+                type: 'string',
               },
-              required: [
-                'model',
-                'avgProcessingTime',
-                'totalUsage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                model: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                totalUsage: {
-                  type: 'integer',
-                },
+              avgProcessingTime: {
+                type: 'integer',
               },
-              required: [
-                'model',
-                'avgProcessingTime',
-                'totalUsage',
-              ],
+              totalUsage: {
+                type: 'integer',
+              },
             },
-          ],
+            required: [
+              'model',
+              'avgProcessingTime',
+              'totalUsage',
+            ],
+          },
         },
         roleModelDistribution: {
           type: 'array',
-          items: [
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
+          items: {
+            type: 'object',
+            properties: {
+              role: {
+                type: 'string',
               },
-              required: [
-                'role',
-                'model',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
+              model: {
+                type: 'string',
               },
-              required: [
-                'role',
-                'model',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
+              count: {
+                type: 'integer',
               },
-              required: [
-                'role',
-                'model',
-                'count',
-              ],
             },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'model',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'model',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'model',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'model',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'model',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'model',
-                'count',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                role: {
-                  type: 'string',
-                },
-                model: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'role',
-                'model',
-                'count',
-              ],
-            },
-          ],
+            required: [
+              'role',
+              'model',
+              'count',
+            ],
+          },
         },
         dateRange: {
           type: 'object',
@@ -845,23 +360,21 @@ export default {
         },
         monthlyUsage: {
           type: 'array',
-          items: [
-            {
-              type: 'object',
-              properties: {
-                month: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
+          items: {
+            type: 'object',
+            properties: {
+              month: {
+                type: 'string',
               },
-              required: [
-                'month',
-                'count',
-              ],
+              count: {
+                type: 'integer',
+              },
             },
-          ],
+            required: [
+              'month',
+              'count',
+            ],
+          },
         },
         averageMaxTokens: {
           type: 'integer',
@@ -893,27 +406,25 @@ export default {
         },
         ratingDistribution: {
           type: 'array',
-          items: [
-            {
-              type: 'object',
-              properties: {
-                rating: {
-                  type: 'integer',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
+          items: {
+            type: 'object',
+            properties: {
+              rating: {
+                type: 'integer',
               },
-              required: [
-                'rating',
-                'count',
-                'percentage',
-              ],
+              count: {
+                type: 'integer',
+              },
+              percentage: {
+                type: 'integer',
+              },
             },
-          ],
+            required: [
+              'rating',
+              'count',
+              'percentage',
+            ],
+          },
         },
         costAnalysis: {
           type: 'object',
@@ -932,23 +443,21 @@ export default {
         },
         weeklyUsage: {
           type: 'array',
-          items: [
-            {
-              type: 'object',
-              properties: {
-                week: {
-                  type: 'string',
-                },
-                count: {
-                  type: 'integer',
-                },
+          items: {
+            type: 'object',
+            properties: {
+              week: {
+                type: 'string',
               },
-              required: [
-                'week',
-                'count',
-              ],
+              count: {
+                type: 'integer',
+              },
             },
-          ],
+            required: [
+              'week',
+              'count',
+            ],
+          },
         },
         longestPrompt: {
           type: 'object',
@@ -1024,388 +533,51 @@ export default {
         },
         preferredTimeSlots: {
           type: 'array',
-          items: [
-            {
-              type: 'object',
-              properties: {
-                hour: {
-                  type: 'integer',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
+          items: {
+            type: 'object',
+            properties: {
+              hour: {
+                type: 'integer',
               },
-              required: [
-                'hour',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                hour: {
-                  type: 'integer',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
+              count: {
+                type: 'integer',
               },
-              required: [
-                'hour',
-                'count',
-                'percentage',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                hour: {
-                  type: 'integer',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
+              percentage: {
+                type: 'integer',
               },
-              required: [
-                'hour',
-                'count',
-                'percentage',
-              ],
             },
-            {
-              type: 'object',
-              properties: {
-                hour: {
-                  type: 'integer',
-                },
-                count: {
-                  type: 'integer',
-                },
-                percentage: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'hour',
-                'count',
-                'percentage',
-              ],
-            },
-          ],
+            required: [
+              'hour',
+              'count',
+              'percentage',
+            ],
+          },
         },
         enhancementTypeEfficiency: {
           type: 'array',
-          items: [
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
+          items: {
+            type: 'object',
+            properties: {
+              type: {
+                type: 'string',
               },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
+              avgProcessingTime: {
+                type: 'integer',
               },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
+              avgTokensUsed: {
+                type: 'integer',
               },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
+              successRate: {
+                type: 'integer',
               },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
             },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-            {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                },
-                avgProcessingTime: {
-                  type: 'integer',
-                },
-                avgTokensUsed: {
-                  type: 'integer',
-                },
-                successRate: {
-                  type: 'integer',
-                },
-              },
-              required: [
-                'type',
-                'avgProcessingTime',
-                'avgTokensUsed',
-                'successRate',
-              ],
-            },
-          ],
+            required: [
+              'type',
+              'avgProcessingTime',
+              'avgTokensUsed',
+              'successRate',
+            ],
+          },
         },
         metaFieldUsage: {
           type: 'object',
