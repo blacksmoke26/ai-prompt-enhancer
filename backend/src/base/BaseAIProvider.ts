@@ -229,8 +229,8 @@ export default abstract class BaseAIProvider {
    * @param staticClass - The class reference for static methods
    * @returns {string} - A formatted string representing the prompt with metadata and the original text.
    */
-  public async formatPrompt(request: PromptRequest, staticClass: IProvider): Promise<string> {
-    return (await PromptFormatter.formatPrompt(request, staticClass)).prompt;
+  public async formatPrompt(request: PromptRequest, staticClass: object): Promise<string> {
+    return (await PromptFormatter.formatPrompt(request, staticClass as IProvider)).prompt;
   }
 
   /**
@@ -243,8 +243,8 @@ export default abstract class BaseAIProvider {
    * // Output: "You are a helpful assistant."
    * @note This method is a no-op by default and should be overridden in subclasses to implement custom formatting logic.
    */
-  public async formatSystemPrompt(systemPrompt: string, staticClass: IProvider): Promise<string> {
-    return PromptFormatter.formatSystemPrompt(systemPrompt, staticClass);
+  public async formatSystemPrompt(systemPrompt: string, staticClass: object): Promise<string> {
+    return PromptFormatter.formatSystemPrompt(systemPrompt, staticClass as IProvider);
   }
 
   /**
@@ -266,8 +266,8 @@ export default abstract class BaseAIProvider {
    * Developer Note: This method ensures consistent handling of empty responses
    * and provides a fallback mechanism for cases where the model's response is missing.
    */
-  public async toPromptResponse(enhancedResponse: string, userPrompt: string, staticClass: IProvider): Promise<string> {
-    return PromptFormatter.toPromptResponse(enhancedResponse, userPrompt, staticClass);
+  public async toPromptResponse(enhancedResponse: string, userPrompt: string, staticClass: object): Promise<string> {
+    return PromptFormatter.toPromptResponse(enhancedResponse, userPrompt, staticClass as IProvider);
   }
 
   /**
@@ -288,7 +288,7 @@ export default abstract class BaseAIProvider {
    * - Uses `toEnhancementTypes()` and `toUserRoles()` for prompt mapping.
    * - Override this method for custom prompt construction logic.
    */
-  public async buildSystemPrompt(request: PromptRequest, staticClass: IProvider): Promise<string> {
-    return (await PromptFormatter.buildSystemPrompt(request, staticClass)).enhancementPrompt;
+  public async buildSystemPrompt(request: PromptRequest, staticClass: object): Promise<string> {
+    return (await PromptFormatter.buildSystemPrompt(request, staticClass as IProvider)).enhancementPrompt;
   }
 }
