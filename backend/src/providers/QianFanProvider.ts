@@ -7,12 +7,12 @@
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
 // constants
-import {OutputFormat, OutputFormatName} from '~/constants/enums';
+import {OutputFormat, OutputFormatName} from '~/constants/output-format';
 
 // types
 import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
-import type {ProviderConfig} from '~/constants/providers';
+import type {ProviderConfig} from '~/types/providers';
 import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
 
 /**
