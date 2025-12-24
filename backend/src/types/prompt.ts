@@ -81,7 +81,7 @@ export interface PromptRequest {
    * @developerNotes Determines how detailed or concise the response should be
    * @example "medium"
    */
-  responseLength?: 'short' | 'medium' | 'long' | 'custom';
+  responseLength?: string;
   /**
    * Additional user instructions for the AI
    * @developerNotes Allows for specific formatting or content requirements beyond standard options
@@ -107,6 +107,11 @@ export interface PromptRequest {
     userId?: string;
     timestamp?: string;
   };
+  /**
+   * Whether the request is off-the-record (not stored in the history)
+   * @example false
+   */
+  offTheRecord: boolean;
 }
 
 /**
