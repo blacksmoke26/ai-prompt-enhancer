@@ -114,7 +114,7 @@ export const TONES_GROUPED: { category: string; tones: string[] }[] = [
  * @example ["formal", "casual"]
  * @developerNotes This array is extensible and should remain consistent with the project's terminology and use cases (e.g., "professional" vs "informal" if needed).
  */
-export const TONES: string[] = TONES_GROUPED.reduce((acc: string[], group) => {
+export const TONES: string[] = [...new Set(TONES_GROUPED.reduce((acc: string[], group) => {
   acc.push(...group.tones);
   return acc;
-}, []);
+}, []))];

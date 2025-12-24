@@ -57,7 +57,7 @@ export const RESPONSE_LENGTH_GROUPED: { category: string; values: string[] }[] =
  * @example ["short", "medium", "long", "concise", "detailed", "brief", "succinct", ...]
  * @developerNotes This array is automatically generated from `RESPONSE_LENGTH_GROUPED` and should not be manually edited. Ensure consistency in the grouped data to maintain accuracy here.
  */
-export const RESPONSE_LENGTH = RESPONSE_LENGTH_GROUPED.reduce((acc: string[], group) => {
+export const RESPONSE_LENGTH = [...new Set(RESPONSE_LENGTH_GROUPED.reduce((acc: string[], group) => {
   acc.push(...group.values);
   return acc;
-}, []);
+}, []))];
