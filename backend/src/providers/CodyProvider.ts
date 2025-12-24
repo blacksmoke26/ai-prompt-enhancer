@@ -76,7 +76,7 @@ export default class CodyProvider extends BaseAIProvider {
    */
   public static readonly ProviderConfig: ProviderConfig = {
     caption: CodyProvider.ProviderName,
-    name: CodyProvider.ProviderKey,
+    name: CodyProvider.ProviderID,
     baseUrl: 'https://sourcegraph.com',
     apiKey: '',
     timeout: 30000,
