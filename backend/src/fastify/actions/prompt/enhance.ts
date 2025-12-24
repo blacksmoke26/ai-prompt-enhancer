@@ -57,22 +57,24 @@ const enhance = async (
     // Enhance the prompt
     const response = await provider.enhancePrompt(promptRequest);
 
-    // Save to history
-    await History.create({
-      providerId: providerRecord.id,
-      originalPrompt: response.originalPrompt,
-      enhancedPrompt: response.enhancedPrompt,
-      model: response.model,
-      enhancementType: promptRequest.enhancementType || 'enhance',
-      userRole: promptRequest.userRole || 'general',
-      systemPrompt: promptRequest?.systemPrompt ?? '',
-      tokensUsed: response?.tokensUsed ?? 0,
-      processingTime: response.processingTime,
-      temperature: promptRequest?.temperature ?? 0,
-      maxTokens: promptRequest?.maxTokens ?? 0,
-      rating: 0,
-      notes: null,
-    });
+    if (!(promptRequest?.offTheRecord ?? false)) {
+      // Save to history
+      await History.create({
+        providerId: providerRecord.id,
+        originalPrompt: response.originalPrompt,
+        enhancedPrompt: response.enhancedPrompt,
+        model: response.model,
+        enhancementType: promptRequest.enhancementType || 'enhance',
+        userRole: promptRequest.userRole || 'general',
+        systemPrompt: promptRequest?.systemPrompt ?? '',
+        tokensUsed: response?.tokensUsed ?? 0,
+        processingTime: response.processingTime,
+        temperature: promptRequest?.temperature ?? 0,
+        maxTokens: promptRequest?.maxTokens ?? 0,
+        rating: 0,
+        notes: null,
+      });
+    }
 
     return response;
   } catch (error: any) {
