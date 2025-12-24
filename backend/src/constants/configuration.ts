@@ -4,6 +4,9 @@
  * @see https://github.com/blacksmoke26
  */
 
+// types
+import type {JSONSchema7} from 'json-schema';
+
 /**
  * Represents a configuration option with metadata.
  * Each configuration entry defines a key, its data type, description, and optional default value.
@@ -128,7 +131,7 @@ export const getConfigJsonSchema = (): JSONSchema7 => {
       type: c.type,
       description: c.description,
       default: c?.defaultValue?.replaceAll?.('"', '') ?? null,
-    }])),
+    }])) as JSONSchema7['properties'],
   };
 };
 
