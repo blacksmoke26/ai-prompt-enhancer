@@ -4,15 +4,16 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider from '~/base/BaseAIProvider';
+import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// utils
-import {toProviderName} from '~/utils/provider';
-import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
+// constants
+import {OutputFormat, OutputFormatName, Provider} from '~/constants/enums';
 
 // types
+import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
-import type {AIModel, PromptRequest, PromptResponse} from '~/types';
+import type {ProviderConfig} from '~/constants/providers';
+import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
 
 /**
  * Represents a model from the Zhipu API, containing metadata and configuration details.
@@ -60,11 +61,81 @@ export interface ZhipuModel {
  */
 export default class ZhipuProvider extends BaseAIProvider {
   /**
+   * A static constant representing the unique identifier for the provider, typically used in internal systems or API integrations.
+   * @developerNotes Ensure the ID is lowercase and matches the provider's official identifier.
+   */
+  public static readonly ProviderID: string = Provider.Zhipu;
+
+  /**
+   * A static constant representing the display name or key used for referencing the provider in user-facing contexts.
+   * @developerNotes This value should match the provider's official branding.
+   */
+  public static readonly ProviderKey: string = 'Zhipu';
+
+  /**
+   * A static constant representing the full, official name of the provider, typically used for documentation or identification purposes.
+   * @developerNotes Ensure consistency with the provider's official name and use proper casing.
+   */
+  public static readonly ProviderName: string = 'Zhipu';
+
+  /**
+   * A static constant representing the default prompts used by the provider.
+   * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
+   */
+  public static readonly DefaultPrompts: ProviderDefaultPrompt = {
+    system: 'You are GLM, a large language model by Zhipu AI. Refine prompts to be coherent, context-aware, and effective in both Chinese and English contexts.',
+    role: 'You are a bilingual prompt optimizer. Enhance prompts for clarity, cultural relevance, and cross-lingual consistency.',
+  };
+
+  /**
+   * Static configuration object defining the provider's settings.
+   * @interface ProviderConfig
+   * @property {string} caption - Display name of the provider, typically derived from `ProviderName`.
+   * @property {string} name - Unique identifier for the provider, derived from `ProviderID`.
+   * @property {string} baseUrl - Base URL for the provider's API endpoint.
+   * @property {string} apiKey - API key used for authentication (typically set externally, not hardcoded).
+   * @property {number} timeout - Request timeout in milliseconds (default is 30,000 ms).
+   * @note The `apiKey` should be configured using a secure method (e.g., environment variables), not directly in the code.
+   * @note The `timeout` value is set to 30 seconds by default and can be adjusted based on application needs.
+   */
+  public static readonly ProviderConfig: ProviderConfig = {
+    caption: ZhipuProvider.ProviderName,
+    name: ZhipuProvider.ProviderID,
+    baseUrl: 'https://api.z.ai/api/paas/v4',
+    apiKey: '',
+    timeout: 30000,
+  };
+
+  /**
+   * @inheritDoc
+   */
+  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+    // Zhipu AI (GLM models) benefit from clear role definitions
+    formattedPrompt = `You are an AI assistant developed by Zhipu AI. ${formattedPrompt}`;
+
+    return formattedPrompt;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static getFormatTemplates(): Record<OutputFormatName, string> {
+    return {
+      [OutputFormat.JSON]: `Output Format: JSON\nEnsure response is valid JSON with correct escaping.`,
+      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse Markdown for clear, structured output.`,
+      [OutputFormat.TEXT]: `Output Format: Plain Text\nReturn plain, unformatted text.`,
+      [OutputFormat.HTML]: `Output Format: HTML\nGenerate semantic and valid HTML.`,
+      [OutputFormat.XML]: `Output Format: XML\nProduce well-formed XML content.`,
+      [OutputFormat.YAML]: `Output Format: YAML\nReturn valid YAML with consistent indentation.`,
+    };
+  }
+
+  /**
    * Initializes a new Zhipu provider instance.
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Zhipu', {baseUrl: config?.baseUrl || 'https://api.z.ai/api/paas/v4'});
+    super(ZhipuProvider.ProviderKey, {baseUrl: config?.baseUrl || ZhipuProvider.ProviderConfig.baseUrl});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
     this.client.defaults.headers.common['Content-Type'] = 'application/json';
   }
@@ -83,11 +154,11 @@ export default class ZhipuProvider extends BaseAIProvider {
 
       return models.map(model => {
         const [, size = '?b'] = model.id.match(/-(\d+b)/) ?? [];
-        const name = model.id.split('/')
+        const name = model.id.split('/');
         return ({
           id: model.id,
           name: (name.length > 1 ? name[1] : name[0]).replace(/-\d+b/g, ''),
-          provider: toProviderName('Zhipu'),
+          provider: ZhipuProvider.ProviderID,
           size,
           description: model.id,
           contextLength: 4096,
@@ -116,17 +187,17 @@ export default class ZhipuProvider extends BaseAIProvider {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: this.formatSystemPrompt(systemPrompt)},
+          {role: 'system', content: await this.formatSystemPrompt(systemPrompt)},
           {
             role: 'user',
-            content: this.formatPrompt(request),
+            content: await this.formatPrompt(request),
           },
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
       });
 
-      const enhanced = this.toPromptResponse(response.data.choices?.[0]?.message?.content, request.text);
+      const enhanced = await this.toPromptResponse(response.data.choices?.[0]?.message?.content, request.text);
 
       return {
         enhancedPrompt: enhanced,

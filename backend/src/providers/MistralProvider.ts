@@ -4,15 +4,16 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider from '~/base/BaseAIProvider';
+import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// utils
-import {toProviderName} from '~/utils/provider';
-import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
+// constants
+import {OutputFormat, OutputFormatName, Provider} from '~/constants/enums';
 
 // types
+import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
-import type {AIModel, PromptRequest, PromptResponse} from '~/types';
+import type {ProviderConfig} from '~/constants/providers';
+import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
 
 /**
  * Mistral AI provider implementation for prompt enhancement and model management.
@@ -39,6 +40,76 @@ import type {AIModel, PromptRequest, PromptResponse} from '~/types';
  */
 export default class MistralProvider extends BaseAIProvider {
   /**
+   * A static constant representing the unique identifier for the provider, typically used in internal systems or API integrations.
+   * @developerNotes Ensure the ID is lowercase and matches the provider's official identifier.
+   */
+  public static readonly ProviderID: string = Provider.Mistral;
+
+  /**
+   * A static constant representing the display name or key used for referencing the provider in user-facing contexts.
+   * @developerNotes This value should match the provider's official branding.
+   */
+  public static readonly ProviderKey: string = 'Mistral';
+
+  /**
+   * A static constant representing the full, official name of the provider, typically used for documentation or identification purposes.
+   * @developerNotes Ensure consistency with the provider's official name and use proper casing.
+   */
+  public static readonly ProviderName: string = 'Mistral';
+
+  /**
+   * A static constant representing the default prompts used by the provider.
+   * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
+   */
+  public static readonly DefaultPrompts: ProviderDefaultPrompt = {
+    system: 'You are a Mistral AI assistant. Improve prompts to be succinct, precise, and aligned with Mistral’s reasoning strengths.',
+    role: 'You are a prompt optimization expert. Enhance clarity and logical structure while maintaining the user’s core intent.',
+  };
+
+  /**
+   * Static configuration object defining the provider's settings.
+   * @interface ProviderConfig
+   * @property {string} caption - Display name of the provider, typically derived from `ProviderName`.
+   * @property {string} name - Unique identifier for the provider, derived from `ProviderID`.
+   * @property {string} baseUrl - Base URL for the provider's API endpoint.
+   * @property {string} apiKey - API key used for authentication (typically set externally, not hardcoded).
+   * @property {number} timeout - Request timeout in milliseconds (default is 30,000 ms).
+   * @note The `apiKey` should be configured using a secure method (e.g., environment variables), not directly in the code.
+   * @note The `timeout` value is set to 30 seconds by default and can be adjusted based on application needs.
+   */
+  public static readonly ProviderConfig: ProviderConfig = {
+    caption: MistralProvider.ProviderName,
+    name: MistralProvider.ProviderID,
+    baseUrl: 'https://api.mistral.ai/v1',
+    apiKey: '',
+    timeout: 30000,
+  };
+
+  /**
+   * @inheritDoc
+   */
+  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+    // Mistral models use instruction tuning and benefit from clear formatting
+    formattedPrompt = `[INST] ${formattedPrompt} [/INST]`;
+
+    return formattedPrompt;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static getFormatTemplates(): Record<OutputFormatName, string> {
+    return {
+      [OutputFormat.JSON]: `Output Format: JSON\nReturn strictly valid JSON with proper escaping.`,
+      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse Markdown syntax for structured output.`,
+      [OutputFormat.TEXT]: `Output Format: Plain Text\nProvide clear, unformatted text.`,
+      [OutputFormat.HTML]: `Output Format: HTML\nGenerate valid and accessible HTML.`,
+      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML with correct syntax.`,
+      [OutputFormat.YAML]: `Output Format: YAML\nReturn valid YAML with proper indentation.`,
+    };
+  }
+
+  /**
    * Creates a new Mistral provider instance.
    * @param config - Configuration object
    *
@@ -47,7 +118,7 @@ export default class MistralProvider extends BaseAIProvider {
    * - Falls back to default Mistral API URL if none provided
    */
   constructor(config: ConfigMeta) {
-    super('Mistral', {baseUrl: config?.baseUrl || 'https://api.mistral.ai/v1'});
+    super(MistralProvider.ProviderKey, {baseUrl: config?.baseUrl || MistralProvider.ProviderConfig.baseUrl});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
@@ -66,7 +137,7 @@ export default class MistralProvider extends BaseAIProvider {
       {
         id: 'mistral-large-latest',
         name: 'Mistral Large',
-        provider: toProviderName('Mistral'),
+        provider: MistralProvider.ProviderID,
         description: 'Mistral Large conversational model',
         contextLength: 32768,
         maxTokens: 8192,
@@ -74,7 +145,7 @@ export default class MistralProvider extends BaseAIProvider {
       {
         id: 'mistral-small-latest',
         name: 'Mistral Small',
-        provider: toProviderName('Mistral'),
+        provider: MistralProvider.ProviderID,
         description: 'Mistral Small conversational model',
         contextLength: 16384,
         maxTokens: 4096,
@@ -105,17 +176,17 @@ export default class MistralProvider extends BaseAIProvider {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: this.formatSystemPrompt(systemPrompt)},
+          {role: 'system', content: await this.formatSystemPrompt(systemPrompt)},
           {
             role: 'user',
-            content: this.formatPrompt(request),
+            content: await this.formatPrompt(request),
           },
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
       });
 
-      const enhancedPrompt = this.toPromptResponse(response.data.choices?.[0]?.message?.content, request.text);
+      const enhancedPrompt = await this.toPromptResponse(response.data.choices?.[0]?.message?.content, request.text);
 
       return {
         enhancedPrompt,

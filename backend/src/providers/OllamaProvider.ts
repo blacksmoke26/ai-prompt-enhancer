@@ -4,17 +4,16 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider from '~/base/BaseAIProvider';
+import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// utils
-import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
-
-// utils
-import {toProviderName} from '~/utils/provider';
+// constants
+import {OutputFormat, OutputFormatName, Provider} from '~/constants/enums';
 
 // types
+import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
-import type {PromptRequest, PromptResponse, AIModel} from '~/types';
+import type {ProviderConfig} from '~/constants/providers';
+import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
 
 /**
  * Interface representing an Ollama model's metadata and configuration details.
@@ -100,11 +99,85 @@ export interface OllamaModel {
  */
 export default class OllamaProvider extends BaseAIProvider {
   /**
+   * A static constant representing the unique identifier for the provider, typically used in internal systems or API integrations.
+   * @developerNotes Ensure the ID is lowercase and matches the provider's official identifier.
+   */
+  public static readonly ProviderID: string = Provider.Ollama;
+
+  /**
+   * A static constant representing the display name or key used for referencing the provider in user-facing contexts.
+   * @developerNotes This value should match the provider's official branding.
+   */
+  public static readonly ProviderKey: string = 'Ollama';
+
+  /**
+   * A static constant representing the full, official name of the provider, typically used for documentation or identification purposes.
+   * @developerNotes Ensure consistency with the provider's official name and use proper casing.
+   */
+  public static readonly ProviderName: string = 'Ollama';
+
+  /**
+   * A static constant representing the default prompts used by the provider.
+   * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
+   */
+  public static readonly DefaultPrompts: ProviderDefaultPrompt = {
+    system: 'You are an AI assistant running via Ollama. Optimize prompts to be efficient, clear, and well-suited for local LLM execution.',
+    role: 'You are a prompt engineer for local models. Improve prompts to be self-contained, unambiguous, and effective on-device.',
+  };
+
+  /**
+   * Static configuration object defining the provider's settings.
+   * @interface ProviderConfig
+   * @property {string} caption - Display name of the provider, typically derived from `ProviderName`.
+   * @property {string} name - Unique identifier for the provider, derived from `ProviderID`.
+   * @property {string} baseUrl - Base URL for the provider's API endpoint.
+   * @property {string} apiKey - API key used for authentication (typically set externally, not hardcoded).
+   * @property {number} timeout - Request timeout in milliseconds (default is 30,000 ms).
+   * @note The `apiKey` should be configured using a secure method (e.g., environment variables), not directly in the code.
+   * @note The `timeout` value is set to 30 seconds by default and can be adjusted based on application needs.
+   */
+  public static readonly ProviderConfig: ProviderConfig = {
+    caption: OllamaProvider.ProviderName,
+    name: OllamaProvider.ProviderID,
+    baseUrl: 'https://api.groq.com',
+    apiKey: '',
+    timeout: 30000,
+  };
+
+  /**
+   * @inheritDoc
+   */
+  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+    // Ollama supports OpenAI standard API but benefits from clear role definitions
+    formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
+
+    if (capabilities?.supportsJsonMode) {
+      formattedPrompt += '\n\nRespond with valid JSON only.';
+    }
+
+    return formattedPrompt;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static getFormatTemplates(): Record<OutputFormatName, string> {
+    return {
+      [OutputFormat.JSON]: `Output must be valid JSON. Do not include explanations or markdown.`,
+      [OutputFormat.MARKDOWN]: `Use Markdown syntax for formatting (headers, lists, code blocks).`,
+      [OutputFormat.TEXT]: `Respond in clear, plain text without formatting.`,
+      [OutputFormat.HTML]: `Return valid HTML with semantic structure.`,
+      [OutputFormat.XML]: `Return well-formed XML with proper tags.`,
+      [OutputFormat.YAML]: `Return valid YAML with correct indentation.`,
+    };
+  }
+
+  /**
    * Creates a new Ollama provider instance.
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Ollama', {baseUrl: config?.baseUrl ?? 'http://localhost:11434'});
+    super(OllamaProvider.ProviderKey, {baseUrl: config?.baseUrl ?? OllamaProvider.ProviderConfig.baseUrl});
   }
 
   /**
@@ -131,7 +204,7 @@ export default class OllamaProvider extends BaseAIProvider {
         id: model.name,
         size: model.size,
         name: model.name.split(':')[0],
-        provider: toProviderName('Ollama'),
+        provider: OllamaProvider.ProviderID,
         description: `${model.size} • ${model.digest.substring(0, 12)}`,
         contextLength: model.details?.context_length || 4096,
       })).sort((a, b) => a.name.localeCompare(b.name));
@@ -167,7 +240,10 @@ export default class OllamaProvider extends BaseAIProvider {
 
     try {
       const systemPrompt = await this.buildSystemPrompt(request);
-      const fullPrompt = this.formatSystemPrompt(systemPrompt) + `\n\n` + this.formatPrompt(request);
+      const fullPrompt = await this.formatSystemPrompt(systemPrompt) + `\n\n` + await this.formatPrompt(request);
+
+      console.log({systemPrompt, fullPrompt});
+      throw new Error ('_NO_ERROR_');
 
       const response = await this.client.post('/api/generate', {
         model: request.model,
@@ -179,7 +255,7 @@ export default class OllamaProvider extends BaseAIProvider {
         },
       });
 
-      const enhancedPrompt = this.toPromptResponse(response?.data?.response?.trim(), request.text);
+      const enhancedPrompt = await this.toPromptResponse(response?.data?.response?.trim(), request.text);
 
       return {
         enhancedPrompt,

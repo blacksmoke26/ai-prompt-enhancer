@@ -4,15 +4,16 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider from '~/base/BaseAIProvider';
+import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// utils
-import {toProviderName} from '~/utils/provider';
-import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
+// constants
+import {OutputFormat, OutputFormatName, Provider} from '~/constants/enums';
 
 // types
+import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
-import type {AIModel, PromptRequest, PromptResponse} from '~/types';
+import type {ProviderConfig} from '~/constants/providers';
+import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
 
 /**
  * Represents a Gemini model configuration and metadata from the Gemini API.
@@ -92,11 +93,84 @@ export interface GeminiModel {
  */
 export default class GeminiProvider extends BaseAIProvider {
   /**
+   * A static constant representing the unique identifier for the provider, typically used in internal systems or API integrations.
+   * @developerNotes Ensure the ID is lowercase and matches the provider's official identifier.
+   */
+  public static readonly ProviderID: string = Provider.Gemini;
+
+  /**
+   * A static constant representing the display name or key used for referencing the provider in user-facing contexts.
+   * @developerNotes This value should match the provider's official branding.
+   */
+  public static readonly ProviderKey: string = 'Gemini';
+
+  /**
+   * A static constant representing the full, official name of the provider, typically used for documentation or identification purposes.
+   * @developerNotes Ensure consistency with the provider's official name and use proper casing.
+   */
+  public static readonly ProviderName: string = 'Gemini';
+
+  /**
+   * A static constant representing the default prompts used by the provider.
+   * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
+   */
+  public static readonly DefaultPrompts: ProviderDefaultPrompt = {
+    system: 'You are a prompt optimization specialist. Improve clarity, structure, and effectiveness while preserving intent.',
+    role: 'You are Gemini, Google\'s AI assistant. Provide helpful, accurate, and well-structured responses to enhance prompts.',
+  };
+
+  /**
+   * Static configuration object defining the provider's settings.
+   * @interface ProviderConfig
+   * @property {string} caption - Display name of the provider, typically derived from `ProviderName`.
+   * @property {string} name - Unique identifier for the provider, derived from `ProviderID`.
+   * @property {string} baseUrl - Base URL for the provider's API endpoint.
+   * @property {string} apiKey - API key used for authentication (typically set externally, not hardcoded).
+   * @property {number} timeout - Request timeout in milliseconds (default is 30,000 ms).
+   * @note The `apiKey` should be configured using a secure method (e.g., environment variables), not directly in the code.
+   * @note The `timeout` value is set to 30 seconds by default and can be adjusted based on application needs.
+   */
+  public static readonly ProviderConfig: ProviderConfig = {
+    caption: GeminiProvider.ProviderName,
+    name: GeminiProvider.ProviderID,
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+    apiKey: '',
+    timeout: 30000,
+  };
+
+  /**
+   * @inheritDoc
+   */
+  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+    if (capabilities?.supportsJsonMode) {
+      formattedPrompt += '\n\nOutput should be in JSON format with proper structure.';
+    }
+    // Gemini models work well with clear, concise instructions
+    formattedPrompt = `You are a helpful AI assistant developed by Google. ${formattedPrompt}`;
+
+    return formattedPrompt;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static getFormatTemplates(): Record<OutputFormatName, string> {
+    return {
+      [OutputFormat.JSON]: `Output Format: JSON\nFormat: JSON\nReturn valid JSON with proper structure and escaping.`,
+      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nFormat: Markdown\nUse Markdown for formatting with appropriate syntax.`,
+      [OutputFormat.TEXT]: `Output Format: Plain Text\nFormat: Text\nReturn clean, readable plain text.`,
+      [OutputFormat.HTML]: `Output Format: HTML\nFormat: HTML\nGenerate valid, semantic HTML content.`,
+      [OutputFormat.XML]: `Output Format: XML\nFormat: XML\nGenerate well-formed XML content.`,
+      [OutputFormat.YAML]: `Output Format: YAML\nFormat: YAML\nGenerate properly structured YAML content.`,
+    };
+  }
+
+  /**
    * Creates an instance of GeminiProvider.
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Gemini', {baseUrl: config?.baseUrl || 'https://generativelanguage.googleapis.com/v1beta'});
+    super(GeminiProvider.ProviderKey, {baseUrl: config?.baseUrl || GeminiProvider.ProviderConfig.baseUrl});
     this.client.defaults.params ??= {};
     this.client.defaults.params['key'] = config?.apiKey;
   }
@@ -118,7 +192,7 @@ export default class GeminiProvider extends BaseAIProvider {
         return ({
           id: model.name,
           name: (name.length > 1 ? name[1] : name[0]).replace(/-\d+b/g, ''),
-          provider: toProviderName('Gemini'),
+          provider: GeminiProvider.ProviderID,
           size,
           description: model.description,
           contextLength: model?.outputTokenLimit || 4096,
@@ -143,8 +217,8 @@ export default class GeminiProvider extends BaseAIProvider {
 
     const body = {
       contents: [
-        {role: 'system', parts: [{text: this.formatSystemPrompt(systemPrompt)}]},
-        {role: 'user', parts: [{text: this.formatPrompt(request)}]},
+        {role: 'system', parts: [{text: await this.formatSystemPrompt(systemPrompt)}]},
+        {role: 'user', parts: [{text: await this.formatPrompt(request)}]},
       ],
       temperature: request.temperature ?? 0.7,
       topK: 64,
@@ -158,7 +232,7 @@ export default class GeminiProvider extends BaseAIProvider {
 
     const response = await this.client.post(endpoint, body);
 
-    const enhancedPrompt = this.toPromptResponse(response.data?.candidates?.[0]?.content?.parts?.[0]?.text,  request.text);
+    const enhancedPrompt = await this.toPromptResponse(response.data?.candidates?.[0]?.content?.parts?.[0]?.text, request.text);
 
     return {
       enhancedPrompt,

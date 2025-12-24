@@ -4,15 +4,16 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider from '~/base/BaseAIProvider';
+import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// utils
-import {toProviderName} from '~/utils/provider';
-import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
+// constants
+import {OutputFormat, OutputFormatName, Provider} from '~/constants/enums';
 
 // types
+import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
-import type {AIModel, PromptRequest, PromptResponse} from '~/types';
+import type {ProviderConfig} from '~/constants/providers';
+import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
 
 /**
  * Cohere AI provider for prompt enhancement and text generation.
@@ -38,11 +39,85 @@ import type {AIModel, PromptRequest, PromptResponse} from '~/types';
  */
 export default class CohereProvider extends BaseAIProvider {
   /**
+   * A static constant representing the unique identifier for the provider, typically used in internal systems or API integrations.
+   * @developerNotes Ensure the ID is lowercase and matches the provider's official identifier.
+   */
+  public static readonly ProviderID: string = Provider.Cohere;
+
+  /**
+   * A static constant representing the display name or key used for referencing the provider in user-facing contexts.
+   * @developerNotes This value should match the provider's official branding.
+   */
+  public static readonly ProviderKey: string = 'Cohere';
+
+  /**
+   * A static constant representing the full, official name of the provider, typically used for documentation or identification purposes.
+   * @developerNotes Ensure consistency with the provider's official name and use proper casing.
+   */
+  public static readonly ProviderName: string = 'Cohere';
+
+  /**
+   * A static constant representing the default prompts used by the provider.
+   * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
+   */
+  public static readonly DefaultPrompts: ProviderDefaultPrompt = {
+    system: 'You are a language AI developed by Cohere. Optimize prompts for clarity, coherence, and conciseness while preserving original meaning.',
+    role: 'You are a prompt refinement expert. Enhance the structure and expressiveness of user prompts without altering their intent.',
+  };
+
+  /**
+   * Static configuration object defining the provider's settings.
+   * @interface ProviderConfig
+   * @property {string} caption - Display name of the provider, typically derived from `ProviderName`.
+   * @property {string} name - Unique identifier for the provider, derived from `ProviderID`.
+   * @property {string} baseUrl - Base URL for the provider's API endpoint.
+   * @property {string} apiKey - API key used for authentication (typically set externally, not hardcoded).
+   * @property {number} timeout - Request timeout in milliseconds (default is 30,000 ms).
+   * @note The `apiKey` should be configured using a secure method (e.g., environment variables), not directly in the code.
+   * @note The `timeout` value is set to 30 seconds by default and can be adjusted based on application needs.
+   */
+  public static readonly ProviderConfig: ProviderConfig = {
+    caption: CohereProvider.ProviderName,
+    name: CohereProvider.ProviderID,
+    baseUrl: 'https://api.cohere.com/v1',
+    apiKey: '',
+    timeout: 30000,
+  };
+
+  /**
+   * @inheritDoc
+   */
+  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+    // Cohere benefits from clear separators and structured instructions
+    formattedPrompt = `## SYSTEM INSTRUCTIONS ##\n${formattedPrompt}\n## END SYSTEM INSTRUCTIONS ##`;
+
+    if (capabilities?.supportsJsonMode) {
+      formattedPrompt += '\n\nRespond in valid JSON format only.';
+    }
+
+    return formattedPrompt;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static getFormatTemplates(): Record<OutputFormatName, string> {
+    return {
+      [OutputFormat.JSON]: `Output Format: JSON\nRespond with valid JSON only. Avoid extra text or explanations.`,
+      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nFormat response using standard Markdown conventions.`,
+      [OutputFormat.TEXT]: `Output Format: Plain Text\nReturn only plain text without any formatting.`,
+      [OutputFormat.HTML]: `Output Format: HTML\nGenerate clean, valid HTML output.`,
+      [OutputFormat.XML]: `Output Format: XML\nProduce well-formed XML with proper nesting.`,
+      [OutputFormat.YAML]: `Output Format: YAML\nReturn properly indented and valid YAML.`,
+    };
+  }
+
+  /**
    * Creates a new Cohere provider instance.
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Cohere', {baseUrl: config?.baseUrl || 'https://api.cohere.com/v1'});
+    super(CohereProvider.ProviderKey, {baseUrl: config?.baseUrl || CohereProvider.ProviderConfig.baseUrl});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
@@ -56,7 +131,7 @@ export default class CohereProvider extends BaseAIProvider {
       {
         id: 'command-nightly',
         name: 'Command Nightly',
-        provider: toProviderName('Cohere'),
+        provider: CohereProvider.ProviderID,
         description: 'Cohere Command nightly model',
         contextLength: 4096,
         maxTokens: 4096,
@@ -64,7 +139,7 @@ export default class CohereProvider extends BaseAIProvider {
       {
         id: 'command-light-nightly',
         name: 'Command Light Nightly',
-        provider: toProviderName('Cohere'),
+        provider: CohereProvider.ProviderID,
         description: 'Cohere Command Light nightly model',
         contextLength: 4096,
         maxTokens: 2048,
@@ -72,7 +147,7 @@ export default class CohereProvider extends BaseAIProvider {
       {
         id: 'command-r',
         name: 'Command R',
-        provider: toProviderName('Cohere'),
+        provider: CohereProvider.ProviderID,
         description: 'Cohere Command R model',
         contextLength: 4096,
         maxTokens: 4096,
@@ -104,17 +179,17 @@ export default class CohereProvider extends BaseAIProvider {
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
-          {role: 'system', content: this.formatSystemPrompt(systemPrompt)},
+          {role: 'system', content: await this.formatSystemPrompt(systemPrompt)},
           {
             role: 'user',
-            content: this.formatPrompt(request),
+            content: await this.formatPrompt(request),
           },
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
       });
 
-      const enhancedPrompt = this.toPromptResponse(response.data.generations?.[0]?.text, request.text);
+      const enhancedPrompt = await this.toPromptResponse(response.data.generations?.[0]?.text, request.text);
 
       return {
         enhancedPrompt,

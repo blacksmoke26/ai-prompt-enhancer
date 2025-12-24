@@ -4,15 +4,16 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider from '~/base/BaseAIProvider';
+import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// utils
-import {toProviderName} from '~/utils/provider';
-import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
+// constants
+import {OutputFormat, OutputFormatName, Provider} from '~/constants/enums';
 
 // types
+import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
-import type {AIModel, PromptRequest, PromptResponse} from '~/types';
+import type {ProviderConfig} from '~/constants/providers';
+import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
 
 /**
  * Qwen AI provider for language model series.
@@ -33,11 +34,81 @@ import type {AIModel, PromptRequest, PromptResponse} from '~/types';
  */
 export default class QwenProvider extends BaseAIProvider {
   /**
+   * A static constant representing the unique identifier for the provider, typically used in internal systems or API integrations.
+   * @developerNotes Ensure the ID is lowercase and matches the provider's official identifier.
+   */
+  public static readonly ProviderID: string = Provider.Qwen;
+
+  /**
+   * A static constant representing the display name or key used for referencing the provider in user-facing contexts.
+   * @developerNotes This value should match the provider's official branding.
+   */
+  public static readonly ProviderKey: string = 'Qwen';
+
+  /**
+   * A static constant representing the full, official name of the provider, typically used for documentation or identification purposes.
+   * @developerNotes Ensure consistency with the provider's official name and use proper casing.
+   */
+  public static readonly ProviderName: string = 'Qwen';
+
+  /**
+   * A static constant representing the default prompts used by the provider.
+   * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
+   */
+  public static readonly DefaultPrompts: ProviderDefaultPrompt = {
+    system: 'You are Qwen, a large language model developed by Alibaba Cloud. Optimize prompts for fluency, logic, and cross-cultural understanding.',
+    role: 'You are a prompt refinement expert. Enhance structure, coherence, and effectiveness across diverse use cases.',
+  };
+
+  /**
+   * Static configuration object defining the provider's settings.
+   * @interface ProviderConfig
+   * @property {string} caption - Display name of the provider, typically derived from `ProviderName`.
+   * @property {string} name - Unique identifier for the provider, derived from `ProviderID`.
+   * @property {string} baseUrl - Base URL for the provider's API endpoint.
+   * @property {string} apiKey - API key used for authentication (typically set externally, not hardcoded).
+   * @property {number} timeout - Request timeout in milliseconds (default is 30,000 ms).
+   * @note The `apiKey` should be configured using a secure method (e.g., environment variables), not directly in the code.
+   * @note The `timeout` value is set to 30 seconds by default and can be adjusted based on application needs.
+   */
+  public static readonly ProviderConfig: ProviderConfig = {
+    caption: QwenProvider.ProviderName,
+    name: QwenProvider.ProviderID,
+    baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+    apiKey: '',
+    timeout: 30000,
+  };
+
+  /**
+   * @inheritDoc
+   */
+  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+    // Qwen (Alibaba) models benefit from clear role definitions and structured prompts
+    formattedPrompt = `You are Qwen, a large language model developed by Alibaba Cloud. ${formattedPrompt}`;
+
+    return formattedPrompt;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static getFormatTemplates(): Record<OutputFormatName, string> {
+    return {
+      [OutputFormat.JSON]: `Output Format: JSON\nEnsure output is valid JSON with proper escaping.`,
+      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse Markdown for clear formatting.`,
+      [OutputFormat.TEXT]: `Output Format: Plain Text\nProvide plain, readable text.`,
+      [OutputFormat.HTML]: `Output Format: HTML\nReturn valid and semantic HTML.`,
+      [OutputFormat.XML]: `Output Format: XML\nProduce well-formed XML content.`,
+      [OutputFormat.YAML]: `Output Format: YAML\nReturn valid YAML with correct indentation.`,
+    };
+  }
+
+  /**
    * Initializes a new Qwen provider instance.
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('Qwen', {baseUrl: config?.baseUrl || 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1'});
+    super(QwenProvider.ProviderKey, {baseUrl: config?.baseUrl || QwenProvider.ProviderConfig.baseUrl});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
     this.client.defaults.headers.common['Content-Type'] = 'application/json';
   }
@@ -53,7 +124,7 @@ export default class QwenProvider extends BaseAIProvider {
     return [
       {
         id: 'qwen-max',
-        provider: toProviderName('Qwen'),
+        provider: QwenProvider.ProviderID,
         name: 'Qwen Max',
         description: 'Most capable model for complex tasks',
         maxTokens: 8192,
@@ -61,7 +132,7 @@ export default class QwenProvider extends BaseAIProvider {
       },
       {
         id: 'qwen-plus',
-        provider: toProviderName('Qwen'),
+        provider: QwenProvider.ProviderID,
         name: 'Qwen Plus',
         description: 'Balanced model for general tasks',
         maxTokens: 4096,
@@ -69,7 +140,7 @@ export default class QwenProvider extends BaseAIProvider {
       },
       {
         id: 'qwen-turbo',
-        provider: toProviderName('Qwen'),
+        provider: QwenProvider.ProviderID,
         name: 'Qwen Turbo',
         description: 'Fast and efficient model for simple tasks',
         maxTokens: 2048,
@@ -97,18 +168,18 @@ export default class QwenProvider extends BaseAIProvider {
         messages: [
           {
             role: 'system',
-            content: this.formatSystemPrompt(systemPrompt),
+            content: await this.formatSystemPrompt(systemPrompt),
           },
           {
             role: 'user',
-            content: this.formatPrompt(request),
+            content: await this.formatPrompt(request),
           },
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens,
       });
 
-      const enhanced = this.toPromptResponse(response.data.output?.choices?.[0]?.content, request.text);
+      const enhanced = await this.toPromptResponse(response.data.output?.choices?.[0]?.content, request.text);
 
       return {
         enhancedPrompt: enhanced,

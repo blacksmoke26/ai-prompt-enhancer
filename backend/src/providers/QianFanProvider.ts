@@ -4,15 +4,16 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider from '~/base/BaseAIProvider';
+import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// utils
-import {toProviderName} from '~/utils/provider';
-import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
+// constants
+import {OutputFormat, OutputFormatName, Provider} from '~/constants/enums';
 
 // types
+import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
-import type { AIModel, PromptRequest, PromptResponse } from '~/types';
+import type {ProviderConfig} from '~/constants/providers';
+import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
 
 /**
  * QianFan (Alibaba DashScope) provider for AI-powered prompt enhancement.
@@ -39,11 +40,81 @@ import type { AIModel, PromptRequest, PromptResponse } from '~/types';
  */
 export default class QianFanProvider extends BaseAIProvider {
   /**
+   * A static constant representing the unique identifier for the provider, typically used in internal systems or API integrations.
+   * @developerNotes Ensure the ID is lowercase and matches the provider's official identifier.
+   */
+  public static readonly ProviderID: string = Provider.Qianfan;
+
+  /**
+   * A static constant representing the display name or key used for referencing the provider in user-facing contexts.
+   * @developerNotes This value should match the provider's official branding.
+   */
+  public static readonly ProviderKey: string = 'Qianfan';
+
+  /**
+   * A static constant representing the full, official name of the provider, typically used for documentation or identification purposes.
+   * @developerNotes Ensure consistency with the provider's official name and use proper casing.
+   */
+  public static readonly ProviderName: string = 'Qianfan';
+
+  /**
+   * A static constant representing the default prompts used by the provider.
+   * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
+   */
+  public static readonly DefaultPrompts: ProviderDefaultPrompt = {
+    system: 'You are a Qianfan AI assistant by Baidu. Refine prompts to be natural, contextually appropriate, and aligned with Chinese and global best practices.',
+    role: 'You specialize in multilingual prompt enhancement. Improve clarity and cultural appropriateness while preserving intent.',
+  };
+
+  /**
+   * Static configuration object defining the provider's settings.
+   * @interface ProviderConfig
+   * @property {string} caption - Display name of the provider, typically derived from `ProviderName`.
+   * @property {string} name - Unique identifier for the provider, derived from `ProviderID`.
+   * @property {string} baseUrl - Base URL for the provider's API endpoint.
+   * @property {string} apiKey - API key used for authentication (typically set externally, not hardcoded).
+   * @property {number} timeout - Request timeout in milliseconds (default is 30,000 ms).
+   * @note The `apiKey` should be configured using a secure method (e.g., environment variables), not directly in the code.
+   * @note The `timeout` value is set to 30 seconds by default and can be adjusted based on application needs.
+   */
+  public static readonly ProviderConfig: ProviderConfig = {
+    caption: QianFanProvider.ProviderName,
+    name: QianFanProvider.ProviderID,
+    baseUrl: 'https://dashscope.aliyuncs.com',
+    apiKey: '',
+    timeout: 30000,
+  };
+
+  /**
+   * @inheritDoc
+   */
+  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+    // QianFan (Baidu) benefits from clear role definitions
+    formattedPrompt = `You are an AI assistant developed by Baidu. ${formattedPrompt}`;
+
+    return formattedPrompt;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static getFormatTemplates(): Record<OutputFormatName, string> {
+    return {
+      [OutputFormat.JSON]: `Output Format: JSON\nRespond with valid JSON only.`,
+      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nFormat using Markdown syntax.`,
+      [OutputFormat.TEXT]: `Output Format: Plain Text\nReturn clean, unformatted text.`,
+      [OutputFormat.HTML]: `Output Format: HTML\nGenerate valid HTML output.`,
+      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML.`,
+      [OutputFormat.YAML]: `Output Format: YAML\nReturn properly structured YAML.`,
+    };
+  }
+
+  /**
    * Initialize the QianFan provider with authentication credentials.
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('QianFan', {baseUrl: config?.baseUrl || 'https://dashscope.aliyuncs.com'});
+    super(QianFanProvider.ProviderKey, {baseUrl: config?.baseUrl || QianFanProvider.ProviderConfig.baseUrl});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
   }
 
@@ -57,7 +128,7 @@ export default class QianFanProvider extends BaseAIProvider {
       {
         id: 'qwen-1.5-1.8b-chat',
         name: 'Qwen 1.5 1.8B Chat',
-        provider: toProviderName('QianFan'),
+        provider: QianFanProvider.ProviderID,
         description: 'Alibaba Qwen 1.5 1.8B chat model',
         contextLength: 8192,
         maxTokens: 2048,
@@ -65,7 +136,7 @@ export default class QianFanProvider extends BaseAIProvider {
       {
         id: 'qwen-1.5-72b-chat',
         name: 'Qwen 1.5 72B Chat',
-        provider: toProviderName('QianFan'),
+        provider: QianFanProvider.ProviderID,
         description: 'Alibaba Qwen 1.5 72B chat model',
         contextLength: 16384,
         maxTokens: 4096,
@@ -91,7 +162,7 @@ export default class QianFanProvider extends BaseAIProvider {
         '/api/v1/services/aigc/text-generation/v1',
         {
           model: request.model,
-          input: `SYSTEM: ${this.formatSystemPrompt(systemPrompt)}\n\nUSER: ${this.formatPrompt(request)}`,
+          input: `SYSTEM: ${await this.formatSystemPrompt(systemPrompt)}\n\nUSER: ${await this.formatPrompt(request)}`,
           parameters: {
             temperature: request.temperature ?? 0.7,
             top_p: 1.0,
@@ -100,7 +171,7 @@ export default class QianFanProvider extends BaseAIProvider {
         },
       );
 
-      const enhanced = this.toPromptResponse(response.data.output?.choices?.[0]?.content, request.text);
+      const enhanced = await this.toPromptResponse(response.data.output?.choices?.[0]?.content, request.text);
 
       return {
         enhancedPrompt: enhanced,
@@ -128,7 +199,7 @@ export default class QianFanProvider extends BaseAIProvider {
         {
           model: 'qwen-1.5-1.8b-chat',
           input: 'test',
-          parameters: { max_tokens: 1 },
+          parameters: {max_tokens: 1},
         },
       );
       return !!resp.data.output?.choices;

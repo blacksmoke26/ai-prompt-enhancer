@@ -4,15 +4,19 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider from '~/base/BaseAIProvider';
+import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
 // utils
 import {toProviderName} from '~/utils/provider';
-import {toEnhancementTypes, toUserRoles} from '~/utils/prompts';
+
+// constants
+import {OutputFormat, OutputFormatName, Provider} from '~/constants/enums';
 
 // types
+import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
-import type {PromptRequest, PromptResponse, AIModel} from '~/types';
+import type {ProviderConfig} from '~/constants/providers';
+import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
 
 /**
  * Represents a model from LM Studio, containing metadata such as ID, type, publisher, and configuration details.
@@ -67,11 +71,81 @@ export interface LMStudioModel {
  */
 export default class LMStudioProvider extends BaseAIProvider {
   /**
+   * A static constant representing the unique identifier for the provider, typically used in internal systems or API integrations.
+   * @developerNotes Ensure the ID is lowercase and matches the provider's official identifier.
+   */
+  public static readonly ProviderID: string = Provider.LmStudio;
+
+  /**
+   * A static constant representing the display name or key used for referencing the provider in user-facing contexts.
+   * @developerNotes This value should match the provider's official branding.
+   */
+  public static readonly ProviderKey: string = 'LmStudio';
+
+  /**
+   * A static constant representing the full, official name of the provider, typically used for documentation or identification purposes.
+   * @developerNotes Ensure consistency with the provider's official name and use proper casing.
+   */
+  public static readonly ProviderName: string = 'LM Studio';
+
+  /**
+   * A static constant representing the default prompts used by the provider.
+   * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
+   */
+  public static readonly DefaultPrompts: ProviderDefaultPrompt = {
+    system: 'You are an AI assistant running locally via LM Studio. Optimize prompts for local inference: be clear, concise, and avoid unnecessary complexity.',
+    role: 'You are a prompt refiner for local LLMs. Ensure prompts are well-scoped, efficient, and compatible with on-device models.',
+  };
+
+  /**
+   * Static configuration object defining the provider's settings.
+   * @interface ProviderConfig
+   * @property {string} caption - Display name of the provider, typically derived from `ProviderName`.
+   * @property {string} name - Unique identifier for the provider, derived from `ProviderID`.
+   * @property {string} baseUrl - Base URL for the provider's API endpoint.
+   * @property {string} apiKey - API key used for authentication (typically set externally, not hardcoded).
+   * @property {number} timeout - Request timeout in milliseconds (default is 30,000 ms).
+   * @note The `apiKey` should be configured using a secure method (e.g., environment variables), not directly in the code.
+   * @note The `timeout` value is set to 30 seconds by default and can be adjusted based on application needs.
+   */
+  public static readonly ProviderConfig: ProviderConfig = {
+    caption: LMStudioProvider.ProviderName,
+    name: LMStudioProvider.ProviderID,
+    baseUrl: 'http://localhost:1234',
+    apiKey: '',
+    timeout: 30000,
+  };
+
+  /**
+   * @inheritDoc
+   */
+  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+    // LMStudio is a local runner that benefits from standard formatting
+    formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
+
+    return formattedPrompt;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static getFormatTemplates(): Record<OutputFormatName, string> {
+    return {
+      [OutputFormat.JSON]: `Output Format: JSON\nRespond with valid JSON only. No explanations.`,
+      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse standard Markdown for formatting.`,
+      [OutputFormat.TEXT]: `Output Format: Plain Text\nProvide clean plain text output.`,
+      [OutputFormat.HTML]: `Output Format: HTML\nReturn valid HTML with semantic structure.`,
+      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML document.`,
+      [OutputFormat.YAML]: `Output Format: YAML\nReturn properly indented YAML.`,
+    };
+  }
+
+  /**
    * Creates a new LM Studio provider instance.
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super('LMStudio', {baseUrl: config?.baseUrl ?? 'http://localhost:1234'});
+    super(LMStudioProvider.ProviderKey, {baseUrl: config?.baseUrl ?? LMStudioProvider.ProviderConfig.baseUrl});
   }
 
   /**
@@ -105,7 +179,7 @@ export default class LMStudioProvider extends BaseAIProvider {
           id: model.id,
           name,
           size,
-          provider: toProviderName('LM Studio'),
+          provider: LMStudioProvider.ProviderID,
           description: `${size} • ${model.type} • ${model.compatibility_type}`,
           contextLength: model?.max_context_length || 4096,
         });
@@ -142,7 +216,7 @@ export default class LMStudioProvider extends BaseAIProvider {
 
     try {
       const systemPrompt = await this.buildSystemPrompt(request);
-      const fullPrompt = `${this.formatSystemPrompt(systemPrompt)}\n\n` + this.formatPrompt(request);
+      const fullPrompt = `${await this.formatSystemPrompt(systemPrompt)}\n\n` + await this.formatPrompt(request);
 
       const response = await this.client.post('/api/v0/completions', {
         model: request.model,
@@ -152,7 +226,7 @@ export default class LMStudioProvider extends BaseAIProvider {
         max_tokens: request.maxTokens || 2000,
       });
 
-      const enhancedPrompt = this.toPromptResponse(response.data.choices?.[0]?.text, request.text);
+      const enhancedPrompt = await this.toPromptResponse(response.data.choices?.[0]?.text, request.text);
 
       return {
         enhancedPrompt,
