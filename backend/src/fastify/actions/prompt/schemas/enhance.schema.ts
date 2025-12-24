@@ -4,6 +4,11 @@
  * @see https://github.com/blacksmoke26
  */
 
+// constants
+import {TONES} from '~/constants/tones';
+import {RESPONSE_LENGTH} from '~/constants/response-length';
+import {OUTPUT_FORMAT_NAMES} from '~/constants/output-format';
+
 // schemas
 import schema500WithError from '~/fastify/schemas/generic/500.schema';
 import schema404WithError from '~/fastify/schemas/generic/404.schema';
@@ -72,12 +77,13 @@ export default {
       },
       tone: {
         type: 'string',
+        enum: TONES,
         description: 'Desired tone for the AI response',
         examples: ['professional'],
       },
       responseLength: {
         type: 'string',
-        enum: ['short', 'medium', 'long', 'custom'],
+        enum: RESPONSE_LENGTH,
         description: 'Preferred length of the response',
         examples: ['medium'],
       },
@@ -91,6 +97,17 @@ export default {
         format: 'date-time',
         description: 'Timestamp when the response was generated',
         examples: ['2023-05-15T10:30:00Z'],
+      },
+      format: {
+        type: 'string',
+        enum: OUTPUT_FORMAT_NAMES,
+        description: 'Output format for the enhanced response',
+        examples: ['markdown'],
+      },
+      offTheRecord: {
+        type: 'boolean',
+        description: 'Whether the request is off-the-record (not stored in the history)',
+        examples: [true],
       },
     },
     required: ['text', 'provider', 'model'],
