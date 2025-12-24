@@ -172,19 +172,21 @@ export default class OpenAIProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = await this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request, OpenAIProvider);
 
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt)},
-          {role: 'user', content: await this.formatPrompt(request)},
+          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, OpenAIProvider)},
+          {role: 'user', content: await this.formatPrompt(request, OpenAIProvider)},
         ],
         temperature: request.temperature || 0.7,
         max_tokens: request.maxTokens || 2000,
       });
 
-      const enhancedPrompt = await this.toPromptResponse(response.data.choices[0]?.message?.content, request.text);
+      const enhancedPrompt = await this.toPromptResponse(
+        response.data.choices[0]?.message?.content, request.text, OpenAIProvider
+      );
 
       return {
         enhancedPrompt,

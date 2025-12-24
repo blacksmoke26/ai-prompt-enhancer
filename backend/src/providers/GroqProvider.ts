@@ -203,22 +203,24 @@ export default class GroqProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    const systemPrompt = await this.buildSystemPrompt(request);
+    const systemPrompt = await this.buildSystemPrompt(request, GroqProvider);
 
     const response = await this.client.post('/openai/v1/chat/completions', {
       model: request.model,
       messages: [
-        {role: 'system', content: await this.formatSystemPrompt(systemPrompt)},
+        {role: 'system', content: await this.formatSystemPrompt(systemPrompt, GroqProvider)},
         {
           role: 'user',
-          content: await this.formatPrompt(request),
+          content: await this.formatPrompt(request, GroqProvider),
         },
       ],
       temperature: request.temperature ?? 0.7,
       max_tokens: request.maxTokens ?? 2000,
     });
 
-    const enhancedPrompt = await this.toPromptResponse(response.data.choices?.[0]?.message?.content, request.text);
+    const enhancedPrompt = await this.toPromptResponse(
+      response.data.choices?.[0]?.message?.content, request.text, GroqProvider
+    );
 
     return {
       enhancedPrompt,

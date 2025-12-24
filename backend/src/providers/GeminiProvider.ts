@@ -213,12 +213,12 @@ export default class GeminiProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    const systemPrompt = await this.buildSystemPrompt(request);
+    const systemPrompt = await this.buildSystemPrompt(request, GeminiProvider);
 
     const body = {
       contents: [
-        {role: 'system', parts: [{text: await this.formatSystemPrompt(systemPrompt)}]},
-        {role: 'user', parts: [{text: await this.formatPrompt(request)}]},
+        {role: 'system', parts: [{text: await this.formatSystemPrompt(systemPrompt, GeminiProvider)}]},
+        {role: 'user', parts: [{text: await this.formatPrompt(request, GeminiProvider)}]},
       ],
       temperature: request.temperature ?? 0.7,
       topK: 64,
@@ -232,7 +232,9 @@ export default class GeminiProvider extends BaseAIProvider {
 
     const response = await this.client.post(endpoint, body);
 
-    const enhancedPrompt = await this.toPromptResponse(response.data?.candidates?.[0]?.content?.parts?.[0]?.text, request.text);
+    const enhancedPrompt = await this.toPromptResponse(
+      response.data?.candidates?.[0]?.content?.parts?.[0]?.text, request.text, GeminiProvider
+    );
 
     return {
       enhancedPrompt,

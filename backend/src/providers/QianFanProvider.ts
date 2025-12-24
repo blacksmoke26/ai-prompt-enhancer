@@ -157,12 +157,13 @@ export default class QianFanProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = await this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request, QianFanProvider);
       const response = await this.client.post(
         '/api/v1/services/aigc/text-generation/v1',
         {
           model: request.model,
-          input: `SYSTEM: ${await this.formatSystemPrompt(systemPrompt)}\n\nUSER: ${await this.formatPrompt(request)}`,
+          input: `SYSTEM: ${await this.formatSystemPrompt(systemPrompt, QianFanProvider)}`
+            + `\n\nUSER: ${await this.formatPrompt(request, QianFanProvider)}`,
           parameters: {
             temperature: request.temperature ?? 0.7,
             top_p: 1.0,
@@ -171,7 +172,9 @@ export default class QianFanProvider extends BaseAIProvider {
         },
       );
 
-      const enhanced = await this.toPromptResponse(response.data.output?.choices?.[0]?.content, request.text);
+      const enhanced = await this.toPromptResponse(
+        response.data.output?.choices?.[0]?.content, request.text, QianFanProvider,
+      );
 
       return {
         enhancedPrompt: enhanced,

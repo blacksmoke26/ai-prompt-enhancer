@@ -171,19 +171,21 @@ export default class OpenRouterProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = await this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request, OpenRouterProvider);
 
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt)},
-          {role: 'user', content: await this.formatPrompt(request)},
+          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, OpenRouterProvider)},
+          {role: 'user', content: await this.formatPrompt(request, OpenRouterProvider)},
         ],
         temperature: request.temperature || 0.7,
         max_tokens: request.maxTokens || 2000,
       });
 
-      const enhancedPrompt = await this.toPromptResponse(response.data.choices[0]?.message?.content, request.text);
+      const enhancedPrompt = await this.toPromptResponse(
+        response.data.choices[0]?.message?.content, request.text, OpenRouterProvider
+      );
 
       return {
         enhancedPrompt,

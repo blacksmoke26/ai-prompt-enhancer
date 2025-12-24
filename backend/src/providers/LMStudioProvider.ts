@@ -212,8 +212,9 @@ export default class LMStudioProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = await this.buildSystemPrompt(request);
-      const fullPrompt = `${await this.formatSystemPrompt(systemPrompt)}\n\n` + await this.formatPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request, LMStudioProvider);
+      const fullPrompt = `${await this.formatSystemPrompt(systemPrompt, LMStudioProvider)}\n\n`
+        + await this.formatPrompt(request, LMStudioProvider);
 
       const response = await this.client.post('/api/v0/completions', {
         model: request.model,
@@ -223,7 +224,9 @@ export default class LMStudioProvider extends BaseAIProvider {
         max_tokens: request.maxTokens || 2000,
       });
 
-      const enhancedPrompt = await this.toPromptResponse(response.data.choices?.[0]?.text, request.text);
+      const enhancedPrompt = await this.toPromptResponse(
+        response.data.choices?.[0]?.text, request.text, LMStudioProvider
+      );
 
       return {
         enhancedPrompt,

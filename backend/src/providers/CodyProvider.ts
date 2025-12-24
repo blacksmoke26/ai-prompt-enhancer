@@ -176,21 +176,23 @@ export default class CodyProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
     try {
-      const systemPrompt = await this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request, CodyProvider);
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt)},
+          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, CodyProvider)},
           {
             role: 'user',
-            content: await this.formatPrompt(request),
+            content: await this.formatPrompt(request, CodyProvider),
           },
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
       });
 
-      const enhanced = await this.toPromptResponse(response.data.choices?.[0]?.message?.content, request.text);
+      const enhanced = await this.toPromptResponse(
+        response.data.choices?.[0]?.message?.content, request.text, CodyProvider
+      );
 
       return {
         enhancedPrompt: enhanced,

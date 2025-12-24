@@ -149,28 +149,30 @@ export default class AnthropicProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    const systemPrompt = await this.buildSystemPrompt(request);
+    const systemPrompt = await this.buildSystemPrompt(request, AnthropicProvider);
 
     try {
       const response = await this.client.post('/messages', {
         model: request.model,
         max_tokens: request.maxTokens ?? 2000,
         temperature: request.temperature ?? 0.7,
-        system: await this.formatSystemPrompt(systemPrompt),
+        system: await this.formatSystemPrompt(systemPrompt, AnthropicProvider),
         messages: [
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: await this.formatPrompt(request),
+                text: await this.formatPrompt(request, AnthropicProvider),
               },
             ],
           },
         ],
       });
 
-      const enhanced = await this.toPromptResponse(response.data.content?.[0]?.text, request.text);
+      const enhanced = await this.toPromptResponse(
+        response.data.content?.[0]?.text, request.text, AnthropicProvider
+      );
 
       return {
         enhancedPrompt: enhanced,

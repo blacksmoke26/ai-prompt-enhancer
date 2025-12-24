@@ -164,9 +164,10 @@ export default class HuggingFaceProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = await this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request, HuggingFaceProvider);
       const payload = {
-        inputs: await this.formatSystemPrompt(systemPrompt) + `\n\n` + await this.formatPrompt(request),
+        inputs: await this.formatSystemPrompt(systemPrompt, HuggingFaceProvider)
+          + `\n\n` + await this.formatPrompt(request, HuggingFaceProvider),
         parameters: {
           max_length: request.maxTokens ?? 2000,
           temperature: request.temperature ?? 0.7,
@@ -175,7 +176,9 @@ export default class HuggingFaceProvider extends BaseAIProvider {
 
       const response = await this.client.post(`/${request.model}`, payload);
 
-      const enhanced = await this.toPromptResponse(response.data?.[0].generated_text, request.text);
+      const enhanced = await this.toPromptResponse(
+        response.data?.[0].generated_text, request.text, HuggingFaceProvider
+      );
 
       return {
         enhancedPrompt: enhanced,

@@ -239,11 +239,9 @@ export default class OllamaProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = await this.buildSystemPrompt(request);
-      const fullPrompt = await this.formatSystemPrompt(systemPrompt) + `\n\n` + await this.formatPrompt(request);
-
-      console.log({systemPrompt, fullPrompt});
-      throw new Error ('_NO_ERROR_');
+      const systemPrompt = await this.buildSystemPrompt(request, OllamaProvider);
+      const fullPrompt = await this.formatSystemPrompt(systemPrompt, OllamaProvider)
+        + `\n\n` + await this.formatPrompt(request, OllamaProvider);
 
       const response = await this.client.post('/api/generate', {
         model: request.model,
@@ -255,7 +253,7 @@ export default class OllamaProvider extends BaseAIProvider {
         },
       });
 
-      const enhancedPrompt = await this.toPromptResponse(response?.data?.response?.trim(), request.text);
+      const enhancedPrompt = await this.toPromptResponse(response?.data?.response?.trim(), request.text, OllamaProvider);
 
       return {
         enhancedPrompt,

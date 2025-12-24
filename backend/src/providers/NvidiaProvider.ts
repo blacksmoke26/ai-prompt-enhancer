@@ -152,22 +152,24 @@ export default class NvidiaProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
     try {
-      const systemPrompt = await this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request, NvidiaProvider);
 
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt)},
+          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, NvidiaProvider)},
           {
             role: 'user',
-            content: await this.formatPrompt(request),
+            content: await this.formatPrompt(request, NvidiaProvider),
           },
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
       });
 
-      const enhanced = await this.toPromptResponse(response.data.choices?.[0]?.message?.content, request.text);
+      const enhanced = await this.toPromptResponse(
+        response.data.choices?.[0]?.message?.content, request.text, NvidiaProvider
+      );
 
       return {
         enhancedPrompt: enhanced,

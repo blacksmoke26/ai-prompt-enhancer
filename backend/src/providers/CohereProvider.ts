@@ -175,21 +175,23 @@ export default class CohereProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
     try {
-      const systemPrompt = await this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request, CohereProvider);
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt)},
+          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, CohereProvider)},
           {
             role: 'user',
-            content: await this.formatPrompt(request),
+            content: await this.formatPrompt(request, CohereProvider),
           },
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
       });
 
-      const enhancedPrompt = await this.toPromptResponse(response.data.generations?.[0]?.text, request.text);
+      const enhancedPrompt = await this.toPromptResponse(
+        response.data.generations?.[0]?.text, request.text, CohereProvider
+      );
 
       return {
         enhancedPrompt,

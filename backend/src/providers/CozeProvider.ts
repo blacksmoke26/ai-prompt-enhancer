@@ -168,19 +168,21 @@ export default class CozeProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
     try {
-      const systemPrompt = await this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request, CozeProvider);
 
       const response = await this.client.post('/v1/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt)},
-          {role: 'user', content: await this.formatPrompt(request)},
+          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, CozeProvider)},
+          {role: 'user', content: await this.formatPrompt(request, CozeProvider)},
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
       });
 
-      const enhancedPrompt = await this.toPromptResponse(response.data.choices?.[0]?.message?.content, request.text);
+      const enhancedPrompt = await this.toPromptResponse(
+        response.data.choices?.[0]?.message?.content, request.text, CozeProvider
+      );
 
       return {
         enhancedPrompt,

@@ -161,25 +161,27 @@ export default class QwenProvider extends BaseAIProvider {
     const startTime = Date.now();
 
     try {
-      const systemPrompt = await this.buildSystemPrompt(request);
+      const systemPrompt = await this.buildSystemPrompt(request, QwenProvider);
 
       const response = await this.client.post('/chat/completions', {
         model: request.model || 'qwen-plus',
         messages: [
           {
             role: 'system',
-            content: await this.formatSystemPrompt(systemPrompt),
+            content: await this.formatSystemPrompt(systemPrompt, QwenProvider),
           },
           {
             role: 'user',
-            content: await this.formatPrompt(request),
+            content: await this.formatPrompt(request, QwenProvider),
           },
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens,
       });
 
-      const enhanced = await this.toPromptResponse(response.data.output?.choices?.[0]?.content, request.text);
+      const enhanced = await this.toPromptResponse(
+        response.data.output?.choices?.[0]?.content, request.text, QwenProvider
+      );
 
       return {
         enhancedPrompt: enhanced,
