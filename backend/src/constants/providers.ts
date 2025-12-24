@@ -4,76 +4,41 @@
  * @see https://github.com/blacksmoke26
  */
 
-// providers
-import BaseAIProvider from '~/base/BaseAIProvider';
-import OpenAIProvider from '~/providers/OpenAIProvider';
-import OpenRouterProvider from '~/providers/OpenRouterProvider';
-import DeepSeekProvider from '~/providers/DeepSeekProvider';
-import CozeProvider from '~/providers/CozeProvider';
-import QianFanProvider from '~/providers/QianFanProvider';
-import GeminiProvider from '~/providers/GeminiProvider';
-import KimiProvider from '~/providers/KimiProvider';
-import GroqProvider from '~/providers/GroqProvider';
-import AnthropicProvider from '~/providers/AnthropicProvider';
-import MistralProvider from '~/providers/MistralProvider';
-import NvidiaProvider from '~/providers/NvidiaProvider';
-import CohereProvider from '~/providers/CohereProvider';
-import CodyProvider from '~/providers/CodyProvider';
-import XAIProvider from '~/providers/XAIProvider';
-import HuggingFaceProvider from '~/providers/HuggingFaceProvider';
-import SiliconFlowProvider from '~/providers/SiliconFlowProvider';
-import ZhipuProvider from '~/providers/ZhipuProvider';
-import OllamaProvider from '~/providers/OllamaProvider';
-import QwenProvider from '~/providers/QwenProvider';
-import LMStudioProvider from '~/providers/LMStudioProvider';
-import {JSONSchema7} from 'json-schema';
-
-export type ProviderName =
-  'ollama'
-  | 'openai'
-  | 'openrouter'
-  | 'deepseek'
-  | 'coze'
-  | 'qianfan'
-  | 'gemini'
-  | 'kimi'
-  | 'groq'
-  | 'anthropic'
-  | 'mistral'
-  | 'nvidia'
-  | 'cohere'
-  | 'cody'
-  | 'xai'
-  | 'huggingface'
-  | 'siliconflow'
-  | 'zhipu'
-  | 'qwen'
-  | 'lmstudio';
+// types
+import type {JSONSchema7} from 'json-schema';
+import type {ProviderConfig} from '~/types/providers';
+import {providersClasses} from '~/providers';
 
 /**
- * Represents configuration for an AI/ML service provider.
+ * Default configuration settings for a provider, used as a baseline for initializing provider instances.
+ * This object defines the default values for configuration properties such as `baseUrl` and `timeout`.
+ * @example
+ * const customConfig = {
+ *   ...DEFAULT_PROVIDER_CONFIG,
+ *   baseUrl: 'https://api.example.com',
+ *   timeout: 5000,
+ * };
+ * @developer Note: The `timeout` value is specified in milliseconds and is critical for API request handling.
+ * The `apiKey` is optional but recommended for secure API communication.
  */
-export interface ProviderConfig {
-  /** The display name */
-  caption: string;
-  /** Unique identifier for the provider (e.g., 'openai', 'ollama') */
-  name: ProviderName | string;
-  /** Base URL for the provider's API endpoints */
-  baseUrl: string;
-  /** Optional API authentication key */
-  apiKey?: string;
-  /** Request timeout in milliseconds (provider-specific) */
-  timeout?: number;
+const DEFAULT_PROVIDER_CONFIG = {
+  caption: '',
+  name: '',
+  baseUrl: '',
+  apiKey: '',
+  timeout: 30000,
+};
 
-  /** Additional provider-specific properties */
-  [key: string]: any;
-}
-
-export const configKeys: string[] = [
-  'baseUrl',
-  'apiKey',
-  'timeout',
-];
+/**
+ * An array of configuration keys from `BaseAIProvider.ProviderConfig`, excluding 'caption' and 'name'.
+ * This is useful for iterating over relevant configuration properties without the excluded fields.
+ * @example
+ * // Example usage:
+ * configKeys.forEach(key => console.log(key)); // Logs all keys except 'caption' and 'name'
+ */
+export const configKeys: string[] = Object
+  .keys(DEFAULT_PROVIDER_CONFIG)
+  .filter(x => !['caption', 'name'].includes(x));
 
 /**
  * Configuration for various AI/ML service providers.
@@ -95,40 +60,11 @@ export const configKeys: string[] = [
  * - Some providers (like Ollama) may not require API keys
  * - Additional properties can be added to each provider as needed
  */
-const providers: ProviderConfig[] = [
-  {caption: 'Ollama', name: 'ollama', baseUrl: 'http://localhost:11434', apiKey: '', timeout: 30000},
-  {caption: 'OpenAI', name: 'openai', baseUrl: 'https://api.openai.com/v1', apiKey: '', timeout: 30000},
-  {caption: 'OpenRouter', name: 'openrouter', baseUrl: 'https://openrouter.ai/api/v1', apiKey: '', timeout: 30000},
-  {caption: 'Deepseek', name: 'deepseek', baseUrl: 'https://api.deepseek.com', apiKey: '', timeout: 30000},
-  {caption: 'Coze', name: 'coze', baseUrl: 'https://api.coze.cn', apiKey: '', timeout: 30000},
-  {caption: 'Qianfan', name: 'qianfan', baseUrl: 'https://aip.baidubce.com', apiKey: '', timeout: 30000},
-  {
-    caption: 'Gemini',
-    name: 'gemini',
-    baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
-    apiKey: '',
-    timeout: 30000,
-  },
-  {caption: 'Kimi', name: 'kimi', baseUrl: 'https://api.moonshot.cn', apiKey: '', timeout: 30000},
-  {caption: 'Groq', name: 'groq', baseUrl: 'https://api.groq.com', apiKey: '', timeout: 30000},
-  {caption: 'Anthropic', name: 'anthropic', baseUrl: 'https://api.anthropic.com', apiKey: '', timeout: 30000},
-  {caption: 'Mistral', name: 'mistral', baseUrl: 'https://api.mistral.ai', apiKey: '', timeout: 30000},
-  {caption: 'Nvidia', name: 'nvidia', baseUrl: 'https://api.nvidia.com', apiKey: '', timeout: 30000},
-  {caption: 'Cohere', name: 'cohere', baseUrl: 'https://api.cohere.ai', apiKey: '', timeout: 30000},
-  {caption: 'Cody', name: 'cody', baseUrl: 'https://sourcegraph.com', apiKey: '', timeout: 30000},
-  {caption: 'xAI', name: 'xai', baseUrl: 'https://api.x.ai', apiKey: '', timeout: 30000},
-  {
-    caption: 'HuggingFace',
-    name: 'huggingface',
-    baseUrl: 'https://api-inference.huggingface.co/models',
-    apiKey: '',
-    timeout: 30000,
-  },
-  {caption: 'SiliconFlow', name: 'siliconflow', baseUrl: 'https://api.siliconflow.cn', apiKey: '', timeout: 30000},
-  {caption: 'Zhipu', name: 'zhipu', baseUrl: 'https://api.z.ai/api/paas/v4', apiKey: '', timeout: 30000},
-  {caption: 'Qwen', name: 'qwen', baseUrl: 'https://dashscope.aliyuncs.com', apiKey: '', timeout: 30000},
-  {caption: 'LM Studio', name: 'lmstudio', baseUrl: 'http://localhost:1234', timeout: 30000},
-];
+export const getProviders = (): ProviderConfig[] => {
+  return Object.values(providersClasses).map(x => {
+    return {...(x as Record<string, any>).ProviderConfig};
+  });
+};
 
 /**
  * Retrieves an array of provider names from the providers list.
@@ -138,7 +74,8 @@ const providers: ProviderConfig[] = [
  * getProvidersName(); // returns ['ollama', 'groq']
  * @developerNotes Assumes `providers` is an array of objects with a `name` property.
  */
-export const getProvidersName = (): string[] => providers.map(p => p.name);
+export const getProvidersName = (): string[] => getProviders()
+  .map(p => p.name);
 
 /**
  * Generates a JSON Schema 7 compliant array of objects representing provider configurations.
@@ -163,61 +100,39 @@ export const getProvidersName = (): string[] => providers.map(p => p.name);
 export const getProvidersJsonSchema = (): JSONSchema7 => {
   const schema: JSONSchema7 = {
     type: 'object',
-    properties: {} as Record<string, any>
+    properties: {} as Record<string, any>,
   };
 
-  providers.forEach(p => {
+  getProviders().forEach(p => {
     if (schema.properties) {
       schema.properties[p.name] = {
         type: 'object',
         properties: {
           enabled: {
             type: 'boolean',
+            description: 'Whether the provider is enabled or not',
+            examples: [true],
           },
           apiKey: {
             type: 'string',
-          },
-          baseUrl: {
-            type: 'string',
+            description: 'API key for the AI model provider',
+            examples: ['sk-1234567890'],
           },
           timeout: {
             type: 'integer',
+            description: 'Timeout for the AI model provider',
+            examples: [30000],
+          },
+          baseUrl: {
+            type: 'string',
+            description: 'Base URL for the AI model provider',
+            examples: ['https://api.example.com/v1'],
           },
         },
-        required: [
-          'enabled',
-          'apiKey',
-          'baseUrl',
-        ],
       };
     }
-  })
+  });
 
   return schema;
 };
 
-// provider imports
-export const providersClasses: Record<ProviderName | string, new (...args: any[]) => BaseAIProvider> = {
-  ollama: OllamaProvider,
-  openai: OpenAIProvider,
-  openrouter: OpenRouterProvider,
-  deepseek: DeepSeekProvider,
-  coze: CozeProvider,
-  qwen: QwenProvider,
-  qianfan: QianFanProvider,
-  gemini: GeminiProvider,
-  kimi: KimiProvider,
-  groq: GroqProvider,
-  anthropic: AnthropicProvider,
-  mistral: MistralProvider,
-  nvidia: NvidiaProvider,
-  cohere: CohereProvider,
-  cody: CodyProvider,
-  xai: XAIProvider,
-  huggingface: HuggingFaceProvider,
-  siliconflow: SiliconFlowProvider,
-  zhipu: ZhipuProvider,
-  lmstudio: LMStudioProvider,
-};
-
-export default providers;
