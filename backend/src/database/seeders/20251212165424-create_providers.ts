@@ -9,12 +9,12 @@
 import {QueryInterface, QueryTypes, Sequelize} from 'sequelize';
 
 // constants
-import providers from '~/constants/providers';
+import {getProviders} from '~/constants/providers';
 
 /** @type {import('sequelize-cli').Migration} */
 export default {
   async up(queryInterface: QueryInterface) {
-    for await (const provider of providers) {
+    for await (const provider of getProviders()) {
       const {caption, name, ...config} = provider;
 
       const [result] = await queryInterface.sequelize.query(`SELECT COUNT(*) as total FROM providers WHERE name = '${name}'`, {

@@ -10,7 +10,7 @@ import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, M
 import {getInstance} from '~/database';
 
 // constants
-import providers from '~/constants/providers';
+import {getProviders} from '~/constants/providers';
 
 // public types
 export type ProviderAttributes = InferAttributes<Provider>;
@@ -116,7 +116,7 @@ class Provider extends Model<InferAttributes<Provider>, InferCreationAttributes<
   public static async getDefaultProviders(): Promise<Record<string, ConfigMeta>> {
     const config: Record<string, ConfigMeta> = {};
 
-    for (const {name, caption, enabled, ...provider} of providers) {
+    for (const {name, caption, enabled, ...provider} of getProviders()) {
       config[name] = {
         enabled,
         ...provider,
