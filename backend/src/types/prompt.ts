@@ -1,0 +1,355 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
+/**
+ * Represents the format of the response from an AI prompt processing request.
+ */
+export type ResponseOutputFormat = 'json' | 'markdown' | 'text' | 'html' | 'xml' | 'yaml';
+
+/**
+ * Defines the structure for a prompt request sent to an AI model.
+ * @developerNotes Contains all necessary data for AI processing including context and parameters.
+ * @example
+ * ```typescript
+ * const request: PromptRequest = {
+ *   text: "Explain quantum computing",
+ *   provider: "openai",
+ *   model: "gpt-4-turbo",
+ *   enhancementType: "enhance"
+ * };
+ * ```
+ */
+export interface PromptRequest {
+  /**
+   * The text prompt to be processed
+   * @example "Explain quantum computing in simple terms"
+   */
+  text: string;
+  /**
+   * Identifier of the AI model provider (e.g., "Openai", "Ollama")
+   * @example "Openai"
+   */
+  provider: string;
+  /**
+   * Identifier of the AI model to use for processing
+   * @example "gpt-4-turbo"
+   */
+  model: string;
+  /**
+   * System prompt to guide the AI's behavior
+   * @example "You are a helpful assistant that explains complex topics simply"
+   */
+  systemPrompt?: string;
+  /**
+   * Controls randomness of the output (0.0 to 1.0)
+   * @example 0.7
+   */
+  temperature?: number;
+  /**
+   * Maximum number of tokens to generate
+   * @example 500
+   */
+  maxTokens?: number;
+  /**
+   * Type of enhancement to apply to the prompt
+   * @example "enhance"
+   */
+  enhancementType?: string;
+  /**
+   * User role that determines the context for the AI response
+   * @developerNotes Sets the professional context for the AI's response based on user's background
+   * @example "developer"
+   */
+  userRole?: string;
+  /**
+   * Target audience for the response
+   * @developerNotes Helps the AI tailor the content for specific audience understanding
+   * @example "technical-experts"
+   */
+  targetAudience?: string;
+  /**
+   * Desired tone for the AI response
+   * @developerNotes Controls the emotional and stylistic approach of the response
+   * @example "professional"
+   */
+  tone?: string;
+  /**
+   * Preferred length of the response
+   * @developerNotes Determines how detailed or concise the response should be
+   * @example "medium"
+   */
+  responseLength?: 'short' | 'medium' | 'long' | 'custom';
+  /**
+   * Additional user instructions for the AI
+   * @developerNotes Allows for specific formatting or content requirements beyond standard options
+   * @example "Include code examples"
+   */
+  customInstructions?: string;
+  /**
+   * Output format for the enhanced response
+   * @example 'markdown'
+   */
+  format?: ResponseOutputFormat;
+  /**
+   * Timestamp when the request was made
+   * @example "2023-05-15T10:30:00Z"
+   */
+  timestamp?: string;
+  /**
+   * Additional metadata for the request
+   * @example { requestId: "req_123", userId: "user_abc" }
+   */
+  metadata?: {
+    requestId?: string;
+    userId?: string;
+    timestamp?: string;
+  };
+}
+
+/**
+ * Represents the response from an AI prompt processing request.
+ * @developerNotes Contains the processed prompt along with metadata about the operation.
+ * @example
+ * ```typescript
+ * const response: PromptResponse = {
+ *   enhancedPrompt: "Explain quantum computing in simple terms...",
+ *   originalPrompt: "Explain quantum computing",
+ *   model: "gpt-4-turbo",
+ *   timestamp: new Date(),
+ *   processingTime: 1250
+ * };
+ * ```
+ */
+export interface PromptResponse {
+  /**
+   * The enhanced version of the original prompt
+   * @example "Explain quantum computing in simple terms, focusing on basic principles and applications"
+   */
+  enhancedPrompt: string;
+  /**
+   * The original prompt that was submitted
+   * @example "Explain quantum computing"
+   */
+  originalPrompt: string;
+  /**
+   * Identifier of the AI model used
+   * @example "gpt-4-turbo"
+   */
+  model: string;
+  /**
+   * Timestamp when the response was generated
+   * @example new Date('2023-05-15T10:30:00Z')
+   */
+  timestamp: Date;
+  /**
+   * Number of tokens used in the processing
+   * @example 120
+   */
+  tokensUsed?: number;
+  /**
+   * Time taken to process the prompt in milliseconds
+   * @example 1250
+   */
+  processingTime: number;
+}
+
+/**
+ * System prompt components structure
+ * Contains the full system prompt and its constituent parts for debugging and analysis
+ *
+ * @example
+ * const components: SystemPromptComponents = {
+ *   fullPrompt: 'You are a helpful AI assistant. You are a grammar expert...',
+ *   rolePrompt: 'You are a helpful AI assistant',
+ *   enhancementPrompt: 'You are a grammar expert...',
+ *   source: {
+ *     enhancementType: 'enhance',
+ *     userRole: 'admin',
+ *     fallbackUsed: false
+ *   },
+ *   metadata: {
+ *     createdAt: '2025-01-01T12:00:00Z',
+ *     version: '1.0.0'
+ *   }
+ * };
+ */
+export interface SystemPromptComponents {
+  /** The complete combined system prompt */
+  fullPrompt: string;
+  /** The role-specific prompt component */
+  rolePrompt: string;
+  /** The enhancement-specific prompt component */
+  enhancementPrompt: string;
+  /** Source information for debugging */
+  source: {
+    /** The enhancement type key used */
+    enhancementType: string;
+    /** The user role key used */
+    userRole: string;
+    /** Whether fallback prompts were used */
+    fallbackUsed: boolean;
+    /** Original request ID if available */
+    requestId?: string;
+  };
+  /** Optional metadata about the prompt */
+  metadata?: {
+    /** When the prompt was generated */
+    createdAt?: string;
+    /** Version or hash of the prompt */
+    version?: string;
+    /** Cache hit/miss information */
+    cacheInfo?: {
+      cached: boolean;
+      cacheKey?: string;
+    };
+  };
+}
+
+/**
+ * Validation rule interface for input validation
+ */
+export interface ValidationRule {
+  /** Whether the field is required */
+  required?: boolean;
+  /** Maximum length for string fields */
+  maxLength?: number;
+  /** Minimum length for string fields */
+  minLength?: number;
+  /** Regular expression pattern for validation */
+  pattern?: RegExp | null;
+  /** Allowed values for enumeration fields */
+  allowedValues?: string[];
+  /** Minimum numeric value */
+  min?: number;
+  /** Maximum numeric value */
+  max?: number;
+  /** Custom error message */
+  errorMessage?: string;
+}
+
+/**
+ * Validation result interface for batch validation
+ */
+export interface ValidationResult {
+  /** Number of valid requests */
+  validCount: number;
+  /** Number of invalid requests */
+  invalidCount: number;
+  /** Array of valid requests */
+  validRequests: PromptRequest[];
+  /** Array of invalid requests with their errors */
+  invalidRequests: Array<{ request: PromptRequest; errors: string[] }>;
+  /** Whether all requests are valid */
+  isValid: boolean;
+  /** Combined error messages */
+  errors: string[];
+}
+
+/**
+ * Formatted prompt result interface
+ */
+export interface FormattedPromptResult {
+  /** The formatted prompt string */
+  prompt: string;
+
+  /** Metadata about the formatting */
+  metadata: {
+    /** Provider name */
+    provider: string;
+    /** Output format used */
+    format: ResponseOutputFormat;
+    /** Original sanitized text */
+    originalText: string;
+    /** Timestamp of formatting */
+    timestamp: string;
+    /** Configuration used */
+    config?: Partial<PromptFormatterConfig>;
+  };
+}
+
+/**
+ * Prompt formatter configuration interface
+ */
+export interface PromptFormatterConfig {
+  /** Whether to include metadata headers */
+  includeMetadata?: boolean;
+  /** Whether to include the original prompt */
+  includeOriginalPrompt?: boolean;
+  /** Whether to add placeholders */
+  addPlaceholders?: boolean;
+  /** Whether to perform strict validation */
+  strictValidation?: boolean;
+  /** Section separator string */
+  sectionSeparator?: string;
+  /** Maximum length for custom instructions */
+  maxCustomInstructionsLength?: number;
+}
+
+/**
+ * Provider capabilities interface
+ * Describes the capabilities of different AI providers for optimization
+ *
+ * @example
+ * const capabilities: ProviderCapabilities = {
+ *   provider: 'openai',
+ *   maxTokens: 4096,
+ *   supportsJsonMode: true,
+ *   supportsSystemMessages: true,
+ *   supportsFunctions: true,
+ *   modelVersions: ['gpt-3.5-turbo', 'gpt-4'],
+ *   rateLimits: {
+ *     requestsPerMinute: 60,
+ *     tokensPerMinute: 100000
+ *   }
+ * };
+ */
+export interface ProviderCapabilities {
+  /** Provider name identifier */
+  provider: string;
+  /** Maximum token limit for this provider */
+  maxTokens?: number;
+  /** Whether the provider supports JSON output mode */
+  supportsJsonMode?: boolean;
+  /** Whether the provider supports system messages */
+  supportsSystemMessages?: boolean;
+  /** Whether the provider supports function calling */
+  supportsFunctions?: boolean;
+  /** Whether the provider supports streaming responses */
+  supportsStreaming?: boolean;
+  /** Whether the provider supports image inputs */
+  supportsImages?: boolean;
+  /** Available model versions */
+  modelVersions?: string[];
+  /** Rate limiting information */
+  rateLimits?: {
+    /** Requests per minute limit */
+    requestsPerMinute?: number;
+    /** Tokens per minute limit */
+    tokensPerMinute?: number;
+    /** Concurrent requests limit */
+    concurrentRequests?: number;
+  };
+
+  /** Cost information (per token) */
+  cost?: {
+    /** Input token cost */
+    inputCostPerToken?: number;
+    /** Output token cost */
+    outputCostPerToken?: number;
+  };
+
+  /** Special features supported */
+  features?: {
+    /** Whether the provider supports custom stop sequences */
+    customStopSequences?: boolean;
+    /** Whether the provider supports log probabilities */
+    logProbabilities?: boolean;
+    /** Whether the provider supports response caching */
+    responseCaching?: boolean;
+  };
+  /** Provider-specific configuration options */
+  config?: Record<string, any>;
+}

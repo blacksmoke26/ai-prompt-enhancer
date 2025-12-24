@@ -4,8 +4,9 @@
  * @see https://github.com/blacksmoke26
  */
 
-import {ConfigKey} from '~/constants/configuration';
-import {ConfigMeta} from '~/database/models';
+// types
+import type {ConfigKey} from '~/constants/configuration';
+import type {ConfigMeta} from '~/database/models';
 
 /**
  * Defines the structure for an AI model used in prompt processing.
@@ -55,144 +56,6 @@ export interface AIModel {
    * @example 4096
    */
   maxTokens?: number;
-}
-
-/**
- * Defines the structure for a prompt request sent to an AI model.
- * @developerNotes Contains all necessary data for AI processing including context and parameters.
- * @example
- * ```typescript
- * const request: PromptRequest = {
- *   text: "Explain quantum computing",
- *   provider: "openai",
- *   model: "gpt-4-turbo",
- *   enhancementType: "enhance"
- * };
- * ```
- */
-export interface PromptRequest {
-  /**
-   * The text prompt to be processed
-   * @example "Explain quantum computing in simple terms"
-   */
-  text: string;
-  /**
-   * Identifier of the AI model provider (e.g., "Openai", "Ollama")
-   * @example "Openai"
-   */
-  provider: string;
-  /**
-   * Identifier of the AI model to use for processing
-   * @example "gpt-4-turbo"
-   */
-  model: string;
-  /**
-   * System prompt to guide the AI's behavior
-   * @example "You are a helpful assistant that explains complex topics simply"
-   */
-  systemPrompt?: string;
-  /**
-   * Controls randomness of the output (0.0 to 1.0)
-   * @example 0.7
-   */
-  temperature?: number;
-  /**
-   * Maximum number of tokens to generate
-   * @example 500
-   */
-  maxTokens?: number;
-  /**
-   * Type of enhancement to apply to the prompt
-   * @example "enhance"
-   */
-  enhancementType?: string;
-  /**
-   * User role that determines the context for the AI response
-   * @developerNotes Sets the professional context for the AI's response based on user's background
-   * @example "developer"
-   */
-  userRole?: string;
-  /**
-   * Target audience for the response
-   * @developerNotes Helps the AI tailor the content for specific audience understanding
-   * @example "technical-experts"
-   */
-  targetAudience?: string;
-  /**
-   * Desired tone for the AI response
-   * @developerNotes Controls the emotional and stylistic approach of the response
-   * @example "professional"
-   */
-  tone?: string;
-  /**
-   * Preferred length of the response
-   * @developerNotes Determines how detailed or concise the response should be
-   * @example "medium"
-   */
-  responseLength?: 'short' | 'medium' | 'long' | 'custom';
-  /**
-   * Additional user instructions for the AI
-   * @developerNotes Allows for specific formatting or content requirements beyond standard options
-   * @example "Include code examples"
-   */
-  customInstructions?: string;
-  /**
-   * Output format for the enhanced response
-   * @example 'markdown'
-   */
-  format?: 'markdown' | 'json' | 'text';
-  /**
-   * Timestamp when the request was made
-   * @example "2023-05-15T10:30:00Z"
-   */
-  timestamp?: string;
-}
-
-/**
- * Represents the response from an AI prompt processing request.
- * @developerNotes Contains the processed prompt along with metadata about the operation.
- * @example
- * ```typescript
- * const response: PromptResponse = {
- *   enhancedPrompt: "Explain quantum computing in simple terms...",
- *   originalPrompt: "Explain quantum computing",
- *   model: "gpt-4-turbo",
- *   timestamp: new Date(),
- *   processingTime: 1250
- * };
- * ```
- */
-export interface PromptResponse {
-  /**
-   * The enhanced version of the original prompt
-   * @example "Explain quantum computing in simple terms, focusing on basic principles and applications"
-   */
-  enhancedPrompt: string;
-  /**
-   * The original prompt that was submitted
-   * @example "Explain quantum computing"
-   */
-  originalPrompt: string;
-  /**
-   * Identifier of the AI model used
-   * @example "gpt-4-turbo"
-   */
-  model: string;
-  /**
-   * Timestamp when the response was generated
-   * @example new Date('2023-05-15T10:30:00Z')
-   */
-  timestamp: Date;
-  /**
-   * Number of tokens used in the processing
-   * @example 120
-   */
-  tokensUsed?: number;
-  /**
-   * Time taken to process the prompt in milliseconds
-   * @example 1250
-   */
-  processingTime: number;
 }
 
 /**
@@ -252,3 +115,36 @@ export interface AIProvider {
 export interface AppConfig {
   [key: ConfigKey | string]: any | ConfigMeta;
 }
+
+/**
+ * Cache options interface
+ */
+export interface CacheOptions {
+  /** Time to live in seconds */
+  ttl?: number;
+  /** Maximum number of items to store */
+  maxSize?: number;
+  /** Cleanup interval in milliseconds */
+  cleanupInterval?: number;
+  /** Whether to enable statistics tracking */
+  enableStats?: boolean;
+}
+
+/**
+ * Cache statistics interface
+ */
+export interface CacheStats {
+  /** Number of cache hits */
+  hits: number;
+  /** Number of cache misses */
+  misses: number;
+  /** Number of items set in cache */
+  sets: number;
+  /** Number of items deleted from cache */
+  deletes: number;
+  /** Number of items evicted due to size limits */
+  evictions: number;
+  /** Total number of items currently in cache */
+  totalItems: number;
+}
+
