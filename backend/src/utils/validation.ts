@@ -284,7 +284,7 @@ export interface SanitizeOptions {
 export function sanitizeInput(input: string | null | undefined, options: SanitizeOptions = {}): string {
   if (!input) return '';
 
-  let sanitized = String(input);
+  let sanitized = String(input).replaceAll('{{enhanced prompt}}', '');
 
   const {
     escapeHtml = true,
