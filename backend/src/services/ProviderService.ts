@@ -4,14 +4,14 @@
  * @see https://github.com/blacksmoke26
  */
 
-// base
+// classes
 import BaseAIProvider from '~/base/BaseAIProvider';
 
 // db
 import {ConfigMeta, Provider} from '~/database/models';
 
 // constants
-import {providersClasses} from '~/constants/providers';
+import {providersClasses} from '~/providers';
 
 // utils
 import {toProviderName} from '~/utils/provider';
@@ -51,7 +51,7 @@ export default class ProviderService {
       }
 
       const ctor = providersClasses[name];
-      this.providers.set(name, new ctor(config));
+      this.providers.set(name, (new ctor(config) as BaseAIProvider));
     }
   }
 
@@ -101,7 +101,7 @@ export default class ProviderService {
     const providers = await Provider.getAllProviders();
 
     for (const [name, config] of Object.entries(providers)) {
-      const provider = this.getProvider(name);
+      const provider = this.getProvider(name) as Record<string, any>;
       if (!provider || !config.enabled) continue;
 
       try {
@@ -192,7 +192,7 @@ export default class ProviderService {
 
     if (!exist) return false;
 
-    const provider = this.getProvider(toProviderName(providerName));
+    const provider = this.getProvider(toProviderName(providerName)) as Record<string, any>;
     if (!provider) return false;
 
     try {
