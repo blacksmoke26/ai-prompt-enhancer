@@ -251,7 +251,7 @@ export default abstract class PromptFormatter {
 
     // Add placeholder for enhanced prompt
     if (effectiveConfig.addPlaceholders) {
-      parts.push(seperator + '{{enhanced prompt}}');
+      parts.push(seperator + 'Write the enhanced prompt here after\n{{enhanced prompt}}\nBut DO NOT INCLUDE the context in response like: Enhanced Prompt\n');
     }
 
     // Join all parts with the configured separator
