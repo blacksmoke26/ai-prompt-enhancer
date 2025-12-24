@@ -23,9 +23,6 @@ import type {JSONSchema7} from 'json-schema';
 const configSchema = merge.all([
   getConfigJsonSchema(),
   getProvidersJsonSchema(),
-  {
-    required: [...getConfigKeys(), ...getProvidersName()],
-  },
 ]);
 
 export default {
