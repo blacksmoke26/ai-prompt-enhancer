@@ -4,10 +4,12 @@
  * @see https://github.com/blacksmoke26
  */
 
+// utils
+import {providersClasses} from '~/providers';
+
 // types
 import type {JSONSchema7} from 'json-schema';
 import type {ProviderConfig} from '~/types/providers';
-import {providersClasses} from '~/providers';
 
 /**
  * Default configuration settings for a provider, used as a baseline for initializing provider instances.
