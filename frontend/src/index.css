@@ -8,6 +8,10 @@
     top: -2px;
 }
 
+.wmde-markdown {
+    background: transparent !important;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
