@@ -139,7 +139,7 @@ export default class OllamaProvider extends BaseAIProvider {
   public static readonly ProviderConfig: ProviderConfig = {
     caption: OllamaProvider.ProviderName,
     name: OllamaProvider.ProviderID,
-    baseUrl: 'https://api.groq.com',
+    baseUrl: 'http://localhost:11434',
     apiKey: '',
     timeout: 30000,
   };
