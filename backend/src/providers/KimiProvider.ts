@@ -168,7 +168,7 @@ export default class KimiProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.choices?.[0]?.message?.content, request.text, KimiProvider
+        response.data.choices?.[0]?.message?.content, request.text, KimiProvider, request?.format || 'markdown'
       );
 
       return {

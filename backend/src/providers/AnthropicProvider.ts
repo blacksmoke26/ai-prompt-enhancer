@@ -171,7 +171,7 @@ export default class AnthropicProvider extends BaseAIProvider {
       });
 
       const enhanced = await this.toPromptResponse(
-        response.data.content?.[0]?.text, request.text, AnthropicProvider
+        response.data.content?.[0]?.text, request.text, AnthropicProvider, request?.format || 'markdown'
       );
 
       return {

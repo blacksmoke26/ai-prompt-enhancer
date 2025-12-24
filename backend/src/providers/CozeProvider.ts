@@ -181,7 +181,7 @@ export default class CozeProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.choices?.[0]?.message?.content, request.text, CozeProvider
+        response.data.choices?.[0]?.message?.content, request.text, CozeProvider, request?.format || 'markdown'
       );
 
       return {

@@ -233,7 +233,7 @@ export default class GeminiProvider extends BaseAIProvider {
     const response = await this.client.post(endpoint, body);
 
     const enhancedPrompt = await this.toPromptResponse(
-      response.data?.candidates?.[0]?.content?.parts?.[0]?.text, request.text, GeminiProvider
+      response.data?.candidates?.[0]?.content?.parts?.[0]?.text, request.text, GeminiProvider, request?.format || 'markdown'
     );
 
     return {

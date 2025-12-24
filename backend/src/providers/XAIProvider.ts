@@ -160,7 +160,7 @@ export default class XAIProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.choices?.[0]?.message?.content, request.text, XAIProvider
+        response.data.choices?.[0]?.message?.content, request.text, XAIProvider, request?.format || 'markdown'
       );
 
       return {

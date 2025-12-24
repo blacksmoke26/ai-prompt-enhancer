@@ -184,7 +184,7 @@ export default class OpenRouterProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.choices[0]?.message?.content, request.text, OpenRouterProvider
+        response.data.choices[0]?.message?.content, request.text, OpenRouterProvider, request?.format || 'markdown'
       );
 
       return {

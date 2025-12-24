@@ -191,7 +191,7 @@ export default class CodyProvider extends BaseAIProvider {
       });
 
       const enhanced = await this.toPromptResponse(
-        response.data.choices?.[0]?.message?.content, request.text, CodyProvider
+        response.data.choices?.[0]?.message?.content, request.text, CodyProvider, request?.format || 'markdown'
       );
 
       return {

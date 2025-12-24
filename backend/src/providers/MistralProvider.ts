@@ -187,7 +187,7 @@ export default class MistralProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.choices?.[0]?.message?.content, request.text, MistralProvider
+        response.data.choices?.[0]?.message?.content, request.text, MistralProvider, request?.format || 'markdown'
       );
 
       return {

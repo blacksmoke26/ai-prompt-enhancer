@@ -173,7 +173,7 @@ export default class QianFanProvider extends BaseAIProvider {
       );
 
       const enhanced = await this.toPromptResponse(
-        response.data.output?.choices?.[0]?.content, request.text, QianFanProvider,
+        response.data.output?.choices?.[0]?.content, request.text, QianFanProvider, request?.format || 'markdown',
       );
 
       return {

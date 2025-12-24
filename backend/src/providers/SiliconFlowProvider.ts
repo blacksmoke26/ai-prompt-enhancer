@@ -163,7 +163,7 @@ export default class SiliconFlowProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.choices?.[0]?.message?.content, request.text, SiliconFlowProvider
+        response.data.choices?.[0]?.message?.content, request.text, SiliconFlowProvider, request?.format || 'markdown'
       );
 
       return {

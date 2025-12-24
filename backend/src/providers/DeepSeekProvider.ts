@@ -181,7 +181,7 @@ export default class DeepSeekProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.choices[0]?.message?.content, request.text, DeepSeekProvider
+        response.data.choices[0]?.message?.content, request.text, DeepSeekProvider, request?.format || 'markdown'
       );
 
       return {

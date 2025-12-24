@@ -177,7 +177,7 @@ export default class HuggingFaceProvider extends BaseAIProvider {
       const response = await this.client.post(`/${request.model}`, payload);
 
       const enhanced = await this.toPromptResponse(
-        response.data?.[0].generated_text, request.text, HuggingFaceProvider
+        response.data?.[0].generated_text, request.text, HuggingFaceProvider, request?.format || 'markdown'
       );
 
       return {

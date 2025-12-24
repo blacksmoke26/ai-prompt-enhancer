@@ -180,7 +180,7 @@ export default class QwenProvider extends BaseAIProvider {
       });
 
       const enhanced = await this.toPromptResponse(
-        response.data.output?.choices?.[0]?.content, request.text, QwenProvider
+        response.data.output?.choices?.[0]?.content, request.text, QwenProvider, request?.format || 'markdown'
       );
 
       return {

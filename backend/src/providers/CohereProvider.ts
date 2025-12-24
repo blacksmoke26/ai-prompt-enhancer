@@ -190,7 +190,7 @@ export default class CohereProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.generations?.[0]?.text, request.text, CohereProvider
+        response.data.generations?.[0]?.text, request.text, CohereProvider, request?.format || 'markdown'
       );
 
       return {

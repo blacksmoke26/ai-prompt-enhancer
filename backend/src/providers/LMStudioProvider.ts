@@ -225,7 +225,7 @@ export default class LMStudioProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.choices?.[0]?.text, request.text, LMStudioProvider
+        response.data.choices?.[0]?.text, request.text, LMStudioProvider, request?.format || 'markdown'
       );
 
       return {

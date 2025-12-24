@@ -168,7 +168,7 @@ export default class NvidiaProvider extends BaseAIProvider {
       });
 
       const enhanced = await this.toPromptResponse(
-        response.data.choices?.[0]?.message?.content, request.text, NvidiaProvider
+        response.data.choices?.[0]?.message?.content, request.text, NvidiaProvider, request?.format || 'markdown'
       );
 
       return {

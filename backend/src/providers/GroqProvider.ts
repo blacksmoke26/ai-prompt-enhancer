@@ -219,7 +219,7 @@ export default class GroqProvider extends BaseAIProvider {
     });
 
     const enhancedPrompt = await this.toPromptResponse(
-      response.data.choices?.[0]?.message?.content, request.text, GroqProvider
+      response.data.choices?.[0]?.message?.content, request.text, GroqProvider, request?.format || 'markdown'
     );
 
     return {

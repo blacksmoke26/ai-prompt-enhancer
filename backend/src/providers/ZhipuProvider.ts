@@ -198,7 +198,7 @@ export default class ZhipuProvider extends BaseAIProvider {
       });
 
       const enhanced = await this.toPromptResponse(
-        response.data.choices?.[0]?.message?.content, request.text, ZhipuProvider
+        response.data.choices?.[0]?.message?.content, request.text, ZhipuProvider, request?.format || 'markdown'
       );
 
       return {

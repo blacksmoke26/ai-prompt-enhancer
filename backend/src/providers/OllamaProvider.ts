@@ -253,7 +253,9 @@ export default class OllamaProvider extends BaseAIProvider {
         },
       });
 
-      const enhancedPrompt = await this.toPromptResponse(response?.data?.response?.trim(), request.text, OllamaProvider);
+      const enhancedPrompt = await this.toPromptResponse(
+        response?.data?.response?.trim(), request.text, OllamaProvider, request?.format || 'markdown'
+      );
 
       return {
         enhancedPrompt,

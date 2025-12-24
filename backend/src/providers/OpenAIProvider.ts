@@ -185,7 +185,7 @@ export default class OpenAIProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.choices[0]?.message?.content, request.text, OpenAIProvider
+        response.data.choices[0]?.message?.content, request.text, OpenAIProvider, request?.format || 'markdown'
       );
 
       return {
