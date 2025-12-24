@@ -10,8 +10,31 @@ import axios, {AxiosInstance} from 'axios';
 import PromptFormatter from '~/classes/PromptFormatter';
 
 // types
+import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
-import type {PromptRequest, PromptResponse, AIModel} from '~/types';
+import type {OutputFormatName} from '~/constants/enums';
+import type {ProviderConfig} from '~/constants/providers';
+import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+
+/**
+ * Defines the default system and role prompts for a provider, used as a base for generating responses.
+ * These defaults ensure consistency in the provider's behavior and expectations when interacting with users.
+ * @example { system: "You are a helpful assistant", role: "Assistant" }
+ * @developerNotes These values should align with the provider's expected behavior and can be customized if needed for specific use cases.
+ */
+export interface ProviderDefaultPrompt {
+  /**
+   * The default system prompt or instruction set for the provider.
+   * This typically includes general guidelines or constraints for response generation.
+   */
+  system: string;
+
+  /**
+   * The default role or persona the provider should adopt when generating responses.
+   * This defines the expected behavior, tone, or context of the provider's output.
+   */
+  role: string;
+}
 
 /**
  * Abstract base class for AI provider implementations.
@@ -32,6 +55,51 @@ export default abstract class BaseAIProvider {
   protected client: AxiosInstance;
   /** Provider name */
   protected name: string;
+  /**
+   * A static constant representing the unique identifier for the provider, typically used in internal systems or API integrations.
+   * @developerNotes Ensure the ID is lowercase and matches the provider's official identifier.
+   */
+  public static readonly ProviderID: string = '';
+
+  /**
+   * A static constant representing the display name or key used for referencing the provider in user-facing contexts.
+   * @developerNotes This value should match the provider's official branding.
+   */
+  public static readonly ProviderKey: string = '';
+
+  /**
+   * A static constant representing the full, official name of the provider, typically used for documentation or identification purposes.
+   * @developerNotes Ensure consistency with the provider's official name and use proper casing.
+   */
+  public static readonly ProviderName: string = '';
+
+  /**
+   * A static constant representing the default prompts used by the provider.
+   * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
+   */
+  public static readonly DefaultPrompts: ProviderDefaultPrompt = {
+    system: '',
+    role: '',
+  };
+
+  /**
+   * Static configuration object defining the provider's settings.
+   * @interface ProviderConfig
+   * @property {string} caption - Display name of the provider, typically derived from `ProviderName`.
+   * @property {string} name - Unique identifier for the provider, derived from `ProviderID`.
+   * @property {string} baseUrl - Base URL for the provider's API endpoint.
+   * @property {string} apiKey - API key used for authentication (typically set externally, not hardcoded).
+   * @property {number} timeout - Request timeout in milliseconds (default is 30,000 ms).
+   * @note The `apiKey` should be configured using a secure method (e.g., environment variables), not directly in the code.
+   * @note The `timeout` value is set to 30 seconds by default and can be adjusted based on application needs.
+   */
+  public static readonly ProviderConfig: ProviderConfig = {
+    caption: '',
+    name: '',
+    baseUrl: '',
+    apiKey: '',
+    timeout: 30000,
+  };
 
   /**
    * Creates an instance of BaseAIProvider with HTTP client configuration.
@@ -87,6 +155,38 @@ export default abstract class BaseAIProvider {
   abstract isAvailable(): Promise<boolean>;
 
   /**
+   * Provider-specific system prompt for enhanced prompts.
+   * @param formattedPrompt - Formatted system prompt string
+   * @param capabilities - Provider capabilities
+   * @returns The provider-specific system prompt
+   *
+   * @example
+   * const systemPrompt = provider.providerSpecificSystemPrompt('openai', 'You are a helpful assistant');
+   * console.log(systemPrompt); // "You are a helpful assistant"
+   *
+   * @developerNotes
+   * Override this method to provide provider-specific system prompts.
+   * This method is called by the base class to generate provider-specific system prompts.
+   * It is used to generate provider-specific system prompts for enhanced prompts.
+   */
+  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+    throw new Error ('Not implemented');
+  }
+
+  /**
+   * Returns a mapping of predefined output format names to their corresponding instruction templates.
+   * These templates guide the response generation process for different output formats (e.g., JSON, Markdown).
+   * @example {
+   *   [OutputFormat.JSON]: "Output Format: JSON\nResponse Format: JSON\nEnsure the response is valid JSON with proper escaping and structure.",
+   *   [OutputFormat.TEXT]: "Output Format: Plain Text\nResponse Format: Text\nProvide clear, concise plain text output."
+   * }
+   * @developerNotes This method should be implemented by subclasses to provide format-specific instructions. Ensure `OutputFormat` is defined to validate keys in the returned object.
+   */
+  public static getFormatTemplates(): Record<OutputFormatName, string> {
+    throw new Error ('Not implemented');
+  }
+
+  /**
    * Calculates processing time in milliseconds from start timestamp.
    * @param startTime - Epoch timestamp when operation began
    * @returns Elapsed time in milliseconds
@@ -125,8 +225,8 @@ export default abstract class BaseAIProvider {
    * @param {PromptRequest} request - The prompt request object containing metadata and the original text.
    * @returns {string} - A formatted string representing the prompt with metadata and the original text.
    */
-  public formatPrompt(request: PromptRequest): string {
-    return PromptFormatter.formatPrompt(request, this.name);
+  public async formatPrompt(request: PromptRequest): Promise<string> {
+    return (await PromptFormatter.formatPrompt(request, this.name)).prompt;
   }
 
   /**
@@ -138,7 +238,7 @@ export default abstract class BaseAIProvider {
    * // Output: "You are a helpful assistant."
    * @note This method is a no-op by default and should be overridden in subclasses to implement custom formatting logic.
    */
-  public formatSystemPrompt(systemPrompt: string): string {
+  public async formatSystemPrompt(systemPrompt: string): Promise<string> {
     return PromptFormatter.formatSystemPrompt(systemPrompt, this.name);
   }
 
@@ -160,7 +260,7 @@ export default abstract class BaseAIProvider {
    * Developer Note: This method ensures consistent handling of empty responses
    * and provides a fallback mechanism for cases where the model's response is missing.
    */
-  public toPromptResponse(enhancedResponse: string, userPrompt: string): string {
+  public async toPromptResponse(enhancedResponse: string, userPrompt: string): Promise<string> {
     return PromptFormatter.toPromptResponse(enhancedResponse, userPrompt, this.name);
   }
 
@@ -182,6 +282,6 @@ export default abstract class BaseAIProvider {
    * - Override this method for custom prompt construction logic.
    */
   public async buildSystemPrompt(request: PromptRequest): Promise<string> {
-    return PromptFormatter.buildSystemPrompt(request, this.name);
+    return (await PromptFormatter.buildSystemPrompt(request, this.name)).enhancementPrompt;
   }
 }
