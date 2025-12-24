@@ -77,7 +77,7 @@ const PromptEnhancer: React.FC = () => {
    * Currently selected AI model from the global application state
    * Used to ensure a model is selected before allowing enhancement
    */
-  const { selectedModel } = useAppStore();
+  const { config } = useAppStore();
 
   /**
    * Handles the prompt enhancement process
@@ -169,7 +169,7 @@ const PromptEnhancer: React.FC = () => {
         onEnhance={handleEnhance}
         onReset={handleReset}
         isLoading={loading}
-        isEnhancementAvailable={!!prompt.trim() && !!selectedModel}
+        isEnhancementAvailable={!!prompt.trim() && !!config.model}
       />
 
       <QuickStats response={response} />
