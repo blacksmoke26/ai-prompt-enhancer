@@ -7,7 +7,7 @@
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
 // constants
-import {OutputFormat, OutputFormatName, Provider} from '~/constants/enums';
+import {OutputFormat, OutputFormatName} from '~/constants/enums';
 
 // types
 import type {AIModel} from '~/types';
@@ -24,7 +24,7 @@ export default class OpenAIProvider extends BaseAIProvider {
    * A static constant representing the unique identifier for the provider, typically used in internal systems or API integrations.
    * @developerNotes Ensure the ID is lowercase and matches the provider's official identifier.
    */
-  public static readonly ProviderID: string = Provider.OpenAi;
+  public static readonly ProviderID: string = 'openai';
 
   /**
    * A static constant representing the display name or key used for referencing the provider in user-facing contexts.
