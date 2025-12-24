@@ -10,16 +10,11 @@ import {EnhancementType, UserRole} from '~/database/models';
 
 // utils
 import cache from '~/utils/cache';
-import {validatePromptRequest, sanitizeInput, formatSpecificValidation} from '~/utils/validation';
+import {formatSpecificValidation, sanitizeInput, validatePromptRequest} from '~/utils/validation';
 
 // constants
-import {
-  FORMAT_TEMPLATES,
-  DEFAULT_FORMATTER_CONFIG,
-  DEFAULT_PROMPTS,
-  providerSpecificSystemPrompt, FALLBACK_FORMATS, PROMPT_SEPARATOR,
-} from '~/constants/prompt';
 import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+import {DEFAULT_FORMATTER_CONFIG, FALLBACK_FORMATS, PROMPT_SEPARATOR} from '~/constants/prompt';
 
 // types
 import type {
@@ -29,9 +24,7 @@ import type {
   ProviderCapabilities,
   SystemPromptComponents,
 } from '~/types/prompt';
-
-
-import {ProviderName} from '~/types/providers';
+import type {IProvider} from '~/types/interfaces/IProvider';
 
 /**
  * A robust, extensible base class for formatting prompts with AI models.
@@ -80,7 +73,7 @@ export default abstract class PromptFormatter {
    * Uses provider-specific templates when available, falls back to generic format.
    *
    * @param format - The desired output format (defaults to 'markdown')
-   * @param providerName - The AI provider name for provider-specific formatting
+   * @param providerClass - The class reference for static methods
    * @returns Formatted string indicating the output format with provider context
    *
    * @example
@@ -95,7 +88,7 @@ export default abstract class PromptFormatter {
    */
   protected static getOutputFormat(
     format: OutputFormatName = OutputFormat.MARKDOWN,
-    providerName: ProviderName,
+    providerClass: IProvider,
   ): string {
     // Validate and normalize format
     const normalizedFormat = Object.values(OutputFormat).includes(format)
@@ -103,7 +96,8 @@ export default abstract class PromptFormatter {
       : OutputFormat.TEXT;
 
     // Get provider-specific template if available
-    const providerTemplates = FORMAT_TEMPLATES[providerName];
+    const providerTemplates = providerClass.getFormatTemplates();
+
     if (providerTemplates?.[normalizedFormat]) {
       return `${providerTemplates[normalizedFormat]}`.concat(PROMPT_SEPARATOR);
     }
@@ -149,7 +143,7 @@ export default abstract class PromptFormatter {
    * Includes validation, sanitization, and provider-specific formatting.
    *
    * @param request - The prompt request object with metadata and text
-   * @param providerName - The AI provider name for provider-specific formatting
+   * @param providerClass - The class reference for static methods
    * @param config - Optional configuration overrides
    * @returns Formatted prompt string ready for AI processing
    *
@@ -183,7 +177,7 @@ export default abstract class PromptFormatter {
    */
   public static async formatPrompt(
     request: PromptRequest,
-    providerName: ProviderName | string,
+    providerClass: IProvider,
     config: Partial<PromptFormatterConfig> = {},
   ): Promise<FormattedPromptResult> {
     // Merge configs
@@ -203,7 +197,7 @@ export default abstract class PromptFormatter {
 
     // Add output format section
     if (effectiveConfig.includeMetadata) {
-      parts.push(this.getOutputFormat(request.format, providerName as ProviderName));
+      parts.push(this.getOutputFormat(request.format, providerClass));
     }
 
     // Add metadata fields conditionally
@@ -266,7 +260,7 @@ export default abstract class PromptFormatter {
     return {
       prompt: formattedPrompt,
       metadata: {
-        provider: providerName,
+        provider: providerClass.ProviderKey,
         format: request?.format ?? 'markdown',
         originalText: sanitizedText,
         timestamp: new Date().toISOString(),
@@ -279,7 +273,7 @@ export default abstract class PromptFormatter {
    * Applies sanitization and structure improvements.
    *
    * @param systemPrompt - The raw system prompt to format
-   * @param providerName - The AI provider name
+   * @param providerClass - The static class of the provider
    * @param capabilities - Optional provider capabilities for optimization
    * @returns Formatted system prompt optimized for the provider
    *
@@ -301,10 +295,10 @@ export default abstract class PromptFormatter {
    */
   public static async formatSystemPrompt(
     systemPrompt: string,
-    providerName: ProviderName | string,
+    providerClass: IProvider,
     capabilities?: ProviderCapabilities,
   ): Promise<string> {
-    return providerSpecificSystemPrompt(providerName, sanitizeInput(systemPrompt), capabilities);
+    return providerClass.getProviderSpecificSystemPrompt(systemPrompt, capabilities);
   }
 
   /**
@@ -313,7 +307,7 @@ export default abstract class PromptFormatter {
    *
    * @param enhancedResponse - The raw response from the AI model
    * @param userPrompt - The original user prompt as fallback
-   * @param providerName - The AI provider name
+   * @param providerClass - The static class of the provider
    * @param format - Expected output format for validation
    * @returns Cleaned and validated response content
    *
@@ -335,7 +329,7 @@ export default abstract class PromptFormatter {
   public static async toPromptResponse(
     enhancedResponse: string,
     userPrompt: string,
-    providerName: ProviderName | string,
+    providerClass: IProvider,
     format?: OutputFormatName,
   ): Promise<string> {
     try {
@@ -366,7 +360,7 @@ export default abstract class PromptFormatter {
    * Uses caching for performance and includes error handling with fallbacks.
    *
    * @param request - The prompt request containing configuration
-   * @param providerName - The AI provider name
+   * @param providerClass - The static class for the provider
    * @returns Promise resolving to the constructed system prompt
    *
    * @example
@@ -389,7 +383,7 @@ export default abstract class PromptFormatter {
    */
   public static async buildSystemPrompt(
     request: PromptRequest,
-    providerName: ProviderName | string,
+    providerClass: IProvider,
   ): Promise<SystemPromptComponents> {
     const cacheKey = `system_prompt_${request.enhancementType}_${request.userRole}`;
 
@@ -415,7 +409,7 @@ export default abstract class PromptFormatter {
         }).catch(() => null),
       ]);
 
-      const providerDefaults = DEFAULT_PROMPTS[providerName as ProviderName] || DEFAULT_PROMPTS['openai'];
+      const providerDefaults = providerClass.DefaultPrompts;
       const systemPrompt = typeRecord?.systemPrompt || providerDefaults.system;
       const rolePrompt = userRecord?.systemPrompt || providerDefaults.role;
 
