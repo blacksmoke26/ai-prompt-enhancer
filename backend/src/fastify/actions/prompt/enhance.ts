@@ -23,7 +23,7 @@ import {toProviderName} from '~/utils/provider';
 // types
 import type {FastifyInstance} from 'fastify';
 import type {SuccessResponse} from '~/types/response';
-import type {PromptRequest, PromptResponse} from '~/types';
+import type {PromptRequest, PromptResponse} from '~/types/prompt';
 
 /**
  * Enhances a prompt using the specified AI provider
@@ -91,7 +91,7 @@ export default (fastify: FastifyInstance) => {
   fastify.post<{
     Body: PromptRequest;
     Reply: SuccessResponse<PromptResponse>
-  }>('/enhance', {schema}, async function (this, request, reply) {
+  }>('/enhance', {schema}, async function (this, request) {
     const response = await enhance(this.providerService, request.body);
     return ResponseHelper.successWithData(response);
   });
