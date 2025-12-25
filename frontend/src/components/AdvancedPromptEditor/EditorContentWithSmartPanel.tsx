@@ -250,6 +250,7 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
           wordFrequency={wordFrequency}
           showWordCloud={showWordCloud}
           setShowWordCloud={setShowWordCloud}
+          text={value}
         />
       )}
 
