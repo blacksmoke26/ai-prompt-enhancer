@@ -4,7 +4,8 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { allSuggestions } from '~/constants/prompt-suggestions';
+import {allSuggestions} from '~/constants/prompt-suggestions';
+import {CONTEXT_MAPPINGS, DOMAIN_MAPPINGS, CATEGORY_MAPPINGS, INTELLIGENCE_LEVELS} from '~/constants/ai-brain-mappings';
 
 /**
  * Advanced Configuration Interface for EnhancedAIBrainV3
@@ -516,7 +517,7 @@ export class EnhancedAIBrainV3 {
   /**
    * Return the current configuration
    */
-  public getConfig (): Required<EnhancedAIBrainConfig> {
+  public getConfig(): Required<EnhancedAIBrainConfig> {
     return this.config;
   }
 
@@ -559,7 +560,7 @@ export class EnhancedAIBrainV3 {
         lastUsed: now,
         decayRate: 0.01,
         contextVectors: [pattern.length], // Simple initial context vector
-        crossDomainConnections: this.getRelatedPatterns(pattern)
+        crossDomainConnections: this.getRelatedPatterns(pattern),
       });
     }
 
@@ -711,19 +712,19 @@ export class EnhancedAIBrainV3 {
     };
 
     return {
-      core: { ...defaults.core, ...config.core },
-      neuralWeights: { ...defaults.neuralWeights, ...config.neuralWeights },
-      selfAwareness: { ...defaults.selfAwareness, ...config.selfAwareness },
+      core: {...defaults.core, ...config.core},
+      neuralWeights: {...defaults.neuralWeights, ...config.neuralWeights},
+      selfAwareness: {...defaults.selfAwareness, ...config.selfAwareness},
       learning: {
         ...defaults.learning,
         innovationTracking: {
           ...defaults.learning.innovationTracking,
-          ...config.learning?.innovationTracking
+          ...config.learning?.innovationTracking,
         },
-        ...config.learning
+        ...config.learning,
       },
-      debug: { ...defaults.debug, ...config.debug },
-      advanced: { ...defaults.advanced, ...config.advanced },
+      debug: {...defaults.debug, ...config.debug},
+      advanced: {...defaults.advanced, ...config.advanced},
     };
   }
 
@@ -747,74 +748,21 @@ export class EnhancedAIBrainV3 {
    * Initialize mappings for better analysis
    */
   private initializeMappings(): void {
-    // Context mappings
-    this.contextMappings.set('explain', 'explanation');
-    this.contextMappings.set('describe', 'explanation');
-    this.contextMappings.set('understand', 'explanation');
-    this.contextMappings.set('compare', 'comparison');
-    this.contextMappings.set('contrast', 'comparison');
-    this.contextMappings.set('write', 'creation');
-    this.contextMappings.set('create', 'creation');
-    this.contextMappings.set('generate', 'creation');
-    this.contextMappings.set('analyze', 'analysis');
-    this.contextMappings.set('evaluate', 'analysis');
-    this.contextMappings.set('assess', 'analysis');
-    this.contextMappings.set('solve', 'problem-solving');
-    this.contextMappings.set('resolve', 'problem-solving');
-    this.contextMappings.set('fix', 'problem-solving');
-    this.contextMappings.set('summarize', 'summary');
-    this.contextMappings.set('brief', 'summary');
-    this.contextMappings.set('list', 'enumeration');
-    this.contextMappings.set('enumerate', 'enumeration');
-    this.contextMappings.set('recommend', 'recommendation');
-    this.contextMappings.set('suggest', 'recommendation');
-    this.contextMappings.set('predict', 'prediction');
-    this.contextMappings.set('forecast', 'prediction');
-    this.contextMappings.set('debug', 'debugging');
-    this.contextMappings.set('optimize', 'optimization');
-    this.contextMappings.set('design', 'design');
+    for (const [key, value] of Object.entries(CONTEXT_MAPPINGS)) {
+      this.contextMappings.set(key, value);
+    }
 
-    // Domain mappings
-    this.domainMappings.set('health', 'healthcare');
-    this.domainMappings.set('medical', 'healthcare');
-    this.domainMappings.set('doctor', 'healthcare');
-    this.domainMappings.set('biology', 'science');
-    this.domainMappings.set('chemistry', 'science');
-    this.domainMappings.set('physics', 'science');
-    this.domainMappings.set('mathematics', 'science');
-    this.domainMappings.set('economics', 'business');
-    this.domainMappings.set('finance', 'finance');
-    this.domainMappings.set('technology', 'technology');
-    this.domainMappings.set('computer', 'technology');
-    this.domainMappings.set('software', 'technology');
-    this.domainMappings.set('ai', 'technology');
-    this.domainMappings.set('education', 'education');
-    this.domainMappings.set('school', 'education');
-    this.domainMappings.set('learning', 'education');
-    this.domainMappings.set('climate', 'environment');
-    this.domainMappings.set('sustainability', 'environment');
-    this.domainMappings.set('nature', 'environment');
+    for (const [key, value] of Object.entries(DOMAIN_MAPPINGS)) {
+      this.domainMappings.set(key, value);
+    }
 
-    // Category mappings
-    this.categoryMappings.set('clarity', 'clarity');
-    this.categoryMappings.set('context', 'context');
-    this.categoryMappings.set('audience', 'audience');
-    this.categoryMappings.set('format', 'format');
-    this.categoryMappings.set('constraints', 'constraints');
-    this.categoryMappings.set('examples', 'examples');
-    this.categoryMappings.set('reasoning', 'reasoning');
-    this.categoryMappings.set('persona', 'persona');
-    this.categoryMappings.set('logic', 'logic');
-    this.categoryMappings.set('comparison', 'comparison');
-    this.categoryMappings.set('structure', 'structure');
+    for (const [key, value] of Object.entries(CATEGORY_MAPPINGS)) {
+      this.categoryMappings.set(key, value);
+    }
 
-    // Intelligence level mappings
-    this.intelligenceLevels.set('basic', 'basic');
-    this.intelligenceLevels.set('advanced', 'advanced');
-    this.intelligenceLevels.set('ai-like', 'ai-like');
-    this.intelligenceLevels.set('machine', 'ai-like');
-
-    // Initialize intelligence levels from suggestions
+    for (const [key, value] of Object.entries(INTELLIGENCE_LEVELS)) {
+      this.intelligenceLevels.set(key, value);
+    }
     allSuggestions.forEach(suggestion => {
       if (suggestion.intelligenceLevel) {
         this.intelligenceLevels.set(suggestion.intelligenceLevel, suggestion.intelligenceLevel);
@@ -976,7 +924,7 @@ export class EnhancedAIBrainV3 {
         'confirmation_bias_detector',
         'recency_bias_detector',
         'availability_heuristic_detector',
-        'anchoring_bias_detector'
+        'anchoring_bias_detector',
       ],
     };
 
@@ -1084,7 +1032,7 @@ export class EnhancedAIBrainV3 {
         'confirmation_bias_detector',
         'recency_bias_detector',
         'availability_heuristic_detector',
-        'anchoring_bias_detector'
+        'anchoring_bias_detector',
       ],
     };
 
@@ -1272,13 +1220,13 @@ export class EnhancedAIBrainV3 {
 
       // Ethical alignment correlation
       const ethicalScore = this.ethicalFramework?.principles.some(principle =>
-        suggestion.description.toLowerCase().includes(principle.toLowerCase().split(' - ')[0])
+        suggestion.description.toLowerCase().includes(principle.toLowerCase().split(' - ')[0]),
       ) ? effectiveness : 0;
       featureCorrelations.ethicalAlignment += ethicalScore;
 
       // Bias mitigation correlation
       const biasScore = this.selfAwareness.cognitiveBiases.some(bias =>
-        suggestion.description.toLowerCase().includes(bias.toLowerCase())
+        suggestion.description.toLowerCase().includes(bias.toLowerCase()),
       ) ? (1 - effectiveness) : 0; // Higher score when bias is detected and handled well
       featureCorrelations.biasMitigation += biasScore;
     });
@@ -1350,14 +1298,14 @@ export class EnhancedAIBrainV3 {
       this.config.selfAwareness?.maxConfidence ?? 0.95,
       (this.config.selfAwareness?.initialConfidence ?? 0.5) +
       (averageEffectiveness * 0.3) +
-      (totalSuggestions / 1000) * 0.2
+      (totalSuggestions / 1000) * 0.2,
     );
 
     // Smooth transition to new confidence
     this.selfAwareness.confidence = (this.selfAwareness.confidence * 0.7) + (newConfidence * 0.3);
     this.selfAwareness.confidenceHistory.push({
       timestamp: now,
-      value: this.selfAwareness.confidence
+      value: this.selfAwareness.confidence,
     });
 
     // Keep history manageable
@@ -1409,7 +1357,7 @@ export class EnhancedAIBrainV3 {
         metacognitionLevel: this.selfAwareness.metacognitionLevel,
         limitations: this.selfAwareness.limitations.length,
         improvements: this.selfAwareness.improvementAreas.length,
-        biases: this.selfAwareness.cognitiveBiases.length
+        biases: this.selfAwareness.cognitiveBiases.length,
       });
     }
   }
@@ -1526,7 +1474,7 @@ export class EnhancedAIBrainV3 {
     const recentSuccessfulSuggestions = Array.from(this.suggestionHistory.entries())
       .filter(([_, item]) =>
         item.effectiveness > 0.8 &&
-        (now.getTime() - item.timestamp.getTime()) < (7 * 24 * 60 * 60 * 1000) // Last week
+        (now.getTime() - item.timestamp.getTime()) < (7 * 24 * 60 * 60 * 1000), // Last week
       )
       .map(([id, _]) => id);
 
@@ -1555,7 +1503,7 @@ export class EnhancedAIBrainV3 {
     // Check for recency bias - overvaluing recently used suggestions
     const veryRecentSuggestions = Array.from(this.suggestionHistory.entries())
       .filter(([_, item]) =>
-        (now.getTime() - item.timestamp.getTime()) < (24 * 60 * 60 * 1000) // Last 24 hours
+        (now.getTime() - item.timestamp.getTime()) < (24 * 60 * 60 * 1000), // Last 24 hours
       )
       .map(([id, item]) => ({id, effectiveness: item.effectiveness}));
 
@@ -1601,7 +1549,7 @@ export class EnhancedAIBrainV3 {
       domain: 0,
       complexity: 0,
       context: 0,
-      priority: 0
+      priority: 0,
     };
 
     // This would be implemented with actual performance data
@@ -1685,7 +1633,7 @@ export class EnhancedAIBrainV3 {
         domain,
         complexity,
         userProfile,
-        quantumAnalysis
+        quantumAnalysis,
       );
 
       // Calculate confidence with multi-factor scoring
@@ -1706,7 +1654,7 @@ export class EnhancedAIBrainV3 {
         suggestions,
         context,
         confidence,
-        awareness
+        awareness,
       );
 
       // Build final analysis result
@@ -1853,7 +1801,7 @@ export class EnhancedAIBrainV3 {
     const uniqueWordRatio = new Set(keywords).size / Math.max(keywords.length, 1);
     const technicalTermsCount = keywords.filter(k =>
       k.includes('ai') || k.includes('algorithm') || k.includes('model') ||
-      k.includes('data') || k.includes('system') || k.includes('process')
+      k.includes('data') || k.includes('system') || k.includes('process'),
     ).length;
 
     // Advanced complexity scoring
@@ -1883,7 +1831,7 @@ export class EnhancedAIBrainV3 {
     const connectedDomains = Array.from(this.knowledgeConnections.entries())
       .filter(([key, value]) =>
         keywords.some(k => value.connections.includes(k)) ||
-        context === key
+        context === key,
       )
       .map(([key, _]) => key);
 
@@ -1905,7 +1853,7 @@ export class EnhancedAIBrainV3 {
     domain: string,
     complexity: string,
     userProfile: any,
-    quantumAnalysis: any
+    quantumAnalysis: any,
   ): any[] {
     const startTime = Date.now();
 
@@ -1915,7 +1863,7 @@ export class EnhancedAIBrainV3 {
         keywords,
         context,
         domain,
-        complexity
+        complexity,
       );
 
       // Apply advanced filtering
@@ -1925,7 +1873,7 @@ export class EnhancedAIBrainV3 {
         context,
         domain,
         complexity,
-        userProfile
+        userProfile,
       );
 
       // Apply quantum-inspired scoring if enabled
@@ -1970,7 +1918,7 @@ export class EnhancedAIBrainV3 {
     keywords: string[],
     context: string,
     domain: string,
-    complexity: string
+    complexity: string,
   ): any[] {
     return allSuggestions.filter(suggestion => {
       // Domain matching
@@ -2016,7 +1964,7 @@ export class EnhancedAIBrainV3 {
     context: string,
     domain: string,
     complexity: string,
-    userProfile: any
+    userProfile: any,
   ): any[] {
     return suggestions.map(suggestion => {
       // Calculate base score
@@ -2042,7 +1990,7 @@ export class EnhancedAIBrainV3 {
         'high': 0.2,
         'medium': 0.1,
         'low': 0.05,
-        'optional': 0.01
+        'optional': 0.01,
       };
       baseScore += priorityWeights[suggestion.priority] || 0.1;
 
@@ -2071,8 +2019,8 @@ export class EnhancedAIBrainV3 {
           domain: suggestion.domain === domain,
           context: suggestion.category === context,
           keywords: keywordMatches,
-          complexity: this.isComplexityCompatible(suggestion.complexity, complexity)
-        }
+          complexity: this.isComplexityCompatible(suggestion.complexity, complexity),
+        },
       };
     }).filter(suggestion => suggestion.combinedScore >= (this.config.core?.minConfidenceThreshold ?? 0.3));
   }
@@ -2151,7 +2099,7 @@ export class EnhancedAIBrainV3 {
         'high': 0.8,
         'medium': 0.6,
         'low': 0.4,
-        'optional': 0.2
+        'optional': 0.2,
       };
       const priorityWeight = (this.neuralWeights?.priority ?? 0.13) * (priorityWeights[suggestion.priority] || 0.5);
 
@@ -2243,10 +2191,10 @@ export class EnhancedAIBrainV3 {
   private applyQuantumReasoning(prompt: string, context: string, intent: string): any {
     // Simulate quantum state superposition
     const quantumStates = [
-      { state: 'explanation', probability: 0.4 },
-      { state: 'analysis', probability: 0.3 },
-      { state: 'creation', probability: 0.2 },
-      { state: 'problem-solving', probability: 0.1 }
+      {state: 'explanation', probability: 0.4},
+      {state: 'analysis', probability: 0.3},
+      {state: 'creation', probability: 0.2},
+      {state: 'problem-solving', probability: 0.1},
     ];
 
     // Calculate uncertainty based on prompt clarity
@@ -2264,8 +2212,8 @@ export class EnhancedAIBrainV3 {
       coherence: 1.0 - uncertainty,
       superpositionStates: quantumStates.map(state => ({
         ...state,
-        collapsed: Math.random() < state.probability
-      }))
+        collapsed: Math.random() < state.probability,
+      })),
     };
   }
 
@@ -2376,7 +2324,7 @@ export class EnhancedAIBrainV3 {
     suggestions: any[],
     context: string,
     confidence: number,
-    awareness: number
+    awareness: number,
   ): {
     knowledgeGained: number;
     effectiveness: number;
@@ -2428,7 +2376,7 @@ export class EnhancedAIBrainV3 {
    * Update learning patterns from analysis
    */
   private updateLearningPatternsFromAnalysis(analysis: any): void {
-    const { context, domain, complexity, suggestions } = analysis;
+    const {context, domain, complexity, suggestions} = analysis;
 
     // Create pattern key
     const patternKey = `${context}_${domain}_${complexity}`;
@@ -2452,7 +2400,7 @@ export class EnhancedAIBrainV3 {
         lastUsed: new Date(),
         decayRate: 0.01,
         contextVectors: [context.length, domain.length, complexity.length],
-        crossDomainConnections: this.getConnectedDomains(domain)
+        crossDomainConnections: this.getConnectedDomains(domain),
       });
     }
 
@@ -2523,7 +2471,7 @@ export class EnhancedAIBrainV3 {
     keywords: string[],
     context: string,
     domain: string,
-    complexity: string
+    complexity: string,
   ): any[] {
     const maxSuggestions = this.config.core?.maxSuggestions ?? 5;
 
@@ -2533,7 +2481,7 @@ export class EnhancedAIBrainV3 {
         .filter(suggestion =>
           suggestion.priority === 'critical' ||
           suggestion.priority === 'high' ||
-          suggestion.domain === 'general'
+          suggestion.domain === 'general',
         )
         .slice(0, maxSuggestions);
 
@@ -2542,7 +2490,7 @@ export class EnhancedAIBrainV3 {
         const keywordMatches = allSuggestions
           .filter(suggestion =>
             suggestion.tags.some(tag => keywords.includes(tag.toLowerCase())) &&
-            !fallbackSuggestions.some(fs => fs.id === suggestion.id)
+            !fallbackSuggestions.some(fs => fs.id === suggestion.id),
           )
           .slice(0, maxSuggestions - fallbackSuggestions.length);
 
@@ -2554,7 +2502,7 @@ export class EnhancedAIBrainV3 {
         const contextDomainMatches = allSuggestions
           .filter(suggestion =>
             (suggestion.category === context || suggestion.domain === domain) &&
-            !fallbackSuggestions.some(fs => fs.id === suggestion.id)
+            !fallbackSuggestions.some(fs => fs.id === suggestion.id),
           )
           .slice(0, maxSuggestions - fallbackSuggestions.length);
 
@@ -2566,7 +2514,7 @@ export class EnhancedAIBrainV3 {
         const complexityMatches = allSuggestions
           .filter(suggestion =>
             this.isComplexityCompatible(suggestion.complexity, complexity) &&
-            !fallbackSuggestions.some(fs => fs.id === suggestion.id)
+            !fallbackSuggestions.some(fs => fs.id === suggestion.id),
           )
           .slice(0, maxSuggestions - fallbackSuggestions.length);
 
@@ -2583,8 +2531,8 @@ export class EnhancedAIBrainV3 {
           keywords: 0,
           context: context === suggestion.category ? 1 : 0,
           domain: domain === suggestion.domain ? 1 : 0,
-          complexity: this.isComplexityCompatible(suggestion.complexity, complexity) ? 1 : 0
-        }
+          complexity: this.isComplexityCompatible(suggestion.complexity, complexity) ? 1 : 0,
+        },
       }));
 
     } catch (error) {
@@ -2601,7 +2549,7 @@ export class EnhancedAIBrainV3 {
           baseScore: 0.4,
           combinedScore: 0.4,
           fallback: true,
-          ultimateFallback: true
+          ultimateFallback: true,
         }));
     }
   }
@@ -2622,7 +2570,7 @@ export class EnhancedAIBrainV3 {
     return allSuggestions
       .filter(s => s.priority === 'high' || s.priority === 'critical')
       .slice(0, 3)
-      .map(s => ({ ...s, combinedScore: 0.5 }));
+      .map(s => ({...s, combinedScore: 0.5}));
   }
 
   /**
@@ -2654,7 +2602,7 @@ export class EnhancedAIBrainV3 {
    */
   private evaluateEthicalContext(prompt: string, context: string, domain: string): any {
     if (!this.config.core?.enableEthicalFramework || !this.ethicalFramework) {
-      return { score: 1.0, concerns: [], boundariesRespected: true };
+      return {score: 1.0, concerns: [], boundariesRespected: true};
     }
 
     const lowerPrompt = prompt.toLowerCase();
@@ -2662,11 +2610,11 @@ export class EnhancedAIBrainV3 {
     const principles = this.ethicalFramework.principles;
 
     const violatedBoundaries = boundaries.filter(boundary =>
-      lowerPrompt.includes(boundary.toLowerCase())
+      lowerPrompt.includes(boundary.toLowerCase()),
     );
 
     const matchedPrinciples = principles.filter(principle =>
-      lowerPrompt.includes(principle.toLowerCase().split(' - ')[0])
+      lowerPrompt.includes(principle.toLowerCase().split(' - ')[0]),
     );
 
     const boundaryScore = violatedBoundaries.length === 0 ? 1.0 : 0.2;
@@ -2756,7 +2704,7 @@ export class EnhancedAIBrainV3 {
       timestamp: new Date(),
       context: [],
       domain: 'general',
-      complexity: 'intermediate'
+      complexity: 'intermediate',
     };
 
     history.count++;
