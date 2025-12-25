@@ -6,10 +6,13 @@
  */
 
 // Import the EnhancedAIBrainV2 class
-import EnhancedAIBrainV2 from './ai-brain-enhanced';
+import {EnhancedAIBrainV3} from './ai-brain-enhanced';
 
 /**
  * Analysis result from the AI brain
+ * @example
+ * const analysis = await brain.analyze('Create a website');
+ * console.log(analysis);
  */
 export interface BrainAnalysis {
   /** Detected keywords in the prompt */
@@ -60,14 +63,23 @@ export interface BrainAnalysis {
 
 /**
  * AI Brain for analyzing prompts and generating intelligent suggestions
+ * @example
+ * const brain = AIBrain.getInstance();
+ * const analysis = await brain.analyze('Create a website');
+ * console.log(analysis);
+ *
+ * @example with params
+ * const brain = AIBrain.getInstance();
+ * const analysis = await brain.analyze('Create a website', { maxSuggestions: 5 });
+ * console.log(analysis);
  */
 export class AIBrain {
   private static instance: AIBrain;
-  private enhancedBrain: EnhancedAIBrainV2;
+  private enhancedBrain: EnhancedAIBrainV3;
 
   private constructor() {
     // Initialize the EnhancedAIBrainV2 singleton
-    this.enhancedBrain = EnhancedAIBrainV2.getInstance();
+    this.enhancedBrain = EnhancedAIBrainV3.getInstance();
   }
 
   /**
@@ -86,6 +98,7 @@ export class AIBrain {
    * @returns Analysis result
    */
   public analyzePrompt(prompt: string): BrainAnalysis {
+    // noinspection SuspiciousTypeOfGuard
     if (!prompt || typeof prompt !== 'string') {
       return {
         keywords: [],
