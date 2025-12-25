@@ -194,87 +194,229 @@ export const URDU_STOP_WORDS = new Set([
  *   console.log('Term "neural_network" is identified as a technical term.');
  * }
  */
-export const TECHNICAL_TERMS = new Set([
-  // Core CS & Programming
-  'algorithm', 'function', 'variable', 'parameter', 'method', 'class', 'object', 'array', 'string', 'integer',
-  'boolean', 'component', 'element', 'interface', 'property', 'state', 'effect', 'hook', 'closure', 'recursion',
-  'polymorphism', 'inheritance', 'encapsulation', 'abstraction', 'lambda', 'callback', 'promise', 'async', 'await',
-  'generator', 'iterator', 'decorator', 'mixin', 'monad', 'currying', 'hoisting', 'bubbling', 'transpilation',
-  'polyfill', 'shim', 'idempotent', 'side-effect', 'pure', 'immutable', 'referential', 'transitive', 'covariant',
-  'contravariant', 'phantom', 'opaque', 'nominal', 'structural', 'duck', 'strong', 'weak', 'static', 'dynamic',
-  'generics', 'templates', 'reflection', 'metaprogramming', 'introspection', 'serialization', 'deserialization',
-  'parsing', 'compiling', 'interpreting', 'jit', 'bytecode', 'concurrency', 'parallelism', 'thread', 'process',
-  'fiber', 'coroutine', 'reactive', 'functional', 'imperative', 'declarative', 'objectoriented', 'eventdriven',
+ export const TECHNICAL_TERMS = new Set([
+   // Core CS & Programming
+   'algorithm', 'function', 'variable', 'parameter', 'method', 'class', 'object', 'array', 'string', 'integer',
+   'boolean', 'component', 'element', 'interface', 'property', 'state', 'effect', 'hook', 'closure', 'recursion',
+   'polymorphism', 'inheritance', 'encapsulation', 'abstraction', 'lambda', 'callback', 'promise', 'async', 'await',
+   'generator', 'iterator', 'decorator', 'mixin', 'monad', 'currying', 'hoisting', 'bubbling', 'transpilation',
+   'polyfill', 'shim', 'idempotent', 'side-effect', 'pure', 'immutable', 'referential', 'transitive', 'covariant',
+   'contravariant', 'phantom', 'opaque', 'nominal', 'structural', 'duck', 'strong', 'weak', 'static', 'dynamic',
+   'generics', 'templates', 'reflection', 'metaprogramming', 'introspection', 'serialization', 'deserialization',
+   'parsing', 'compiling', 'interpreting', 'jit', 'bytecode', 'concurrency', 'parallelism', 'thread', 'process',
+   'fiber', 'coroutine', 'reactive', 'functional', 'imperative', 'declarative', 'objectoriented', 'eventdriven',
+   'stack', 'heap', 'pointer', 'reference', 'memory-leak', 'garbage-collection', 'race-condition', 'deadlock',
+   'semaphore', 'mutex', 'lock', 'barrier', 'latch', 'atomic', 'volatile', 'synchronized', 'blocking', 'non-blocking',
 
-  // Web & Frontend
-  'dom', 'bom', 'jsx', 'tsx', 'virtual', 'render', 'hydration', 'ssr', 'csr', 'isr', 'suspense', 'concurrent',
-  'fiber', 'router', 'middleware', 'websocket', 'http', 'https', 'cors', 'csrf', 'cookie', 'localStorage',
-  'sessionStorage', 'indexedDB', 'cdn', 'bundle', 'chunk', 'code-splitting', 'transpile', 'minify', 'sourcemap',
-  'webpack', 'vite', 'rollup', 'esbuild', 'parcel', 'babel', 'swc', 'eslint', 'prettier', 'typescript', 'flow',
-  'webassembly', 'webgl', 'serviceworker', 'pwa', 'manifest', 'cache', 'offline', 'intersection', 'mutation',
-  'resize', 'animation', 'webcomponents', 'shadowdom', 'customElement', 'tailwind', 'bootstrap', 'material',
-  'accessibility', 'a11y', 'semantic', 'html', 'aria', 'responsive', 'adaptive', 'progressive', 'enhancement',
+   // Web & Frontend
+   'dom', 'bom', 'jsx', 'tsx', 'virtual', 'render', 'hydration', 'ssr', 'csr', 'isr', 'suspense', 'concurrent',
+   'fiber', 'router', 'middleware', 'websocket', 'http', 'https', 'cors', 'csrf', 'cookie', 'localStorage',
+   'sessionStorage', 'indexedDB', 'cdn', 'bundle', 'chunk', 'code-splitting', 'transpile', 'minify', 'sourcemap',
+   'webpack', 'vite', 'rollup', 'esbuild', 'parcel', 'babel', 'swc', 'eslint', 'prettier', 'typescript', 'flow',
+   'webassembly', 'webgl', 'serviceworker', 'pwa', 'manifest', 'cache', 'offline', 'intersection', 'mutation',
+   'resize', 'animation', 'webcomponents', 'shadowdom', 'customElement', 'tailwind', 'bootstrap', 'material',
+   'accessibility', 'a11y', 'semantic', 'html', 'aria', 'responsive', 'adaptive', 'progressive', 'enhancement',
+   'viewport', 'meta-tag', 'canonical', 'sitemap', 'robotstxt', 'lighthouse', 'performance', 'fps', 'jank',
+   'reflow', 'repaint', 'critical-rendering-path', 'lazy-loading', 'tree-shaking', 'scope-hoisting', 'minification',
+   'obfuscation', 'uglification', 'polyfills', 'transpiler', 'bundler', 'task-runner', 'hot-module-replacement',
+   'hmr', 'fast-refresh', 'error-boundary', 'fragment', 'portal', 'context', 'reducer', 'dispatch', 'store',
+   'state-management', 'redux', 'mobx', 'zustand', 'recoil', 'jotai', 'effector', 'signal', 'computed',
+   'memoization', 'usememo', 'usecallback', 'useeffect', 'uselayouteffect', 'useimperativehandle', 'useref',
+   'useforwardref', 'custom-hook', 'higher-order-component', 'hoc', 'render-props', 'compound-component',
+   'controlled-input', 'uncontrolled-input', 'form-validation', 'schema-validation', 'zod', 'yup', 'joi',
 
-  // Backend & APIs
-  'query', 'database', 'api', 'endpoint', 'server', 'client', 'request', 'response', 'error', 'exception',
-  'rest', 'graphql', 'grpc', 'soap', 'oauth', 'openid', 'jwt', 'token', 'session', 'rate-limiting', 'throttling',
-  'pagination', 'caching', 'redis', 'memcached', 'load-balancer', 'reverse-proxy', 'nginx', 'apache', 'ingress',
-  'gateway', 'mesh', 'circuit-breaker', 'retry', 'backoff', 'idempotency', 'saga', 'event-sourcing', 'cqrs',
-  'ddd', 'microservice', 'monolith', 'serverless', 'lambda', 'kafka', 'rabbitmq', 'pubsub', 'queue', 'topic',
+   // Backend & APIs
+   'query', 'database', 'api', 'endpoint', 'server', 'client', 'request', 'response', 'error', 'exception',
+   'rest', 'graphql', 'grpc', 'soap', 'oauth', 'openid', 'jwt', 'token', 'session', 'rate-limiting', 'throttling',
+   'pagination', 'caching', 'redis', 'memcached', 'load-balancer', 'reverse-proxy', 'nginx', 'apache', 'ingress',
+   'gateway', 'mesh', 'circuit-breaker', 'retry', 'backoff', 'idempotency', 'saga', 'event-sourcing', 'cqrs',
+   'ddd', 'microservice', 'monolith', 'serverless', 'lambda', 'kafka', 'rabbitmq', 'pubsub', 'queue', 'topic',
+   'middleware', 'interceptor', 'filter', 'controller', 'service', 'repository', 'dto', 'vo', 'entity', 'aggregrate',
+   'dependency-injection', 'ioc', 'inversion-of-control', 'singleton', 'prototype', 'transient', 'scoped',
+   'facade', 'adapter', 'strategy', 'observer', 'command', 'chain-of-responsibility', 'proxy', 'decorator',
+   'factory', 'builder', 'prototype', 'singleton', 'mvc', 'mvp', 'mvvm', 'clean-architecture', 'hexagonal',
+   'onion', 'layered', 'modular-monolith', 'strangler', 'anti-corruption', 'bounded-context', 'ubiquitous-language',
+   'rpc', 'soap', 'wsdl', 'xml', 'json', 'yaml', 'toml', 'ini', 'protobuf', 'avro', 'thrift', 'flatbuffers',
+   'graphql', 'schema', 'resolver', 'mutation', 'subscription', 'fragment', 'directive', 'apollo', 'relay',
 
-  // Databases
-  'sql', 'nosql', 'relational', 'document', 'key-value', 'graph', 'columnar', 'time-series', 'schema', 'index',
-  'foreign', 'primary', 'constraint', 'transaction', 'acid', 'cap', 'normalization', 'denormalization', 'sharding',
-  'replication', 'quorum', 'raft', 'paxos', 'mongodb', 'postgresql', 'mysql', 'sqlite', 'cassandra', 'neo4j',
-  'elasticsearch', 'dynamodb', 'cockroachdb', 'spanner', 'clickhouse', 'influxdb', 'prometheus', 'vector',
+   // Databases
+   'sql', 'nosql', 'relational', 'document', 'key-value', 'graph', 'columnar', 'time-series', 'schema', 'index',
+   'foreign', 'primary', 'constraint', 'transaction', 'acid', 'cap', 'normalization', 'denormalization', 'sharding',
+   'replication', 'quorum', 'raft', 'paxos', 'mongodb', 'postgresql', 'mysql', 'sqlite', 'cassandra', 'neo4j',
+   'elasticsearch', 'dynamodb', 'cockroachdb', 'spanner', 'clickhouse', 'influxdb', 'prometheus', 'vector',
+   'join', 'inner-join', 'outer-join', 'left-join', 'right-join', 'cross-join', 'subquery', 'union', 'intersect',
+   'except', 'group-by', 'having', 'order-by', 'aggregate', 'window-function', 'partition-by', 'row-number',
+   'rank', 'dense-rank', 'lead', 'lag', 'cursor', 'trigger', 'stored-procedure', 'view', 'materialized-view',
+   'cluster', 'node', 'shard', 'replica', 'leader', 'follower', 'primary', 'secondary', 'active-passive',
+   'active-active', 'failover', 'recovery', 'backup', 'restore', 'snapshot', 'wal', 'write-ahead-log', 'b-tree',
+   'lsm-tree', 'hash-index', 'full-text-search', 'inverted-index', 'geo-spatial', 'gis', 'r-tree', 'quadtree',
 
-  // DevOps & Cloud
-  'docker', 'kubernetes', 'container', 'pod', 'deployment', 'service', 'configmap', 'secret', 'volume', 'helm',
-  'kustomize', 'ci', 'cd', 'pipeline', 'jenkins', 'github', 'gitlab', 'actions', 'terraform', 'ansible', 'chef',
-  'puppet', 'cloud', 'aws', 'azure', 'gcp', 's3', 'ec2', 'rds', 'vpc', 'iam', 'lambda', 'cloudfunctions', 'monitoring',
-  'logging', 'tracing', 'otel', 'grafana', 'prometheus', 'sentry', 'datadog', 'newrelic', 'splunk', 'chaos',
-  'canary', 'bluegreen', 'darklaunch',
+   // DevOps & Cloud
+   'docker', 'kubernetes', 'container', 'pod', 'deployment', 'service', 'configmap', 'secret', 'volume', 'helm',
+   'kustomize', 'ci', 'cd', 'pipeline', 'jenkins', 'github', 'gitlab', 'actions', 'terraform', 'ansible', 'chef',
+   'puppet', 'cloud', 'aws', 'azure', 'gcp', 's3', 'ec2', 'rds', 'vpc', 'iam', 'lambda', 'cloudfunctions', 'monitoring',
+   'logging', 'tracing', 'otel', 'grafana', 'prometheus', 'sentry', 'datadog', 'newrelic', 'splunk', 'chaos',
+   'canary', 'bluegreen', 'darklaunch', 'infrastructure-as-code', 'iac', 'configuration-management',
+   'orchestration', 'containerization', 'virtualization', 'hypervisor', 'vm', 'bare-metal', 'multi-cloud',
+   'hybrid-cloud', 'serverless', 'faas', 'paas', 'saas', 'iaas', 'caas', 'baas', 'haas', 'dr', 'disaster-recovery',
+   'sla', 'slo', 'sli', 'uptime', 'availability', 'latency', 'throughput', 'p99', 'p95', 'mttr', 'mttf', 'mttd',
+   'incident-management', 'on-call', 'escalation', 'runbook', 'playbook', 'alerting', 'notification', 'pagerduty',
+   'opsgenie', 'victorops', 'xmatters', 'status-page', 'health-check', 'readiness-probe', 'liveness-probe',
+   'resource-quota', 'limit-range', 'hpa', 'vpa', 'cluster-autoscaler', 'node-pool', 'namespace', 'label',
+   'selector', 'annotation', 'taint', 'toleration', 'affinity', 'anti-affinity', 'daemonset', 'statefulset',
+   'replicaset', 'job', 'cronjob', 'ingress', 'network-policy', 'service-mesh', 'istio', 'linkerd', 'consul',
+   'envoy', 'proxy', 'sidecar', 'gateway-api', 'crd', 'operator', 'controller', 'custom-resource',
 
-  // AI/ML/Data
-  'dataset', 'feature', 'label', 'training', 'inference', 'model', 'neural', 'tensor', 'gradient', 'backpropagation',
-  'loss', 'accuracy', 'precision', 'recall', 'f1', 'auc', 'roc', 'overfitting', 'regularization', 'dropout',
-  'batchnorm', 'optimizer', 'adam', 'sgd', 'pipeline', 'etl', 'data-lake', 'warehouse', 'olap', 'oltp', 'streaming',
-  'batch', 'spark', 'flink', 'kafka', 'pandas', 'numpy', 'scikit', 'xgboost', 'tensorflow', 'pytorch', 'jax', 'keras',
-  'huggingface', 'transformer', 'bert', 'gpt', 'llama', 'mistral', 'llm', 'embedding', 'tokenization', 'rag', 'finetune',
-  'prompt', 'rlhf', 'quantization', 'pruning', 'distillation', 'onnx', 'langchain', 'vectorstore', 'chroma', 'pinecone',
-  'clustering', 'pca', 'tsne', 'umap', 'anomaly', 'forecasting', 'timeseries', 'lstm', 'gru',
+   // AI/ML/Data
+   'dataset', 'feature', 'label', 'training', 'inference', 'model', 'neural', 'tensor', 'gradient', 'backpropagation',
+   'loss', 'accuracy', 'precision', 'recall', 'f1', 'auc', 'roc', 'overfitting', 'regularization', 'dropout',
+   'batchnorm', 'optimizer', 'adam', 'sgd', 'pipeline', 'etl', 'data-lake', 'warehouse', 'olap', 'oltp', 'streaming',
+   'batch', 'spark', 'flink', 'kafka', 'pandas', 'numpy', 'scikit', 'xgboost', 'tensorflow', 'pytorch', 'jax', 'keras',
+   'huggingface', 'transformer', 'bert', 'gpt', 'llama', 'mistral', 'llm', 'embedding', 'tokenization', 'rag', 'finetune',
+   'prompt', 'rlhf', 'quantization', 'pruning', 'distillation', 'onnx', 'langchain', 'vectorstore', 'chroma', 'pinecone',
+   'clustering', 'pca', 'tsne', 'umap', 'anomaly', 'forecasting', 'timeseries', 'lstm', 'gru', 'cnn', 'rnn',
+   'gan', 'vae', 'autoencoder', 'reinforcement-learning', 'q-learning', 'policy', 'reward', 'agent', 'environment',
+   'supervised-learning', 'unsupervised-learning', 'semi-supervised', 'self-supervised', 'transfer-learning',
+   'few-shot', 'zero-shot', 'one-shot', 'multimodal', 'nlp', 'cv', 'computer-vision', 'image-segmentation',
+   'object-detection', 'classification', 'regression', 'hyperparameter', 'epoch', 'batch-size', 'learning-rate',
+   'activation-function', 'relu', 'sigmoid', 'tanh', 'softmax', 'layer', 'hidden-layer', 'output-layer',
+   'weight', 'bias', 'gradient-descent', 'stochastic-gradient', 'momentum', 'nesterov', 'adamw', 'rmsprop',
+   'data-augmentation', 'normalization', 'standardization', 'scaling', 'imputation', 'outlier', 'noise',
+   'feature-engineering', 'feature-selection', 'dimensionality-reduction', 'ensemble', 'bagging', 'boosting',
+   'stacking', 'blending', 'cross-validation', 'k-fold', 'stratified', 'grid-search', 'random-search',
+   'bayesian-optimization', 'hyperopt', 'optuna', 'mlflow', 'wandb', 'tensorboard', 'experiment-tracking',
 
-  // Security
-  'encryption', 'decryption', 'hashing', 'salting', 'xss', 'sql-injection', 'csrf', 'ssrf', 'ddos', 'firewall',
-  'waf', 'zero-trust', 'mfa', '2fa', 'sso', 'pki', 'tls', 'ssl', 'certificate', 'penetration', 'vulnerability',
-  'cve', 'owasp', 'sandbox', 'isolation', 'audit', 'compliance', 'gdpr', 'hipaa', 'pci', 'soc2', 'iso27001', 'nist',
-  'sast', 'dast', 'sca', 'shiftleft', 'secrets', 'vault', 'identity', 'access', 'rbac', 'abac',
+   // Security
+   'encryption', 'decryption', 'hashing', 'salting', 'xss', 'sql-injection', 'csrf', 'ssrf', 'ddos', 'firewall',
+   'waf', 'zero-trust', 'mfa', '2fa', 'sso', 'pki', 'tls', 'ssl', 'certificate', 'penetration', 'vulnerability',
+   'cve', 'owasp', 'sandbox', 'isolation', 'audit', 'compliance', 'gdpr', 'hipaa', 'pci', 'soc2', 'iso27001', 'nist',
+   'sast', 'dast', 'sca', 'shiftleft', 'secrets', 'vault', 'identity', 'access', 'rbac', 'abac', 'iam',
+   'authentication', 'authorization', 'accountability', 'non-repudiation', 'integrity', 'confidentiality',
+   'availability', 'cia-triad', 'threat-modeling', 'attack-vector', 'attack-surface', 'exploit', 'payload',
+   'malware', 'ransomware', 'spyware', 'adware', 'trojan', 'virus', 'worm', 'botnet', 'rootkit', 'keylogger',
+   'phishing', 'spear-phishing', 'whaling', 'smishing', 'vishing', 'social-engineering', 'pretexting',
+   'honeypot', 'honeytoken', 'deception', 'siem', 'soar', 'edr', 'xdr', 'ndr', 'ids', 'ips', 'dlp',
+   'casb', 'swg', 'ztna', 'sase', 'fw-as-a-service', 'mse', 'cloud-security-posture-management', 'cspm',
+   'cwpp', 'ciem', 'dsp', 'key-management', 'hsm', 'tpm', 'secure-boot', 'measured-boot', 'attestation',
 
-  // Emerging Tech
-  'blockchain', 'smartcontract', 'ethereum', 'solana', 'polygon', 'web3', 'defi', 'nft', 'dao', 'ipfs', 'arweave',
-  'zeroknowledge', 'zkp', 'rollup', 'quantum', 'qubit', 'superposition', 'entanglement', 'edge', 'fog', '5g', 'iot',
-  'digitaltwin', 'metaverse', 'ar', 'vr', 'mr', 'spatial', 'haptics', 'neuromorphic', 'biocomputing', 'dna', 'crispr',
+   // Emerging Tech
+   'blockchain', 'smartcontract', 'ethereum', 'solana', 'polygon', 'web3', 'defi', 'nft', 'dao', 'ipfs', 'arweave',
+   'zeroknowledge', 'zkp', 'rollup', 'quantum', 'qubit', 'superposition', 'entanglement', 'edge', 'fog', '5g', 'iot',
+   'digitaltwin', 'metaverse', 'ar', 'vr', 'mr', 'spatial', 'haptics', 'neuromorphic', 'biocomputing', 'dna', 'crispr',
+   'generative-adversarial-network', 'diffusion-model', 'stable-diffusion', 'midjourney', 'dall-e',
+   'synthetic-data', 'federated-learning', 'differential-privacy', 'homomorphic-encryption', 'multi-party-computation',
+   'cryptocurrency', 'bitcoin', 'ether', 'wallet', 'private-key', 'public-key', 'seed-phrase', 'gas',
+   'consensus', 'proof-of-work', 'proof-of-stake', 'proof-of-authority', 'proof-of-history', 'sharding',
+   'layer-1', 'layer-2', 'sidechain', 'plasma', 'state-channel', 'atomic-swap', 'dex', 'cex', 'amm',
+   'yield-farming', 'staking', 'liquidity-mining', 'governance-token', 'utility-token', 'security-token',
+   'ico', 'ido', 'ieo', 'airdrop', 'whale', 'holder', 'miner', 'validator', 'oracles', 'chainlink',
 
-  // Mobile & Embedded
-  'mobile', 'ios', 'android', 'flutter', 'react-native', 'kotlin', 'swift', 'xamarin',
-  'firmware', 'rtos', 'microcontroller', 'esp32', 'arduino', 'bluetooth', 'ble', 'nfc',
+   // Mobile & Embedded
+   'mobile', 'ios', 'android', 'flutter', 'react-native', 'kotlin', 'swift', 'xamarin',
+   'firmware', 'rtos', 'microcontroller', 'esp32', 'arduino', 'bluetooth', 'ble', 'nfc',
+   'native-app', 'hybrid-app', 'cross-platform', 'widget', 'activity', 'fragment', 'intent', 'service',
+   'broadcast-receiver', 'content-provider', 'lifecycle', 'viewmodel', 'livedata', 'flow', 'coroutine',
+   'jetpack', 'compose', 'swiftui', 'uikit', 'cocoatouch', 'coredata', 'coreanimation', 'metal',
+   'opengl', 'vulkan', 'directx', 'shader', 'vertex', 'fragment', 'geometry', 'compute', 'pipeline',
+   'gpio', 'i2c', 'spi', 'uart', 'adc', 'dac', 'pwm', 'interrupt', 'timer', 'watchdog', 'dma',
+   'pcb', 'schematic', 'footprint', 'gerber', 'pick-and-place', 'solder', 'reflow', 'wave-soldering',
 
-  // Architecture & Dev Practices
-  'clean-architecture', 'hexagonal', 'onion', 'ddd', 'cqrs', 'event-driven', 'pub-sub',
-  'layered', 'modular-monolith', 'strangler', 'anti-corruption', 'bounded-context',
+   // Architecture & Dev Practices
+   'clean-architecture', 'hexagonal', 'onion', 'ddd', 'cqrs', 'event-driven', 'pub-sub',
+   'layered', 'modular-monolith', 'strangler', 'anti-corruption', 'bounded-context',
+   'tdd', 'bdd', 'testing', 'unit-test', 'integration-test', 'e2e-test', 'functional-test',
+   'acceptance-test', 'smoke-test', 'sanity-test', 'regression-test', 'performance-test', 'load-test',
+   'stress-test', 'scalability-test', 'mock', 'stub', 'spy', 'dummy', 'fake', 'test-double',
+   'code-review', 'pull-request', 'merge-request', 'commit', 'push', 'fetch', 'rebase', 'cherry-pick',
+   'merge', 'branch', 'trunk-based-development', 'feature-branch', 'gitflow', 'github-flow',
+   'semantic-versioning', 'changelog', 'release-notes', 'version-control', 'git', 'svn', 'mercurial',
+   'agile', 'scrum', 'kanban', 'lean', 'xp', 'sprint', 'standup', 'retrospective', 'planning', 'backlog',
+   'user-story', 'epic', 'task', 'bug', 'spike', 'technical-debt', 'refactoring', 'legacy-code',
+   'design-pattern', 'solid', 'dry', 'kiss', 'yagni', 'separation-of-concerns', 'coupling', 'cohesion',
 
-  // NLP & Linguistics
-  'lemmatization', 'stemming', 'pos-tagging', 'named-entity', 'coreference', 'tokenization',
-  'embedding', 'word2vec', 'fasttext', 'bert', 'transformer', 'attention', 'subword',
+   // NLP & Linguistics
+   'lemmatization', 'stemming', 'pos-tagging', 'named-entity', 'coreference', 'tokenization',
+   'embedding', 'word2vec', 'fasttext', 'bert', 'transformer', 'attention', 'subword',
+   'morphology', 'syntax', 'semantics', 'pragmatics', 'phonology', 'phonetics', 'corpus',
+   'n-gram', 'bag-of-words', 'tf-idf', 'language-model', 'perplexity', 'bleu', 'rouge', 'meteor',
+   'ner', 'chunking', 'parsing', 'dependency-parsing', 'constituency-parsing', 'semantic-role-labeling',
+   'sentiment-analysis', 'emotion-recognition', 'topic-modeling', 'lda', 'nmf', 'text-classification',
+   'text-generation', 'summarization', 'question-answering', 'machine-translation', 'alignment',
+   'word-sense-disambiguation', 'anaphora-resolution', 'coreference-resolution', 'dialogue-system',
+   'chatbot', 'conversational-ai', 'intent-detection', 'slot-filling', 'voice-recognition', 'tts', 'stt',
 
-  // Cognitive Science
-  'cognitive-load', 'priming', 'anchoring', 'framing', 'loss-aversion', 'nudge',
+   // Cognitive Science
+   'cognitive-load', 'priming', 'anchoring', 'framing', 'loss-aversion', 'nudge',
+   'heuristics', 'biases', 'confirmation-bias', 'availability-heuristic', 'representativeness',
+   'system-1', 'system-2', 'dual-process', 'attention', 'memory', 'working-memory', 'long-term-memory',
+   'sensory-memory', 'encoding', 'storage', 'retrieval', 'forgetting', 'interference', 'decay',
+   'schema', 'script', 'mental-model', 'prototype', 'category', 'concept', 'decision-making',
+   'problem-solving', 'creativity', 'insight', 'intelligence', 'reasoning', 'logic', 'argumentation',
 
-  // Urdu Tech Terms (transliterated & script)
-  'kompyuter', 'internet', 'software', 'hardware', 'database', 'network', 'server', 'file',
-  'folder', 'download', 'upload', 'app', 'mobile-app', 'website', 'browser', 'password',
-  'کمپیوٹر', 'انٹرنیٹ', 'سافٹ ویئر', 'ہارڈ ویئر', 'ڈیٹا بیس', 'نیٹ ورک', 'سرور'
-]);
+   // Physics & Engineering
+   'mechanics', 'kinematics', 'dynamics', 'statics', 'thermodynamics', 'entropy', 'enthalpy',
+   'fluid-dynamics', 'aerodynamics', 'electromagnetism', 'optics', 'acoustics', 'quantum-mechanics',
+   'relativity', 'astrophysics', 'cosmology', 'particle-physics', 'nuclear-physics', 'solid-state',
+   'materials-science', 'metallurgy', 'ceramics', 'polymers', 'composites', 'nanotechnology',
+   'civil-engineering', 'structural-engineering', 'geotechnical', 'transportation', 'hydraulics',
+   'mechanical-engineering', 'robotics', 'mechatronics', 'control-systems', 'automation',
+   'electrical-engineering', 'electronics', 'circuits', 'vlsi', 'semiconductors', 'power-systems',
+   'chemical-engineering', 'process-engineering', 'biochemical', 'reaction', 'catalysis', 'separation',
+
+   // Biology & Medicine
+   'genetics', 'genomics', 'transcriptomics', 'proteomics', 'metabolomics', 'bioinformatics',
+   'cell-biology', 'molecular-biology', 'microbiology', 'immunology', 'virology', 'bacteriology',
+   'physiology', 'anatomy', 'pathology', 'pharmacology', 'toxicology', 'epidemiology', 'public-health',
+   'clinical-trials', 'diagnostics', 'therapeutics', 'surgery', 'radiology', 'oncology', 'cardiology',
+   'neurology', 'psychiatry', 'pediatrics', 'gynecology', 'dermatology', 'ophthalmology',
+   'biotechnology', 'genetic-engineering', 'synthetic-biology', 'bioengineering', 'biomedical',
+   'vaccination', 'antibody', 'antigen', 'pathogen', 'virus', 'bacteria', 'fungus', 'parasite',
+   'chromosome', 'dna', 'rna', 'gene', 'allele', 'mutation', 'expression', 'regulation', 'translation',
+
+   // Finance & Economics
+   'microeconomics', 'macroeconomics', 'fiscal-policy', 'monetary-policy', 'inflation', 'deflation',
+   'recession', 'depression', 'gdp', 'gnp', 'unemployment', 'interest-rate', 'exchange-rate',
+   'stock-market', 'bond-market', 'commodity', 'derivative', 'option', 'future', 'swap', 'hedging',
+   'portfolio-management', 'asset-allocation', 'risk-management', 'valuation', 'discounted-cash-flow',
+   'net-present-value', 'internal-rate-of-return', 'payback-period', 'financial-statements',
+   'balance-sheet', 'income-statement', 'cash-flow', 'audit', 'taxation', 'compliance', 'accounting',
+   'banking', 'credit', 'debit', 'loan', 'mortgage', 'bankruptcy', 'liquidation', 'merger', 'acquisition',
+   'ipo', 'venture-capital', 'private-equity', 'angel-investor', 'crowdfunding', 'fintech',
+
+   // Law & Legal
+   'constitution', 'statute', 'regulation', 'ordinance', 'bylaw', 'contract', 'tort', 'civil-law',
+   'criminal-law', 'common-law', 'equity', 'jurisprudence', 'litigation', 'arbitration', 'mediation',
+   'plaintiff', 'defendant', 'judgment', 'verdict', 'appeal', 'precedent', 'stare-decis',
+   'intellectual-property', 'patent', 'trademark', 'copyright', 'trade-secret', 'license',
+   'compliance', 'governance', 'ethics', 'professional-responsibility', 'malpractice', 'liability',
+   'due-diligence', 'mergers-and-acquisitions', 'corporate-law', 'tax-law', 'employment-law',
+   'immigration-law', 'international-law', 'human-rights', 'environmental-law', 'cyber-law',
+
+   // Urdu Tech Terms (transliterated & script)
+   'kompyuter', 'internet', 'software', 'hardware', 'database', 'network', 'server', 'file',
+   'folder', 'download', 'upload', 'app', 'mobile-app', 'website', 'browser', 'password',
+   'email', 'e-mail', 'login', 'logout', 'signup', 'sign-up', 'register', 'user', 'admin',
+   'setting', 'settings', 'profile', 'account', 'security', 'privacy', 'terms', 'conditions',
+   'link', 'url', 'http', 'https', 'www', 'com', 'net', 'org', 'edu', 'gov', 'mil',
+   'html', 'css', 'javascript', 'python', 'java', 'php', 'ruby', 'c', 'cpp', 'csharp',
+   'coding', 'programming', 'developer', 'programmer', 'engineer', 'designer', 'tester',
+   'bug', 'error', 'fix', 'patch', 'update', 'upgrade', 'version', 'release', 'beta', 'alpha',
+   'cloud', 'storage', 'backup', 'restore', 'data', 'information', 'system', 'application',
+   'interface', 'ui', 'ux', 'user-interface', 'user-experience', 'responsive', 'mobile-friendly',
+   'seo', 'search-engine', 'optimization', 'marketing', 'social-media', 'analytics', 'traffic',
+   'domain', 'hosting', 'server', 'client', 'frontend', 'backend', 'fullstack', 'database',
+   'کمپیوٹر', 'انٹرنیٹ', 'سافٹ ویئر', 'ہارڈ ویئر', 'ڈیٹا بیس', 'نیٹ ورک', 'سرور',
+   'فائل', 'فولڈر', 'ڈاؤن لوڈ', 'اپ لوڈ', 'ایپ', 'موبائل ایپ', 'ویب سائٹ', 'براؤزر', 'پاس ورڈ',
+   'ای میل', 'لاگ ان', 'لاگ آؤٹ', 'سائن اپ', 'رجسٹر', 'صارف', 'ایڈمن', 'ترتیبات',
+   'پروفائل', 'اکاؤنٹ', 'سیکیورٹی', 'پرائیویسی', 'شرائط', 'لنک', 'یو آر ایل',
+   'ایل', 'ایچ ٹی ٹی پی', 'ایس ایس ایل', 'ڈبلیو ڈبلیو ڈبلیو', 'کوم', 'نیٹ', 'آرج',
+   'ایچ ٹی ایم ایل', 'سی ایس ایس', 'جاوا اسکرپٹ', 'پائتھون', 'جاوا', 'پی ایچ پی',
+   'کوڈنگ', 'پروگرامنگ', 'ڈویلپر', 'پروگرامر', 'انجینئر', 'ڈیزائنر', 'ٹیسٹر',
+   'بگ', ' ایرر', 'فکس', 'پیچ', 'اپ ڈیٹ', 'ورژن', 'ریلیز', 'بیٹا', 'الفا',
+   'کلاؤڈ', 'اسٹوریج', 'بیک اپ', 'ڈیٹا', 'انفارمیشن', 'سسٹم', 'ایپلی کیشن',
+   'انٹرفیس', 'یو آئی', 'یو ایکس', 'رہسپانسیو', 'ایس ای او', 'مارکیٹنگ',
+   'سوشل میڈیا', 'اینالیٹکس', 'ٹریفک', 'ڈومین', 'ہوسٹنگ', 'فرنٹ اینڈ', 'بیک اینڈ'
+ ]);
 
 /**
  * A comprehensive set of sentiment-labeled words used for sentiment analysis or filtering in text processing.
@@ -333,24 +475,89 @@ export const SENTIMENT_WORDS = {
  *   console.log('"شاندار" is marked as a positive word.');
  * }
  */
-export const URDU_SENTIMENT_WORDS = {
-  /**
-   * A set of Urdu words typically associated with positive sentiment.
-   * These words are commonly used in positive contexts such as praise, approval, or satisfaction.
-   */
-  positive: new Set([
-    'شاندار', 'زبردست', 'بہترین', 'خوبصورت', 'قابلِ تعریف',
-    'کامیاب', 'پر اعتماد', 'محبت', 'پیار', 'امید', 'خوشی'
-  ]),
-  /**
-   * A set of Urdu words typically associated with negative sentiment.
-   * These words are commonly used in negative contexts such as criticism, disappointment, or dissatisfaction.
-   */
-  negative: new Set([
-    'بُرا', 'ناکام', 'ناامید', 'غم', 'الجھن', 'کدورت',
-    'ناانصافی', 'ظلم', 'ناقابلِ تصور', 'ناقابلِ قبول'
-  ])
-};
+ export const URDU_SENTIMENT_WORDS = {
+   /**
+    * A set of Urdu words typically associated with positive sentiment.
+    * These words are commonly used in positive contexts such as praise, approval, or satisfaction.
+    */
+   positive: new Set([
+     'شاندار', 'زبردست', 'بہترین', 'خوبصورت', 'قابلِ تعریف',
+     'کامیاب', 'پر اعتماد', 'محبت', 'پیار', 'امید', 'خوشی',
+     'ممتاز', 'عمدہ', 'پرسکون', 'خوشگوار', 'لطیف', 'جذباتی',
+     'وفادار', 'سچا', 'امانتدار', 'محترم', 'عزیز', 'پیارا',
+     'شکور', 'شاکر', 'محسن', 'مہربان', 'کرم فرما', 'مہربانی',
+     'خیر خواہ', 'نیک خواہ', 'ہمدرد', 'سنجیدہ', 'سچی', 'پر خلوص',
+     'پر سوز', 'جذبات', 'محبت', 'آرزو', 'تمنا', 'خواب', 'سحر',
+     'صبح', 'صبح بخیر', 'شب بخیر', 'اللہ حافظ', 'خدا حافظ', 'خدا hafiz',
+     'السلام علیکم', 'والسلام علیکم', 'آداب', 'تشکر', 'شکریہ', 'ممنون',
+     'بہت خوب', 'بہت اچھا', 'عالیشان', 'اعلیٰ', 'عظیم', 'بزرگ',
+     'کبیر', 'جلیل', 'قدیر', 'قادر', 'خالق', 'رازق', 'رزاق',
+     'کریم', 'رحیم', 'رحمن', 'ملک', 'پاک', 'پاکستان', 'پائندہ',
+     'باد', 'جائے رہا', 'زندہ باد', 'آباد', 'خوشحال', 'ترقی یافتہ',
+     'پیش رفت', 'کامیابی', 'کامرانی', 'فتح', 'جیت', 'کامیابی',
+     'نصرت', 'مدد', 'حمایت', 'تائید', 'سہارا', 'اشتراک', 'تعاون',
+     'اتفاق', 'محبت', 'الفہ', 'میل', 'لگاؤ', 'چسپاں', 'جڑا',
+     'جوڑا', 'ساتھی', 'رفقہ', 'دوست', 'یار', 'ساتھ', 'همراه',
+     'همراز', 'رازدار', 'وفا', 'بندگی', 'فرمانبرداری', 'اطاعت',
+     'تسلیم', 'قبولیت', 'رضامندی', 'خوشی', 'مسرت', 'شادمانی', 'جشن',
+     'تہوار', ' Eid ', 'عید', 'عید مبارک', 'مبارک باد', 'نور',
+     'روشن', 'چمک', 'درخش', 'جلا', 'تابانی', 'شعاع', 'کرنا',
+     'منور', 'نورانی', 'صاف', 'صاف ستون', 'شفاف', 'واضح', 'بینا',
+     'ظاہر', 'آشکار', 'کھلا', 'ازاد', 'آزاد', 'مستقل', 'پائیدار',
+     'دائمی', 'ہمیشہ', 'سدا', 'دیرینہ', 'قدیم', 'سابق', 'گزشتہ',
+     'ماضی', 'حاضر', 'مستقبل', 'آئندہ', 'آنے والا', 'آغاز', 'ابتدا',
+     'شروعات', 'منتهی', 'آخر', 'ختام', 'مکمل', 'کامل', 'all',
+     'تمام', 'سب', 'سارے', 'ہر', 'ہر ایک', 'کوئی بھی', 'کسی بھی',
+     'کچھ بھی', 'سب کچھ', 'کوئی نہیں', 'کچھ نہیں', 'بھی', 'بھی',
+     'پھر', 'دوبارہ', 'مکرر', 'بار بار', 'دائیں بائیں', 'ہر طرف',
+     'دور و نزدیک', 'کہیں بھی', 'کہیں', 'کہیں نہیں', 'یہاں', 'وہاں',
+     'ید', 'اڑ', 'نیچے', 'اوپر', 'پر', 'منڈھا', 'پیچھے', 'آگے',
+     'سامنے', 'روبرو', 'ساتھ', 'بغیر', 'بدون', 'سوا', 'الوا',
+     'علاوہ', 'علاوہ ازیں', 'علاوہ ازین', 'علاوہ ازاں', 'علاوہ اس',
+     'علاوہ ان', 'علاوہ وہ', 'علاوہ یہ', 'علاوہ تو', 'علاوہ ہم',
+     'علاوہ تم', 'علاوہ آپ', 'علاوہ میں', 'سوال', 'جواب', 'فتویٰ',
+     'حکم', 'فرمان', 'حکمت', 'دانائی', 'عقل', 'سمجھ', 'خیال',
+     'فکر', 'سوچ', 'تصور', 'تخیل', 'خواب', 'جیسا', 'طرح', 'طرح',
+     'طرح', 'سی', 'سانسے', 'مانند', 'طرح', 'مانند', 'شبہ', 'یقین',
+     'ایمان', 'توکل', 'اعتماد', 'بھروسہ', 'سکون', 'طمأنینہ', 'پرامن',
+     'خوشگوار', 'ممتاز', 'انتہائی', 'نہایت', 'بسیار', 'بہت', 'کافی',
+     'کتنا', 'کتنی', 'کتنے', 'قدر', 'قدر', 'انقدار', 'ایسا',
+     'ویسا', 'وہ', 'یہ', 'وہی', 'یہی', 'وہی', 'یہی', 'وہی',
+   ]),
+   /**
+    * A set of Urdu words typically associated with negative sentiment.
+    * These words are commonly used in negative contexts such as criticism, disappointment, or dissatisfaction.
+    */
+   negative: new Set([
+     'بُرا', 'ناکام', 'ناامید', 'غم', 'الجھن', 'کدورت',
+     'ناانصافی', 'ظلم', 'ناقابلِ تصور', 'ناقابلِ قبول',
+     'بیزاری', 'ناراضگی', 'غصہ', 'خفا', 'بدگمانی', 'شک',
+     'دشمنی', 'کینہ', ' نفرت', 'بدنامی', 'عزت کی ہزیمت', 'رسوائی',
+     'شرمندگی', 'گناہ', 'جرم', 'خطا', 'قصوروار', 'ملامت',
+     'تنقید', 'مذمت', 'الزام', 'دشنام', 'بدنام', 'بدنام',
+     'خراب', 'برباد', 'تباہ', 'ہلاک', 'فنا', 'زوال', 'گرنا',
+     'ٹوٹنا', 'ٹوٹ پھوٹ', 'پھٹ پڑنا', 'بگڑنا', 'بگاڑ', 'خرابی',
+     'مسئلہ', 'مشکل', 'صعوبت', 'مشقت', 'تنگی', 'پریشانی', 'مصیبت',
+     'آفت', 'تباہی', 'بربادی', 'غلہ', 'قحط', 'بحران', 'اندھیرا',
+     'تاریکی', 'ظلمت', 'سردی', 'گرمی', 'آگ', 'آنسو', 'رونا',
+     'فغان', 'فریاد', 'چیخ', 'زاری', 'نالہ', 'درد', 'صدمہ',
+     'دکھ', 'تکلیف', 'زخم', 'مار', 'چوٹ', 'بیمار', 'مریض',
+     'علیل', 'کسیر', 'اوجھل', 'ناکسار', 'نااہل', 'لاحق', 'مددگار',
+     'آزاد', 'قیدی', 'بند', 'محبوس', 'گرفتار', 'مجرم', 'جانی',
+     'خطرناک', 'نقصان دہ', 'مضر', 'ہلاک کن', 'قاتل', 'خون خوار',
+     'وحشی', 'جابر', 'ظالم', 'ستمگر', 'آزار', 'اذهان', 'پریشان',
+     'پریشان حال', 'بیچارہ', 'بے بس', 'مجبور', 'مستور', 'لاچار',
+     'مامور', 'خدمت گار', 'چاکر', 'غلام', 'محکوم', 'مظلوم',
+     'مجبور', 'مستضل', 'مغلوب', 'شکست خوردہ', 'ناکام', 'خائف',
+     'ڈرپوک', 'بزدل', 'حریص', 'لالچی', 'کنبہ', 'خواہش مند', 'طمع',
+     'شہوت', 'ہوس', 'فساد', 'بدکاری', 'گناہ', 'جرم', 'اثم',
+     'شرارت', 'بدذاتی', 'برائی', 'پاکیزہ', 'ناپاکی', 'نجاست',
+     'گندگی', 'آلودگی', 'بدبو', 'میلا', 'خراب', 'سڑا', 'خشک',
+     'پوست', 'بے روح', 'مردہ', 'پرانی', 'قدیم', 'گزرا ہوا', 'ماضی',
+     'فراموش', 'بھول گیا', 'یاد', 'یاد آوری', 'ناصرف', 'صرف',
+     'محض',
+   ])
+ };
 
 /**
  * A collection of linguistic patterns and prefixes/suffixes used to detect technical or complex language structures.
@@ -361,34 +568,48 @@ export const URDU_SENTIMENT_WORDS = {
  *   console.log('"camelCase" matches a technical pattern.');
  * }
  */
-export const LINGUISTIC_PATTERNS = {
-  /**
-   * Common prefixes used in technical or formal terminology (e.g., 'hyper', 'neuro', 'trans').
-   */
-  technicalPrefixes: new Set([
-    'auto', 'bio', 'cyber', 'data', 'deep', 'e', 'hyper', 'inter', 'mega', 'micro', 'multi', 'neo', 'neuro',
-    'omni', 'pan', 'para', 'post', 'pre', 'pro', 'pseudo', 'quasi', 're', 'semi', 'sub', 'super', 'tele', 'trans',
-    'ultra', 'uni', 'un', 'xeno',
-  ]),
-  /**
-   * Common suffixes used in complex or formal vocabulary (e.g., 'ization', 'ment', 'ness').
-   */
-  complexSuffixes: new Set([
-    'ability', 'able', 'ation', 'ative', 'ibility', 'ible', 'icity', 'ion', 'ism', 'ity', 'ive', 'ization',
-    'ize', 'ment', 'ness', 'ous', 'ship', 'sion', 'tion', 'tive', 'tude', 'ure', 'y',
-  ]),
-  /**
-   * Regular expressions to detect common technical or structured writing patterns (e.g., camelCase, snake_case).
-   */
-  technicalPatterns: [
-    /\b[a-z]+(?:[A-Z][a-z]+)+\b/, // camelCase
-    /\b[A-Z]+[a-z]+(?:[A-Z]+[a-z]+)*\b/, // PascalCase
-    /\b[a-z]+(?:_[a-z]+)+\b/, // snake_case
-    /\b[A-Z]+(?:_[A-Z]+)+\b/, // SCREAMING_SNAKE_CASE
-    /\b\d+\w*\b/, // words with numbers
-    /\b\w+-\w+\b/, // hyphenated words
-  ],
-};
+ export const LINGUISTIC_PATTERNS = {
+   /**
+    * Common prefixes used in technical or formal terminology (e.g., 'hyper', 'neuro', 'trans').
+    */
+   technicalPrefixes: new Set([
+     'a', 'ab', 'abs', 'acro', 'ad', 'afi', 'al', 'ana', 'ante', 'anti', 'apo', 'arch', 'as', 'at', 'auto', 'be', 'bi', 'bio', 'by',
+     'cata', 'circum', 'co', 'col', 'com', 'con', 'contra', 'cor', 'counter', 'crypto', 'cyber', 'de', 'deca', 'deci', 'demi', 'demo',
+     'den', 'des', 'di', 'dia', 'dif', 'dis', 'dys', 'e', 'ef', 'em', 'en', 'endo', 'epi', 'equi', 'ex', 'exo', 'extra', 'for', 'fore',
+     'geo', 'glyco', 'gyn', 'hemi', 'hept', 'hex', 'holo', 'homo', 'hyper', 'hypo', 'ibi', 'il', 'im', 'in', 'infra', 'inter', 'intra',
+     'iso', 'juxta', 'kilo', 'macro', 'mal', 'mega', 'meta', 'micro', 'milli', 'mini', 'mis', 'mono', 'multi', 'nano', 'neo', 'neuro',
+     'non', 'nov', 'ob', 'oc', 'oct', 'omni', 'opt', 'ortho', 'out', 'over', 'pan', 'para', 'pent', 'per', 'peri', 'poly', 'post', 'pre',
+     'pro', 'proto', 'pseudo', 'quad', 'quasi', 're', 'retro', 'semi', 'sept', 'sub', 'super', 'supra', 'sym', 'syn', 'tele', 'tetra',
+     'trans', 'tri', 'twi', 'ultra', 'un', 'under', 'uni', 'vice', 'with', 'xeno', 'xyl', 'y',
+   ]),
+   /**
+    * Common suffixes used in complex or formal vocabulary (e.g., 'ization', 'ment', 'ness').
+    */
+   complexSuffixes: new Set([
+     'able', 'ac', 'acea', 'aceous', 'acious', 'acy', 'ade', 'age', 'aholic', 'al', 'ality', 'an', 'ance', 'ancy', 'ant', 'ar',
+     'ard', 'arian', 'arium', 'ary', 'ase', 'aster', 'astic', 'ate', 'atic', 'ation', 'ative', 'ator', 'atory', 'cide', 'cle', 'cy',
+     'cycle', 'd', 'dom', 'dont', 'dure', 'ed', 'ee', 'eer', 'ele', 'en', 'ence', 'ency', 'ent', 'eous', 'er', 'ern', 'escence',
+     'escent', 'esque', 'ess', 'est', 'etic', 'ette', 'eur', 'fic', 'fid', 'fold', 'form', 'ful', 'fy', 'gence', 'gon', 'grade',
+     'gram', 'graph', 'graphy', 'hedral', 'hedron', 'hex', 'hood', 'ia', 'iac', 'ian', 'iasis', 'ible', 'ic', 'ical', 'id', 'ide',
+     'ile', 'ility', 'ily', 'ine', 'ing', 'ion', 'ious', 'ise', 'ish', 'ism', 'ist', 'ite', 'itis', 'itude', 'ive', 'ivity', 'ization',
+     'ize', 'kin', 'less', 'let', 'like', 'ling', 'log', 'logue', 'ly', 'ment', 'mency', 'meter', 'metry', 'most', 'ness', 'oid',
+     'oid', 'oma', 'on', 'onym', 'ology', 'or', 'ory', 'osis', 'osis', 'ost', 'ous', 'path', 'pathy', 'phile', 'phobia', 'phone',
+     'phyte', 'pie', 'ple', 'ples', 'proof', 'ress', 'ric', 'ry', 'scape', 'scope', 'scribe', 'scrip', 'se', 'ship', 'shop', 'side',
+     'sion', 'some', 'some', 'sphere', 'stan', 'ster', 'stic', 'tion', 'tious', 'tive', 'tomy', 'tude', 'ture', 'ty', 'ular',
+     'ule', 'ulous', 'um', 'un', 'und', 'ure', 'ure', 'ward', 'ways', 'wise', 'work', 'y', 'yer',
+   ]),
+   /**
+    * Regular expressions to detect common technical or structured writing patterns (e.g., camelCase, snake_case).
+    */
+   technicalPatterns: [
+     /\b[a-z]+(?:[A-Z][a-z]+)+\b/, // camelCase
+     /\b[A-Z]+[a-z]+(?:[A-Z]+[a-z]+)*\b/, // PascalCase
+     /\b[a-z]+(?:_[a-z]+)+\b/, // snake_case
+     /\b[A-Z]+(?:_[A-Z]+)+\b/, // SCREAMING_SNAKE_CASE
+     /\b\d+\w*\b/, // words with numbers
+     /\b\w+-\w+\b/, // hyphenated words
+   ],
+ };
 
 /**
  * Removes markdown formatting, headers, links, images, and other elements from text, returning plain text.
@@ -457,15 +678,208 @@ export const extractWordsWithIntelligence = (text: string) => {
   let clean = text.toLowerCase().replace(/'s\b/g, '').replace(/'/g, '');
 
   const phrases = [
+    // AI & ML
     'machine learning', 'deep learning', 'neural network', 'artificial intelligence',
-    'natural language processing', 'large language model', 'generative ai', 'user interface',
-    'user experience', 'front end', 'back end', 'full stack', 'data science', 'react component',
-    'state management', 'api endpoint', 'type script', 'java script', 'continuous integration',
-    'continuous delivery', 'infrastructure as code', 'zero trust', 'multi factor authentication',
+    'natural language processing', 'large language model', 'generative ai', 'computer vision',
+    'reinforcement learning', 'supervised learning', 'unsupervised learning', 'transfer learning',
+    'gradient descent', 'backpropagation', 'convolutional neural network', 'recurrent neural network',
+    'transformer model', 'attention mechanism', 'tokenization', 'embedding', 'vector database',
+    'model inference', 'model training', 'hyperparameter tuning', 'feature engineering', 'data augmentation',
+    'loss function', 'activation function', 'epoch', 'batch size', 'overfitting', 'underfitting',
+    'bias variance tradeoff', 'random forest', 'decision tree', 'support vector machine', 'k-means clustering',
+    'principal component analysis', 'anomaly detection', 'pattern recognition', 'speech recognition',
+    'image classification', 'object detection', 'semantic segmentation', 'optical character recognition',
+
+    // Web Development (Frontend & Backend)
+    'user interface', 'user experience', 'front end', 'back end', 'full stack', 'data science',
+    'react component', 'state management', 'api endpoint', 'type script', 'java script',
     'single page application', 'progressive web app', 'server side rendering', 'client side rendering',
-    'static site generation', 'content delivery network', 'domain driven design', 'test driven development',
-    'behavior driven development', 'feature toggle', 'dark launch', 'blue green deployment',
-    'canary release', 'chaos engineering',
+    'static site generation', 'content delivery network', 'document object model', 'virtual dom',
+    'cascading style sheets', 'responsive design', 'mobile first', 'cross browser compatibility',
+    'web accessibility', 'accessibility tree', 'aria attributes', 'semantic html', 'progressive enhancement',
+    'graphql', 'rest api', 'soap api', 'grpc', 'websocket', 'web real time communication',
+    'http request', 'http response', 'status codes', 'headers', 'cookies', 'local storage',
+    'session storage', 'indexed db', 'service worker', 'web cache', 'cache invalidation',
+    'lazy loading', 'code splitting', 'tree shaking', 'minification', 'bundling', 'webpack',
+    'vite', 'babel', 'eslint', 'prettier', 'jest', 'cypress', 'selenium', 'puppeteer',
+    'node js', 'deno', 'bun', 'express', 'koa', 'nest js', 'fastify', 'django', 'flask',
+    'ruby on rails', 'spring boot', 'laravel', 'asp.net core', 'microservices architecture',
+    'monolithic architecture', 'serverless computing', 'function as a service', 'containerization',
+    'docker container', 'kubernetes cluster', 'orchestration', 'load balancing', 'reverse proxy',
+    'nginx', 'apache', 'ingress controller', 'service mesh', 'istio', 'envoy proxy',
+
+    // DevOps & Cloud
+    'continuous integration', 'continuous delivery', 'infrastructure as code', 'zero trust',
+    'multi factor authentication', 'feature toggle', 'dark launch', 'blue green deployment',
+    'canary release', 'chaos engineering', 'ci cd pipeline', 'build automation', 'test automation',
+    'deployment automation', 'configuration management', 'version control', 'git flow', 'pull request',
+    'code review', 'merge conflict', 'branching strategy', 'trunk based development', 'semantic versioning',
+    'cloud computing', 'public cloud', 'private cloud', 'hybrid cloud', 'multi cloud strategy',
+    'amazon web services', 'aws services', 'microsoft azure', 'google cloud platform', 'ibm cloud',
+    'oracle cloud', 'alibaba cloud', 'digital ocean', 'heroku', 'vercel', 'netlify',
+    'infrastructure as a service', 'platform as a service', 'software as a service',
+    'virtual private cloud', 'virtual network', 'subnet', 'security group', 'firewall rules',
+    'identity and access management', 'role based access control', 'active directory', 'ldap',
+    'single sign on', 'oauth 2.0', 'open id connect', 'json web token', 'session management',
+    'audit logging', 'compliance monitoring', 'disaster recovery', 'business continuity',
+    'high availability', 'fault tolerance', 'scalability', 'elasticity', 'auto scaling',
+    'resource provisioning', 'cost management', 'cloud optimization', 'right sizing',
+    'monitoring and alerting', 'observability', 'application performance monitoring', 'log aggregation',
+    'metrics collection', 'distributed tracing', 'error tracking', 'uptime monitoring',
+    'health check', 'readiness probe', 'liveness probe', 'prometheus', 'grafana', 'elk stack',
+    'splunk', 'datadog', 'new relic', 'sentry', 'pagerduty', 'incident response',
+    'root cause analysis', 'postmortem', 'service level agreement', 'service level objective',
+    'service level indicator', 'mean time to recovery', 'mean time between failures',
+
+    // Database & Data Engineering
+    'relational database', 'non relational database', 'nosql database', 'document store',
+    'key value store', 'graph database', 'time series database', 'in memory database',
+    'data warehouse', 'data lake', 'data lakehouse', 'data pipeline', 'etl process',
+    'elt process', 'batch processing', 'stream processing', 'real time analytics',
+    'structured query language', 'acid properties', 'base model', 'cap theorem', 'transactions',
+    'indexing strategy', 'query optimization', 'execution plan', 'database normalization',
+    'denormalization', 'foreign key constraint', 'primary key constraint', 'unique constraint',
+    'database sharding', 'horizontal scaling', 'vertical scaling', 'database replication',
+    'master slave replication', 'leader follower replication', 'multi leader replication',
+    'read replica', 'write ahead logging', 'acid compliance', 'eventual consistency',
+    'strong consistency', 'distributed transaction', 'two phase commit', 'saga pattern',
+    'sql injection', 'database connection pooling', 'connection string', 'data source',
+    'object relational mapping', 'query builder', 'database migration', 'schema evolution',
+    'data governance', 'data quality', 'master data management', 'data lineage', 'metadata',
+    'data catalog', 'data privacy', 'data anonymization', 'pseudonymization', 'encryption at rest',
+    'encryption in transit', 'data masking', 'tokenization', 'key management', 'hardware security module',
+
+    // Cybersecurity
+    'cybersecurity', 'information security', 'network security', 'application security',
+    'penetration testing', 'vulnerability assessment', 'threat modeling', 'attack surface',
+    'attack vector', 'social engineering', 'phishing attack', 'malware analysis', 'ransomware',
+    'zero day vulnerability', 'common vulnerabilities and exposures', 'security misconfiguration',
+    'broken access control', 'cryptographic failures', 'injection flaws', 'insecure design',
+    'security monitoring', 'security information and event management', 'intrusion detection system',
+    'intrusion prevention system', 'firewall', 'next generation firewall', 'web application firewall',
+    'denial of service', 'distributed denial of service', 'mitigation techniques', 'rate limiting',
+    'throttling', 'secure software development life cycle', 'shift left security', 'devsecops',
+    'static application security testing', 'dynamic application security testing', 'interactive application security testing',
+    'software composition analysis', 'dependency management', 'supply chain security', 'code signing',
+    'digital signature', 'public key infrastructure', 'certificate authority', 'ssl certificate',
+    'tls protocol', 'transport layer security', 'secure sockets layer', 'https', 'ssh',
+    'virtual private network', 'secure shell', 'secure file transfer protocol', 'authentication',
+    'authorization', 'accounting', 'non repudiation', 'biometric authentication', 'multi factor authentication',
+    'adaptive authentication', 'risk based authentication', 'privileged access management',
+    'just in time access', 'zero trust architecture', 'never trust always verify', 'perimeter security',
+    'network segmentation', 'demilitarized zone', 'bastion host', 'jump server', 'air gapped network',
+    'data breach', 'incident response plan', 'forensics', 'malicious code', 'spyware', 'adware',
+    'trojan horse', 'computer worm', 'botnet', 'command and control', 'exploit kit', 'payload',
+
+    // Software Architecture & Design Patterns
+    'software architecture', 'system design', 'enterprise architecture', 'solution architecture',
+    'domain driven design', 'test driven development', 'behavior driven development', 'acceptance test driven development',
+    'design patterns', 'architectural patterns', 'gang of four patterns', 'singleton pattern',
+    'factory pattern', 'builder pattern', 'prototype pattern', 'adapter pattern', 'decorator pattern',
+    'facade pattern', 'proxy pattern', 'observer pattern', 'publish subscribe pattern', 'strategy pattern',
+    'command pattern', 'chain of responsibility', 'iterator pattern', 'composite pattern', 'flyweight pattern',
+    'model view controller', 'model view presenter', 'model view viewModel', 'flux architecture', 'redux pattern',
+    'cqrs', 'command query responsibility segregation', 'event sourcing', 'event driven architecture',
+    'microkernel architecture', 'space based architecture', 'layered architecture', 'hexagonal architecture',
+    'onion architecture', 'clean architecture', 'solid principles', 'dry principle', 'kiss principle',
+    'yagni principle', 'separation of concerns', 'coupling and cohesion', 'loose coupling', 'high cohesion',
+    'abstraction', 'encapsulation', 'inheritance', 'polymorphism', 'composition over inheritance',
+    'interface segregation', 'dependency inversion', 'dependency injection', 'inversion of control',
+    'service locator pattern', 'template method pattern', 'memento pattern', 'state pattern', 'visitor pattern',
+    'mediator pattern', 'interpreter pattern', 'bridge pattern', 'flyweight pattern', 'proxy pattern',
+    'software design principles', 'architectural decision records', 'design thinking', 'agile methodology',
+    'scrum framework', 'kanban board', 'lean startup', 'extreme programming', 'pair programming',
+    'mob programming', 'code review', 'refactoring', 'technical debt', 'legacy code', 'spaghetti code',
+    'big ball of mud', 'software entropy', 'conway law', 'consul', 'zookeeper', 'etcd',
+
+    // Mobile Development
+    'mobile application development', 'native mobile development', 'cross platform development',
+    'hybrid mobile app', 'progressive web app', 'react native', 'flutter', 'ionic', 'xamarin',
+    'swift programming', 'swiftui', 'uikit', 'kotlin', 'jetpack compose', 'android sdk',
+    'gradle build system', 'android manifest', 'app lifecycle', 'activity', 'fragment', 'intent',
+    'service', 'broadcast receiver', 'content provider', 'view model', 'live data', 'data binding',
+    'room database', 'sqlite', 'core data', 'realm database', 'firebase', 'google play services',
+    'apple app store', 'app store optimization', 'mobile analytics', 'crash reporting', 'performance monitoring',
+    'push notifications', 'in app purchases', 'mobile payments', 'biometrics authentication',
+    'background processing', 'foreground service', 'work manager', 'alarm manager', 'job scheduler',
+    'network requests', 'retrofit', 'okhttp', 'alamofire', 'volley', 'image loading', 'glide',
+    'picasso', 'coil', 'kingfisher', 'custom views', 'animations', 'transitions', 'gestures',
+    'touch events', 'recycler view', 'table view', 'collection view', 'navigation component',
+    'material design', 'human interface guidelines', 'design system', 'component library',
+
+    // Blockchain & Web3
+    'blockchain technology', 'distributed ledger', 'smart contract', 'decentralized application',
+    'ethereum', 'bitcoin', 'cryptocurrency', 'digital currency', 'virtual currency', 'altcoin',
+    'stablecoin', 'central bank digital currency', 'non fungible token', 'nft marketplace',
+    'decentralized finance', 'defi protocol', 'yield farming', 'liquidity mining', 'staking',
+    'crypto wallet', 'hardware wallet', 'software wallet', 'metamask', 'web3 js', 'ethers js',
+    'consensus mechanism', 'proof of work', 'proof of stake', 'proof of authority', 'delegated proof of stake',
+    'proof of history', 'byzantine fault tolerance', 'hash rate', 'mining pool', 'block reward',
+    'gas fee', 'transaction fee', 'gas limit', 'gas price', 'ether', 'gwei', 'wei', 'satoshi',
+    'block explorer', 'ethereum virtual machine', 'solidity', 'rust', 'chainlink', 'oracle network',
+    'interoperability', 'cross chain bridge', 'atomic swap', 'layer 2 scaling', 'rollup',
+    'zero knowledge proof', 'zk snark', 'zk stark', 'privacy coin', 'mixing service', 'tumbler',
+    'dao', 'decentralized autonomous organization', 'governance token', 'utility token', 'security token',
+    'initial coin offering', 'initial exchange offering', 'security token offering', 'airdrop',
+    'tokenomics', 'market cap', 'circulating supply', 'total supply', 'all time high',
+    'fear and greed index', 'bull market', 'bear market', 'hodl', 'fomo', 'dyor', 'whale',
+    'scalability', 'trilemma', 'sharding', 'sidechain', 'plasma', 'state channel', 'lightning network',
+    'peer to peer network', 'node operator', 'full node', 'light node', 'masternode', 'validator node',
+    'soft fork', 'hard fork', 'chain split', 'immutability', 'censorship resistance', 'trustlessness',
+
+    // Internet of Things (IoT)
+    'internet of things', 'iot devices', 'smart home', 'connected devices', 'industrial internet of things',
+    'edge computing', 'fog computing', 'iot platform', 'iot gateway', 'sensor network',
+    'embedded systems', 'microcontroller', 'system on chip', 'firmware', 'real time operating system',
+    'mqtt protocol', 'coap protocol', 'amqp', 'opc ua', 'zigbee', 'z wave', 'ble', 'bluetooth low energy',
+    'lora', 'lorawan', 'nb iot', 'sigfox', 'wifi', 'cellular iot', 'lte m', '5g iot',
+    'actuator', 'transducer', 'raspberry pi', 'arduino', 'esp32', 'esp8266', 'stm32',
+    'arduino ide', 'platformio', 'micropython', 'circuitpython', 'free rtos', 'embedded linux',
+    'device management', 'over the air update', 'ota update', 'device provisioning', 'device authentication',
+    'iot security', 'hardware security module', 'secure element', 'trusted execution environment',
+    'telemetry', 'data logging', 'time series data', 'predictive maintenance', 'digital twin',
+    'smart city', 'smart grid', 'connected car', 'vehicle to everything', 'v2x', 'autonomous vehicle',
+    'industrial automation', 'plc', 'programmable logic controller', 'scada', 'supervisory control and data acquisition',
+    'hmi', 'human machine interface', 'fieldbus', 'modbus', 'profibus', 'industrial ethernet',
+
+    // Quantum Computing
+    'quantum computing', 'quantum mechanics', 'quantum physics', 'quantum theory', 'quantum bits',
+    'qubit', 'superposition', 'entanglement', 'quantum interference', 'quantum decoherence',
+    'quantum gate', 'quantum circuit', 'quantum algorithm', 'shor algorithm', 'grover algorithm',
+    'quantum supremacy', 'quantum advantage', 'quantum annealing', 'adiabatic quantum computation',
+    'quantum error correction', 'surface code', 'fault tolerant quantum computing', 'noisy intermediate scale quantum',
+    'quantum simulator', 'quantum cloud', 'ibm quantum', 'google sycamore', 'rigetti computing',
+    'ionq', 'd wave systems', 'quantum programming', 'qiskit', 'cirq', 'pyquil', 'braket',
+    'quantum cryptography', 'quantum key distribution', 'post quantum cryptography', 'quantum safe',
+    'quantum sensing', 'quantum metrology', 'quantum imaging', 'quantum communication',
+    'topological quantum computing', 'anyons', 'majorana fermions', 'spin qubit', 'trapped ion qubit',
+    'superconducting qubit', 'photonic qubit', 'neutral atom qubit', 'silicon spin qubit',
+    'quantum volume', 'quantum fidelity', 'coherence time', 'relaxation time', 'dephasing time',
+
+    // Game Development
+    'game development', 'game engine', 'unity engine', 'unreal engine', 'godot engine',
+    'game design', 'level design', 'game mechanics', 'gameplay loop', 'player progression',
+    'game physics', 'collision detection', 'rigid body dynamics', 'soft body physics',
+    'rendering pipeline', 'graphics pipeline', 'shader programming', 'vertex shader', 'fragment shader',
+    'compute shader', 'ray tracing', 'path tracing', 'global illumination', 'lighting model',
+    'physically based rendering', 'pbr', 'texture mapping', 'normal mapping', 'displacement mapping',
+    'bump mapping', 'parallax mapping', 'ambient occlusion', 'screen space ambient occlusion',
+    'shadow mapping', 'cascade shadows', 'shadow volumes', 'bloom', 'depth of field', 'motion blur',
+    'anti aliasing', 'multisampling', 'temporal anti aliasing', 'supersampling', 'post processing',
+    'particle system', 'vfx', 'visual effects', 'animation system', 'skeletal animation', 'blend shapes',
+    'inverse kinematics', 'forward kinematics', 'animation tree', 'state machine', 'animation blending',
+    'artificial intelligence', 'behavior tree', 'finite state machine', 'navigation mesh', 'pathfinding',
+    'a star algorithm', 'dijkstra algorithm', 'steering behaviors', 'flocking', 'boids',
+    'game networking', 'replication', 'interpolation', 'extrapolation', 'lag compensation',
+    'client side prediction', 'server reconciliation', 'tick rate', 'snapshot interpolation',
+    'entity component system', 'data oriented design', 'cache coherence', 'memory management',
+    'object pooling', 'spatial partitioning', 'quadtree', 'octree', 'broad phase', 'narrow phase',
+    'game ui', 'user interface', 'hud', 'heads up display', 'menu system', 'input handling',
+    'game controller', 'keyboard and mouse', 'touch input', 'virtual reality', 'vr',
+    'augmented reality', 'ar', 'mixed reality', 'mr', 'xr', 'spatial computing', 'haptics',
+    'procedural generation', 'terrain generation', 'dungeon generation', 'perlin noise', 'simplex noise',
+    'wave function collapse', 'cellular automata', 'game audio', 'sound design', 'music composition',
+    'audio engine', 'fmod', 'wwise', 'audio middleware', 'spatial audio', '3d audio', 'hrtf',
   ];
 
   const placeholders: { [key: string]: string } = {};
