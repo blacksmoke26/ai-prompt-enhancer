@@ -11,10 +11,10 @@ import {Button} from '~/components/ui/Button';
 import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '~/components/ui/Tooltip';
 
 // components
-import SmartSuggestionsPanel from './SmartSuggestionsPanel';
+import SmartSuggestionsPanel from '~/components/SmartSuggestionsPanel';
 
 // AI brain module
-import EnhancedAIBrainV2 from '~/lib/ai-brain-enhanced';
+import {EnhancedAIBrainV3} from '~/lib/ai-brain-enhanced';
 
 export interface SmartSuggestionsTriggerProps {
   /** Current prompt text */
@@ -42,14 +42,14 @@ export interface SmartSuggestionsTriggerProps {
  * ```
  */
 const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = (props) => {
-  const {prompt, isVisible, onTogglePanel, response} = props;
+  const {prompt, isVisible = true, onTogglePanel, response} = props;
 
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [analysis, setAnalysis] = useState<any>(null);
 
   useEffect(() => {
     // Initialize EnhancedAIBrainV2 instance
-    const enhancedBrain = EnhancedAIBrainV2.getInstance();
+    const enhancedBrain = EnhancedAIBrainV3.getInstance();
 
     // Analyze prompt when panel is visible
     if (isVisible && prompt) {
