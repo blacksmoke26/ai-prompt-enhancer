@@ -1,17 +1,26 @@
+/**
+ * AI Brain Module for Intelligent Prompt Analysis and Suggestions
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React from 'react';
-import { cn } from '../../utils/helpers';
+
+// utils
+import { cn } from '~/utils/helpers.ts';
 
 /**
  * Type for Badge variants
  * @default 'default'
  */
-type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline';
+export type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline';
 
 /**
  * Props for the Badge component
  * @extends React.HTMLAttributes<HTMLDivElement>
  */
-interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Visual variant of the badge */
   variant?: BadgeVariant;
   /** Content to be rendered inside the badge */
