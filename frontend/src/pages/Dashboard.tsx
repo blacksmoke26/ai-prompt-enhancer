@@ -118,7 +118,7 @@ export const Dashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="h-screen bg-background flex">
       <Sidebar>
         <div className="space-y-4">
           {/* Navigation Tabs */}

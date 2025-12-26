@@ -19,7 +19,7 @@ export const App: React.FC = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="h-screen bg-background text-foreground">
           <Dashboard />
           <Toaster
             position="top-right"
