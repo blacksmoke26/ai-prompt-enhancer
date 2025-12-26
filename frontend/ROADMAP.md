@@ -16,6 +16,7 @@ This document outlines the current status, completed features, and future develo
 - [x] Theme support (light, dark, system)
 - [x] Sidebar navigation with collapsible functionality
 - [x] Tab-based interface for different application views
+- [x] Drag and drop layout management with @dnd-kit
 
 #### Prompt Enhancement
 - [x] Main prompt enhancement interface
@@ -25,6 +26,8 @@ This document outlines the current status, completed features, and future develo
 - [x] Keyboard shortcuts (Ctrl/Cmd + Enter)
 - [x] Error handling and user feedback
 - [x] Integration with AI providers and models
+- [x] Advanced prompt editor with preview mode and word cloud visualization
+- [x] Template insertion capabilities
 
 #### History Management
 - [x] Prompt history tracking
@@ -33,11 +36,14 @@ This document outlines the current status, completed features, and future develo
 - [x] Export functionality
 - [x] Clear history option
 - [x] Refresh capabilities
+- [x] Rating and note system for history items
 
 #### Statistics & Analytics
 - [x] Usage statistics visualization
 - [x] Performance metrics display
 - [x] Data charts using Recharts
+- [x] Prompt enhancement trends
+- [x] Interactive data visualizations
 
 #### Configuration & Settings
 - [x] Theme preferences (light, dark, system)
@@ -45,6 +51,8 @@ This document outlines the current status, completed features, and future develo
 - [x] Enhancement type configuration
 - [x] User role management
 - [x] API configuration options
+- [x] Dashboard layout preferences
+- [x] Auto-save behavior configuration
 
 #### UI Components
 - [x] Custom UI components using Radix UI themes
@@ -53,6 +61,9 @@ This document outlines the current status, completed features, and future develo
 - [x] Form components with validation
 - [x] Loading states and skeleton loaders
 - [x] Toast notifications
+- [x] Advanced prompt editor with preview and word cloud features
+- [x] Model selection component with health indicators
+- [x] Settings panel with comprehensive configuration options
 
 ## Contributing
 
@@ -70,6 +81,7 @@ This document outlines the current status, completed features, and future develo
 - Proper error handling
 - Comprehensive documentation
 - Unit and integration testing
+- End-to-end testing with Playwright
 
 ### Documentation Standards
 - All new features must include documentation
@@ -92,6 +104,7 @@ This document outlines the current status, completed features, and future develo
 - Documentation improvements
 - Video tutorials and guides
 - API versioning and migration support
+- Enhanced end-to-end testing coverage
 
 ## Version History
 
@@ -102,3 +115,7 @@ This document outlines the current status, completed features, and future develo
 - Statistics dashboard
 - Responsive design
 - Theme support
+- Advanced prompt editor with preview mode and word cloud
+- Drag and drop layout customization
+- Comprehensive settings panel
+- End-to-end testing support

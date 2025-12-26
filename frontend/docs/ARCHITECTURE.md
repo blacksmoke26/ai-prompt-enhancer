@@ -18,7 +18,8 @@ The AI Prompt Enhancer is a modern React-based web application designed to help 
 - **Markdown Rendering**: @uiw/react-markdown-preview
 - **Rich Text Editor**: @mdxeditor/editor
 - **Drag and Drop**: @dnd-kit
-- **Testing**: Jest and React Testing Library
+- **Testing**: Jest, React Testing Library, and Playwright
+- **End-to-End Testing**: Playwright
 
 ### 2. Project Structure
 
@@ -53,6 +54,7 @@ frontend/
 - Handles dashboard layout configuration with drag-and-drop support
 - Stores auto-save preferences and user preferences
 - Manages application loading states and error handling
+- Stores dashboard layout preferences
 
 #### History Store (useHistoryStore)
 - Manages prompt history data
@@ -61,6 +63,7 @@ frontend/
 - Stores statistics about prompt usage
 - Implements local storage persistence
 - Manages history item ratings and notes
+- Handles history item sorting and filtering
 
 ### 4. Core Components
 
@@ -70,6 +73,7 @@ frontend/
 - Responsive design with mobile-friendly navigation
 - Theme switching controls
 - Application loading states management
+- Dashboard layout management with drag-and-drop support
 
 #### PromptEnhancer
 - Main prompt enhancement interface
@@ -79,6 +83,7 @@ frontend/
 - Template insertion capabilities
 - Integration with API services
 - Keyboard shortcuts support
+- Advanced editor features (preview mode, word cloud visualization)
 
 #### AdvancedPromptEditor
 - Enhanced text editor with additional features for prompt creation
@@ -89,6 +94,7 @@ frontend/
 - Auto-save functionality
 - Preview mode with syntax highlighting
 - Word cloud visualization
+- Integration with prompt enhancement services
 
 #### HistoryPanel
 - Displays prompt history with filtering and search capabilities
@@ -97,6 +103,7 @@ frontend/
 - Rating and note system for history items
 - Refresh button for updating data
 - Loading indicators and error handling
+- Sorting and filtering capabilities
 
 #### StatsPanel
 - Visualizes prompt usage statistics
@@ -105,6 +112,7 @@ frontend/
 - Interactive data visualizations with Recharts
 - Responsive chart components
 - Data filtering and sorting capabilities
+- Export functionality for statistics
 
 #### ModelSelector
 - Allows users to select AI models for prompt enhancement
@@ -112,6 +120,7 @@ frontend/
 - Model information display with health status indicators
 - Provider configuration management
 - Integration with API services
+- Model test functionality
 
 #### SettingsPanel
 - Configuration interface for application preferences
@@ -121,6 +130,7 @@ frontend/
 - Customization options
 - Role-based configuration settings
 - Auto-save behavior configuration
+- Dashboard layout preferences
 
 ### 5. Services Layer
 
@@ -131,6 +141,8 @@ frontend/
 - Implements health checks for AI providers
 - Error handling and retry mechanisms
 - Request/response transformation utilities
+- History management operations
+- Statistics retrieval
 
 ### 6. Data Flow
 
@@ -170,6 +182,7 @@ The application follows a mobile-first approach with:
 - Optimized rendering with React.memo
 - Proper error boundaries for graceful degradation
 - Loading states for async operations
+- Local storage persistence for history and settings
 
 ### 10. Security
 
@@ -179,6 +192,7 @@ The application follows a mobile-first approach with:
 - Role-based access control where applicable
 - CSRF protection for API requests
 - XSS prevention in rendered content
+- Secure handling of API keys and credentials
 
 ### 11. Testing Strategy
 
@@ -188,6 +202,7 @@ The application follows a mobile-first approach with:
 - Mocking of API services for isolated testing
 - Snapshot testing for component consistency
 - Test coverage reporting with Istanbul
+- End-to-end testing with Playwright for comprehensive coverage
 
 ## Development Workflow
 
@@ -205,6 +220,7 @@ The application follows a mobile-first approach with:
 - E2E tests for core user flows
 - Mock-based testing for API dependencies
 - Test coverage monitoring and reporting
+- End-to-end testing with Playwright for comprehensive coverage
 
 ### Deployment
 - Single-page application deployment
@@ -212,3 +228,4 @@ The application follows a mobile-first approach with:
 - CDN support for faster loading
 - Environment-specific configuration management
 - Automated build and deployment pipeline
+- End-to-end testing in CI pipeline

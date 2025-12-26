@@ -18,8 +18,8 @@ This document provides detailed documentation for all major components in the AI
 - Responsive sidebar with collapsible functionality
 - Theme switching controls
 - Mobile-friendly navigation bar
-- Loading and error states management
 - Application loading states management
+- Dashboard layout management with drag-and-drop support
 
 **Structure**:
 ```tsx
@@ -51,6 +51,7 @@ This document provides detailed documentation for all major components in the AI
 - Keyboard shortcuts (Ctrl/Cmd + Enter)
 - Integration with API services
 - Template insertion capabilities
+- Advanced editor features (preview mode, word cloud visualization)
 
 ### 3. AdvancedPromptEditor
 **File**: `src/components/AdvancedPromptEditor/index.tsx`
@@ -91,6 +92,7 @@ interface AdvancedPromptEditorProps {
 - Syntax highlighting for markdown
 - Template management system
 - Keyboard shortcuts for formatting
+- Integration with prompt enhancement services
 
 ### 4. HistoryPanel
 **File**: `src/components/HistoryPanel/index.tsx`
@@ -118,11 +120,10 @@ interface HistoryPanelProps {
 - Clear history option
 - Refresh button for updating data
 - Loading indicators
--
- Error handling
+- Error handling
 - Rating and note system for history items
 - Data persistence with local storage
-
+- Sorting and filtering capabilities
 
 ### 5. StatsPanel
 **File**: `src/components/StatsPanel/index.tsx`
@@ -156,6 +157,7 @@ interface HistoryPanelProps {
 - Integration with API services
 - Model configuration options
 - Provider test functionality
+- Model test functionality
 
 ### 7. SettingsPanel
 **File**: `src/components/SettingsPanel/index.tsx`
@@ -172,6 +174,7 @@ interface HistoryPanelProps {
 - Customization options
 - Role-based configuration settings
 - Auto-save behavior configuration
+- Dashboard layout preferences
 - Application version display
 
 ## UI Components
@@ -195,6 +198,7 @@ interface SidebarProps {
 - Responsive design
 - Navigation item highlighting
 - Application loading state indicator
+- Dashboard layout management
 
 ### 2. ThemeProvider
 **File**: `src/components/ThemeProvider.tsx`
@@ -287,6 +291,8 @@ interface NavigationTabsProps {
   updateItem: (id: string, updates: Partial<PromptHistory>) => void;
   clearHistory: () => void;
   exportHistory: () => void;
+  sortHistory: (field: string, direction: 'asc' | 'desc') => void;
+  filterHistory: (query: string) => void;
 }
 ```
 
@@ -301,6 +307,21 @@ interface NavigationTabsProps {
   theme: 'light' | 'dark' | 'system';
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
   isDarkMode: boolean;
+}
+```
+
+### 5. useDashboardLayout
+**File**: `src/hooks/useDashboardLayout.ts`
+
+**Purpose**: Hook for managing dashboard layout configuration.
+
+**Returns**:
+```typescript
+{
+  layout: DashboardLayout;
+  updateLayout: (newLayout: Partial<DashboardLayout>) => void;
+  saveLayout: () => void;
+  resetLayout: () => void;
 }
 ```
 
@@ -322,6 +343,8 @@ interface NavigationTabsProps {
 - `updateHistory(id: string, updates: Partial<PromptHistory>)`: Update a history item
 - `exportHistory()`: Export history data
 - `getStats()`: Retrieve usage statistics
+- `getHistoryWithFilters(filters: HistoryFilters)`: Retrieve filtered history
+- `getHistorySorting(sortField: string, sortDirection: 'asc' | 'desc')`: Retrieve sorted history
 
 ## State Management
 
@@ -339,6 +362,7 @@ interface NavigationTabsProps {
 - Auto-save preferences
 - Application loading states
 - Error handling state
+- Dashboard layout preferences
 
 ### 2. useHistoryStore
 **File**: `src/stores/historyStore.ts`
@@ -352,6 +376,7 @@ interface NavigationTabsProps {
 - Persistence through localStorage
 - History item ratings and notes
 - History data filtering and sorting
+- History item management with search capabilities
 
 ## Utility Components
 
@@ -422,6 +447,32 @@ interface RatingSystemProps {
 }
 ```
 
+### 6. WordCloud
+**File**: `src/components/WordCloud.tsx`
+
+**Purpose**: Component for visualizing word frequency in prompts.
+
+**Props**:
+```typescript
+interface WordCloudProps {
+  text: string;
+  onWordClick?: (word: string) => void;
+}
+```
+
+### 7. PreviewMode
+**File**: `src/components/PreviewMode.tsx`
+
+**Purpose**: Component for displaying markdown preview of prompts.
+
+**Props**:
+```typescript
+interface PreviewModeProps {
+  content: string;
+  className?: string;
+}
+```
+
 ## Data Models
 
 ### PromptRequest
@@ -479,6 +530,7 @@ interface AppConfig {
   defaultSystemPrompt: string;
   theme: 'light' | 'dark' | 'system';
   autoSave: boolean;
+  dashboardLayout: DashboardLayout;
 }
 ```
 
@@ -492,6 +544,21 @@ interface PromptTemplate {
   category: string;
   createdAt: string;
   updatedAt: string;
+}
+```
+
+### DashboardLayout
+```typescript
+interface DashboardLayout {
+  sidebarCollapsed: boolean;
+  activeTab: string;
+  components: {
+    [key: string]: {
+      position: { x: number; y: number };
+      size: { width: number; height: number };
+      visible: boolean;
+    };
+  };
 }
 ```
 
@@ -535,3 +602,4 @@ interface PromptTemplate {
 - Use mocking for API dependencies
 - Implement snapshot testing for component consistency
 - Monitor test coverage and maintain high coverage
+- Include end-to-end testing with Playwright for comprehensive coverage

@@ -35,6 +35,10 @@ The AI Prompt Enhancer is a comprehensive tool that transforms how users interac
 - **Template System**: Predefined prompt templates for common use cases
 - **Export Functionality**: Export history and enhanced prompts
 - **Role-Based Customization**: Different enhancement approaches based on user roles
+- **Advanced Prompt Editor**: Enhanced text editor with word cloud visualization and preview mode
+- **Drag and Drop Layout**: Customizable dashboard layout with drag and drop functionality
+- **Real-time Feedback**: Instant statistics and performance metrics
+- **Local Storage Persistence**: Automatic saving of history and settings
 
 ## 🛠️ Technology Stack
 
@@ -49,6 +53,7 @@ The AI Prompt Enhancer is a comprehensive tool that transforms how users interac
 - **Drag and Drop**: @dnd-kit
 - **HTTP Client**: Axios
 - **Testing**: Jest and React Testing Library
+- **End-to-End Testing**: Playwright
 
 ## 📁 Project Structure
 
@@ -125,6 +130,9 @@ npm run test
 
 # Run tests with coverage
 npm run test:coverage
+
+# Run end-to-end tests
+npm run test:e2e
 ```
 
 ## 📊 Usage
@@ -151,6 +159,17 @@ Core interface for:
 - Enhancement controls and action buttons
 - Error handling and user feedback
 - Template insertion capabilities
+- Advanced editor features (preview mode, word cloud visualization)
+
+### AdvancedPromptEditor
+Enhanced text editor with:
+- Markdown support with real-time preview
+- Word count and character limit validation
+- Template insertion functionality
+- Formatting toolbar with markdown support
+- Auto-save functionality
+- Preview mode with syntax highlighting
+- Word cloud visualization
 
 ### HistoryPanel
 Prompt history management with:
@@ -166,6 +185,22 @@ Data visualization with:
 - Performance metrics
 - Prompt enhancement trends
 - Interactive data visualizations
+
+### ModelSelector
+AI model selection component with:
+- Model information display
+- Provider selection
+- Health status indicators
+- Integration with API services
+
+### SettingsPanel
+Configuration interface with:
+- Theme selection (light, dark, system)
+- User preference management
+- API key management
+- Customization options
+- Role-based configuration settings
+- Auto-save behavior configuration
 
 ## 🎨 Theming
 
@@ -200,6 +235,7 @@ The application allows customization of:
 - Default system prompts
 - Theme preferences
 - Auto-save behavior
+- Dashboard layout preferences
 
 ## 📈 Roadmap
 

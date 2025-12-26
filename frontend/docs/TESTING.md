@@ -94,7 +94,7 @@ When testing React components, follow these guidelines:
 
 ### Example Component Test
 
-```typescript
+```typescript jsx
 // src/components/PromptEnhancer/PromptEnhancer.test.tsx
 import { render, screen, fireEvent } from '@testing-library/react';
 import PromptEnhancer from './PromptEnhancer';
@@ -306,7 +306,7 @@ Test components under various loading conditions:
 ### Testing Accessibility
 
 Include accessibility checks in tests:
-```typescript
+```typescript jsx
 import { render } from '@testing-library/react';
 import { axe } from 'axe-core';
 
@@ -339,3 +339,52 @@ npm run test -- --verbose
 # Run tests with coverage for specific file
 npm run test:coverage -- src/components/PromptEnhancer.test.tsx
 ```
+
+## End-to-End Testing with Playwright
+
+### Playwright Configuration
+
+The application uses Playwright for comprehensive end-to-end testing:
+
+- Tests run in real browser environments
+- Supports multiple browser targets
+- Provides robust element locators
+- Handles complex user interactions
+- Integrates with CI pipelines
+- Generates test reports
+
+### E2E Test Structure
+
+```
+tests/e2e/
+├── dashboard/
+│   ├── navigation.spec.ts
+│   └── layout.spec.ts
+├── prompt/
+│   ├── enhancement.spec.ts
+│   └── history.spec.ts
+└── settings/
+    └── theme.spec.ts
+```
+
+### Running E2E Tests
+
+```bash
+# Run all E2E tests
+npm run test:e2e
+
+# Run E2E tests in UI mode for debugging
+npm run test:e2e:ui
+
+# Run specific E2E test file
+npx playwright test tests/e2e/prompt/enhancement.spec.ts
+```
+
+### E2E Testing Best Practices
+
+1. **Use data-testid attributes** for reliable selectors
+2. **Write tests that mirror user workflows**
+3. **Handle async operations properly**
+4. **Use page objects for reusable components**
+5. **Implement proper test fixtures**
+6. **Ensure tests are independent and idempotent**
