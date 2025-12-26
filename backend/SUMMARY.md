@@ -45,8 +45,11 @@ src/
 ├── constants/        # Application constants
 ├── controllers/      # Fastify route controllers
 ├── database/         # Database models, migrations, and seeders
+├── fastify/          # Fastify specific configurations and bootstrapping
+├── helpers/          # Helper functions and utilities
 ├── middleware/       # Custom middleware functions
 ├── providers/        # Provider-specific implementations
+├── schemas/          # JSON schemas for validation
 ├── services/         # Business logic services
 ├── types/            # TypeScript type definitions
 └── utils/            # Utility functions
