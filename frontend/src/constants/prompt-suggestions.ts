@@ -4603,7 +4603,6 @@ export const allSuggestions: SmartSuggestion[] = [
  * @developerNote These categories are used to filter and group suggestions in the UI with hierarchical organization
  */
 export const categories = [
-  'all',
   // Foundational categories
   'clarity',
   'context',
@@ -4705,7 +4704,6 @@ export const categories = [
  * @developerNote These levels help users find suggestions appropriate to their cognitive capacity and domain knowledge
  */
 export const complexities = [
-  'all',
   'novice',
   'beginner',
   'intermediate',
@@ -4723,7 +4721,6 @@ export const complexities = [
  * @developerNote These levels indicate the type of intelligence required to generate and understand the suggestion, including human and artificial dimensions
  */
 export const intelligenceLevels = [
-  'all',
   // Foundational intelligence levels
   'basic',
   'intermediate',
