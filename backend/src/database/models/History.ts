@@ -20,7 +20,7 @@ export type HistoryAttributes = InferAttributes<History>;
  */
 class History extends Model<InferAttributes<History>, InferCreationAttributes<History>> {
   /** Unique identifier for the history record */
-  declare readonly id: CreationOptional<number>;
+  declare readonly id?: CreationOptional<number>;
   /** ID of the associated provider */
   declare providerId: number;
   /** The original prompt sent to the provider */
@@ -36,23 +36,23 @@ class History extends Model<InferAttributes<History>, InferCreationAttributes<Hi
   /** The response received from the provider */
   declare systemPrompt: string;
   /** The number of tokens used for the response */
-  declare tokensUsed: number;
+  declare tokensUsed?: number;
   /** The time taken to process the request */
-  declare processingTime: number;
+  declare processingTime?: number;
   /** The temperature used for the response */
-  declare temperature: number;
+  declare temperature?: number;
   /** The maximum number of tokens allowed for the response */
-  declare maxTokens: number;
+  declare maxTokens?: number;
   /** The rating given to the response */
-  declare rating: number;
+  declare rating?: number;
   /** Any additional notes about the response */
-  declare notes: string | null;
+  declare notes?: string | null;
   /** Optional metadata for the history record */
   declare meta?: Record<string, any>;
   /** Timestamp when the record was created */
-  declare readonly createdAt: CreationOptional<Date>;
+  declare readonly createdAt?: CreationOptional<Date>;
   /** Timestamp when the record was last updated */
-  declare readonly updatedAt?: Date;
+  declare readonly updatedAt?: CreationOptional<Date>;
 }
 
 History.init(
@@ -103,21 +103,25 @@ History.init(
       field: 'tokens_used',
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 0,
     },
     processingTime: {
       field: 'processing_time',
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 0,
     },
     temperature: {
       field: 'temperature',
       type: DataTypes.NUMBER,
       allowNull: false,
+      defaultValue: 0.8,
     },
     maxTokens: {
       field: 'max_tokens',
       type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 2000,
     },
     rating: {
       field: 'rating',
@@ -135,6 +139,7 @@ History.init(
       field: 'metadata',
       type: DataTypes.JSON,
       allowNull: true,
+      defaultValue: {},
     },
     createdAt: {
       field: 'created_at',
