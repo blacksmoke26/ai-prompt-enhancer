@@ -42,6 +42,6 @@ module.exports = {
   development: {
     dialect: 'sqlite',
     storage: env.getString('SQLITE_STORAGE') ?? 'database/database.sqlite',
-    logging: true,
+    logging: console.log,
   }
 };
