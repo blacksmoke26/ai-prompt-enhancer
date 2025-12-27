@@ -46,7 +46,25 @@ export interface ProviderConfig {
   apiKey?: string;
   /** Request timeout in milliseconds (provider-specific) */
   timeout?: number;
-
+  /** Provider-specific options */
+  options?: {
+    [key: string]: any;
+    /** Whether to use SSL/TLS */
+    secure?: boolean;
+    /** Proxy configuration */
+    proxy?: string;
+    /** Custom headers */
+    headers?: Record<string, string>;
+    /** Retry configuration */
+    retry?: {
+      /** Maximum number of retries */
+      maxAttempts?: number;
+      /** Initial delay between retries in milliseconds */
+      delay?: number;
+      /** Backoff factor for retry delays */
+      backoffFactor?: number;
+    };
+  };
   /** Additional provider-specific properties */
-  [key: string]: any;
+  [key: string]: any; /** Additional configuration options */
 }

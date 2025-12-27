@@ -56,6 +56,11 @@ export interface AIModel {
    * @example 4096
    */
   maxTokens?: number;
+  /**
+   * Last modified date
+   * @example "2023-05-01T12:00:00Z"
+   */
+  modifiedAt?: string;
 }
 
 /**

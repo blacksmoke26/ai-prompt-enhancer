@@ -111,7 +111,19 @@ export interface PromptRequest {
    * Whether the request is off-the-record (not stored in the history)
    * @example false
    */
-  offTheRecord: boolean;
+  offTheRecord?: boolean;
+  /** Top-p sampling parameter */
+  topP?: number;
+  /** Top-k sampling parameter */
+  topK?: number;
+  /** Stop sequences for generation */
+  stopSequences?: string[];
+  /** Frequency penalty parameter */
+  frequencyPenalty?: number;
+  /** Presence penalty parameter */
+  presencePenalty?: number;
+  /** Conversation ID for context */
+  conversationId?: string;
 }
 
 /**
@@ -159,6 +171,20 @@ export interface PromptResponse {
    * @example 1250
    */
   processingTime: number;
+  /** Additional metadata */
+  metadata?: {
+    [key: string]: any;
+    /** Model-specific details */
+    modelDetails?: any;
+    /** Total generation duration */
+    totalDuration?: number;
+    /** Evaluation duration */
+    evalDuration?: number;
+    /** Context length used */
+    contextLength?: number;
+    /** Streaming flag */
+    streaming?: boolean;
+  };
 }
 
 /**
@@ -357,4 +383,254 @@ export interface ProviderCapabilities {
   };
   /** Provider-specific configuration options */
   config?: Record<string, any>;
+  /** Whether the provider supports batch processing */
+  supportsBatchProcessing: boolean;
+  /** Whether the provider supports function calling */
+  supportsFunctionCalling: boolean;
+  /** Whether the provider supports conversation history */
+  supportsConversationHistory: boolean;
+  /** Whether the provider supports image generation */
+  supportsImageGeneration: boolean;
+  /** Whether the provider supports fine-tuning */
+  supportsFineTuning: boolean;
+  /** Maximum context length in tokens */
+  maxContextLength: number;
+  /** Supported output formats */
+  supportedFormats: string[];
+}
+
+/**
+ * Batch prompt request structure
+ */
+export interface BatchPromptRequest extends Omit<PromptRequest, 'conversationId'> {
+  /** Request ID for tracking */
+  requestId?: string;
+  /** Priority level (1-10) */
+  priority?: number;
+}
+
+/**
+ * Batch prompt response structure
+ */
+export interface BatchPromptResponse {
+  /** Whether the request was successful */
+  success: boolean;
+  /** Response data if successful */
+  response?: PromptResponse;
+  /** Error message if failed */
+  error?: string;
+  /** Original request */
+  originalRequest: BatchPromptRequest;
+  /** Index in the batch */
+  index: number;
+}
+
+/**
+ * Stream callback interface for real-time responses
+ */
+export interface StreamCallback {
+  (chunk: {
+    /** The text chunk received */
+    text: string;
+    /** Whether this is the final chunk */
+    isFinal: boolean;
+    /** Additional metadata */
+    metadata?: {
+      /** Model used */
+      model: string;
+      /** Token count so far */
+      tokenCount: number;
+      /** Context length */
+      contextLength: number;
+      /** Total duration */
+      totalDuration?: number;
+      /** Evaluation duration */
+      evalDuration?: number;
+      [key: string]: any;
+    };
+  }): void | Promise<void>;
+}
+
+/**
+ * Conversation context structure
+ */
+export interface ConversationContext {
+  /** Role of the message sender */
+  role: 'user' | 'assistant' | 'system';
+  /** Content of the message */
+  content: string;
+  /** Timestamp of the message */
+  timestamp?: Date;
+  /** Message metadata */
+  metadata?: {
+    [key: string]: any;
+    /** Token count */
+    tokens?: number;
+    /** Model used */
+    model?: string;
+    /** Whether this was a function call */
+    isFunctionCall?: boolean;
+  };
+}
+
+/**
+ * Function definition structure for function calling
+ */
+export interface FunctionDefinition {
+  /** Function name */
+  name: string;
+  /** Function description */
+  description?: string;
+  /** Function parameters schema */
+  parameters: {
+    [key: string]: any;
+    /** Parameter type */
+    type: string;
+    /** Required parameters */
+    required?: string[];
+    /** Parameter descriptions */
+    properties?: {
+      [key: string]: {
+        type: string;
+        description?: string;
+        [key: string]: any;
+      };
+    };
+  };
+  /** Strict schema validation */
+  strict?: boolean;
+}
+
+/**
+ * Function call result structure
+ */
+export interface FunctionCallResult {
+  /** Function name that was called */
+  name: string;
+  /** Function arguments */
+  arguments: Record<string, any>;
+  /** Function result */
+  result: any;
+  /** Whether the call was successful */
+  success: boolean;
+  /** Error message if failed */
+  error?: string;
+  /** Timestamp of the call */
+  timestamp: Date;
+}
+
+/**
+ * Usage metrics structure
+ */
+export interface UsageMetrics {
+  /** Provider name */
+  provider: string;
+  /** Timestamp of metrics */
+  timestamp: number;
+  /** Since timestamp (for time ranges) */
+  since?: number;
+  /** Request statistics */
+  requests: {
+    /** Total requests */
+    total: number;
+    /** Successful requests */
+    successful: number;
+    /** Failed requests */
+    failed: number;
+  };
+  /** Token usage statistics */
+  tokens: {
+    /** Prompt tokens */
+    prompt: number;
+    /** Completion tokens */
+    completion: number;
+    /** Total tokens */
+    total: number;
+  };
+  /** Model usage statistics */
+  models: Array<{
+    /** Model name */
+    name: string;
+    /** Usage count */
+    usageCount: number;
+    /** Last used timestamp */
+    lastUsed: number | null;
+  }>;
+  /** Performance metrics */
+  performance: {
+    /** Average response time in ms */
+    averageResponseTime: number;
+    /** 95th percentile response time */
+    p95ResponseTime: number;
+  };
+  /** Storage metrics */
+  storage?: {
+    /** Total storage size in bytes */
+    totalSize: number;
+    /** Number of models */
+    modelCount: number;
+  };
+}
+
+/**
+ * Health status structure
+ */
+export interface HealthStatus {
+  /** Overall status */
+  status: 'healthy' | 'degraded' | 'down';
+  /** Provider name */
+  provider: string;
+  /** Timestamp */
+  timestamp: number;
+  /** Version information */
+  version?: string;
+  /** Uptime information */
+  uptime?: string;
+  /** Service status */
+  services: {
+    /** API service status */
+    api: 'operational' | 'degraded' | 'down' | 'unknown';
+    /** Database status */
+    database: 'operational' | 'degraded' | 'down' | 'unknown';
+    /** Cache status */
+    cache: 'operational' | 'degraded' | 'down' | 'unknown';
+  };
+  /** Resource usage */
+  resources: {
+    /** CPU usage */
+    cpu: string;
+    /** Memory usage */
+    memory: string;
+    /** Disk usage */
+    disk: string;
+  };
+  /** Model statistics */
+  models: {
+    /** Total models */
+    total: number;
+    /** Active models */
+    active: number;
+    /** Loading models */
+    loading: number;
+  };
+  /** Request rate limiting */
+  requests: {
+    /** Current rate */
+    rate: number;
+    /** Rate limit */
+    limit: string;
+    /** Remaining requests */
+    remaining: string;
+  };
+  /** Latency metrics */
+  latency: {
+    /** 50th percentile latency */
+    p50: number;
+    /** 95th percentile latency */
+    p95: number;
+    /** 99th percentile latency */
+    p99: number;
+  };
+  /** Error information */
+  error?: string;
 }
