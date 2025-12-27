@@ -4,16 +4,24 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
+import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
 
 // constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+import { OutputFormat, OutputFormatName } from '~/constants/output-format';
 
 // types
-import type {AIModel} from '~/types';
-import type {ConfigMeta} from '~/database/models';
-import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type { AIModel } from '~/types';
+import type { ConfigMeta } from '~/database/models';
+import type { ProviderConfig } from '~/types/providers';
+import type {
+  FunctionCallResult,
+  FunctionDefinition,
+  PromptRequest,
+  PromptResponse,
+  ProviderCapabilities,
+  StreamCallback,
+  UsageMetrics,
+} from '~/types/prompt';
 
 /**
  * Cody AI provider for prompt enhancement and optimization.
@@ -59,7 +67,8 @@ export default class CodyProvider extends BaseAIProvider {
    * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
    */
   public static readonly DefaultPrompts: ProviderDefaultPrompt = {
-    system: 'You are Cody, an AI coding assistant from Sourcegraph. Help users refine prompts with a focus on technical accuracy and developer context.',
+    system:
+      'You are Cody, an AI coding assistant from Sourcegraph. Help users refine prompts with a focus on technical accuracy and developer context.',
     role: 'You are a prompt engineering assistant specialized in developer workflows. Improve prompts to be precise, actionable, and context-aware.',
   };
 
@@ -85,10 +94,14 @@ export default class CodyProvider extends BaseAIProvider {
   /**
    * @inheritDoc
    */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+  public static getProviderSpecificSystemPrompt(
+    formattedPrompt: string,
+    capabilities?: ProviderCapabilities,
+  ): string {
     // Cody is Sourcegraph's code-focused assistant
     formattedPrompt = `You are Cody, an AI coding assistant developed by Sourcegraph. ${formattedPrompt}`;
-    formattedPrompt += '\n\nFocus on providing accurate, helpful code suggestions and explanations.';
+    formattedPrompt +=
+      '\n\nFocus on providing accurate, helpful code suggestions and explanations.';
 
     return formattedPrompt;
   }
@@ -116,8 +129,11 @@ export default class CodyProvider extends BaseAIProvider {
    * ```
    */
   constructor(config: ConfigMeta) {
-    super(CodyProvider.ProviderKey, {baseUrl: config?.baseUrl || CodyProvider.ProviderConfig.baseUrl});
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
+    super(CodyProvider.ProviderKey, {
+      baseUrl: config?.baseUrl || CodyProvider.ProviderConfig.baseUrl,
+    });
+    this.client.defaults.headers.common['Authorization'] =
+      `Bearer ${config?.apiKey}`;
   }
 
   /**
@@ -180,7 +196,10 @@ export default class CodyProvider extends BaseAIProvider {
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, CodyProvider)},
+          {
+            role: 'system',
+            content: await this.formatSystemPrompt(systemPrompt, CodyProvider),
+          },
           {
             role: 'user',
             content: await this.formatPrompt(request, CodyProvider),
@@ -191,7 +210,10 @@ export default class CodyProvider extends BaseAIProvider {
       });
 
       const enhanced = await this.toPromptResponse(
-        response.data.choices?.[0]?.message?.content, request.text, CodyProvider, request?.format || 'markdown'
+        response.data.choices?.[0]?.message?.content,
+        request.text,
+        CodyProvider,
+        request?.format || 'markdown',
       );
 
       return {
@@ -224,12 +246,202 @@ export default class CodyProvider extends BaseAIProvider {
     try {
       const resp = await this.client.post('/chat', {
         model: 'cody-general',
-        messages: [{role: 'user', content: 'test'}],
+        messages: [{ role: 'user', content: 'test' }],
         max_tokens: 1,
       });
       return !!resp.data.choices;
     } catch {
       return false;
+    }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async streamPrompt(
+    request: PromptRequest,
+    callback: StreamCallback,
+  ): Promise<PromptResponse> {
+    const startTime = Date.now();
+    let fullContent = '';
+    let totalTokens = 0;
+
+    try {
+      const systemPrompt = await this.buildSystemPrompt(request, CodyProvider);
+
+      const response = await this.client.post(
+        '/chat',
+        {
+          model: request.model,
+          messages: [
+            {
+              role: 'system',
+              content: await this.formatSystemPrompt(
+                systemPrompt,
+                CodyProvider,
+              ),
+            },
+            {
+              role: 'user',
+              content: await this.formatPrompt(request, CodyProvider),
+            },
+          ],
+          temperature: request.temperature ?? 0.7,
+          max_tokens: request.maxTokens ?? 2000,
+          stream: true,
+        },
+        {
+          responseType: 'stream',
+        },
+      );
+
+      return new Promise((resolve, reject) => {
+        response.data.on('data', (chunk: Buffer) => {
+          const lines = chunk
+            .toString()
+            .split('\n')
+            .filter((line) => line.trim() !== '');
+
+          for (const line of lines) {
+            if (line.includes('[DONE]')) continue;
+
+            if (line.startsWith('data: ')) {
+              try {
+                const json = JSON.parse(line.slice(6));
+                const content = json.choices?.[0]?.delta?.content || '';
+
+                if (content) {
+                  fullContent += content;
+                  callback({ text: content, isFinal: false });
+                }
+
+                if (json.usage) {
+                  totalTokens = json.usage.total_tokens;
+                }
+              } catch (e) {
+                // Skip invalid JSON
+              }
+            }
+          }
+        });
+
+        response.data.on('end', async () => {
+          try {
+            const enhanced = await this.toPromptResponse(
+              fullContent,
+              request.text,
+              CodyProvider,
+              request?.format || 'markdown',
+            );
+
+            callback({ text: fullContent, isFinal: true });
+
+            resolve({
+              enhancedPrompt: enhanced,
+              originalPrompt: request.text,
+              model: request.model,
+              timestamp: new Date(),
+              tokensUsed: totalTokens,
+              processingTime: this.calculateProcessingTime(startTime),
+            });
+          } catch (error) {
+            reject(error);
+          }
+        });
+
+        response.data.on('error', (error: Error) => {
+          reject(new Error(`Stream error: ${error.message}`));
+        });
+      });
+    } catch (error: any) {
+      console.error('Cody streaming failed:', error);
+      throw new Error(`Failed to stream prompt with Cody: ${error.message}`);
+    }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async getUsageMetrics(since?: number): Promise<UsageMetrics> {
+    throw new Error(`No usage metrics`);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async callFunction(
+    functions: FunctionDefinition[],
+    request: PromptRequest,
+  ): Promise<FunctionCallResult[] | null> {
+    try {
+      const systemPrompt = await this.buildSystemPrompt(request, CodyProvider);
+
+      const response = await this.client.post('/chat', {
+        model: request.model,
+        messages: [
+          {
+            role: 'system',
+            content: await this.formatSystemPrompt(systemPrompt, CodyProvider),
+          },
+          {
+            role: 'user',
+            content: await this.formatPrompt(request, CodyProvider),
+          },
+        ],
+        temperature: request.temperature ?? 0.7,
+        max_tokens: request.maxTokens ?? 2000,
+        functions: functions.map((fn) => ({
+          name: fn.name,
+          description: fn.description,
+          parameters: fn.parameters,
+        })),
+        function_call: 'auto',
+      });
+
+      const message = response.data.choices?.[0]?.message;
+
+      if (message?.function_call) {
+        return [
+          {
+            name: message.function_call.name,
+            arguments: JSON.parse(message.function_call.arguments),
+            result: message.function_call,
+            timestamp: new Date(),
+            success: true,
+          },
+        ];
+      }
+
+      return null;
+    } catch (error: any) {
+      console.error('Cody function call failed:', error);
+      throw new Error(`Failed to call function with Cody: ${error.message}`);
+    }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async versionInfo(): Promise<{
+    apiVersion: string;
+    serviceVersion: string;
+    providerVersion: string;
+  }> {
+    try {
+      const response = await this.client.get('/');
+
+      return {
+        apiVersion: response.headers['x-api-version'] || 'v1',
+        serviceVersion: response.headers['x-service-version'] || 'unknown',
+        providerVersion: '1.0.0',
+      };
+    } catch (error) {
+      // Return default versions if endpoint fails
+      return {
+        apiVersion: 'v1',
+        serviceVersion: 'unknown',
+        providerVersion: '1.0.0',
+      };
     }
   }
 }

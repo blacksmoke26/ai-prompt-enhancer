@@ -4,16 +4,25 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
+import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
 
 // constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+import { OutputFormat, OutputFormatName } from '~/constants/output-format';
 
 // types
-import type {AIModel} from '~/types';
-import type {ConfigMeta} from '~/database/models';
-import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type { AIModel } from '~/types';
+import type { ConfigMeta } from '~/database/models';
+import type { ProviderConfig } from '~/types/providers';
+import type {
+  FunctionCallResult,
+  FunctionDefinition,
+  HealthStatus,
+  PromptRequest,
+  PromptResponse,
+  ProviderCapabilities,
+  StreamCallback,
+  UsageMetrics,
+} from '~/types/prompt';
 
 /**
  * Anthropic AI provider for prompt enhancement.
@@ -53,7 +62,8 @@ export default class AnthropicProvider extends BaseAIProvider {
    * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
    */
   public static readonly DefaultPrompts: ProviderDefaultPrompt = {
-    system: 'You are Claude, an AI assistant created by Anthropic. Focus on being helpful, harmless, and honest while enhancing the prompt.',
+    system:
+      'You are Claude, an AI assistant created by Anthropic. Focus on being helpful, harmless, and honest while enhancing the prompt.',
     role: 'You are an expert prompt engineer. Analyze and improve the given prompt while maintaining its core purpose.',
   };
 
@@ -79,13 +89,17 @@ export default class AnthropicProvider extends BaseAIProvider {
   /**
    * @inheritDoc
    */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+  public static getProviderSpecificSystemPrompt(
+    formattedPrompt: string,
+    capabilities?: ProviderCapabilities,
+  ): string {
     formattedPrompt = formattedPrompt.replace(
       /You are/g,
       'You are Claude, an AI assistant created by Anthropic',
     );
     // Claude benefits from emphasizing helpfulness, harmlessness, and honesty
-    formattedPrompt += '\n\nAlways be helpful, harmless, and honest in your responses.';
+    formattedPrompt +=
+      '\n\nAlways be helpful, harmless, and honest in your responses.';
 
     return formattedPrompt;
   }
@@ -109,8 +123,11 @@ export default class AnthropicProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super(AnthropicProvider.ProviderKey, {baseUrl: config?.baseUrl || AnthropicProvider.ProviderConfig.baseUrl});
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
+    super(AnthropicProvider.ProviderKey, {
+      baseUrl: config?.baseUrl || AnthropicProvider.ProviderConfig.baseUrl,
+    });
+    this.client.defaults.headers.common['Authorization'] =
+      `Bearer ${config?.apiKey}`;
     this.client.defaults.headers.common['Anthropic-Version'] = '2023-06-01';
     this.client.defaults.headers.common['Content-Type'] = 'application/json';
   }
@@ -149,7 +166,10 @@ export default class AnthropicProvider extends BaseAIProvider {
   async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    const systemPrompt = await this.buildSystemPrompt(request, AnthropicProvider);
+    const systemPrompt = await this.buildSystemPrompt(
+      request,
+      AnthropicProvider,
+    );
 
     try {
       const response = await this.client.post('/messages', {
@@ -171,7 +191,10 @@ export default class AnthropicProvider extends BaseAIProvider {
       });
 
       const enhanced = await this.toPromptResponse(
-        response.data.content?.[0]?.text, request.text, AnthropicProvider, request?.format || 'markdown'
+        response.data.content?.[0]?.text,
+        request.text,
+        AnthropicProvider,
+        request?.format || 'markdown',
       );
 
       return {
@@ -199,13 +222,228 @@ export default class AnthropicProvider extends BaseAIProvider {
         max_tokens: 1,
         temperature: 0,
         system: 'You are a helpful assistant.',
-        messages: [
-          {role: 'user', content: [{type: 'text', text: 'test'}]},
-        ],
+        messages: [{ role: 'user', content: [{ type: 'text', text: 'test' }] }],
       });
       return !!resp.data.content;
     } catch {
       return false;
+    }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async streamPrompt(
+    request: PromptRequest,
+    callback: StreamCallback,
+  ): Promise<PromptResponse> {
+    const startTime = Date.now();
+
+    const systemPrompt = await this.buildSystemPrompt(
+      request,
+      AnthropicProvider,
+    );
+
+    let fullText = '';
+
+    try {
+      const response = await this.client.post(
+        '/messages',
+        {
+          model: request.model,
+          max_tokens: request.maxTokens ?? 2000,
+          temperature: request.temperature ?? 0.7,
+          system: await this.formatSystemPrompt(
+            systemPrompt,
+            AnthropicProvider,
+          ),
+          messages: [
+            {
+              role: 'user',
+              content: [
+                {
+                  type: 'text',
+                  text: await this.formatPrompt(request, AnthropicProvider),
+                },
+              ],
+            },
+          ],
+          stream: true,
+        },
+        {
+          responseType: 'stream',
+        },
+      );
+
+      return new Promise((resolve, reject) => {
+        response.data.on('data', (chunk: Buffer) => {
+          const lines = chunk
+            .toString()
+            .split('\n')
+            .filter((line) => line.trim() !== '');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const data = line.slice(6);
+              if (data === '[DONE]') continue;
+
+              try {
+                const parsed = JSON.parse(data);
+                if (
+                  parsed.type === 'content_block_delta' &&
+                  parsed.delta?.text
+                ) {
+                  fullText += parsed.delta.text;
+                  callback({
+                    text: fullText,
+                    isFinal: false,
+                  });
+                }
+              } catch (e) {
+                console.error('Error parsing stream data:', e);
+              }
+            }
+          }
+        });
+
+        response.data.on('end', async () => {
+          callback({
+            text: fullText,
+            isFinal: true,
+          });
+
+          try {
+            const enhanced = await this.toPromptResponse(
+              fullText,
+              request.text,
+              AnthropicProvider,
+              request?.format || 'markdown',
+            );
+
+            resolve({
+              enhancedPrompt: enhanced,
+              originalPrompt: request.text,
+              model: request.model,
+              timestamp: new Date(),
+              tokensUsed: undefined,
+              processingTime: this.calculateProcessingTime(startTime),
+            });
+          } catch (error) {
+            reject(error);
+          }
+        });
+
+        response.data.on('error', (error: Error) => {
+          reject(new Error(`Anthropic stream failed: ${error.message}`));
+        });
+      });
+    } catch (error: any) {
+      console.error('Anthropic streaming initialization failed:', error);
+      throw new Error(
+        `Failed to stream prompt with Anthropic: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async getUsageMetrics(since?: number): Promise<UsageMetrics> {
+    throw new Error(
+      'Usage metrics are not available through the Anthropic API.',
+    );
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async callFunction(
+    functions: FunctionDefinition[],
+    request: PromptRequest,
+  ): Promise<FunctionCallResult[] | null> {
+    const systemPrompt = await this.buildSystemPrompt(
+      request,
+      AnthropicProvider,
+    );
+
+    try {
+      const response = await this.client.post('/messages', {
+        model: request.model,
+        max_tokens: request.maxTokens ?? 2000,
+        temperature: request.temperature ?? 0.7,
+        system: await this.formatSystemPrompt(systemPrompt, AnthropicProvider),
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: await this.formatPrompt(request, AnthropicProvider),
+              },
+            ],
+          },
+        ],
+        tools: functions.map((fn) => ({
+          name: fn.name,
+          description: fn.description,
+          input_schema: {
+            type: 'object',
+            properties: fn.parameters?.properties || {},
+            required: fn.parameters?.required || [],
+          },
+        })),
+      });
+
+      const toolUseBlocks = response.data.content?.filter(
+        (block: any) => block.type === 'tool_use',
+      );
+
+      if (!toolUseBlocks || toolUseBlocks.length === 0) {
+        return null;
+      }
+
+      return toolUseBlocks.map((block: any) => ({
+        name: block.name,
+        arguments: block.input,
+        result: null,
+      })) as FunctionCallResult[];
+    } catch (error: any) {
+      console.error('Anthropic function calling failed:', error);
+      throw new Error(
+        `Failed to call function with Anthropic: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async versionInfo(): Promise<{
+    apiVersion: string;
+    serviceVersion: string;
+    providerVersion: string;
+  }> {
+    try {
+      const response = await this.client.head('/');
+      const apiVersion =
+        response.headers['anthropic-version'] ||
+        this.client.defaults.headers.common['Anthropic-Version'] ||
+        'unknown';
+
+      return {
+        apiVersion: apiVersion as string,
+        serviceVersion: '1.0.0',
+        providerVersion: 'anthropic-sdk-2024',
+      };
+    } catch (error) {
+      return {
+        apiVersion:
+          (this.client.defaults.headers.common[
+            'Anthropic-Version'
+          ] as string) || 'unknown',
+        serviceVersion: '1.0.0',
+        providerVersion: 'anthropic-sdk-2024',
+      };
     }
   }
 }
