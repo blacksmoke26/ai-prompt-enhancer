@@ -73,11 +73,7 @@ export default class ProviderService {
       const isAvailable = Boolean(providerModel?.enabled ?? false);
       //const aiProvider = this.getProvider(providerModel.name);
 
-      let models: AIProvider['models'] = [];
-
-      // if (isAvailable && aiProvider) {
-      //   models = await aiProvider.getModels();
-      // }
+      const models: AIProvider['models'] = [];
 
       providers.push({
         caption: providerModel.caption,
