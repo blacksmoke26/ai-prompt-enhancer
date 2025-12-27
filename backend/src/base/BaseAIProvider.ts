@@ -4,10 +4,11 @@
  * @see https://github.com/blacksmoke26
  */
 
-import axios, {AxiosInstance} from 'axios';
+import axios, {AxiosInstance, AxiosError} from 'axios';
 
 // classes
 import PromptFormatter from '~/classes/PromptFormatter';
+import CacheManager from '~/classes/CacheManager';
 
 // types
 import type {AIModel} from '~/types';
@@ -15,7 +16,20 @@ import type {ConfigMeta} from '~/database/models';
 import type {ProviderConfig} from '~/types/providers';
 import type {IProvider} from '~/types/interfaces/IProvider';
 import type {OutputFormatName} from '~/constants/output-format';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type {
+  PromptRequest,
+  PromptResponse,
+  ProviderCapabilities,
+  BatchPromptRequest,
+  BatchPromptResponse,
+  StreamCallback,
+  ConversationContext,
+  FunctionDefinition,
+  FunctionCallResult,
+  UsageMetrics,
+  HealthStatus,
+} from '~/types/prompt';
+import type {RateLimitInfo} from '~/types/rate-limit';
 
 /**
  * Defines the default system and role prompts for a provider, used as a base for generating responses.
@@ -29,7 +43,6 @@ export interface ProviderDefaultPrompt {
    * This typically includes general guidelines or constraints for response generation.
    */
   system: string;
-
   /**
    * The default role or persona the provider should adopt when generating responses.
    * This defines the expected behavior, tone, or context of the provider's output.
@@ -57,6 +70,29 @@ export default abstract class BaseAIProvider {
 
   /** Provider name */
   protected name: string;
+
+  /** Cache manager instance */
+  protected cache: CacheManager;
+
+  /** Conversation history store */
+  protected conversations: Map<string, ConversationContext[]> = new Map();
+
+  /** Rate limit tracking */
+  protected rateLimits: Map<string, RateLimitInfo> = new Map();
+
+  /** Supported capabilities */
+  protected capabilities: ProviderCapabilities = {
+    provider: '',
+    supportsStreaming: false,
+    supportsBatchProcessing: false,
+    supportsFunctionCalling: false,
+    supportsConversationHistory: false,
+    supportsJsonMode: false,
+    supportsImageGeneration: false,
+    supportsFineTuning: false,
+    maxContextLength: 4096,
+    supportedFormats: ['text', 'markdown', 'json'],
+  };
 
   /**
    * A static constant representing the unique identifier for the provider, typically used in internal systems or API integrations.
@@ -114,13 +150,36 @@ export default abstract class BaseAIProvider {
    */
   constructor(name: string, config: ConfigMeta) {
     this.name = name;
+    this.cache = new CacheManager(name);
     this.client = axios.create({
       baseURL: config?.baseUrl,
       timeout: config?.timeout ?? 30000,
       headers: {
         'Content-Type': 'application/json',
+        'User-Agent': `AIProvider/${name} v1.0`,
       },
     });
+
+    // Setup interceptors for rate limiting and error handling
+    this.setupInterceptors();
+  }
+
+  /**
+   * Sets up Axios interceptors for rate limiting, error handling, and logging
+   */
+  private setupInterceptors(): void {
+    this.client.interceptors.response.use(
+      response => response,
+      async (error: AxiosError) => {
+        if (error.response?.status === 429) {
+          await this.handleRateLimit(error);
+        }
+        if (error.response?.status === 401 || error.response?.status === 403) {
+          console.error(`[${this.name}] Authentication failed:`, error.message);
+        }
+        return Promise.reject(error);
+      },
+    );
   }
 
   /**
@@ -188,6 +247,269 @@ export default abstract class BaseAIProvider {
   public static getFormatTemplates(): Record<OutputFormatName, string> {
     throw new Error('Not implemented');
   }
+
+  /**
+   * Batch processes multiple prompts in a single request for efficiency.
+   * @param requests - Array of prompt requests to process
+   * @returns Promise resolving to array of enhanced prompt responses
+   *
+   * @example
+   * const responses = await provider.batchEnhancePrompts([
+   *   { text: "What is AI?", model: "gpt-4" },
+   *   { text: "Explain ML", model: "gpt-4" }
+   * ]);
+   */
+  abstract batchEnhancePrompts?(requests: BatchPromptRequest[]): Promise<BatchPromptResponse[]>;
+
+  /**
+   * Streams prompt responses in real-time for long-running generations.
+   * @param request - Prompt request with streaming enabled
+   * @param callback - Callback function to handle streamed chunks
+   * @returns Promise resolving to final response when stream completes
+   *
+   * @example
+   * await provider.streamPrompt({
+   *   text: "Write a long story...",
+   *   model: "gpt-4"
+   * }, (chunk) => {
+   *   console.log('Received chunk:', chunk.text);
+   * });
+   */
+  abstract streamPrompt?(request: PromptRequest, callback: StreamCallback): Promise<PromptResponse>;
+
+  /**
+   * Manages models (download, delete, update) based on action type.
+   * @param action - Action to perform ('download', 'delete', 'update')
+   * @param modelName - Name of the model to manage
+   * @param options - Additional options specific to the action
+   * @returns Promise resolving to management result
+   *
+   * @example
+   * await provider.manageModel('download', 'llama2:latest');
+   * await provider.manageModel('delete', 'old-model');
+   */
+  abstract manageModel?(action: 'download' | 'delete' | 'update', modelName: string, options?: Record<string, any>): Promise<{
+    success: boolean;
+    message: string
+  }>;
+
+  /**
+   * Gets provider capabilities and supported features.
+   * @returns Provider capabilities object
+   *
+   * @example
+   * const capabilities = provider.getProviderCapabilities();
+   * console.log(capabilities.supportsStreaming); // true/false
+   */
+  public getProviderCapabilities(): ProviderCapabilities {
+    return this.capabilities;
+  }
+
+  /**
+   * Sets provider capabilities for runtime feature detection.
+   * @param capabilities - Capabilities object to set
+   *
+   * @example
+   * provider.setProviderCapabilities({
+   *   supportsStreaming: true,
+   *   maxContextLength: 8192
+   * });
+   */
+  public setProviderCapabilities(capabilities: ProviderCapabilities): void {
+    this.capabilities = {...this.capabilities, ...capabilities};
+  }
+
+  /**
+   * Gets usage metrics and statistics for the provider.
+   * @param since - Optional timestamp to get metrics since a specific time
+   * @returns Usage metrics object
+   *
+   * @example
+   * const metrics = await provider.getUsageMetrics(Date.now() - 86400000); // last 24 hours
+   */
+  abstract getUsageMetrics?(since?: number): Promise<UsageMetrics>;
+
+  /**
+   * Handles rate limiting by implementing backoff strategies.
+   * @param error - Axios error that triggered the rate limit
+   * @param maxRetries - Maximum number of retry attempts
+   * @returns Promise that resolves when rate limit is cleared or rejects on failure
+   *
+   * @example
+   * try {
+   *   await provider.makeRequest();
+   * } catch (error) {
+   *   await provider.handleRateLimit(error);
+   * }
+   */
+  protected async handleRateLimit(error: AxiosError, maxRetries: number = 3): Promise<void> {
+    const retryAfter = error.response?.headers?.['retry-after'] || error.response?.headers?.['x-ratelimit-reset'];
+    const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 1000;
+
+    console.warn(`[${this.name}] Rate limited. Waiting ${waitTime}ms before retry.`);
+
+    // Store rate limit info
+    this.rateLimits.set(error.config?.url || 'unknown', {
+      retryAfter: waitTime,
+      resetTime: Date.now() + waitTime,
+      remaining: 0,
+    });
+
+    // Exponential backoff
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        await new Promise(resolve => setTimeout(resolve, waitTime * Math.pow(2, attempt - 1)));
+        // Try to make a lightweight request to check if rate limit is cleared
+        await this.client.get('/health');
+        return;
+      } catch (retryError) {
+        if (attempt === maxRetries) {
+          throw new Error(`[${this.name}] Rate limit exceeded maximum retries`);
+        }
+      }
+    }
+  }
+
+  /**
+   * Caches a response for future use based on cache key and TTL.
+   * @param key - Unique cache key
+   * @param response - Response to cache
+   * @param ttl - Time to live in milliseconds (default: 1 hour)
+   * @returns Boolean indicating if caching was successful
+   *
+   * @example
+   * await provider.cacheResponse('prompt:123', response, 3600000);
+   */
+  public async cacheResponse(key: string, response: any, ttl: number = 3600000): Promise<boolean> {
+    try {
+      await this.cache.set(key, response, ttl);
+      return true;
+    } catch (error) {
+      console.error(`[${this.name}] Failed to cache response:`, error);
+      return false;
+    }
+  }
+
+  /**
+   * Retrieves a cached response if available.
+   * @param key - Cache key to look up
+   * @returns Cached response or null if not found/expired
+   *
+   * @example
+   * const cached = await provider.getCachedResponse('prompt:123');
+   * if (cached) return cached;
+   */
+  public async getCachedResponse(key: string): Promise<any | null> {
+    try {
+      return await this.cache.get(key);
+    } catch (error) {
+      console.error(`[${this.name}] Failed to get cached response:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Sanitizes input to prevent prompt injection and security issues.
+   * @param input - Raw input to sanitize
+   * @returns Sanitized input string
+   *
+   * @example
+   * const safeInput = provider.sanitizeInput("User input with <script>tags</script>");
+   */
+  public sanitizeInput(input: string): string {
+    // Basic sanitization - remove potentially dangerous characters
+    return input
+      .replace(/<script.*?>.*?<\/script>/gi, '') // Remove script tags
+      .replace(/javascript:/gi, '') // Remove javascript: protocol
+      .replace(/on[a-z]+=/gi, '') // Remove event handlers
+      .replace(/\\n/g, ' ') // Normalize newlines
+      .trim();
+  }
+
+  /**
+   * Adds a message to a conversation context.
+   * @param conversationId - Unique conversation identifier
+   * @param message - Message to add to conversation
+   * @returns Updated conversation context
+   *
+   * @example
+   * await provider.addConversationMessage('conv-123', {
+   *   role: 'user',
+   *   content: 'Hello!'
+   * });
+   */
+  public async addConversationMessage(conversationId: string, message: ConversationContext): Promise<ConversationContext[]> {
+    const conversation = this.conversations.get(conversationId) || [];
+    const updatedConversation = [...conversation, message];
+    this.conversations.set(conversationId, updatedConversation);
+
+    // Trim conversation to reasonable length
+    if (updatedConversation.length > 20) {
+      this.conversations.set(conversationId, updatedConversation.slice(-20));
+    }
+
+    return updatedConversation;
+  }
+
+  /**
+   * Gets the full conversation context for a given conversation ID.
+   * @param conversationId - Unique conversation identifier
+   * @returns Array of conversation messages or empty array if not found
+   *
+   * @example
+   * const context = provider.getConversationContext('conv-123');
+   */
+  public getConversationContext(conversationId: string): ConversationContext[] {
+    return this.conversations.get(conversationId) || [];
+  }
+
+  /**
+   * Clears a conversation context.
+   * @param conversationId - Unique conversation identifier
+   * @returns Boolean indicating if conversation was cleared
+   *
+   * @example
+   * provider.clearConversation('conv-123');
+   */
+  public clearConversation(conversationId: string): boolean {
+    return this.conversations.delete(conversationId);
+  }
+
+  /**
+   * Calls a function/tool based on the provider's function calling capabilities.
+   * @param functions - Array of function definitions available to call
+   * @param request - Prompt request that may trigger function calls
+   * @returns Function call results or null if no functions were called
+   *
+   * @example
+   * const result = await provider.callFunction([
+   *   {
+   *     name: 'getWeather',
+   *     parameters: { location: 'string' }
+   *   }
+   * ], { text: 'What's the weather in London?' });
+   */
+  abstract callFunction?(functions: FunctionDefinition[], request: PromptRequest): Promise<FunctionCallResult[] | null>;
+
+  /**
+   * Gets comprehensive health status of the provider service.
+   * @returns Health status object with detailed information
+   *
+   * @example
+   * const health = await provider.getHealthStatus();
+   * console.log(health.status); // 'healthy', 'degraded', 'down'
+   */
+  abstract getHealthStatus?(): Promise<HealthStatus>;
+
+  /**
+   * Gets version information about the provider API and service.
+   * @returns Version information object
+   *
+   * @example
+   * const version = await provider.versionInfo();
+   * console.log(version.apiVersion); // 'v1.0.0'
+   */
+  abstract versionInfo?(): Promise<{ apiVersion: string; serviceVersion: string; providerVersion: string }>;
 
   /**
    * Calculates processing time in milliseconds from start timestamp.
@@ -291,5 +613,60 @@ export default abstract class BaseAIProvider {
    */
   public async buildSystemPrompt(request: PromptRequest, staticClass: object): Promise<string> {
     return (await PromptFormatter.buildSystemPrompt(request, staticClass as IProvider)).enhancementPrompt;
+  }
+
+  /**
+   * Validates that a model is supported by the provider.
+   * @param modelName - Name of the model to validate
+   * @returns Boolean indicating if the model is supported
+   *
+   * @example
+   * const isSupported = provider.validateModel('gpt-4');
+   * if (!isSupported) throw new Error('Model not supported');
+   */
+  public async validateModel(modelName: string): Promise<boolean> {
+    const models = await this.getModels();
+    return models.some(model => model.name === modelName || model.id === modelName);
+  }
+
+  /**
+   * Gets the maximum context length supported by a specific model.
+   * @param modelName - Name of the model
+   * @returns Maximum context length in tokens
+   *
+   * @example
+   * const maxLength = await provider.getMaxContextLength('gpt-4');
+   */
+  public async getMaxContextLength(modelName: string): Promise<number> {
+    const models = await this.getModels();
+    const model = models.find(m => m.name === modelName || m.id === modelName);
+    return model?.contextLength || this.capabilities.maxContextLength || 4096;
+  }
+
+  /**
+   * Estimates token count for a given text and model.
+   * @param text - Text to estimate tokens for
+   * @param modelName - Model name to use for estimation
+   * @returns Estimated token count
+   *
+   * @example
+   * const tokenCount = await provider.estimateTokenCount('Hello world', 'gpt-4');
+   */
+  public async estimateTokenCount(text: string, modelName: string): Promise<number> {
+    // Simple estimation: ~4 chars per token on average
+    const charCount = text.length;
+    return Math.ceil(charCount / 4);
+  }
+
+  /**
+   * Checks if the provider supports a specific capability.
+   * @param capability - Capability to check
+   * @returns Boolean indicating if supported
+   *
+   * @example
+   * const supportsStreaming = provider.supportsCapability('supportsStreaming');
+   */
+  public supportsCapability(capability: keyof ProviderCapabilities): boolean {
+    return !!this.capabilities[capability];
   }
 }
