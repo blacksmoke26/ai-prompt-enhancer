@@ -335,7 +335,7 @@ export default abstract class PromptFormatter {
     format?: OutputFormatName,
   ): Promise<string> {
     try {
-      let response = String(enhancedResponse || '').trim();
+      const response = String(enhancedResponse || '').trim();
 
       // Handle empty responses
       if (!response) {
