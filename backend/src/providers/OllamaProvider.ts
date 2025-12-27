@@ -338,58 +338,6 @@ export default class OllamaProvider extends BaseAIProvider {
   }
 
   /**
-   * Batch processes multiple prompts using Ollama's capabilities.
-   * @param requests - Array of prompt requests to process
-   * @returns Promise resolving to array of enhanced prompt responses
-   */
-  public async batchEnhancePrompts(requests: BatchPromptRequest[]): Promise<BatchPromptResponse[]> {
-    const results: BatchPromptResponse[] = [];
-    const startTime = Date.now();
-
-    try {
-      // Process in parallel but with rate limiting
-      const batchSize = 5; // Process 5 at a time to avoid overwhelming Ollama
-      for (let i = 0; i < requests.length; i += batchSize) {
-        const batch = requests.slice(i, i + batchSize);
-        const batchPromises = batch.map(async (request, index) => {
-          try {
-            const response = await this.enhancePrompt(request);
-            return {
-              success: true,
-              response,
-              originalRequest: request,
-              index: i + index,
-            };
-          } catch (error) {
-            return {
-              success: false,
-              error: error instanceof Error ? error.message : String(error),
-              originalRequest: request,
-              index: i + index,
-            };
-          }
-        });
-
-        const batchResults = await Promise.all(batchPromises);
-        results.push(...batchResults);
-
-        // Small delay between batches to prevent rate limiting
-        if (i + batchSize < requests.length) {
-          await new Promise(resolve => setTimeout(resolve, 100));
-        }
-      }
-
-      const processingTime = this.calculateProcessingTime(startTime);
-      console.log(`[Ollama] Batch processed ${requests.length} prompts in ${processingTime}ms`);
-
-      return results.sort((a, b) => a.index - b.index);
-    } catch (error) {
-      console.error('Batch processing failed:', error);
-      throw new Error(`Batch processing failed: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
-
-  /**
    * Streams prompt responses in real-time for long-running generations.
    * @param request - Prompt request with streaming enabled
    * @param callback - Callback function to handle streamed chunks
