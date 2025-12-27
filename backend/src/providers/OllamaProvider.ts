@@ -13,7 +13,18 @@ import {OutputFormat, OutputFormatName} from '~/constants/output-format';
 import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
 import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type {
+  BatchPromptRequest,
+  BatchPromptResponse,
+  FunctionCallResult,
+  FunctionDefinition,
+  HealthStatus,
+  PromptRequest,
+  PromptResponse,
+  ProviderCapabilities,
+  StreamCallback,
+  UsageMetrics,
+} from '~/types/prompt';
 
 /**
  * Interface representing an Ollama model's metadata and configuration details.
@@ -44,39 +55,48 @@ import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/
 export interface OllamaModel {
   /** The full name of the model including version tag (e.g., 'mxbai-embed-large:latest') */
   readonly name: string;
-
   /** The model identifier (typically same as name) */
   readonly model: string;
-
   /** ISO timestamp of when the model was last modified */
   readonly modified_at: string;
-
   /** Size of the model in bytes */
   readonly size: number;
-
   /** SHA256 digest hash of the model for integrity verification */
   readonly digest: string;
-
   /** Detailed configuration and metadata about the model */
   readonly details: {
     /** Parent model if this is a fine-tuned version */
     readonly parent_model: string;
-
     /** Model format (e.g., 'gguf' for GPT-Generated Unified Format) */
     readonly format: string;
-
     /** Primary model family/architecture (e.g., 'bert', 'llama') */
     readonly family: string;
-
     /** Array of all model families this model belongs to */
     readonly families: string[];
-
     /** Parameter size as string (e.g., '334M' for 334 million parameters) */
     readonly parameter_size: string;
-
     /** Quantization level for model compression (e.g., 'F16' for 16-bit float) */
     readonly quantization_level: string;
+    /** Context window size */
+    readonly context_length?: number;
   };
+}
+
+/**
+ * Extended interface for Ollama API responses with streaming support
+ */
+export interface OllamaStreamResponse {
+  model: string;
+  created_at: string;
+  response: string;
+  done: boolean;
+  context?: number[];
+  total_duration?: number;
+  load_duration?: number;
+  prompt_eval_count?: number;
+  prompt_eval_duration?: number;
+  eval_count?: number;
+  eval_duration?: number;
 }
 
 /**
@@ -103,19 +123,16 @@ export default class OllamaProvider extends BaseAIProvider {
    * @developerNotes Ensure the ID is lowercase and matches the provider's official identifier.
    */
   public static readonly ProviderID: string = 'ollama';
-
   /**
    * A static constant representing the display name or key used for referencing the provider in user-facing contexts.
    * @developerNotes This value should match the provider's official branding.
    */
   public static readonly ProviderKey: string = 'Ollama';
-
   /**
    * A static constant representing the full, official name of the provider, typically used for documentation or identification purposes.
    * @developerNotes Ensure consistency with the provider's official name and use proper casing.
    */
   public static readonly ProviderName: string = 'Ollama';
-
   /**
    * A static constant representing the default prompts used by the provider.
    * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
@@ -124,7 +141,6 @@ export default class OllamaProvider extends BaseAIProvider {
     system: 'You are an AI assistant running via Ollama. Optimize prompts to be efficient, clear, and well-suited for local LLM execution.',
     role: 'You are a prompt engineer for local models. Improve prompts to be self-contained, unambiguous, and effective on-device.',
   };
-
   /**
    * Static configuration object defining the provider's settings.
    * @interface ProviderConfig
@@ -145,16 +161,39 @@ export default class OllamaProvider extends BaseAIProvider {
   };
 
   /**
+   * Provider capabilities specific to Ollama
+   */
+  private static readonly PROVIDER_CAPABILITIES: ProviderCapabilities = {
+    supportsStreaming: true,
+    supportsBatchProcessing: true,
+    supportsFunctionCalling: false,
+    supportsConversationHistory: true,
+    supportsJsonMode: true,
+    supportsImageGeneration: false,
+    supportsFineTuning: false,
+    maxContextLength: 8192,
+    supportedFormats: ['text', 'markdown', 'json', 'xml', 'yaml', 'html'],
+    provider: OllamaProvider.ProviderID,
+  };
+
+  /**
+   * Constructs a new instance of the OllamaProvider class.
+   * @param {ConfigMeta} config - Configuration options for the provider.
+   */
+  constructor(config: ConfigMeta) {
+    super(OllamaProvider.ProviderKey, {...config, baseUrl: config?.baseUrl ?? OllamaProvider.ProviderConfig.baseUrl});
+    this.setProviderCapabilities(OllamaProvider.PROVIDER_CAPABILITIES);
+  }
+
+  /**
    * @inheritDoc
    */
   public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // Ollama supports OpenAI standard API but benefits from clear role definitions
+// Ollama supports OpenAI standard API but benefits from clear role definitions
     formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
-
     if (capabilities?.supportsJsonMode) {
-      formattedPrompt += '\n\nRespond with valid JSON only.';
+      formattedPrompt += '\nRespond with valid JSON only.';
     }
-
     return formattedPrompt;
   }
 
@@ -173,14 +212,6 @@ export default class OllamaProvider extends BaseAIProvider {
   }
 
   /**
-   * Creates a new Ollama provider instance.
-   * @param config - Configuration object
-   */
-  constructor(config: ConfigMeta) {
-    super(OllamaProvider.ProviderKey, {baseUrl: config?.baseUrl ?? OllamaProvider.ProviderConfig.baseUrl});
-  }
-
-  /**
    * Retrieves all available models from the Ollama instance.
    *
    * @returns Promise resolving to an array of AIModel objects
@@ -195,19 +226,35 @@ export default class OllamaProvider extends BaseAIProvider {
    * Maps Ollama's native model format to the standardized AIModel interface.
    * Falls back to 4096 context length if not provided by the API.
    */
-  async getModels(): Promise<AIModel[]> {
+  public async getModels(): Promise<AIModel[]> {
     try {
+      const cacheKey = `${this.name}:models:all`;
+      const cached = await this.getCachedResponse(cacheKey);
+      if (cached) return cached;
+
       const response = await this.client.get<{ models: OllamaModel[] }>('/api/tags');
       const models = response.data.models || [];
-
-      return models.map((model: any) => ({
+      const result = models.map((model) => ({
         id: model.name,
         size: model.size,
         name: model.name.split(':')[0],
         provider: OllamaProvider.ProviderID,
-        description: `${model.size} • ${model.digest.substring(0, 12)}`,
+        description: `${(model.size / 1024 / 1024 / 1024).toFixed(2)}GB • ${model.details?.family || 'unknown'} • ${model.details?.parameter_size || ''}`,
         contextLength: model.details?.context_length || 4096,
-      })).sort((a, b) => a.name.localeCompare(b.name));
+        parameters: {
+          family: model.details?.family,
+          parameter_size: model.details?.parameter_size,
+          quantization: model.details?.quantization_level,
+          format: model.details?.format,
+        },
+      } as unknown as AIModel));
+
+      result.sort((a, b) => a.name.localeCompare(b.name));
+
+      // Cache for 5 minutes
+      await this.cacheResponse(cacheKey, result, 300000);
+
+      return result;
     } catch (error: any) {
       console.error('Failed to fetch Ollama models:', error);
       return [];
@@ -235,39 +282,429 @@ export default class OllamaProvider extends BaseAIProvider {
    * Builds a system prompt based on enhancement type and user role.
    * Falls back to original text if API call fails or returns empty response.
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  public async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
-
     try {
+      // Input validation and sanitization
+      if (!request.text?.trim()) {
+        // noinspection ExceptionCaughtLocallyJS
+        throw new Error('Empty prompt text provided');
+      }
+
+      const sanitizedText = this.sanitizeInput(request.text);
+      const model = request.model || 'llama2';
+
       const systemPrompt = await this.buildSystemPrompt(request, OllamaProvider);
       const fullPrompt = await this.formatSystemPrompt(systemPrompt, OllamaProvider)
-        + `\n\n` + await this.formatPrompt(request, OllamaProvider);
+        + `\n\n` + await this.formatPrompt({...request, text: sanitizedText}, OllamaProvider);
 
-      const response = await this.client.post('/api/generate', {
-        model: request.model,
+      const response = await this.client.post<Record<string, any>>('/api/generate', {
+        model,
         prompt: fullPrompt,
         stream: false,
         options: {
-          temperature: request.temperature || 0.7,
+          temperature: Math.max(0, Math.min(1, request.temperature || 0.7)),
+          top_p: request?.topP || 1.0,
+          top_k: request?.topK || 100,
           num_predict: request.maxTokens || 2000,
+          stop: request?.stopSequences,
+          frequency_penalty: request?.frequencyPenalty || 0.0,
+          presence_penalty: request?.presencePenalty || 0.0,
         },
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response?.data?.response?.trim(), request.text, OllamaProvider, request?.format || 'markdown'
+        response?.data?.response?.trim(), sanitizedText, OllamaProvider, request?.format || 'markdown',
       );
 
       return {
         enhancedPrompt,
-        originalPrompt: request.text,
-        model: request.model,
+        originalPrompt: sanitizedText,
+        model,
         timestamp: new Date(),
-        tokensUsed: response.data.eval_count,
+        tokensUsed: response.data.eval_count || 0,
         processingTime: this.calculateProcessingTime(startTime),
+        metadata: {
+          modelDetails: response.data.model,
+          totalDuration: response.data.total_duration,
+          evalDuration: response.data.eval_duration,
+          contextLength: await this.getMaxContextLength(model),
+        },
       };
     } catch (error: any) {
       console.error('Ollama enhancement failed:', error);
-      throw new Error(`Failed to enhance prompt with Ollama: ${error}`);
+      throw new Error(`Failed to enhance prompt with Ollama: ${error.message || error}`);
+    }
+  }
+
+  /**
+   * Batch processes multiple prompts using Ollama's capabilities.
+   * @param requests - Array of prompt requests to process
+   * @returns Promise resolving to array of enhanced prompt responses
+   */
+  public async batchEnhancePrompts(requests: BatchPromptRequest[]): Promise<BatchPromptResponse[]> {
+    const results: BatchPromptResponse[] = [];
+    const startTime = Date.now();
+
+    try {
+      // Process in parallel but with rate limiting
+      const batchSize = 5; // Process 5 at a time to avoid overwhelming Ollama
+      for (let i = 0; i < requests.length; i += batchSize) {
+        const batch = requests.slice(i, i + batchSize);
+        const batchPromises = batch.map(async (request, index) => {
+          try {
+            const response = await this.enhancePrompt(request);
+            return {
+              success: true,
+              response,
+              originalRequest: request,
+              index: i + index,
+            };
+          } catch (error) {
+            return {
+              success: false,
+              error: error instanceof Error ? error.message : String(error),
+              originalRequest: request,
+              index: i + index,
+            };
+          }
+        });
+
+        const batchResults = await Promise.all(batchPromises);
+        results.push(...batchResults);
+
+        // Small delay between batches to prevent rate limiting
+        if (i + batchSize < requests.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+
+      const processingTime = this.calculateProcessingTime(startTime);
+      console.log(`[Ollama] Batch processed ${requests.length} prompts in ${processingTime}ms`);
+
+      return results.sort((a, b) => a.index - b.index);
+    } catch (error) {
+      console.error('Batch processing failed:', error);
+      throw new Error(`Batch processing failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Streams prompt responses in real-time for long-running generations.
+   * @param request - Prompt request with streaming enabled
+   * @param callback - Callback function to handle streamed chunks
+   * @returns Promise resolving to final response when stream completes
+   */
+  public async streamPrompt(request: PromptRequest, callback: StreamCallback): Promise<PromptResponse> {
+    const startTime = Date.now();
+    let accumulatedResponse = '';
+    let context: number[] | undefined;
+    let tokenCount = 0;
+
+    try {
+      const sanitizedText = this.sanitizeInput(request.text);
+      const model = request.model || 'llama2';
+      const systemPrompt = await this.buildSystemPrompt(request, OllamaProvider);
+      const fullPrompt = await this.formatSystemPrompt(systemPrompt, OllamaProvider)
+        + `\n\n` + await this.formatPrompt({...request, text: sanitizedText}, OllamaProvider);
+
+      const response = await this.client.post('/api/generate', {
+        model,
+        prompt: fullPrompt,
+        stream: true,
+        options: {
+          temperature: Math.max(0, Math.min(1, request.temperature || 0.7)),
+          num_predict: request.maxTokens || 2000,
+          stop: request.stopSequences,
+        },
+      }, {
+        responseType: 'stream',
+        onDownloadProgress: (progressEvent) => {
+          if (progressEvent.event?.data) {
+            try {
+              const chunk: OllamaStreamResponse = JSON.parse(progressEvent.event.data);
+              accumulatedResponse += chunk.response;
+              tokenCount = chunk.eval_count || tokenCount;
+              context = chunk.context;
+
+              // Call callback with chunk data
+              callback({
+                text: chunk.response,
+                isFinal: chunk.done,
+                metadata: {
+                  model,
+                  tokenCount,
+                  contextLength: context?.length || 0,
+                  totalDuration: chunk.total_duration,
+                  evalDuration: chunk.eval_duration,
+                },
+              });
+
+              if (chunk.done) {
+              // Final callback with complete response
+                callback({
+                  text: accumulatedResponse,
+                  isFinal: true,
+                  metadata: {
+                    model,
+                    tokenCount,
+                    contextLength: context?.length || 0,
+                    totalDuration: chunk.total_duration,
+                    evalDuration: chunk.eval_duration,
+                  },
+                });
+              }
+            } catch (parseError) {
+              console.error('Failed to parse stream chunk:', parseError);
+            }
+          }
+        },
+      });
+
+      const enhancedPrompt = await this.toPromptResponse(
+        accumulatedResponse.trim(), sanitizedText, OllamaProvider, request?.format || 'markdown',
+      );
+
+      return {
+        enhancedPrompt,
+        originalPrompt: sanitizedText,
+        model,
+        timestamp: new Date(),
+        tokensUsed: tokenCount,
+        processingTime: this.calculateProcessingTime(startTime),
+        metadata: {
+          streaming: true,
+          contextLength: context?.length || 0,
+          totalDuration: response.data?.total_duration,
+          evalDuration: response.data?.eval_duration,
+        },
+      };
+    } catch (error) {
+      console.error('Streaming failed:', error);
+      throw new Error(`Streaming failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Manages Ollama models (download, delete, update).
+   * @param action - Action to perform ('download', 'delete', 'update')
+   * @param modelName - Name of the model to manage
+   * @param options - Additional options specific to the action
+   * @returns Promise resolving to management result
+   */
+  public async manageModel(action: 'download' | 'delete' | 'update', modelName: string, options: Record<string, any> = {}): Promise<{
+    success: boolean;
+    message: string
+  }> {
+    try {
+      switch (action) {
+        case 'download':
+          await this.client.post('/api/pull', {
+            name: modelName,
+            stream: false,
+            insecure: options.insecure || false,
+          });
+          return {
+            success: true,
+            message: `Model ${modelName} downloaded successfully`,
+          };
+
+        case 'delete':
+          await this.client.delete('/api/delete', {
+            data: {name: modelName},
+          });
+          // Clear cache since models changed
+          await this.cache.delete(`${this.name}:models:all`);
+          return {
+            success: true,
+            message: `Model ${modelName} deleted successfully`,
+          };
+
+        case 'update':
+          // Ollama doesn't have a direct update API, so we pull again
+          await this.client.post('/api/pull', {
+            name: modelName,
+            stream: false,
+            insecure: options.insecure || false,
+          });
+          return {
+            success: true,
+            message: `Model ${modelName} updated successfully`,
+          };
+
+        default:
+          // noinspection ExceptionCaughtLocallyJS
+          throw new Error(`Unsupported action: ${action}`);
+      }
+    } catch (error) {
+      console.error(`Model ${action} failed for ${modelName}:`, error);
+      return {
+        success: false,
+        message: `Failed to ${action} model ${modelName}: ${error instanceof Error ? error.message : String(error)}`,
+      };
+    }
+  }
+
+  /**
+   * Gets usage metrics for Ollama instance.
+   * @param since - Optional timestamp to get metrics since a specific time
+   * @returns Usage metrics object
+   */
+  public async getUsageMetrics(since?: number): Promise<UsageMetrics> {
+    try {
+      // Ollama doesn't provide detailed usage metrics via API
+      // We'll provide basic metrics based on our cache and tracking
+      const models = await this.getModels();
+      const now = Date.now();
+
+      return {
+        provider: 'ollama',
+        timestamp: now,
+        since: since || now - 86400000, // Default to last 24 hours
+        requests: {
+          total: 0, // Ollama doesn't track this centrally
+          successful: 0,
+          failed: 0,
+        },
+        tokens: {
+          prompt: 0,
+          completion: 0,
+          total: 0,
+        },
+        models: models.map(model => ({
+          name: model.name,
+          usageCount: 0, // Not tracked by Ollama API
+          lastUsed: model?.modifiedAt ? new Date(model?.modifiedAt).getTime() : null,
+        })),
+        performance: {
+          averageResponseTime: 0, // Would need to track this internally
+          p95ResponseTime: 0,
+        },
+        storage: {
+          totalSize: models.reduce((sum, model) => sum + Number(model.size), 0),
+          modelCount: models.length,
+        },
+      };
+    } catch (error) {
+      console.error('Failed to get usage metrics:', error);
+      return {
+        provider: 'ollama',
+        timestamp: Date.now(),
+        since: since || Date.now() - 86400000,
+        requests: {total: 0, successful: 0, failed: 0},
+        tokens: {prompt: 0, completion: 0, total: 0},
+        models: [],
+        performance: {averageResponseTime: 0, p95ResponseTime: 0},
+        storage: {totalSize: 0, modelCount: 0},
+      };
+    }
+  }
+
+  /**
+   * Gets comprehensive health status of the Ollama service.
+   * @returns Health status object with detailed information
+   */
+  public async getHealthStatus(): Promise<HealthStatus> {
+    try {
+      const [versionResponse, modelsResponse] = await Promise.all([
+        this.client.get('/api/version'),
+        this.client.get('/api/tags'),
+      ]);
+
+      const versionData = versionResponse.data;
+      const models = modelsResponse.data.models || [];
+
+      return {
+        status: 'healthy',
+        provider: 'ollama',
+        timestamp: Date.now(),
+        version: versionData.version,
+        uptime: 'unknown', // Ollama doesn't provide uptime info
+        services: {
+          api: 'operational',
+          database: 'operational',
+          cache: 'operational',
+        },
+        resources: {
+          cpu: 'unknown',
+          memory: 'unknown',
+          disk: 'unknown',
+        },
+        models: {
+          total: models.length,
+          active: models.length,
+          loading: 0,
+        },
+        requests: {
+          rate: 0, // Not available
+          limit: 'unlimited',
+          remaining: 'unlimited',
+        },
+        latency: {
+          p50: 0,
+          p95: 0,
+          p99: 0,
+        },
+      };
+    } catch (error: any) {
+      console.error('Health check failed:', error);
+      return {
+        status: error.response?.status === 404 ? 'degraded' : 'down',
+        provider: 'ollama',
+        timestamp: Date.now(),
+        version: 'unknown',
+        uptime: 'unknown',
+        services: {
+          api: 'down',
+          database: 'unknown',
+          cache: 'unknown',
+        },
+        resources: {
+          cpu: 'unknown',
+          memory: 'unknown',
+          disk: 'unknown',
+        },
+        models: {
+          total: 0,
+          active: 0,
+          loading: 0,
+        },
+        requests: {
+          rate: 0,
+          limit: 'unknown',
+          remaining: 'unknown',
+        },
+        latency: {
+          p50: 0,
+          p95: 0,
+          p99: 0,
+        },
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Gets version information about the Ollama API and service.
+   * @returns Version information object
+   */
+  public async versionInfo(): Promise<{ apiVersion: string; serviceVersion: string; providerVersion: string }> {
+    try {
+      const response = await this.client.get('/api/version');
+      const versionData = response.data;
+
+      return {
+        apiVersion: versionData.version,
+        serviceVersion: versionData.version,
+        providerVersion: `${OllamaProvider.ProviderName} v1.0`,
+      };
+    } catch (error) {
+      console.error('Failed to get version info:', error);
+      return {
+        apiVersion: 'unknown',
+        serviceVersion: 'unknown',
+        providerVersion: `${OllamaProvider.ProviderName} v1.0`,
+      };
     }
   }
 
@@ -287,12 +724,71 @@ export default class OllamaProvider extends BaseAIProvider {
    * Uses the /api/tags endpoint as a lightweight health check.
    * Silent failure returns false without logging.
    */
-  async isAvailable(): Promise<boolean> {
+  public async isAvailable(): Promise<boolean> {
     try {
-      await this.client.get('/api/tags');
+      const cacheKey = `${this.name}:availability`;
+      const cached = await this.getCachedResponse(cacheKey);
+      if (cached !== null) {
+        return cached as boolean;
+      }
+
+      await this.client.get('/api/tags', {timeout: 5000}); // 5 second timeout for availability check
+
+      // Cache availability status for 30 seconds
+      await this.cacheResponse(cacheKey, true, 30000);
+
       return true;
     } catch {
-      return false;
+      // Try version endpoint as fallback
+      try {
+        await this.client.get('/api/version', {timeout: 2000});
+        await this.cacheResponse(`${this.name}:availability`, true, 30000);
+        return true;
+      } catch {
+        await this.cacheResponse(`${this.name}:availability`, false, 10000); // Cache negative result for shorter time
+        return false;
+      }
+    }
+  }
+
+  /**
+   * Call function - Ollama doesn't natively support function calling
+   * This is a placeholder implementation that returns null
+   */
+  public async callFunction(functions: FunctionDefinition[], request: PromptRequest): Promise<FunctionCallResult[] | null> {
+    // Ollama doesn't have native function calling support
+    // This would need to be implemented via prompt engineering
+    console.warn('Ollama does not support native function calling. This is a placeholder implementation.');
+    return null;
+  }
+
+  /**
+   * Gets the maximum context length for an Ollama model.
+   * @param modelName - Name of the model
+   * @returns Maximum context length in tokens
+   */
+  public async getMaxContextLength(modelName: string): Promise<number> {
+    const models = await this.getModels();
+    const model = models.find(m => m.name === modelName.split(':')[0]);
+    return model?.contextLength || 8192; // Default to 8K context for Ollama
+  }
+
+  /**
+   * Estimates token count for text using Ollama's tokenization.
+   * @param text - Text to estimate tokens for
+   * @param modelName - Model name to use for estimation
+   * @returns Estimated token count
+   */
+  public async estimateTokenCount(text: string, modelName: string): Promise<number> {
+    try {
+      const response = await this.client.post('/api/tokenize', {
+        model: modelName,
+        content: text,
+      });
+      return response.data.tokens?.length || Math.ceil(text.length / 4);
+    } catch (error) {
+      // Fallback to simple estimation
+      return Math.ceil(text.length / 4);
     }
   }
 }
