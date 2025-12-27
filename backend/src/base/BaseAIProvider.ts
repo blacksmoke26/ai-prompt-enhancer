@@ -4,18 +4,18 @@
  * @see https://github.com/blacksmoke26
  */
 
-import axios, {AxiosInstance, AxiosError} from 'axios';
+import axios, { AxiosInstance, AxiosError } from 'axios';
 
 // classes
 import PromptFormatter from '~/classes/PromptFormatter';
 import CacheManager from '~/classes/CacheManager';
 
 // types
-import type {AIModel} from '~/types';
-import type {ConfigMeta} from '~/database/models';
-import type {ProviderConfig} from '~/types/providers';
-import type {IProvider} from '~/types/interfaces/IProvider';
-import type {OutputFormatName} from '~/constants/output-format';
+import type { AIModel } from '~/types';
+import type { ConfigMeta } from '~/database/models';
+import type { ProviderConfig } from '~/types/providers';
+import type { IProvider } from '~/types/interfaces/IProvider';
+import type { OutputFormatName } from '~/constants/output-format';
 import type {
   PromptRequest,
   PromptResponse,
@@ -29,7 +29,7 @@ import type {
   UsageMetrics,
   HealthStatus,
 } from '~/types/prompt';
-import type {RateLimitInfo} from '~/types/rate-limit';
+import type { RateLimitInfo } from '~/types/rate-limit';
 
 /**
  * Defines the default system and role prompts for a provider, used as a base for generating responses.
@@ -169,7 +169,7 @@ export default abstract class BaseAIProvider {
    */
   private setupInterceptors(): void {
     this.client.interceptors.response.use(
-      response => response,
+      (response) => response,
       async (error: AxiosError) => {
         if (error.response?.status === 429) {
           await this.handleRateLimit(error);
@@ -231,7 +231,10 @@ export default abstract class BaseAIProvider {
    * This method is called by the base class to generate provider-specific system prompts.
    * It is used to generate provider-specific system prompts for enhanced prompts.
    */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
+  public static getProviderSpecificSystemPrompt(
+    formattedPrompt: string,
+    capabilities?: ProviderCapabilities,
+  ): string {
     throw new Error('Not implemented');
   }
 
@@ -259,7 +262,9 @@ export default abstract class BaseAIProvider {
    *   { text: "Explain ML", model: "gpt-4" }
    * ]);
    */
-  public async batchEnhancePrompts(requests: BatchPromptRequest[]): Promise<BatchPromptResponse[]> {
+  public async batchEnhancePrompts(
+    requests: BatchPromptRequest[],
+  ): Promise<BatchPromptResponse[]> {
     const results: BatchPromptResponse[] = [];
     const startTime = Date.now();
 
@@ -292,17 +297,21 @@ export default abstract class BaseAIProvider {
 
         // Small delay between batches to prevent rate limiting
         if (i + batchSize < requests.length) {
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
       }
 
       const processingTime = this.calculateProcessingTime(startTime);
-      console.log(`[Ollama] Batch processed ${requests.length} prompts in ${processingTime}ms`);
+      console.log(
+        `[Ollama] Batch processed ${requests.length} prompts in ${processingTime}ms`,
+      );
 
       return results.sort((a, b) => a.index - b.index);
     } catch (error) {
       console.error('Batch processing failed:', error);
-      throw new Error(`Batch processing failed: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Batch processing failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -320,7 +329,12 @@ export default abstract class BaseAIProvider {
    *   console.log('Received chunk:', chunk.text);
    * });
    */
-  abstract streamPrompt?(request: PromptRequest, callback: StreamCallback): Promise<PromptResponse>;
+  public async streamPrompt(
+    request: PromptRequest,
+    callback: StreamCallback,
+  ): Promise<PromptResponse> {
+    throw new Error('Method not implemented.');
+  }
 
   /**
    * Manages models (download, delete, update) based on action type.
@@ -333,15 +347,19 @@ export default abstract class BaseAIProvider {
    * await provider.manageModel('download', 'llama2:latest');
    * await provider.manageModel('delete', 'old-model');
    */
-  public async manageModel?(action: 'download' | 'delete' | 'update', modelName: string, options?: Record<string, any>): Promise<{
+  public async manageModel?(
+    action: 'download' | 'delete' | 'update',
+    modelName: string,
+    options?: Record<string, any>,
+  ): Promise<{
     success: boolean;
-    message: string
+    message: string;
   }> {
     return {
       success: false,
-      message: `Model management (${action}) is not supported through API.`
+      message: `Model management (${action}) is not supported through API.`,
     };
-  };
+  }
 
   /**
    * Gets provider capabilities and supported features.
@@ -366,7 +384,7 @@ export default abstract class BaseAIProvider {
    * });
    */
   public setProviderCapabilities(capabilities: ProviderCapabilities): void {
-    this.capabilities = {...this.capabilities, ...capabilities};
+    this.capabilities = { ...this.capabilities, ...capabilities };
   }
 
   /**
@@ -392,11 +410,18 @@ export default abstract class BaseAIProvider {
    *   await provider.handleRateLimit(error);
    * }
    */
-  protected async handleRateLimit(error: AxiosError, maxRetries: number = 3): Promise<void> {
-    const retryAfter = error.response?.headers?.['retry-after'] || error.response?.headers?.['x-ratelimit-reset'];
+  protected async handleRateLimit(
+    error: AxiosError,
+    maxRetries: number = 3,
+  ): Promise<void> {
+    const retryAfter =
+      error.response?.headers?.['retry-after'] ||
+      error.response?.headers?.['x-ratelimit-reset'];
     const waitTime = retryAfter ? parseInt(retryAfter) * 1000 : 1000;
 
-    console.warn(`[${this.name}] Rate limited. Waiting ${waitTime}ms before retry.`);
+    console.warn(
+      `[${this.name}] Rate limited. Waiting ${waitTime}ms before retry.`,
+    );
 
     // Store rate limit info
     this.rateLimits.set(error.config?.url || 'unknown', {
@@ -408,7 +433,9 @@ export default abstract class BaseAIProvider {
     // Exponential backoff
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        await new Promise(resolve => setTimeout(resolve, waitTime * Math.pow(2, attempt - 1)));
+        await new Promise((resolve) =>
+          setTimeout(resolve, waitTime * Math.pow(2, attempt - 1)),
+        );
         // Try to make a lightweight request to check if rate limit is cleared
         await this.client.get('/health');
         return;
@@ -430,7 +457,11 @@ export default abstract class BaseAIProvider {
    * @example
    * await provider.cacheResponse('prompt:123', response, 3600000);
    */
-  public async cacheResponse(key: string, response: any, ttl: number = 3600000): Promise<boolean> {
+  public async cacheResponse(
+    key: string,
+    response: any,
+    ttl: number = 3600000,
+  ): Promise<boolean> {
     try {
       await this.cache.set(key, response, ttl);
       return true;
@@ -502,7 +533,10 @@ export default abstract class BaseAIProvider {
       // Remove event handlers (onclick, onmouseover, etc.)
       .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
       // Remove data URLs that could contain malicious content
-      .replace(/data:\s*image\/(gif|png|jpg|jpeg|bmp|webp);base64,[a-zA-Z0-9+/=]+/gi, '')
+      .replace(
+        /data:\s*image\/(gif|png|jpg|jpeg|bmp|webp);base64,[a-zA-Z0-9+/=]+/gi,
+        '',
+      )
       // Remove iframe tags
       .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '');
 
@@ -529,7 +563,10 @@ export default abstract class BaseAIProvider {
    *   content: 'Hello!'
    * });
    */
-  public async addConversationMessage(conversationId: string, message: ConversationContext): Promise<ConversationContext[]> {
+  public async addConversationMessage(
+    conversationId: string,
+    message: ConversationContext,
+  ): Promise<ConversationContext[]> {
     const conversation = this.conversations.get(conversationId) || [];
     const updatedConversation = [...conversation, message];
     this.conversations.set(conversationId, updatedConversation);
@@ -580,7 +617,12 @@ export default abstract class BaseAIProvider {
    *   }
    * ], { text: 'What's the weather in London?' });
    */
-  abstract callFunction?(functions: FunctionDefinition[], request: PromptRequest): Promise<FunctionCallResult[] | null>;
+  public async callFunction(
+    functions: FunctionDefinition[],
+    request: PromptRequest,
+  ): Promise<FunctionCallResult[] | null> {
+    throw new Error('Method not implemented.');
+  }
 
   /**
    * Gets comprehensive health status of the provider service.
@@ -590,7 +632,9 @@ export default abstract class BaseAIProvider {
    * const health = await provider.getHealthStatus();
    * console.log(health.status); // 'healthy', 'degraded', 'down'
    */
-  abstract getHealthStatus?(): Promise<HealthStatus>;
+  public async getHealthStatus(): Promise<HealthStatus> {
+    throw new Error('Method not implemented.');
+  }
 
   /**
    * Gets version information about the provider API and service.
@@ -600,7 +644,13 @@ export default abstract class BaseAIProvider {
    * const version = await provider.versionInfo();
    * console.log(version.apiVersion); // 'v1.0.0'
    */
-  abstract versionInfo?(): Promise<{ apiVersion: string; serviceVersion: string; providerVersion: string }>;
+  public async versionInfo(): Promise<{
+    apiVersion: string;
+    serviceVersion: string;
+    providerVersion: string;
+  }> {
+    throw new Error('Method not implemented.');
+  }
 
   /**
    * Calculates processing time in milliseconds from start timestamp.
@@ -642,8 +692,13 @@ export default abstract class BaseAIProvider {
    * @param staticClass - The class reference for static methods
    * @returns {string} - A formatted string representing the prompt with metadata and the original text.
    */
-  public async formatPrompt(request: PromptRequest, staticClass: object): Promise<string> {
-    return (await PromptFormatter.formatPrompt(request, staticClass as IProvider)).prompt;
+  public async formatPrompt(
+    request: PromptRequest,
+    staticClass: object,
+  ): Promise<string> {
+    return (
+      await PromptFormatter.formatPrompt(request, staticClass as IProvider)
+    ).prompt;
   }
 
   /**
@@ -656,8 +711,14 @@ export default abstract class BaseAIProvider {
    * // Output: "You are a helpful assistant."
    * @note This method is a no-op by default and should be overridden in subclasses to implement custom formatting logic.
    */
-  public async formatSystemPrompt(systemPrompt: string, staticClass: object): Promise<string> {
-    return PromptFormatter.formatSystemPrompt(systemPrompt, staticClass as IProvider);
+  public async formatSystemPrompt(
+    systemPrompt: string,
+    staticClass: object,
+  ): Promise<string> {
+    return PromptFormatter.formatSystemPrompt(
+      systemPrompt,
+      staticClass as IProvider,
+    );
   }
 
   /**
@@ -680,8 +741,18 @@ export default abstract class BaseAIProvider {
    * Developer Note: This method ensures consistent handling of empty responses
    * and provides a fallback mechanism for cases where the model's response is missing.
    */
-  public async toPromptResponse(enhancedResponse: string, userPrompt: string, staticClass: object, format: OutputFormatName = 'markdown'): Promise<string> {
-    return PromptFormatter.toPromptResponse(enhancedResponse, userPrompt, staticClass as IProvider, format);
+  public async toPromptResponse(
+    enhancedResponse: string,
+    userPrompt: string,
+    staticClass: object,
+    format: OutputFormatName = 'markdown',
+  ): Promise<string> {
+    return PromptFormatter.toPromptResponse(
+      enhancedResponse,
+      userPrompt,
+      staticClass as IProvider,
+      format,
+    );
   }
 
   /**
@@ -702,8 +773,13 @@ export default abstract class BaseAIProvider {
    * - Uses `toEnhancementTypes()` and `toUserRoles()` for prompt mapping.
    * - Override this method for custom prompt construction logic.
    */
-  public async buildSystemPrompt(request: PromptRequest, staticClass: object): Promise<string> {
-    return (await PromptFormatter.buildSystemPrompt(request, staticClass as IProvider)).enhancementPrompt;
+  public async buildSystemPrompt(
+    request: PromptRequest,
+    staticClass: object,
+  ): Promise<string> {
+    return (
+      await PromptFormatter.buildSystemPrompt(request, staticClass as IProvider)
+    ).enhancementPrompt;
   }
 
   /**
@@ -717,7 +793,9 @@ export default abstract class BaseAIProvider {
    */
   public async validateModel(modelName: string): Promise<boolean> {
     const models = await this.getModels();
-    return models.some(model => model.name === modelName || model.id === modelName);
+    return models.some(
+      (model) => model.name === modelName || model.id === modelName,
+    );
   }
 
   /**
@@ -730,7 +808,9 @@ export default abstract class BaseAIProvider {
    */
   public async getMaxContextLength(modelName: string): Promise<number> {
     const models = await this.getModels();
-    const model = models.find(m => m.name === modelName || m.id === modelName);
+    const model = models.find(
+      (m) => m.name === modelName || m.id === modelName,
+    );
     return model?.contextLength || this.capabilities.maxContextLength || 4096;
   }
 
@@ -743,7 +823,10 @@ export default abstract class BaseAIProvider {
    * @example
    * const tokenCount = await provider.estimateTokenCount('Hello world', 'gpt-4');
    */
-  public async estimateTokenCount(text: string, modelName: string): Promise<number> {
+  public async estimateTokenCount(
+    text: string,
+    modelName: string,
+  ): Promise<number> {
     // Simple estimation: ~4 chars per token on average
     const charCount = text.length;
     return Math.ceil(charCount / 4);
