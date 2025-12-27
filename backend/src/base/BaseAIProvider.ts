@@ -259,7 +259,52 @@ export default abstract class BaseAIProvider {
    *   { text: "Explain ML", model: "gpt-4" }
    * ]);
    */
-  abstract batchEnhancePrompts?(requests: BatchPromptRequest[]): Promise<BatchPromptResponse[]>;
+  public async batchEnhancePrompts(requests: BatchPromptRequest[]): Promise<BatchPromptResponse[]> {
+    const results: BatchPromptResponse[] = [];
+    const startTime = Date.now();
+
+    try {
+      // Process in parallel but with rate limiting
+      const batchSize = 5; // Process 5 at a time to avoid overwhelming Ollama
+      for (let i = 0; i < requests.length; i += batchSize) {
+        const batch = requests.slice(i, i + batchSize);
+        const batchPromises = batch.map(async (request, index) => {
+          try {
+            const response = await this.enhancePrompt(request);
+            return {
+              success: true,
+              response,
+              originalRequest: request,
+              index: i + index,
+            };
+          } catch (error) {
+            return {
+              success: false,
+              error: error instanceof Error ? error.message : String(error),
+              originalRequest: request,
+              index: i + index,
+            };
+          }
+        });
+
+        const batchResults = await Promise.all(batchPromises);
+        results.push(...batchResults);
+
+        // Small delay between batches to prevent rate limiting
+        if (i + batchSize < requests.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+
+      const processingTime = this.calculateProcessingTime(startTime);
+      console.log(`[Ollama] Batch processed ${requests.length} prompts in ${processingTime}ms`);
+
+      return results.sort((a, b) => a.index - b.index);
+    } catch (error) {
+      console.error('Batch processing failed:', error);
+      throw new Error(`Batch processing failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
 
   /**
    * Streams prompt responses in real-time for long-running generations.
@@ -288,10 +333,15 @@ export default abstract class BaseAIProvider {
    * await provider.manageModel('download', 'llama2:latest');
    * await provider.manageModel('delete', 'old-model');
    */
-  abstract manageModel?(action: 'download' | 'delete' | 'update', modelName: string, options?: Record<string, any>): Promise<{
+  public async manageModel?(action: 'download' | 'delete' | 'update', modelName: string, options?: Record<string, any>): Promise<{
     success: boolean;
     message: string
-  }>;
+  }> {
+    return {
+      success: false,
+      message: `Model management (${action}) is not supported through API.`
+    };
+  };
 
   /**
    * Gets provider capabilities and supported features.
@@ -417,13 +467,54 @@ export default abstract class BaseAIProvider {
    * const safeInput = provider.sanitizeInput("User input with <script>tags</script>");
    */
   public sanitizeInput(input: string): string {
-    // Basic sanitization - remove potentially dangerous characters
-    return input
-      .replace(/<script.*?>.*?<\/script>/gi, '') // Remove script tags
-      .replace(/javascript:/gi, '') // Remove javascript: protocol
-      .replace(/on[a-z]+=/gi, '') // Remove event handlers
-      .replace(/\\n/g, ' ') // Normalize newlines
-      .trim();
+    if (!input) return '';
+
+    // Remove control characters (NULL to DEL except TAB, LF, CR)
+    // \x00-\x08: NULL to BACKSPACE
+    // \x0B-\x0C: VT, FF
+    // \x0E-\x1F: SO to US
+    // \x7F: DEL
+    // Remove dangerous control characters while preserving safe whitespace
+    // This approach avoids ESLint no-control-regex warnings by using character code checking
+    let sanitized = input.replace(/[\0-\x7F]/g, (match) => {
+      const charCode = match.charCodeAt(0);
+
+      // Keep safe whitespace characters:
+      // 9 = TAB, 10 = LINE FEED (\n), 13 = CARRIAGE RETURN (\r)
+      if (charCode === 9 || charCode === 10 || charCode === 13) {
+        return match;
+      }
+
+      // Remove all other control characters (0-31 and 127)
+      if ((charCode >= 0 && charCode <= 31) || charCode === 127) {
+        return '';
+      }
+
+      return match;
+    });
+
+    // Remove potentially dangerous content for XSS prevention
+    sanitized = sanitized
+      // Remove script tags and their content
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      // Remove javascript: protocol handlers
+      .replace(/javascript:/gi, 'javascript-disabled:')
+      // Remove event handlers (onclick, onmouseover, etc.)
+      .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
+      // Remove data URLs that could contain malicious content
+      .replace(/data:\s*image\/(gif|png|jpg|jpeg|bmp|webp);base64,[a-zA-Z0-9+/=]+/gi, '')
+      // Remove iframe tags
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '');
+
+    // Basic HTML entity encoding for additional safety
+    sanitized = sanitized
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+    return sanitized.trim();
   }
 
   /**
