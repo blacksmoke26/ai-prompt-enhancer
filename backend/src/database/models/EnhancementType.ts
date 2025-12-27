@@ -62,7 +62,7 @@ export class EnhancementType extends Model<InferAttributes<EnhancementType>, Inf
 EnhancementType.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },

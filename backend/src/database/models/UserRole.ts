@@ -62,7 +62,7 @@ export class UserRole extends Model<InferAttributes<UserRole>, InferCreationAttr
 UserRole.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },

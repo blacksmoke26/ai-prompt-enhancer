@@ -58,13 +58,13 @@ class History extends Model<InferAttributes<History>, InferCreationAttributes<Hi
 History.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
     providerId: {
       field: 'provider_id',
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: { model: 'Provider', key: 'id' },
       onDelete: 'CASCADE',

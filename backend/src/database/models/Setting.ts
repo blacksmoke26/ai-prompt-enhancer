@@ -111,7 +111,7 @@ class Setting extends Model<InferAttributes<Setting>, InferCreationAttributes<Se
 Setting.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },

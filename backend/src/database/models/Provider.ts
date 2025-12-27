@@ -130,7 +130,7 @@ class Provider extends Model<InferAttributes<Provider>, InferCreationAttributes<
 Provider.init(
   {
     id: {
-      type: DataTypes.INTEGER.UNSIGNED,
+      type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },

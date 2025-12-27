@@ -28,7 +28,7 @@ module.exports = {
   up: async (queryInterface) => {
     await queryInterface.createTable('enhancement_types',     {
       id: {
-        type: DataTypes.INTEGER.UNSIGNED,
+        type: DataTypes.INTEGER,
         autoIncrement: true,
         primaryKey: true,
       },
