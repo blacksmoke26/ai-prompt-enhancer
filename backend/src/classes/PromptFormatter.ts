@@ -99,7 +99,7 @@ export default abstract class PromptFormatter {
     const providerTemplates = providerClass.getFormatTemplates();
 
     if (providerTemplates?.[normalizedFormat]) {
-      return `${providerTemplates[normalizedFormat]}`.concat(PROMPT_SEPARATOR);
+      return `Output Format: ${providerTemplates[normalizedFormat]}`.concat(PROMPT_SEPARATOR);
     }
 
     // Fallback to generic format description
@@ -202,6 +202,8 @@ export default abstract class PromptFormatter {
 
     // Add metadata fields conditionally
     if (effectiveConfig.includeMetadata) {
+      if ( !request?.userRole?.trim?.() ) throw new Error ('User role is required');
+
       const {name = request.userRole} = (await UserRole.findOne({
         where: {key: request.userRole},
         attributes: ['name'],
