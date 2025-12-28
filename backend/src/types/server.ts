@@ -15,6 +15,7 @@ import ProviderService from '~/services/ProviderService';
 // types
 import type {FastifySchema} from 'fastify';
 import type {JSONSchema7} from 'json-schema';
+import CacheManager from '~/cache/CacheManager';
 
 /**
  * A flexible interface for configuration options.
@@ -86,6 +87,8 @@ declare module 'fastify' {
     historyService: InstanceType<typeof HistoryService>;
     /** Provider manager instance */
     providerService: InstanceType<typeof ProviderService>;
+    /** Cache manager instance */
+    cache: InstanceType<typeof CacheManager>;
   }
 
   /**
