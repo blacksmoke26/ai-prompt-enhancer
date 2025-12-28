@@ -7,8 +7,11 @@
 import axios, { AxiosInstance, AxiosError } from 'axios';
 
 // classes
+import CacheManager from '~/cache/CacheManager';
 import PromptFormatter from '~/classes/PromptFormatter';
-import CacheManager from '~/classes/CacheManager';
+
+// utils
+import { getInstance } from '~/cache';
 
 // types
 import type { AIModel } from '~/types';
@@ -150,7 +153,7 @@ export default abstract class BaseAIProvider {
    */
   constructor(name: string, config: ConfigMeta) {
     this.name = name;
-    this.cache = new CacheManager(name);
+    this.cache = getInstance();
     this.client = axios.create({
       baseURL: config?.baseUrl,
       timeout: config?.timeout ?? 30000,
