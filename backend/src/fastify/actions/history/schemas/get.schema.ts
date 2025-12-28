@@ -10,7 +10,7 @@ import schema200WithData from '~/fastify/schemas/generic/200-success-with-data.s
 
 // types
 import type {FastifySchema} from 'fastify';
-import {JSONSchema7} from 'json-schema';
+import type {JSONSchema7} from 'json-schema';
 
 export default {
   summary: 'List',
@@ -19,12 +19,61 @@ export default {
   querystring: {
     type: 'object',
     properties: {
-      limit: {
+      provider: {
         type: 'string',
+        description: 'Filter by provider name',
+        examples: ['openai'],
+      },
+      model: {
+        type: 'string',
+        description: 'Filter by model name',
+        examples: ['gpt-4'],
       },
       search: {
         type: 'string',
         minLength: 1,
+        description: 'Search term to filter history items',
+        examples: ['keyword'],
+      },
+      enhancementType: {
+        type: 'string',
+        description: 'Filter by type of enhancement',
+        examples: ['grammar'],
+      },
+      userRole: {
+        type: 'string',
+        description: 'Filter by user role',
+        examples: ['developer'],
+      },
+      dateFrom: {
+        type: 'string',
+        format: 'date',
+        description: 'Start date for filtering history items',
+        examples: ['2024-01-01'],
+      },
+      dateTo: {
+        type: 'string',
+        format: 'date',
+        description: 'End date for filtering history items',
+        examples: ['2024-12-31'],
+      },
+      minRating: {
+        type: 'string',
+        pattern: '^[0-5]$',
+        description: 'Minimum rating value (0-5) to filter by',
+        examples: [3],
+      },
+      maxRating: {
+        type: 'string',
+        pattern: '^[0-5]$',
+        description: 'Maximum rating value (0-5) to filter by',
+        examples: [5],
+      },
+      limit: {
+        type: 'string',
+        pattern: '^[0-9]{1,5}$',
+        description: 'Maximum number of items to retrieve',
+        examples: [10],
       },
     },
   } as JSONSchema7,

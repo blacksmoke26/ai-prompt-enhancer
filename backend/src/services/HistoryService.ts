@@ -12,17 +12,57 @@
  * @since 1.0.0
  */
 
+import { FindOptions, Op } from 'sequelize';
+
 // db
-import {History, Provider} from '~/database/models';
-import {FindOptions, Op} from 'sequelize';
+import { History, Provider } from '~/database/models';
 
 // classes
 import HistoryStats from '~/classes/HistoryStats';
 
 // types
-import type {PromptHistory, HistoryStatistics} from '~/types/history-service';
+import type { PromptHistory, HistoryStatistics } from '~/types/history-service';
 
-export {PromptHistory, HistoryStatistics};
+export { PromptHistory, HistoryStatistics };
+
+/**
+ * Interface for filtering history data queries
+ * Represents optional parameters for querying historical records with validation constraints
+ *
+ * @example
+ * const filters: HistoryFilters = {
+ *   model: 'gpt-3.5',
+ *   dateFrom: '2023-01-01',
+ *   dateTo: '2023-12-31',
+ *   minRating: 3,
+ *   maxRating: 5
+ * };
+ *
+ * Developer Notes:
+ * - All properties are optional for flexible filtering
+ * - Date fields use ISO 8601 format (YYYY-MM-DD)
+ * - minRating and maxRating must be between 0-5
+ * - Provider and model names should match available system values
+ * - Useful for paginated history queries with multiple constraints
+ */
+export interface HistoryFilters {
+  /** Filter by AI model name (e.g., 'gpt-3.5', 'claude-2') */
+  model?: string;
+  /** Filter by enhancement type (e.g., 'text', 'image', 'audio') */
+  enhancementType?: string;
+  /** Filter by user role (e.g., 'developer', 'admin', 'guest') */
+  userRole?: string;
+  /** Filter by service provider (e.g., 'openai', 'anthropic', 'google') */
+  provider?: string;
+  /** Start date for filtering (ISO 8601 format: YYYY-MM-DD) */
+  dateFrom?: string;
+  /** End date for filtering (ISO 8601 format: YYYY-MM-DD) */
+  dateTo?: string;
+  /** Minimum rating filter (0-5) */
+  minRating?: number;
+  /** Maximum rating filter (0-5) */
+  maxRating?: number;
+}
 
 /**
  * A comprehensive manager for prompt history with full CRUD operations, analytics,
@@ -92,8 +132,7 @@ export default class HistoryService {
    * @example
    * const defaultManager = new HistoryManager();
    */
-  constructor() {
-  }
+  constructor() {}
 
   /**
    * Retrieves entries from the prompt history with optional limit.
@@ -106,6 +145,7 @@ export default class HistoryService {
    *                          If not provided, returns all entries.
    *                          Must be a positive integer if specified.
    *
+   * @param [filters] - Optional filters to apply to the search.
    * @returns {PromptHistory[]} An array of history entries.
    *                            The array is ordered from newest to oldest.
    *                            Always returns a new array instance.
@@ -120,13 +160,84 @@ export default class HistoryService {
    * // Get just the latest entry
    * const latestEntry = historyManager.getHistory(1)[0];
    */
-  public async getHistory(limit?: number): Promise<PromptHistory[]> {
-    const findOptions: FindOptions<Provider> = {
+  public async getHistory(
+    limit?: number,
+    filters?: HistoryFilters,
+  ): Promise<PromptHistory[]> {
+    const findOptions: FindOptions<History> = {
       where: {},
       order: [['createdAt', 'DESC']],
     };
 
     if (limit) findOptions.limit = limit;
+
+    // Add filters to where clause
+    if (filters) {
+      const whereConditions: any = {};
+
+      // Add model filter
+      if (filters.model) {
+        whereConditions.model = { [Op.like]: `%${filters.model}%` };
+      }
+
+      // Add enhancement type filter
+      if (filters.enhancementType) {
+        whereConditions.enhancementType = {
+          [Op.like]: `%${filters.enhancementType}%`,
+        };
+      }
+
+      // Add user role filter
+      if (filters.userRole) {
+        whereConditions.userRole = { [Op.like]: `%${filters.userRole}%` };
+      }
+
+      // Add provider filter
+      if (filters.provider) {
+        // First get provider IDs that match the provider name
+        const providers = await Provider.findAll({
+          where: {
+            name: { [Op.like]: `%${filters.provider}%` },
+          },
+          attributes: ['id'],
+        });
+
+        const providerIds = providers.map((p) => p.id);
+
+        if (providerIds.length > 0) {
+          whereConditions.providerId = { [Op.in]: providerIds };
+        } else {
+          // If no providers match, return empty result
+          return [];
+        }
+      }
+
+      // Add date range filters
+      if (filters.dateFrom || filters.dateTo) {
+        const dateConditions: any = {};
+        if (filters.dateFrom) {
+          dateConditions.gte = new Date(filters.dateFrom);
+        }
+        if (filters.dateTo) {
+          dateConditions.lte = new Date(filters.dateTo);
+        }
+        whereConditions.createdAt = dateConditions;
+      }
+
+      // Add rating filters
+      if (filters.minRating !== undefined || filters.maxRating !== undefined) {
+        const ratingConditions: any = {};
+        if (filters.minRating !== undefined) {
+          ratingConditions.gte = filters.minRating;
+        }
+        if (filters.maxRating !== undefined) {
+          ratingConditions.lte = filters.maxRating;
+        }
+        whereConditions.rating = ratingConditions;
+      }
+
+      findOptions.where = whereConditions;
+    }
 
     const histories = await History.findAll(findOptions);
 
@@ -136,7 +247,10 @@ export default class HistoryService {
 
     for await (const history of histories) {
       if (!Object.hasOwn(providers, String(history.providerId))) {
-        const provider = await Provider.findByPk(history.providerId, {raw: true, attributes: ['name']});
+        const provider = await Provider.findByPk(history.providerId, {
+          raw: true,
+          attributes: ['name'],
+        });
         providers[String(history.providerId)] = provider?.name ?? '';
       }
 
@@ -181,6 +295,8 @@ export default class HistoryService {
    *                        Empty string returns all entries.
    *                        Leading/trailing whitespace is ignored.
    *
+   * @param [filters] - Optional filters to apply to the search.
+   *
    * @returns {PromptHistory[]} Array of entries matching the search query.
    *                            Results are ordered by history order (newest first).
    *                            Returns empty array if no matches found.
@@ -198,19 +314,90 @@ export default class HistoryService {
    * // Search for content in prompts
    * const summaryEntries = historyManager.searchHistory('summarize');
    */
-  public async searchHistory(query: string): Promise<PromptHistory[]> {
+  public async searchHistory(
+    query: string,
+    filters?: HistoryFilters,
+  ): Promise<PromptHistory[]> {
     const lc = query.toLowerCase();
+    const where: any = {};
+
+    // Add search filters
+    const searchConditions: any[] = [
+      { originalPrompt: { [Op.like]: `%${lc}%` } },
+      { enhancedPrompt: { [Op.like]: `%${lc}%` } },
+      { model: { [Op.like]: `%${lc}%` } },
+      { enhancementType: { [Op.like]: `%${lc}%` } },
+      { userRole: { [Op.like]: `%${lc}%` } },
+    ];
+
+    // Add additional filters if provided
+    if (filters?.model) {
+      searchConditions.push({ model: { [Op.like]: `%${filters.model}%` } });
+    }
+
+    if (filters?.enhancementType) {
+      searchConditions.push({
+        enhancementType: { [Op.like]: `%${filters.enhancementType}%` },
+      });
+    }
+
+    if (filters?.userRole) {
+      searchConditions.push({
+        userRole: { [Op.like]: `%${filters.userRole}%` },
+      });
+    }
+
+    // Handle provider filtering by joining with Provider table
+    if (filters?.provider) {
+      // First get provider IDs that match the provider name
+      const providers = await Provider.findAll({
+        where: {
+          name: { [Op.like]: `%${filters.provider}%` },
+        },
+        attributes: ['id'],
+      });
+
+      const providerIds = providers.map((p) => p.id);
+
+      if (providerIds.length > 0) {
+        where[Op.and] = [
+          { [Op.or]: searchConditions },
+          { providerId: { [Op.in]: providerIds } },
+        ];
+      } else {
+        // If no providers match, return empty result
+        return [];
+      }
+    } else {
+      where[Op.or] = searchConditions;
+    }
+
+    // Add date range filters
+    if (filters?.dateFrom || filters?.dateTo) {
+      const dateConditions: any = {};
+      if (filters.dateFrom) {
+        dateConditions.gte = new Date(filters.dateFrom);
+      }
+      if (filters.dateTo) {
+        dateConditions.lte = new Date(filters.dateTo);
+      }
+      where.createdAt = dateConditions;
+    }
+
+    // Add rating filters
+    if (filters?.minRating !== undefined || filters?.maxRating !== undefined) {
+      const ratingConditions: any = {};
+      if (filters.minRating !== undefined) {
+        ratingConditions.gte = filters.minRating;
+      }
+      if (filters.maxRating !== undefined) {
+        ratingConditions.lte = filters.maxRating;
+      }
+      where.rating = ratingConditions;
+    }
 
     const histories = await History.findAll({
-      where: {
-        [Op.or]: [
-          {originalPrompt: {[Op.like]: `%${lc}%`}},
-          {enhancedPrompt: {[Op.like]: `%${lc}%`}},
-          {model: {[Op.like]: `%${lc}%`}},
-          {enhancementType: {[Op.like]: `%${lc}%`}},
-          {userRole: {[Op.like]: `%${lc}%`}},
-        ],
-      },
+      where,
       order: [['createdAt', 'DESC']],
     });
 
@@ -219,7 +406,10 @@ export default class HistoryService {
 
     for await (const history of histories) {
       if (!Object.hasOwn(providers, String(history.providerId))) {
-        const provider = await Provider.findByPk(history.providerId, {raw: true, attributes: ['name']});
+        const provider = await Provider.findByPk(history.providerId, {
+          raw: true,
+          attributes: ['name'],
+        });
         providers[String(history.providerId)] = provider?.name ?? '';
       }
 
@@ -271,7 +461,7 @@ export default class HistoryService {
    * }
    */
   public async deleteHistoryItem(id: string): Promise<boolean> {
-    return (await History.destroy({where: {id}})) > 0;
+    return (await History.destroy({ where: { id } })) > 0;
   }
 
   /**
@@ -304,7 +494,10 @@ export default class HistoryService {
    *   console.log('Entry updated successfully');
    * }
    */
-  public async updateHistoryItem(id: string, updates: Partial<PromptHistory>): Promise<boolean> {
+  public async updateHistoryItem(
+    id: string,
+    updates: Partial<PromptHistory>,
+  ): Promise<boolean> {
     const record = await History.findByPk(id);
 
     if (!record) return false;
@@ -324,7 +517,7 @@ export default class HistoryService {
     }
 
     const [updatedRows] = await History.update(updateData, {
-      where: {id},
+      where: { id },
     });
 
     return updatedRows > 0;
@@ -396,7 +589,9 @@ export default class HistoryService {
    * const txtData = historyManager.exportHistory('txt');
    * console.log(txtData); // Display in console
    */
-  public async exportHistory(format: 'json' | 'csv' | 'txt' = 'json'): Promise<string> {
+  public async exportHistory(
+    format: 'json' | 'csv' | 'txt' = 'json',
+  ): Promise<string> {
     const records = await this.getHistory();
 
     switch (format) {
@@ -422,28 +617,43 @@ export default class HistoryService {
         ];
         const rows = [
           headers.join(','),
-          ...records.map((i) => [
-            i.id,
-            `"${this.escapeCsv(i.originalPrompt)}"`,
-            `"${this.escapeCsv(i.enhancedPrompt)}"`,
-            i.model,
-            i.enhancementType,
-            i.userRole,
-            i.provider ?? '',
-            i.timestamp.toISOString(),
-            i.tokensUsed ?? 0,
-            i.processingTime,
-            i.temperature ?? '',
-            i.maxTokens ?? '',
-            i.rating ?? 0,
-            i.notes ? `"${this.escapeCsv(i.notes)}"` : '',
-          ].join(',')),
+          ...records.map((i) =>
+            [
+              i.id,
+              `"${this.escapeCsv(i.originalPrompt)}"`,
+              `"${this.escapeCsv(i.enhancedPrompt)}"`,
+              i.model,
+              i.enhancementType,
+              i.userRole,
+              i.provider ?? '',
+              i.timestamp.toISOString(),
+              i.tokensUsed ?? 0,
+              i.processingTime,
+              i.temperature ?? '',
+              i.maxTokens ?? '',
+              i.rating ?? 0,
+              i.notes ? `"${this.escapeCsv(i.notes)}"` : '',
+            ].join(','),
+          ),
         ];
         return rows.join('\n');
 
       case 'txt':
         return records
-          .map((i) => `=== ${i.timestamp.toISOString()} ===\n` + `Model: ${i.model} | Type: ${i.enhancementType} | Role: ${i.userRole}\n` + `Provider: ${i.provider ?? 'N/A'}\n\n` + `Original Prompt:\n${i.originalPrompt}\n\n` + `Enhanced Prompt:\n${i.enhancedPrompt}\n` + `${i.tokensUsed ? `Tokens Used: ${i.tokensUsed}\n` : ''}` + `Processing Time: ${i.processingTime}ms\n` + `${i.temperature ? `Temperature: ${i.temperature}\n` : ''}` + `${i.maxTokens ? `Max Tokens: ${i.maxTokens}\n` : ''}` + `Rating: ${i.rating}\n` + `${i.notes ? `Notes: ${i.notes}\n` : ''}\n---\n`)
+          .map(
+            (i) =>
+              `=== ${i.timestamp.toISOString()} ===\n` +
+              `Model: ${i.model} | Type: ${i.enhancementType} | Role: ${i.userRole}\n` +
+              `Provider: ${i.provider ?? 'N/A'}\n\n` +
+              `Original Prompt:\n${i.originalPrompt}\n\n` +
+              `Enhanced Prompt:\n${i.enhancedPrompt}\n` +
+              `${i.tokensUsed ? `Tokens Used: ${i.tokensUsed}\n` : ''}` +
+              `Processing Time: ${i.processingTime}ms\n` +
+              `${i.temperature ? `Temperature: ${i.temperature}\n` : ''}` +
+              `${i.maxTokens ? `Max Tokens: ${i.maxTokens}\n` : ''}` +
+              `Rating: ${i.rating}\n` +
+              `${i.notes ? `Notes: ${i.notes}\n` : ''}\n---\n`,
+          )
           .join('\n');
 
       default:
@@ -472,7 +682,10 @@ export default class HistoryService {
    * // Returns: 'Text with ""quotes"" and \\nnewlines'
    */
   private escapeCsv(value: string): string {
-    return value.replace(/"/g, '""').replace(/\n/g, '\\n').replace(/\r/g, '\\r');
+    return value
+      .replace(/"/g, '""')
+      .replace(/\n/g, '\\n')
+      .replace(/\r/g, '\\r');
   }
 
   /**
@@ -563,23 +776,27 @@ export default class HistoryService {
         enhancementFrequency: [],
         modelPerformance: [],
         roleModelDistribution: [],
-        dateRange: {earliest: new Date(), latest: new Date()},
-        peakUsageHour: {hour: 0, count: 0},
+        dateRange: { earliest: new Date(), latest: new Date() },
+        peakUsageHour: { hour: 0, count: 0 },
         monthlyUsage: [],
         averageMaxTokens: 0,
         minTokensUsed: 0,
         promptEnhancementRatio: 0,
-        systemPromptUsage: {used: 0, notUsed: 0, percentage: 0},
+        systemPromptUsage: { used: 0, notUsed: 0, percentage: 0 },
         ratingDistribution: [],
-        costAnalysis: {totalEstimatedCost: 0, avgCostPerRequest: 0},
+        costAnalysis: { totalEstimatedCost: 0, avgCostPerRequest: 0 },
         weeklyUsage: [],
-        longestPrompt: {originalLength: 0, enhancedLength: 0, ratio: 0},
-        shortestPrompt: {originalLength: 0, enhancedLength: 0, ratio: 0},
-        averagePromptLength: {original: 0, enhanced: 0},
-        mostEfficientModel: {model: 'N/A', avgProcessingTime: 0, avgTokensPerMs: 0},
+        longestPrompt: { originalLength: 0, enhancedLength: 0, ratio: 0 },
+        shortestPrompt: { originalLength: 0, enhancedLength: 0, ratio: 0 },
+        averagePromptLength: { original: 0, enhanced: 0 },
+        mostEfficientModel: {
+          model: 'N/A',
+          avgProcessingTime: 0,
+          avgTokensPerMs: 0,
+        },
         preferredTimeSlots: [],
         enhancementTypeEfficiency: [],
-        metaFieldUsage: {withMeta: 0, withoutMeta: 0, percentage: 0},
+        metaFieldUsage: { withMeta: 0, withoutMeta: 0, percentage: 0 },
       };
     }
 
@@ -593,11 +810,23 @@ export default class HistoryService {
     const monthlyUsage: Record<string, number> = {};
     const weeklyUsage: Record<string, number> = {};
     const temperatureRanges = {
-      '0-0.2': 0, '0.2-0.4': 0, '0.4-0.6': 0,
-      '0.6-0.8': 0, '0.8-1.0': 0,
+      '0-0.2': 0,
+      '0.2-0.4': 0,
+      '0.4-0.6': 0,
+      '0.6-0.8': 0,
+      '0.8-1.0': 0,
     };
-    const ratingCounts: Record<number, number> = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
-    const enhancementStats: Record<string, { processingTime: number[]; tokensUsed: number[]; ratings: number[] }> = {};
+    const ratingCounts: Record<number, number> = {
+      1: 0,
+      2: 0,
+      3: 0,
+      4: 0,
+      5: 0,
+    };
+    const enhancementStats: Record<
+      string,
+      { processingTime: number[]; tokensUsed: number[]; ratings: number[] }
+    > = {};
 
     let totalTokens = 0;
     let totalProcessing = 0;
@@ -626,11 +855,12 @@ export default class HistoryService {
     for (const item of histories) {
       // Model and type counts
       modelCount[item.model] = (modelCount[item.model] ?? 0) + 1;
-      typeCount[item.enhancementType] = (typeCount[item.enhancementType] ?? 0) + 1;
+      typeCount[item.enhancementType] =
+        (typeCount[item.enhancementType] ?? 0) + 1;
       roleCount[item.userRole] = (roleCount[item.userRole] ?? 0) + 1;
 
       // Provider usage
-      const provider = await Provider.getNameByPk(item.providerId) ?? 'N/A';
+      const provider = (await Provider.getNameByPk(item.providerId)) ?? 'N/A';
       const key = `${provider}|${item.model}`;
       providerModelCount[key] = (providerModelCount[key] ?? 0) + 1;
 
@@ -706,9 +936,15 @@ export default class HistoryService {
 
       // Enhancement type efficiency
       if (!enhancementStats[item.enhancementType]) {
-        enhancementStats[item.enhancementType] = {processingTime: [], tokensUsed: [], ratings: []};
+        enhancementStats[item.enhancementType] = {
+          processingTime: [],
+          tokensUsed: [],
+          ratings: [],
+        };
       }
-      enhancementStats[item.enhancementType].processingTime.push(item.processingTime);
+      enhancementStats[item.enhancementType].processingTime.push(
+        item.processingTime,
+      );
       enhancementStats[item.enhancementType].tokensUsed.push(tokensUsed);
       enhancementStats[item.enhancementType].ratings.push(rating);
 
@@ -732,8 +968,12 @@ export default class HistoryService {
     const avgRating = Number((totalRating / len).toFixed(1));
     const avgTemp = Number((totalTemperature / len).toFixed(2));
     const averageMaxTokens = Math.round(totalMaxTokens / len);
-    const promptEnhancementRatio = Number((totalEnhancedLength / totalOriginalLength).toFixed(2));
-    const systemPromptPercentage = Number(((systemPromptUsed / len) * 100).toFixed(1));
+    const promptEnhancementRatio = Number(
+      (totalEnhancedLength / totalOriginalLength).toFixed(2),
+    );
+    const systemPromptPercentage = Number(
+      ((systemPromptUsed / len) * 100).toFixed(1),
+    );
     const metaPercentage = Number(((withMeta / len) * 100).toFixed(1));
 
     const stats = new HistoryStats(histories);
@@ -797,13 +1037,17 @@ export default class HistoryService {
       enhancementFrequency,
       modelPerformance,
       roleModelDistribution,
-      dateRange: {earliest: earliestDate, latest: latestDate},
-      peakUsageHour: {hour: Number(peakHour[0]), count: peakHour[1]},
+      dateRange: { earliest: earliestDate, latest: latestDate },
+      peakUsageHour: { hour: Number(peakHour[0]), count: peakHour[1] },
       monthlyUsage: monthlyStats,
       averageMaxTokens,
       minTokensUsed: minTokens === Number.MAX_SAFE_INTEGER ? 0 : minTokens,
       promptEnhancementRatio,
-      systemPromptUsage: {used: systemPromptUsed, notUsed: systemPromptNotUsed, percentage: systemPromptPercentage},
+      systemPromptUsage: {
+        used: systemPromptUsed,
+        notUsed: systemPromptNotUsed,
+        percentage: systemPromptPercentage,
+      },
       ratingDistribution,
       costAnalysis,
       weeklyUsage: weeklyStats,
@@ -813,9 +1057,14 @@ export default class HistoryService {
         ratio: Number((maxEnhancedLength / maxOriginalLength).toFixed(2)),
       },
       shortestPrompt: {
-        originalLength: minOriginalLength === Number.MAX_SAFE_INTEGER ? 0 : minOriginalLength,
-        enhancedLength: minEnhancedLength === Number.MAX_SAFE_INTEGER ? 0 : minEnhancedLength,
-        ratio: minEnhancedLength === Number.MAX_SAFE_INTEGER ? 0 : Number((minEnhancedLength / minOriginalLength).toFixed(2)),
+        originalLength:
+          minOriginalLength === Number.MAX_SAFE_INTEGER ? 0 : minOriginalLength,
+        enhancedLength:
+          minEnhancedLength === Number.MAX_SAFE_INTEGER ? 0 : minEnhancedLength,
+        ratio:
+          minEnhancedLength === Number.MAX_SAFE_INTEGER
+            ? 0
+            : Number((minEnhancedLength / minOriginalLength).toFixed(2)),
       },
       averagePromptLength: {
         original: Math.round(totalOriginalLength / len),
@@ -824,15 +1073,17 @@ export default class HistoryService {
       mostEfficientModel: mostEfficient,
       preferredTimeSlots,
       enhancementTypeEfficiency,
-      metaFieldUsage: {withMeta, withoutMeta, percentage: metaPercentage},
+      metaFieldUsage: { withMeta, withoutMeta, percentage: metaPercentage },
     };
   }
 
   getISOWeek(date: Date): string {
-    const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+    const d = new Date(
+      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+    );
     const dayNum = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-    return `${d.getUTCFullYear()}-W${Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)}`;
+    return `${d.getUTCFullYear()}-W${Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7)}`;
   }
 }

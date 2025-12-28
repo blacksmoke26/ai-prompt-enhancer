@@ -4,15 +4,17 @@
  * @see https://github.com/blacksmoke26
  */
 
+// helpers
+import ErrorHelper from '~/helpers/ErrorHelper';
+import ResponseHelper from '~/helpers/ResponseHelper';
+
 // schemas
 import schema from './schemas/get.schema';
 
 // types
 import type {FastifyInstance} from 'fastify';
-import ResponseHelper from '~/helpers/ResponseHelper';
-import {SuccessResponse} from '~/types/response';
-import {PromptHistory} from '~/services/HistoryService';
-import ErrorHelper from '~/helpers/ErrorHelper';
+import type {SuccessResponse} from '~/types/response';
+import type {PromptHistory} from '~/services/HistoryService';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -25,18 +27,52 @@ export default (fastify: FastifyInstance) => {
    * - Search performs case-insensitive text matching
    */
   fastify.get<{
-    Querystring: { limit?: string; search?: string };
+    Querystring: {
+      limit?: string;
+      search?: string;
+      model?: string;
+      enhancementType?: string;
+      userRole?: string;
+      provider?: string;
+      dateFrom?: string;
+      dateTo?: string;
+      minRating?: string;
+      maxRating?: string;
+    };
     Reply: SuccessResponse<PromptHistory[]>
   }>('/', {schema}, async function (this, request, reply) {
     try {
-      const {limit, search} = request.query;
+      const {
+        limit,
+        search,
+        model,
+        enhancementType,
+        userRole,
+        provider,
+        dateFrom,
+        dateTo,
+        minRating,
+        maxRating
+      } = request.query;
+
+      // Build filters object
+      const filters: any = {};
+
+      if (model) filters.model = model;
+      if (enhancementType) filters.enhancementType = enhancementType;
+      if (userRole) filters.userRole = userRole;
+      if (provider) filters.provider = provider;
+      if (dateFrom) filters.dateFrom = dateFrom;
+      if (dateTo) filters.dateTo = dateTo;
+      if (minRating) filters.minRating = parseInt(minRating);
+      if (maxRating) filters.maxRating = parseInt(maxRating);
 
       let history;
 
       if (search) {
-        history = await this.historyService.searchHistory(search);
+        history = await this.historyService.searchHistory(search, filters);
       } else {
-        history = await this.historyService.getHistory(limit ? parseInt(limit) : undefined);
+        history = await this.historyService.getHistory(limit ? parseInt(limit) : undefined, filters);
       }
 
       return ResponseHelper.successWithData(history);
