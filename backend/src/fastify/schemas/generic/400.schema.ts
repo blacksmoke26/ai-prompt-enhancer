@@ -11,11 +11,12 @@ import type {JSONSchema7} from 'json-schema';
  *
  * @param [message] - An optional error message to include in the response.
  * @param [error] - An optional error name to include in the response.
+ * @param [description] - An optional description of the response.
  * @returns A JSONSchema7 object representing the bad request response with the provided error message.
  */
-export default (message?: string, error?: string): JSONSchema7 => {
+export default (message?: string, error?: string, description?: string): JSONSchema7 => {
   return {
-    description: 'Bad Request',
+    description: description ?? 'Bad Request',
     type: 'object',
     properties: {
       statusCode: {
