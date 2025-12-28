@@ -9,7 +9,7 @@
 import {EnhancementType, UserRole} from '~/database/models';
 
 // utils
-import cache from '~/utils/cache';
+import { getInstance } from '~/cache';
 import {formatSpecificValidation, sanitizeInput, validatePromptRequest} from '~/utils/validation';
 
 // constants
@@ -391,7 +391,7 @@ export default abstract class PromptFormatter {
 
     try {
       // Check cache first
-      const cached = await cache.get<SystemPromptComponents>(cacheKey);
+      const cached = await getInstance().get<SystemPromptComponents>(cacheKey);
       if (cached) {
         return cached;
       }
@@ -429,7 +429,7 @@ export default abstract class PromptFormatter {
       };
 
       // Cache the result
-      await cache.set(cacheKey, result, 3600); // Cache for 1 hour
+      await getInstance().set(cacheKey, result, 3600); // Cache for 1 hour
 
       return result;
 
