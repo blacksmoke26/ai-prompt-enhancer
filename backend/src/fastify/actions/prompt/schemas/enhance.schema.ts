@@ -5,9 +5,9 @@
  */
 
 // constants
-import {TONES} from '~/constants/tones';
-import {RESPONSE_LENGTH} from '~/constants/response-length';
-import {OUTPUT_FORMAT_NAMES} from '~/constants/output-format';
+import { TONES } from '~/constants/tones';
+import { RESPONSE_LENGTH } from '~/constants/response-length';
+import { OUTPUT_FORMAT_NAMES } from '~/constants/output-format';
 
 // schemas
 import schema500WithError from '~/fastify/schemas/generic/500.schema';
@@ -17,8 +17,8 @@ import schema503WithError from '~/fastify/schemas/generic/503.schema';
 import schema200WithData from '~/fastify/schemas/generic/200-success-with-data.schema';
 
 // types
-import type {FastifySchema} from 'fastify';
-import type {JSONSchema7} from 'json-schema';
+import type { FastifySchema } from 'fastify';
+import type { JSONSchema7 } from 'json-schema';
 
 export default {
   summary: 'Enhance',
@@ -35,7 +35,8 @@ export default {
       },
       provider: {
         type: 'string',
-        description: 'Identifier of the AI model provider (e.g., Openai, Ollama)',
+        description:
+          'Identifier of the AI model provider (e.g., Openai, Ollama)',
         examples: ['Openai'],
       },
       model: {
@@ -45,8 +46,10 @@ export default {
       },
       systemPrompt: {
         type: 'string',
-        description: 'System prompt to guide the AI\'s behavior',
-        examples: ['You are a helpful assistant that explains complex topics simply'],
+        description: "System prompt to guide the AI's behavior",
+        examples: [
+          'You are a helpful assistant that explains complex topics simply',
+        ],
       },
       temperature: {
         type: 'number',
@@ -67,7 +70,8 @@ export default {
       },
       userRole: {
         type: 'string',
-        description: 'User role that determines the context for the AI response',
+        description:
+          'User role that determines the context for the AI response',
         examples: ['developer'],
       },
       targetAudience: {
@@ -104,9 +108,15 @@ export default {
         description: 'Output format for the enhanced response',
         examples: ['markdown'],
       },
+      enhancementParameters: {
+        type: 'object',
+        description: 'Additional parameters for the enhancement',
+        examples: [{ complexity: 5, focus: 'performance' }],
+      },
       offTheRecord: {
         type: 'boolean',
-        description: 'Whether the request is off-the-record (not stored in the history)',
+        description:
+          'Whether the request is off-the-record (not stored in the history)',
         examples: [true],
       },
     },
@@ -124,7 +134,9 @@ export default {
         enhancedPrompt: {
           type: 'string',
           description: 'The enhanced version of the original prompt',
-          examples: ['Explain quantum computing in simple terms, focusing on basic principles and applications'],
+          examples: [
+            'Explain quantum computing in simple terms, focusing on basic principles and applications',
+          ],
         },
         originalPrompt: {
           type: 'string',

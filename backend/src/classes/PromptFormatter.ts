@@ -415,12 +415,18 @@ export default abstract class PromptFormatter {
       const systemPrompt = typeRecord?.systemPrompt || providerDefaults.system;
       const rolePrompt = userRecord?.systemPrompt || providerDefaults.role;
 
-      const combinedPrompt = `${rolePrompt.trim()} ${systemPrompt.trim()}`.replace(/\s+/g, ' ');
+      // Process system prompt with parameters if available
+      let processedPrompt = systemPrompt;
+      if (request.enhancementParameters) {
+        processedPrompt = this.processEnhancementParameters(systemPrompt, request.enhancementParameters);
+      }
+
+      const combinedPrompt = `${rolePrompt.trim()} ${processedPrompt.trim()}`.replace(/\s+/g, ' ');
 
       const result: SystemPromptComponents = {
         fullPrompt: combinedPrompt,
         rolePrompt: rolePrompt,
-        enhancementPrompt: systemPrompt,
+        enhancementPrompt: processedPrompt,
         source: {
           enhancementType: typeRecord?.key || 'default',
           userRole: userRecord?.key || 'default',
@@ -450,6 +456,33 @@ export default abstract class PromptFormatter {
         },
       };
     }
+  }
+
+  /**
+   * Processes a system prompt by replacing placeholders in the format `{{parameterName}}` with the corresponding values from the parameters object.
+   * This method ensures all placeholders are globally replaced with their respective parameter values.
+   *
+   * @example
+   * const prompt = "Hello, {{name}}!";
+   * const parameters = { name: "John" };
+   * processEnhancementParameters(prompt, parameters); // Returns "Hello, John!"
+   *
+   * @developerNotes
+   * - Placeholders must be in the format `{{parameterName}}`.
+   * - This method uses global replacement, so all occurrences of a placeholder will be replaced.
+   * - If a parameter value is not a string, it will be converted to one using `String()`.
+   * - Parameters not present in the prompt are ignored.
+   */
+  private static processEnhancementParameters(systemPrompt: string, parameters: Record<string, any>): string {
+    let processedPrompt = systemPrompt;
+
+    // Replace {{parameterName}} with actual values
+    for (const [paramName, paramValue] of Object.entries(parameters)) {
+      const placeholder = `{{${paramName}}}`;
+      processedPrompt = processedPrompt.replace(new RegExp(placeholder, 'g'), String(paramValue));
+    }
+
+    return processedPrompt;
   }
 
   /**

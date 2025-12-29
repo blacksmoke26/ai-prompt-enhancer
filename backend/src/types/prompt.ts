@@ -89,6 +89,11 @@ export interface PromptRequest {
    */
   customInstructions?: string;
   /**
+   * Parameters for the enhancement type
+   * @example { "complexity": 5, "focus": "performance" }
+   */
+  enhancementParameters?: Record<string, string>;
+  /**
    * Output format for the enhanced response
    * @example 'markdown'
    */
