@@ -20,6 +20,18 @@ import UserRoleSelector from './UserRoleSelector';
 import TemperatureSlider from './TemperatureSlider';
 import MaxTokensInput from './MaxTokensInput';
 import ProviderStatus from './ProviderStatus';
+import TargetAudienceInput from './TargetAudienceInput';
+import ToneInput from './ToneInput';
+import ResponseLengthInput from './ResponseLengthInput';
+import CustomInstructionsInput from './CustomInstructionsInput';
+import EnhancementParametersInput from './EnhancementParametersInput';
+import FormatInput from './FormatInput';
+import OffTheRecordToggle from './OffTheRecordToggle';
+import TopPInput from './TopPInput';
+import TopKInput from './TopKInput';
+import StopSequencesInput from './StopSequencesInput';
+import FrequencyPenaltyInput from './FrequencyPenaltyInput';
+import PresencePenaltyInput from './PresencePenaltyInput';
 
 /**
  * Props for the ModelSelector component
@@ -65,6 +77,18 @@ const ModelSelectorComponent: React.FC<ModelSelectorProps> = ({ className = '' }
     'role',
     'temperature',
     'maxTokens',
+    'targetAudience',
+    'tone',
+    'responseLength',
+    'customInstructions',
+    'enhancementParameters',
+    'format',
+    'offTheRecord',
+    'topP',
+    'topK',
+    'stopSequences',
+    'frequencyPenalty',
+    'presencePenalty',
     'status'
   ]);
 
@@ -233,6 +257,30 @@ const ModelSelectorComponent: React.FC<ModelSelectorProps> = ({ className = '' }
         return renderComponentWithHandle(<TemperatureSlider />, 'temperature', index);
       case 'maxTokens':
         return renderComponentWithHandle(<MaxTokensInput />, 'maxTokens', index);
+      case 'targetAudience':
+        return renderComponentWithHandle(<TargetAudienceInput />, 'targetAudience', index);
+      case 'tone':
+        return renderComponentWithHandle(<ToneInput />, 'tone', index);
+      case 'responseLength':
+        return renderComponentWithHandle(<ResponseLengthInput />, 'responseLength', index);
+      case 'customInstructions':
+        return renderComponentWithHandle(<CustomInstructionsInput />, 'customInstructions', index);
+      case 'enhancementParameters':
+        return renderComponentWithHandle(<EnhancementParametersInput />, 'enhancementParameters', index);
+      case 'format':
+        return renderComponentWithHandle(<FormatInput />, 'format', index);
+      case 'offTheRecord':
+        return renderComponentWithHandle(<OffTheRecordToggle />, 'offTheRecord', index);
+      case 'topP':
+        return renderComponentWithHandle(<TopPInput />, 'topP', index);
+      case 'topK':
+        return renderComponentWithHandle(<TopKInput />, 'topK', index);
+      case 'stopSequences':
+        return renderComponentWithHandle(<StopSequencesInput />, 'stopSequences', index);
+      case 'frequencyPenalty':
+        return renderComponentWithHandle(<FrequencyPenaltyInput />, 'frequencyPenalty', index);
+      case 'presencePenalty':
+        return renderComponentWithHandle(<PresencePenaltyInput />, 'presencePenalty', index);
       case 'status':
         return renderComponentWithHandle(<ProviderStatus />, 'status', index);
       default:
