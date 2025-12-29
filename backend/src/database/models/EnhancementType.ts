@@ -4,10 +4,19 @@
  * @see https://github.com/blacksmoke26
  */
 
-import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model} from 'sequelize';
+import {
+  CreationOptional,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  Model,
+} from 'sequelize';
 
 // db
-import {getInstance} from '~/database';
+import { getInstance } from '~/database';
+
+// types
+import type { Complexity } from '~/types/advanced-enhancement';
 
 // public types
 export type EnhancementTypeAttributes = InferAttributes<EnhancementType>;
@@ -17,7 +26,10 @@ export type EnhancementTypeAttributes = InferAttributes<EnhancementType>;
  * This class extends Sequelize's Model class to provide database persistence capabilities.
  * It defines the structure of an enhancement type entity with attributes like key, name, and description.
  */
-export class EnhancementType extends Model<InferAttributes<EnhancementType>, InferCreationAttributes<EnhancementType>> {
+export class EnhancementType extends Model<
+  InferAttributes<EnhancementType>,
+  InferCreationAttributes<EnhancementType>
+> {
   /**
    * The primary key of the enhancement type. Auto-incremented by the database.
    * This field is optional during creation but required for updates.
@@ -57,6 +69,36 @@ export class EnhancementType extends Model<InferAttributes<EnhancementType>, Inf
 
   /** A flag indicating whether the enhancement type is hidden from the user interface. */
   declare hidden?: boolean;
+
+  /** Configuration parameters for the enhancement type */
+  declare parameters?: string | null;
+
+  /** Whether chaining of enhancement types is enabled */
+  declare chainingEnabled?: boolean;
+
+  /** Template variables that can be replaced in system prompts */
+  declare templateVariables?: string | null;
+
+  /** Dependencies on other enhancement types */
+  declare dependencies?: string | null;
+
+  /** Additional metadata for the enhancement type */
+  declare metadata?: string | null;
+
+  /** Tags for categorization and filtering */
+  declare tags?: string | null;
+
+  /** Complexity level of the enhancement type */
+  declare complexity?: Complexity;
+
+  /** Whether this enhancement type is experimental */
+  declare experimental?: boolean;
+
+  /** Example usage for this enhancement type */
+  declare exampleUsage?: string | null;
+
+  /** Performance characteristics */
+  declare performance?: string | null;
 }
 
 EnhancementType.init(
@@ -91,8 +133,60 @@ EnhancementType.init(
     hidden: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: false
-    }
+      defaultValue: false,
+    },
+    parameters: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
+    },
+    chainingEnabled: {
+      field: 'chaining_enabled',
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    templateVariables: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
+    },
+    dependencies: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
+    },
+    metadata: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
+    },
+    tags: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
+    },
+    complexity: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'basic',
+    },
+    experimental: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    exampleUsage: {
+      field: 'example_usage',
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
+    },
+    performance: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
+    },
   },
   {
     sequelize: getInstance(),

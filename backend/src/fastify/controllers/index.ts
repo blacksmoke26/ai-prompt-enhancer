@@ -10,6 +10,7 @@ import promptController from './prompt.controller';
 import historyController from './history.controller';
 import userRoleController from './user-role.controller';
 import enhancementTypeController from './enhancement-type.controller';
+import advancedEnhancementController from './advanced-enhancement.controller';
 
 // helpers
 import env from '@junaidatari/env-binder';
@@ -30,6 +31,7 @@ export default async (fastify: FastifyInstance) => {
     fastify.register(historyController, {prefix: '/api/history'}),
     fastify.register(userRoleController, {prefix: '/api/user-roles'}),
     fastify.register(enhancementTypeController, {prefix: '/api/enhancement-types'}),
+    fastify.register(advancedEnhancementController, {prefix: '/api/advanced-enhancement-types'}),
   ]);
 
   //<editor-fold desc="Development specific controllers">
