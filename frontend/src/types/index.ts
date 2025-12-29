@@ -34,6 +34,11 @@ export interface AIModel {
 }
 
 /**
+ * Represents the format of the response from an AI prompt processing request.
+ */
+export type ResponseOutputFormat = 'json' | 'markdown' | 'text' | 'html' | 'xml' | 'yaml';
+
+/**
  * Defines the structure for a prompt enhancement request.
  * @example
  * const request: PromptRequest = {
@@ -46,30 +51,112 @@ export interface AIModel {
  * `enhancementType` uses a literal union type for better type safety and autocomplete support.
  */
 export interface PromptRequest {
-  /** The original prompt text to enhance */
+  /**
+   * The text prompt to be processed
+   * @example "Explain quantum computing in simple terms"
+   */
   text: string;
-  /** The AI model provider name */
+  /**
+   * Identifier of the AI model provider (e.g., "Openai", "Ollama")
+   * @example "Openai"
+   */
   provider: string;
-  /** The AI model to use for enhancement */
+  /**
+   * Identifier of the AI model to use for processing
+   * @example "gpt-4-turbo"
+   */
   model: string;
-  /** Optional system prompt to guide the AI */
+  /**
+   * System prompt to guide the AI's behavior
+   * @example "You are a helpful assistant that explains complex topics simply"
+   */
   systemPrompt?: string;
-  /** Temperature setting for randomness in output (0-1) */
+  /**
+   * Controls randomness of the output (0.0 to 1.0)
+   * @example 0.7
+   */
   temperature?: number;
-  /** Maximum tokens allowed in the response */
+  /**
+   * Maximum number of tokens to generate
+   * @example 500
+   */
   maxTokens?: number;
-  /** Type of enhancement to apply */
+  /**
+   * Type of enhancement to apply to the prompt
+   * @example "enhance"
+   */
   enhancementType?: string;
-  /** Role the AI should adopt when responding */
+  /**
+   * User role that determines the context for the AI response
+   * @developerNotes Sets the professional context for the AI's response based on user's background
+   * @example "developer"
+   */
   userRole?: string;
-  /** Target audience for the enhanced prompt */
+  /**
+   * Target audience for the response
+   * @developerNotes Helps the AI tailor the content for specific audience understanding
+   * @example "technical-experts"
+   */
   targetAudience?: string;
-  /** Desired tone for the output */
+  /**
+   * Desired tone for the AI response
+   * @developerNotes Controls the emotional and stylistic approach of the response
+   * @example "professional"
+   */
   tone?: string;
-  /** Preferred length of the response */
-  responseLength?: 'short' | 'medium' | 'long' | 'custom';
-  /** Additional custom instructions for the AI */
+  /**
+   * Preferred length of the response
+   * @developerNotes Determines how detailed or concise the response should be
+   * @example "medium"
+   */
+  responseLength?: string;
+  /**
+   * Additional user instructions for the AI
+   * @developerNotes Allows for specific formatting or content requirements beyond standard options
+   * @example "Include code examples"
+   */
   customInstructions?: string;
+  /**
+   * Parameters for the enhancement type
+   * @example { "complexity": 5, "focus": "performance" }
+   */
+  enhancementParameters?: Record<string, string>;
+  /**
+   * Output format for the enhanced response
+   * @example 'markdown'
+   */
+  format?: ResponseOutputFormat;
+  /**
+   * Timestamp when the request was made
+   * @example "2023-05-15T10:30:00Z"
+   */
+  timestamp?: string;
+  /**
+   * Additional metadata for the request
+   * @example { requestId: "req_123", userId: "user_abc" }
+   */
+  metadata?: {
+    requestId?: string;
+    userId?: string;
+    timestamp?: string;
+  };
+  /**
+   * Whether the request is off-the-record (not stored in the history)
+   * @example false
+   */
+  offTheRecord?: boolean;
+  /** Top-p sampling parameter */
+  topP?: number;
+  /** Top-k sampling parameter */
+  topK?: number;
+  /** Stop sequences for generation */
+  stopSequences?: string[];
+  /** Frequency penalty parameter */
+  frequencyPenalty?: number;
+  /** Presence penalty parameter */
+  presencePenalty?: number;
+  /** Conversation ID for context */
+  conversationId?: string;
 }
 
 /**
@@ -86,21 +173,50 @@ export interface PromptRequest {
  * `tokensUsed` is optional as not all providers return this information.
  */
 export interface PromptResponse {
-  /** Optional metadata returned by the service. */
-  [key: string]: any;
-
-  /** The enhanced version of the prompt */
+  /**
+   * The enhanced version of the original prompt
+   * @example "Explain quantum computing in simple terms, focusing on basic principles and applications"
+   */
   enhancedPrompt: string;
-  /** The original prompt text */
+  /**
+   * The original prompt that was submitted
+   * @example "Explain quantum computing"
+   */
   originalPrompt: string;
-  /** The AI model used for enhancement */
+  /**
+   * Identifier of the AI model used
+   * @example "gpt-4-turbo"
+   */
   model: string;
-  /** Timestamp of when the enhancement was created */
-  timestamp: string;
-  /** Number of tokens used in the response */
+  /**
+   * Timestamp when the response was generated
+   * @example new Date('2023-05-15T10:30:00Z')
+   */
+  timestamp: Date;
+  /**
+   * Number of tokens used in the processing
+   * @example 120
+   */
   tokensUsed?: number;
-  /** Time taken to process the request in seconds */
+  /**
+   * Time taken to process the prompt in milliseconds
+   * @example 1250
+   */
   processingTime: number;
+  /** Additional metadata */
+  metadata?: {
+    [key: string]: any;
+    /** Model-specific details */
+    modelDetails?: any;
+    /** Total generation duration */
+    totalDuration?: number;
+    /** Evaluation duration */
+    evalDuration?: number;
+    /** Context length used */
+    contextLength?: number;
+    /** Streaming flag */
+    streaming?: boolean;
+  };
 }
 
 /**
