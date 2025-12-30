@@ -261,7 +261,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               {React.Children.map(children, (child) =>
                 React.cloneElement(child as React.ReactElement, {
                   // @ts-ignore
-                  collapsed: sidebarCollapsed && isDesktop
+                  collapsed: String(sidebarCollapsed && isDesktop)
                 })
               )}
             </div>
