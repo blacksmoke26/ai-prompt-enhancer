@@ -632,7 +632,7 @@ const WordCloud: React.FC<WordCloudProps> = (props) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <div className="bg-card border border-border/50 rounded-lg p-3">
                 <p className="text-xs text-muted-foreground mb-1">Vocabulary Diversity</p>
-                <p className="font-medium text-lg">{(stats.lexicalDiversity * 100).toFixed(1)}%</p>
+                <p className="font-medium text-lg">{((stats?.lexicalDiversity || 0) * 100).toFixed(1)}%</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   {stats.lexicalDiversity > 0.6 ? 'Excellent variety' : stats.lexicalDiversity > 0.4 ? 'Good variety' : 'Limited variety'}
                 </p>
