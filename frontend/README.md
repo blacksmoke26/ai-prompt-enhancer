@@ -39,6 +39,8 @@ The AI Prompt Enhancer is a comprehensive tool that transforms how users interac
 - **Drag and Drop Layout**: Customizable dashboard layout with drag and drop functionality
 - **Real-time Feedback**: Instant statistics and performance metrics
 - **Local Storage Persistence**: Automatic saving of history and settings
+- **Advanced Configuration**: Fine-tune AI prompt parameters including system prompts, target audiences, tone, response length, and more
+- **Parameter Controls**: Configure advanced sampling parameters like Top-P, Top-K, stop sequences, and penalty settings
 
 ## 🛠️ Technology Stack
 
@@ -152,6 +154,14 @@ Main application container with tab navigation for:
 - **Statistics**: Visualize usage metrics
 - **Settings**: Configure application preferences
 
+### ModelSelector
+AI model selection component with:
+- Model information display
+- Provider selection
+- Health status indicators
+- Integration with API services
+- Advanced configuration controls for all PromptRequest properties
+
 ### PromptEnhancer
 Core interface for:
 - Rich text editing with markdown support
@@ -240,6 +250,24 @@ The application allows customization of:
 ## 📈 Roadmap
 
 See [ROADMAP.md](ROADMAP.md) for current status and planned features.
+
+## 📋 New Prompt Request Properties
+
+The following new input controls have been added to the ModelSelector component to configure all PromptRequest properties:
+
+- **System Prompt**: Custom system instructions for AI behavior
+- **Target Audience**: Specifies the intended audience for the AI response
+- **Tone**: Controls the emotional and stylistic approach of the response
+- **Response Length**: Determines how detailed or concise the response should be
+- **Custom Instructions**: Additional user instructions beyond standard options
+- **Enhancement Parameters**: Configuration parameters for the enhancement type
+- **Output Format**: Preferred format for the enhanced response (markdown, html, text, json)
+- **Off-the-Record**: Toggle to exclude requests from history storage
+- **Top-P Sampling**: Controls the nucleus sampling parameter
+- **Top-K Sampling**: Controls the top-k sampling parameter
+- **Stop Sequences**: Defines sequences that will stop generation
+- **Frequency Penalty**: Controls repetition penalty for token frequency
+- **Presence Penalty**: Controls repetition penalty for token presence
 
 ## 🤝 Contributing
 
