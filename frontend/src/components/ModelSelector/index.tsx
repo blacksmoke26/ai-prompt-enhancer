@@ -78,7 +78,6 @@ export interface ModelSelectorProps {
  */
 const ModelSelectorComponent: React.FC<ModelSelectorProps> = ({className = ''}) => {
   const {
-    selectedProvider,
     componentOrder,
     visibleComponents,
     setComponentOrder,
@@ -266,7 +265,6 @@ const ModelSelectorComponent: React.FC<ModelSelectorProps> = ({className = ''}) 
 
   // Get components in the correct order
   const orderedComponents = localComponentOrder.map((componentId, index) => {
-    if (componentId === 'status' && !selectedProvider) return null;
     if (!localVisibleComponents[componentId]) return null;
 
     switch (componentId) {
