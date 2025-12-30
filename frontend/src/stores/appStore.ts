@@ -115,28 +115,6 @@ export interface AppState {
   /** Sets the user roles */
   setUserRoles(roles: UserRole[]): void;
 
-  // UI State
-  /** Currently selected model ID */
-  selectedModel: string;
-  /** Currently selected provider ID */
-  selectedProvider: string;
-  /** Currently selected enhancement type */
-  selectedEnhancementType: string;
-  /** Currently selected user role */
-  selectedUserRole: string;
-
-  /** Updates the selected model */
-  setSelectedModel(model: string): void;
-
-  /** Updates the selected provider */
-  setSelectedProvider(provider: string): void;
-
-  /** Updates the selected enhancement type */
-  setSelectedEnhancementType(type: string): void;
-
-  /** Updates the selected user role */
-  setSelectedUserRole(role: string): void;
-
   // Theme
   /** Current theme preference */
   theme: 'light' | 'dark' | 'system';
@@ -287,16 +265,6 @@ export const useAppStore = create<AppState>()(
       setEnhancementTypes: (types) => set({enhancementTypes: types}),
       setUserRoles: (roles) => set({userRoles: roles}),
 
-      // UI State
-      selectedModel: '',
-      selectedProvider: '',
-      selectedEnhancementType: 'enhance',
-      selectedUserRole: 'general',
-      setSelectedModel: (model) => set({selectedModel: model}),
-      setSelectedProvider: (provider) => set({selectedProvider: provider}),
-      setSelectedEnhancementType: (type) => set({selectedEnhancementType: type}),
-      setSelectedUserRole: (role) => set({selectedUserRole: role}),
-
       // Theme
       theme: 'system',
       setTheme: (theme) => set({theme}),
@@ -335,7 +303,7 @@ export const useAppStore = create<AppState>()(
       }),
       autoArrangeLayout: () => set((state) => {
         const visibleItems = state.dashboardLayout.items.filter(item => item.visible);
-        const autoItems = visibleItems.map((item, index) => {
+        const autoItems = visibleItems.map((item) => {
           const width = Math.floor(12 / visibleItems.length);
 
           return {
@@ -372,7 +340,7 @@ export const useAppStore = create<AppState>()(
         'stopSequences',
         'frequencyPenalty',
         'presencePenalty',
-        'status'
+        'status',
       ],
       visibleComponents: {
         provider: true,
@@ -418,10 +386,6 @@ export const useAppStore = create<AppState>()(
           frequencyPenalty: state.config.frequencyPenalty,
           presencePenalty: state.config.presencePenalty,
         },
-        selectedModel: state.selectedModel,
-        selectedProvider: state.selectedProvider,
-        selectedEnhancementType: state.selectedEnhancementType,
-        selectedUserRole: state.selectedUserRole,
         theme: state.theme,
         sidebarOpen: state.sidebarOpen,
         dashboardLayout: state.dashboardLayout,
