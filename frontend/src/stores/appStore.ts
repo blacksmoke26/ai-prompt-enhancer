@@ -4,32 +4,73 @@
  * @see https://github.com/blacksmoke26
  */
 
+import axios from 'axios';
 import {create} from 'zustand';
 import {persist, createJSONStorage} from 'zustand/middleware';
-import axios from 'axios';
 
 // types
-import type {AppConfig, AIModel, AIProvider, EnhancementType, UserRole} from '~/types';
-import {debounce} from '~/utils/helpers.ts';
+import type {AppConfig, AIModel, AIProvider, EnhancementType, UserRole, PromptRequest} from '~/types';
 
-// Dashboard layout item interface
+/**
+ * Represents a single item in a dashboard layout, defining its position, size, and behavior.
+ * @example
+ * {
+ *   id: 'widget-1',
+ *   type: 'stats',
+ *   title: 'User Activity',
+ *   width: 6,
+ *   visible: true,
+ *   sortable: true
+ * }
+ * @developerNotes Ensure `type` is one of the allowed enums and `width` is between 1-12.
+ */
 export interface DashboardLayoutItem {
+  /** Unique identifier for the dashboard item */
   id: string;
+  /** The type of dashboard item, which determines its functionality and appearance */
   type: 'enhancer' | 'history' | 'stats' | 'settings';
+  /** Display title for the dashboard item */
   title: string;
-  width: number; // Grid column width (1-12)
-  height?: number; // Row height if needed
+  /** Grid column width (1-12) defining the item's horizontal size */
+  width: number;
+  /** Optional row height if additional vertical space is needed */
+  height?: number;
+  /** Controls whether the item is visible on the dashboard */
   visible: boolean;
+  /** Indicates if the item can be dragged and sorted within the layout */
   sortable: boolean;
 }
 
-// Dashboard layout configuration
+/**
+ * Defines the overall configuration for a dashboard layout, including items and grid behavior.
+ * @example
+ * {
+ *   items: [/* Array of DashboardLayoutItem *!/],
+ *   dragEnabled: true,
+ *   snapToGrid: true,
+ *   gridSize: 12
+ * }
+ * @developerNotes Set `gridSize` based on the desired grid column count and ensure `dragEnabled` aligns with user permissions.
+ */
 export interface DashboardLayout {
+  /** Array of dashboard layout items composing the dashboard */
   items: DashboardLayoutItem[];
+  /** Enables or disables drag-and-drop functionality for rearranging items */
   dragEnabled: boolean;
+  /** Enables snapping items to the grid for alignment purposes */
   snapToGrid: boolean;
+  /** Defines the grid size in columns, affecting how items align and snap during rearrangement */
   gridSize: number;
 }
+
+/**
+ * Application configuration interface for storing and managing application settings
+ * @example
+ * ```typescript
+ * const { config } = useAppStore();
+ * ```
+ */
+export type ApplicationConfig = AppConfig & PromptRequest;
 
 /**
  * Application state interface for managing app configuration and UI state
@@ -41,12 +82,13 @@ export interface DashboardLayout {
 export interface AppState {
   // Config
   /** Global application configuration settings */
-  config: AppConfig;
+  config: ApplicationConfig;
 
   /** Updates configuration with partial changes */
-  setConfig(config: Partial<AppConfig>, save?: boolean): Promise<void>;
+  setConfig(config: Partial<ApplicationConfig>, save?: boolean): Promise<void>;
 
-  saveConfig(config: Partial<AppConfig>): Promise<void>;
+  /** Saves the current configuration to the backend */
+  saveConfig(config: Partial<ApplicationConfig>): Promise<void>;
 
   // Models and Providers
   /** Available AI models in the system */
@@ -63,6 +105,7 @@ export interface AppState {
   // Enhancement Types and User Roles
   /** Types of prompt enhancements available */
   enhancementTypes: EnhancementType[];
+
   /** User roles for prompt context */
   userRoles: UserRole[];
 
@@ -126,6 +169,19 @@ export interface AppState {
 
   /** Toggles the enhancement type */
   toggleEnhancementType(key: string, hidden: boolean): Promise<void>;
+
+  // Model Selector Settings
+  /** Component order for the model selector */
+  componentOrder: string[];
+
+  /** Component visibility settings for the model selector */
+  visibleComponents: Record<string, boolean>;
+
+  /** Sets the component order */
+  setComponentOrder(order: string[]): void;
+
+  /** Sets the component visibility */
+  setVisibleComponents(components: Record<string, boolean>): void;
 }
 
 /**
@@ -161,7 +217,7 @@ export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       // Config
-      config: {} as AppConfig,
+      config: {} as ApplicationConfig,
       async setConfig(updates, save: boolean = false) {
         // Call the original setConfig function
         set((state) => ({
@@ -186,7 +242,7 @@ export const useAppStore = create<AppState>()(
       async toggleUserRole(key: string, hidden: boolean) {
         set((state) => ({
           userRoles: state.userRoles.map((role) =>
-            role.id === key ? {...role, hidden} : role
+            role.id === key ? {...role, hidden} : role,
           ),
         }));
 
@@ -204,7 +260,7 @@ export const useAppStore = create<AppState>()(
       async toggleEnhancementType(key: string, hidden: boolean) {
         set((state) => ({
           enhancementTypes: state.enhancementTypes.map((type) =>
-            type.id === key ? {...type, hidden} : type
+            type.id === key ? {...type, hidden} : type,
           ),
         }));
 
@@ -295,12 +351,73 @@ export const useAppStore = create<AppState>()(
           },
         };
       }),
+
+      // Model Selector Settings
+      componentOrder: [
+        'provider',
+        'model',
+        'enhancement',
+        'role',
+        'temperature',
+        'maxTokens',
+        'targetAudience',
+        'tone',
+        'responseLength',
+        'customInstructions',
+        'enhancementParameters',
+        'format',
+        'offTheRecord',
+        'topP',
+        'topK',
+        'stopSequences',
+        'frequencyPenalty',
+        'presencePenalty',
+        'status'
+      ],
+      visibleComponents: {
+        provider: true,
+        model: true,
+        enhancement: true,
+        role: true,
+        temperature: true,
+        maxTokens: true,
+        targetAudience: false,
+        tone: true,
+        responseLength: true,
+        customInstructions: false,
+        enhancementParameters: false,
+        format: false,
+        offTheRecord: true,
+        topP: false,
+        topK: false,
+        stopSequences: false,
+        frequencyPenalty: false,
+        presencePenalty: false,
+        status: true,
+      },
+      setComponentOrder: (order) => set({componentOrder: order}),
+      setVisibleComponents: (components) => set({visibleComponents: components}),
     }),
     {
       name: 'prompt-enhancer-storage',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        config: state.config,
+        config: {
+          ...state.config,
+          systemPrompt: state.config.systemPrompt,
+          targetAudience: state.config.targetAudience,
+          tone: state.config.tone,
+          responseLength: state.config.responseLength,
+          customInstructions: state.config.customInstructions,
+          enhancementParameters: state.config.enhancementParameters,
+          format: state.config.format,
+          offTheRecord: state.config.offTheRecord,
+          topP: state.config.topP,
+          topK: state.config.topK,
+          stopSequences: state.config.stopSequences,
+          frequencyPenalty: state.config.frequencyPenalty,
+          presencePenalty: state.config.presencePenalty,
+        },
         selectedModel: state.selectedModel,
         selectedProvider: state.selectedProvider,
         selectedEnhancementType: state.selectedEnhancementType,
@@ -308,6 +425,8 @@ export const useAppStore = create<AppState>()(
         theme: state.theme,
         sidebarOpen: state.sidebarOpen,
         dashboardLayout: state.dashboardLayout,
+        componentOrder: state.componentOrder,
+        visibleComponents: state.visibleComponents,
       }),
     },
   ),
