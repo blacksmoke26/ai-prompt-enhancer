@@ -25,7 +25,7 @@ const ToneInput: React.FC = () => {
 
   const handleChange = (value: string) => {
     // Update the config in store
-    setConfig({tone: value}, true);
+    setConfig({responseLength: value}, true);
   };
 
   return (
