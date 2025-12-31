@@ -4,13 +4,32 @@
  * @see https://github.com/blacksmoke26
  */
 
-import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model} from 'sequelize';
+import {
+  CreationOptional,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  Model,
+} from 'sequelize';
 
 // db
-import {getInstance} from '~/database';
+import { getInstance } from '~/database';
 
 // public types
 export type HistoryAttributes = InferAttributes<History>;
+
+/**
+ * Metadata for a history record.
+ */
+export interface HistoryMetadata {
+  [key: string]: any;
+  /** Request ID */
+  requestId?: string;
+  /** User ID */
+  userId?: string;
+  /** Metadata */
+  timestamp?: string;
+}
 
 /**
  * Represents a history record of provider interactions.
@@ -18,7 +37,10 @@ export type HistoryAttributes = InferAttributes<History>;
  * - The `meta` field is flexible and can store any JSON-serializable data.
  * - `createdAt` and `updatedAt` are automatically managed by Sequelize.
  */
-class History extends Model<InferAttributes<History>, InferCreationAttributes<History>> {
+class History extends Model<
+  InferAttributes<History>,
+  InferCreationAttributes<History>
+> {
   /** Unique identifier for the history record */
   declare readonly id?: CreationOptional<number>;
   /** ID of the associated provider */
@@ -64,7 +86,7 @@ class History extends Model<InferAttributes<History>, InferCreationAttributes<Hi
   /** Timestamp when the request was made */
   declare timestamp?: string | null;
   /** Additional metadata for the request */
-  declare metadata?: Record<string, any> | null;
+  declare metadata?: HistoryMetadata | null;
   /** Top-p sampling parameter */
   declare topP?: number | null;
   /** Top-k sampling parameter */
@@ -248,7 +270,7 @@ History.init(
       defaultValue: null,
     },
     meta: {
-      field: 'metadata',
+      field: 'meta',
       type: DataTypes.JSON,
       allowNull: true,
       defaultValue: {},
