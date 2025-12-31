@@ -5,8 +5,16 @@
  */
 
 // db
-import {EnhancementType, History, Provider, UserRole} from '~/database/models';
-import {ModelStatic} from 'sequelize';
+import {
+  EnhancementType,
+  History,
+  Provider,
+  UserRole,
+} from '~/database/models';
+
+// types
+import type { ModelStatic } from 'sequelize';
+import type { TemperatureRanges } from '~/types/history-service';
 
 /**
  * Utility class for analyzing and computing statistics from history records.
@@ -30,12 +38,14 @@ export default class HistoryStats {
    * Generic method to fetch and cache display names from database models.
    * @developerNote This method is used to reduce database queries by caching results in memory.
    */
-  private async getCachedValue<T extends typeof Provider | typeof UserRole | typeof EnhancementType>(
+  private async getCachedValue<
+    T extends typeof Provider | typeof UserRole | typeof EnhancementType,
+  >(
     cache: Map<string, string>,
     key: string,
     model: T,
     keyField: string,
-    valueField: string
+    valueField: string,
   ): Promise<string> {
     if (cache.has(key)) {
       return cache.get(key)!;
@@ -43,7 +53,7 @@ export default class HistoryStats {
 
     const record = await (model as ModelStatic<any>).findOne({
       attributes: [valueField],
-      where: {[keyField]: key},
+      where: { [keyField]: key },
       raw: true,
     });
 
@@ -58,7 +68,13 @@ export default class HistoryStats {
    * const providerName = await stats.getProviderFromDb('openai');
    */
   public async getProviderFromDb(name: string): Promise<string> {
-    return this.getCachedValue(this.providers, name, Provider, 'name', 'caption');
+    return this.getCachedValue(
+      this.providers,
+      name,
+      Provider,
+      'name',
+      'caption',
+    );
   }
 
   /**
@@ -76,7 +92,13 @@ export default class HistoryStats {
    * const typeName = await stats.getEnhancementTypeFromDb('grammar');
    */
   public async getEnhancementTypeFromDb(key: string): Promise<string> {
-    return this.getCachedValue(this.enhancementTypes, key, EnhancementType, 'key', 'name');
+    return this.getCachedValue(
+      this.enhancementTypes,
+      key,
+      EnhancementType,
+      'key',
+      'name',
+    );
   }
 
   /**
@@ -84,11 +106,15 @@ export default class HistoryStats {
    * @example
    * const usage = await stats.getProviderUsage({'openai|gpt-4': 10, 'anthropic|claude': 5});
    */
-  public async getProviderUsage(providerModelCount: Record<string, number>): Promise<Array<{
-    provider: string;
-    model: string;
-    count: number;
-  }>> {
+  public async getProviderUsage(
+    providerModelCount: Record<string, number>,
+  ): Promise<
+    Array<{
+      provider: string;
+      model: string;
+      count: number;
+    }>
+  > {
     const entries = Object.entries(providerModelCount);
 
     return Promise.all(
@@ -108,7 +134,9 @@ export default class HistoryStats {
    * @example
    * const roles = await stats.getMostUsedRoles({'admin': 5, 'user': 10});
    */
-  public async getMostUsedRoles(roleCount: Record<string, number>): Promise<Array<{ role: string; count: number }>> {
+  public async getMostUsedRoles(
+    roleCount: Record<string, number>,
+  ): Promise<Array<{ role: string; count: number }>> {
     const entries = Object.entries(roleCount);
 
     const results = await Promise.all(
@@ -126,15 +154,21 @@ export default class HistoryStats {
    * @example
    * const performance = await stats.getModelPerformance({'gpt-4': [100, 150]});
    */
-  public async getModelPerformance(modelProcessingTime: Record<string, number[]>): Promise<Array<{
-    model: string;
-    avgProcessingTime: number;
-    totalUsage: number;
-  }>> {
+  public async getModelPerformance(
+    modelProcessingTime: Record<string, number[]>,
+  ): Promise<
+    Array<{
+      model: string;
+      avgProcessingTime: number;
+      totalUsage: number;
+    }>
+  > {
     return Object.entries(modelProcessingTime)
       .map(([model, times]) => ({
         model,
-        avgProcessingTime: Math.round(times.reduce((a, b) => a + b, 0) / times.length),
+        avgProcessingTime: Math.round(
+          times.reduce((a, b) => a + b, 0) / times.length,
+        ),
         totalUsage: times.length,
       }))
       .sort((a, b) => b.totalUsage - a.totalUsage);
@@ -145,11 +179,15 @@ export default class HistoryStats {
    * @example
    * const distribution = await stats.getRoleModelDistribution({'admin|gpt-4': 5});
    */
-  public async getRoleModelDistribution(roleModelCount: Record<string, number>): Promise<Array<{
-    role: string;
-    model: string;
-    count: number;
-  }>> {
+  public async getRoleModelDistribution(
+    roleModelCount: Record<string, number>,
+  ): Promise<
+    Array<{
+      role: string;
+      model: string;
+      count: number;
+    }>
+  > {
     const entries = Object.entries(roleModelCount);
 
     const results = await Promise.all(
@@ -171,13 +209,15 @@ export default class HistoryStats {
    * @example
    * const model = stats.getMostUsedModel({'gpt-4': 10, 'claude': 5});
    */
-  public async getMostUsedModel(modelCount: Record<string, number>): Promise<string> {
+  public async getMostUsedModel(
+    modelCount: Record<string, number>,
+  ): Promise<string> {
     const entries = Object.entries(modelCount);
     if (entries.length === 0) return 'N/A';
 
-    const {model} = entries.reduce((max, [model, count]) =>
-      count > max.count ? {model, count} : max,
-      {model: '', count: 0},
+    const { model } = entries.reduce(
+      (max, [model, count]) => (count > max.count ? { model, count } : max),
+      { model: '', count: 0 },
     );
 
     return model || 'N/A';
@@ -188,13 +228,15 @@ export default class HistoryStats {
    * @example
    * const type = await stats.getMostUsedType({'grammar': 10, 'style': 5});
    */
-  public async getMostUsedType(typeCount: Record<string, number>): Promise<string> {
+  public async getMostUsedType(
+    typeCount: Record<string, number>,
+  ): Promise<string> {
     const entries = Object.entries(typeCount);
     if (entries.length === 0) return 'N/A';
 
-    const {type} = entries.reduce((max, [type, count]) =>
-      count > max.count ? {type, count} : max,
-      {type: 'N/A', count: 0},
+    const { type } = entries.reduce(
+      (max, [type, count]) => (count > max.count ? { type, count } : max),
+      { type: 'N/A', count: 0 },
     );
 
     return this.getEnhancementTypeFromDb(type);
@@ -205,18 +247,20 @@ export default class HistoryStats {
    * @example
    * const efficient = await stats.getMostEfficient({'gpt-4': [100, 150]});
    */
-  public async getMostEfficient(modelProcessingTime: Record<string, number[]>): Promise<{
+  public async getMostEfficient(
+    modelProcessingTime: Record<string, number[]>,
+  ): Promise<{
     model: string;
     avgProcessingTime: number;
     avgTokensPerMs: number;
   }> {
     const entries = Object.entries(modelProcessingTime);
     if (entries.length === 0) {
-      return {model: 'N/A', avgProcessingTime: 0, avgTokensPerMs: 0};
+      return { model: 'N/A', avgProcessingTime: 0, avgTokensPerMs: 0 };
     }
 
     const tokenMap = new Map<string, number>();
-    this.histories.forEach(h => {
+    this.histories.forEach((h) => {
       if (h.model && h.tokensUsed) {
         tokenMap.set(h.model, (tokenMap.get(h.model) || 0) + h.tokensUsed);
       }
@@ -240,11 +284,16 @@ export default class HistoryStats {
    * @example
    * const frequency = await stats.getEnhancementFrequency({'grammar': 10}, 20);
    */
-  public async getEnhancementFrequency(typeCount: Record<string, number>, len: number): Promise<Array<{
-    type: string;
-    count: number;
-    percentage: number;
-  }>> {
+  public async getEnhancementFrequency(
+    typeCount: Record<string, number>,
+    len: number,
+  ): Promise<
+    Array<{
+      type: string;
+      count: number;
+      percentage: number;
+    }>
+  > {
     const entries = Object.entries(typeCount);
 
     const results = await Promise.all(
@@ -266,13 +315,9 @@ export default class HistoryStats {
    * @example
    * const distribution = await stats.getTemperatureDistribution({'0-0.2': 5, '0.2-0.4': 10});
    */
-  public async getTemperatureDistribution(temperatureRanges: {
-    '0-0.2': number;
-    '0.2-0.4': number;
-    '0.4-0.6': number;
-    '0.6-0.8': number;
-    '0.8-1.0': number;
-  }): Promise<Array<{ range: string; count: number }>> {
+  public async getTemperatureDistribution(
+    temperatureRanges: TemperatureRanges,
+  ): Promise<Array<{ range: string; count: number }>> {
     return Object.entries(temperatureRanges).map(([range, count]) => ({
       range,
       count,
@@ -284,28 +329,40 @@ export default class HistoryStats {
    * @example
    * const efficiency = await stats.getEnhancementTypeEfficiency({'grammar': {processingTime: [100], tokensUsed: [50], ratings: [4]}});
    */
-  public async getEnhancementTypeEfficiency(enhancementStats: Record<string, {
-    processingTime: number[];
-    tokensUsed: number[];
-    ratings: number[];
-  }>): Promise<Array<{
-    type: string;
-    avgProcessingTime: number;
-    avgTokensUsed: number;
-    successRate: number;
-  }>> {
+  public async getEnhancementTypeEfficiency(
+    enhancementStats: Record<
+      string,
+      {
+        processingTime: number[];
+        tokensUsed: number[];
+        ratings: number[];
+      }
+    >,
+  ): Promise<
+    Array<{
+      type: string;
+      avgProcessingTime: number;
+      avgTokensUsed: number;
+      successRate: number;
+    }>
+  > {
     const entries = Object.entries(enhancementStats);
 
     const results = await Promise.all(
       entries.map(async ([type, stats]) => {
         const avgProcessingTime = Math.round(
-          stats.processingTime.reduce((a, b) => a + b, 0) / stats.processingTime.length,
+          stats.processingTime.reduce((a, b) => a + b, 0) /
+            stats.processingTime.length,
         );
         const avgTokensUsed = Math.round(
           stats.tokensUsed.reduce((a, b) => a + b, 0) / stats.tokensUsed.length,
         );
         const successRate = Number(
-          ((stats.ratings.filter(r => r >= 4).length / stats.ratings.length) * 100).toFixed(1),
+          (
+            (stats.ratings.filter((r) => r >= 4).length /
+              stats.ratings.length) *
+            100
+          ).toFixed(1),
         );
         return {
           type: await this.getEnhancementTypeFromDb(type),
@@ -324,11 +381,16 @@ export default class HistoryStats {
    * @example
    * const slots = await stats.getPreferredTimeSlots({0: 5, 1: 10}, 15);
    */
-  public async getPreferredTimeSlots(hourlyUsage: Record<number, number>, len: number): Promise<Array<{
-    hour: number;
-    count: number;
-    percentage: number;
-  }>> {
+  public async getPreferredTimeSlots(
+    hourlyUsage: Record<number, number>,
+    len: number,
+  ): Promise<
+    Array<{
+      hour: number;
+      count: number;
+      percentage: number;
+    }>
+  > {
     return Object.entries(hourlyUsage)
       .map(([hour, count]) => ({
         hour: Number(hour),
@@ -344,8 +406,12 @@ export default class HistoryStats {
    * @example
    * const peak = await stats.getPeakHour({0: 5, 1: 10});
    */
-  public async getPeakHour(hourlyUsage: Record<number, number>): Promise<[string, number]> {
-    return Object.entries(hourlyUsage).sort(([, a], [, b]) => b - a)[0] ?? ['0', 0];
+  public async getPeakHour(
+    hourlyUsage: Record<number, number>,
+  ): Promise<[string, number]> {
+    return (
+      Object.entries(hourlyUsage).sort(([, a], [, b]) => b - a)[0] ?? ['0', 0]
+    );
   }
 
   /**
@@ -353,9 +419,11 @@ export default class HistoryStats {
    * @example
    * const monthly = await stats.getMonthlyStats({'2023-01': 50, '2023-02': 60});
    */
-  public async getMonthlyStats(monthlyUsage: Record<string, number>): Promise<Array<{ month: string; count: number }>> {
+  public async getMonthlyStats(
+    monthlyUsage: Record<string, number>,
+  ): Promise<Array<{ month: string; count: number }>> {
     return Object.entries(monthlyUsage)
-      .map(([month, count]) => ({month, count}))
+      .map(([month, count]) => ({ month, count }))
       .sort((a, b) => a.month.localeCompare(b.month));
   }
 
@@ -364,9 +432,11 @@ export default class HistoryStats {
    * @example
    * const weekly = await stats.getWeeklyStats({'2023-W01': 20, '2023-W02': 30});
    */
-  public async getWeeklyStats(weeklyUsage: Record<string, number>): Promise<Array<{ week: string; count: number }>> {
+  public async getWeeklyStats(
+    weeklyUsage: Record<string, number>,
+  ): Promise<Array<{ week: string; count: number }>> {
     return Object.entries(weeklyUsage)
-      .map(([week, count]) => ({week, count}))
+      .map(([week, count]) => ({ week, count }))
       .sort((a, b) => a.week.localeCompare(b.week));
   }
 
@@ -375,17 +445,22 @@ export default class HistoryStats {
    * @example
    * const ratings = await stats.getRatingDistribution({1: 5, 2: 10}, 15);
    */
-  public async getRatingDistribution(ratingCounts: Record<number, number>, len: number): Promise<Array<{
-    rating: number;
-    count: number;
-    percentage: number;
-  }>> {
+  public async getRatingDistribution(
+    ratingCounts: Record<number, number>,
+    len: number,
+  ): Promise<
+    Array<{
+      rating: number;
+      count: number;
+      percentage: number;
+    }>
+  > {
     return Object.entries(ratingCounts)
       .map(([rating, count]) => ({
         rating: Number(rating),
         count,
         percentage: Number(((count / len) * 100).toFixed(1)),
       }))
-      .filter(r => r.count > 0);
+      .filter((r) => r.count > 0);
   }
 }
