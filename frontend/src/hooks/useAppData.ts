@@ -13,6 +13,8 @@ import {useAppStore} from '~/stores/appStore';
 import PromptService from '~/services/PromptService';
 import ConfigService from '~/services/ConfigService';
 import UserRoleService from '~/services/UserRoleService';
+import ToneService from '~/services/ToneService';
+import ResponseLengthService from '~/services/ResponseLengthService';
 import EnhancementTypeService from '~/services/EnhancementTypeService';
 
 /**
@@ -30,7 +32,7 @@ import EnhancementTypeService from '~/services/EnhancementTypeService';
  * All data fetching is done in parallel for optimal performance.
  */
 export const useAppData = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -39,6 +41,8 @@ export const useAppData = () => {
     setEnhancementTypes,
     setUserRoles,
     setConfig,
+    setResponseLengths,
+    setTones,
   } = useAppStore();
 
   useEffect(() => {
@@ -60,12 +64,14 @@ export const useAppData = () => {
       setError(null);
 
       // Load all data in parallel
-      const [models, providers, enhancementTypes, userRoles, appConfig] = await Promise.all([
+      const [models, providers, enhancementTypes, userRoles, appConfig, responseLengths, tones] = await Promise.all([
         PromptService.getModels(),
         PromptService.getProviders(),
         EnhancementTypeService.getAll(),
         UserRoleService.getAll(),
         ConfigService.getConfig(),
+        ResponseLengthService.getAll(),
+        ToneService.getAll(),
       ]);
 
       setModels(models);
@@ -73,6 +79,8 @@ export const useAppData = () => {
       setEnhancementTypes(enhancementTypes);
       setUserRoles(userRoles);
       setConfig(appConfig);
+      setResponseLengths(responseLengths);
+      setTones(tones);
 
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
