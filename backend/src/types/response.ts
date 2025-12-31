@@ -8,8 +8,7 @@
  * Base interface for all success response objects.
  * Provides a common structure for success-related responses.
  */
-export interface ISuccessResponse {
-}
+export type ISuccessResponse = object
 
 /**
  * Response interface indicating success with a boolean flag.
@@ -88,7 +87,7 @@ export type PaginationOrder = 'asc' | 'desc';
  * @developerNotes The `@ts-ignore` is used to bypass type-checking for extending generic types.
  * @example { "page": 1, "pageSize": 10, "sortBy": "name", "order": "asc" }
  */
-// @ts-ignore
+// @ts-expect-error Unknown T type parameter.
 export interface PaginationParams<T = unknown> extends T {
   readonly page?: number;
   readonly pageSize?: number;
