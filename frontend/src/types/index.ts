@@ -354,25 +354,72 @@ export interface AppConfig {
   model?: string;
   /** Selected intelligent word analysis frequency */
   wordFrequency?: 'all' | 'high' | 'medium' | 'low' | 'complex';
+  /** Array specifying the order in which UI components should be rendered. */
+  componentOrder?: string[];
+  /** The visibility state of UI components in a configuration panel. */
+  visibleComponents?: VisibleComponents;
+  /** The target audience for the AI-generated content */
+  targetAudience?: string;
+  /** The desired tone of the AI response */
+  tone?: string;
+  /** @example "Long" * @developerNotes Set to control the verbosity of the output */
+  responseLength?: string;
+  /** Custom instructions for the AI model to follow */
+  customInstructions?: string;
+  /** Additional parameters to enhance the AI model's output */
+  enhancementParameters?: Record<string, string>;
+  /** The output format preference for the AI response */
+  format?: ResponseOutputFormat;
+  /** Whether the AI response should be marked as "off-the-record" */
+  offTheRecord?: boolean;
+  /** The top-p parameter for controlling response diversity */
+  topP?: number;
+  /** The top-k parameter for limiting token selection */
+  topK?: number;
+  /** Sequences that the AI should stop generating output after */
+  stopSequences?: string[];
+  /** The frequency penalty parameter to reduce repetition */
+  frequencyPenalty?: number;
+  /** The presence penalty parameter to influence token selection */
+  presencePenalty?: number;
   // Provider specific configuration objects
+  /** Configuration for the Ollama AI provider */
   ollama?: AIProviderConfig;
+  /** Configuration for the OpenAI AI provider */
   openai?: AIProviderConfig;
+  /** Configuration for the OpenRouter AI provider */
   openrouter?: AIProviderConfig;
+  /** Configuration for the DeepSeek AI provider */
   deepseek?: AIProviderConfig;
+  /** Configuration for the Coze AI provider */
   coze?: AIProviderConfig;
+  /** Configuration for the Qianfan AI provider */
   qianfan?: AIProviderConfig;
+  /** Configuration for the Gemini AI provider */
   gemini?: AIProviderConfig;
+  /** Configuration for the Kimi AI provider */
   kimi?: AIProviderConfig;
+  /** Configuration for the Groq AI provider */
   groq?: AIProviderConfig;
+  /** Configuration for the Anthropic AI provider */
   anthropic?: AIProviderConfig;
+  /** Configuration for the Mistral AI provider */
   mistral?: AIProviderConfig;
+  /** Configuration for the NVIDIA AI provider */
   nvidia?: AIProviderConfig;
+  /** Configuration for the Cohere AI provider */
   cohere?: AIProviderConfig;
+  /** Configuration for the Cody AI provider */
   cody?: AIProviderConfig;
+  /** Configuration for the XAI AI provider */
   xai?: AIProviderConfig;
+  /** Configuration for the Hugging Face AI provider */
   huggingface?: AIProviderConfig;
+  /** Configuration for the SiliconFlow AI provider */
   siliconflow?: AIProviderConfig;
+  /** Configuration for the GLM AI provider */
   glm?: AIProviderConfig;
+  /** Configuration for the LM Studio AI provider */
   lmstudio?: AIProviderConfig;
 }
 
@@ -636,4 +683,52 @@ export interface ProviderConfig {
   apiKey?: string;
   /** The timeout for requests to the provider */
   timeout?: number;
+}
+
+/**
+ * Interface representing the visibility state of UI components in a configuration panel.
+ * Controls which settings or controls are shown to the user based on their role or needs.
+ * @example { provider: true, model: true, temperature: false, maxTokens: true }
+ * @developerNotes Use this interface to conditionally render UI elements based on user permissions or feature flags.
+ * @interface VisibleComponents
+ */
+export interface VisibleComponents {
+  /** Whether the AI provider selection component is visible */
+  provider: boolean;
+  /** Whether the model selection component is visible */
+  model: boolean;
+  /** Whether the enhancement options component is visible */
+  enhancement: boolean;
+  /** Whether the role definition component is visible */
+  role: boolean;
+  /** Whether the temperature parameter component is visible */
+  temperature: boolean;
+  /** Whether the maximum tokens parameter component is visible */
+  maxTokens: boolean;
+  /** Whether the target audience selection component is visible */
+  targetAudience: boolean;
+  /** Whether the tone selection component is visible */
+  tone: boolean;
+  /** Whether the response length parameter component is visible */
+  responseLength: boolean;
+  /** Whether the custom instructions input component is visible */
+  customInstructions: boolean;
+  /** Whether the enhancement parameters component is visible */
+  enhancementParameters: boolean;
+  /** Whether the output format selection component is visible */
+  format: boolean;
+  /** Whether the 'off-the-record' privacy toggle is visible */
+  offTheRecord: boolean;
+  /** Whether the top-p parameter component is visible */
+  topP: boolean;
+  /** Whether the top-k parameter component is visible */
+  topK: boolean;
+  /** Whether the stop sequences input component is visible */
+  stopSequences: boolean;
+  /** Whether the frequency penalty parameter component is visible */
+  frequencyPenalty: boolean;
+  /** Whether the presence penalty parameter component is visible */
+  presencePenalty: boolean;
+  /** Whether the status indicator component is visible */
+  status: boolean;
 }
