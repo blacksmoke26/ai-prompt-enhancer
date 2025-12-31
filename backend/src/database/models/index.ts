@@ -8,6 +8,8 @@ import History from './History';
 import Setting from './Setting';
 import Provider from './Provider';
 import UserRole from './UserRole';
+import Tone from './Tone';
+import ResponseLength from './ResponseLength';
 import EnhancementType from './EnhancementType';
 
 /**
@@ -17,6 +19,8 @@ export * from './History';
 export * from './Setting';
 export * from './Provider';
 export * from './UserRole';
+export * from './Tone';
+export * from './ResponseLength';
 export * from './EnhancementType';
 
 let isInitialized = false;
@@ -31,5 +35,7 @@ export {
   Setting,
   Provider,
   UserRole,
+  Tone,
+  ResponseLength,
   EnhancementType,
 };
