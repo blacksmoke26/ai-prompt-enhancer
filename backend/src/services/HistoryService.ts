@@ -2260,17 +2260,90 @@ export default class HistoryService {
    * // cost would be: 0.002 (1000 tokens * $0.000002 per token)
    * @developerNotes Ensure the `model` parameter matches one of the predefined keys in `costPerToken`. If an unknown model is provided, the default rate will be used. Consider adding error handling or logging for unsupported models.
    */
-  private estimateCost(tokens: number, model: string): number {
-    const costPerToken: Record<string, number> = {
-      'gpt-4': 0.00003,
-      'gpt-3.5-turbo': 0.000002,
-      'claude-3': 0.000015,
-      default: 0.00001,
-    };
+   private estimateCost(tokens: number, model: string): number {
+     const costPerToken: Record<string, number> = {
+       // OpenAI Models
+       'gpt-4': 0.00003,
+       'gpt-4-32k': 0.00006,
+       'gpt-4-turbo': 0.00001,
+       'gpt-4-turbo-2024-04-09': 0.00001,
+       'gpt-4o': 0.000005,
+       'gpt-4o-mini': 0.00000015,
+       'gpt-3.5-turbo': 0.000002,
+       'gpt-3.5-turbo-16k': 0.000003,
+       'gpt-3.5-turbo-instruct': 0.000002,
+       'text-ada-001': 0.0000004,
+       'text-babbage-001': 0.0000005,
+       'text-curie-001': 0.000002,
+       'text-davinci-003': 0.00002,
+       'text-davinci-002': 0.00002,
+       'code-davinci-002': 0.00002,
+       'code-cushman-001': 0.000024,
 
-    const rate: number = costPerToken[model] || costPerToken['default'];
-    return tokens * rate;
-  }
+       // Anthropic Models
+       'claude-3-opus': 0.000015,
+       'claude-3-sonnet': 0.000003,
+       'claude-3-haiku': 0.00000025,
+       'claude-2.1': 0.000008,
+       'claude-2': 0.000008,
+       'claude-instant-1.2': 0.0000008,
+       'claude-instant-1': 0.0000008,
+
+       // Google Models
+       'gemini-1.5-pro': 0.00000125,
+       'gemini-1.5-flash': 0.000000075,
+       'gemini-pro': 0.0000005,
+       'gemini-pro-vision': 0.00000025,
+       'palm-2': 0.0000004,
+       'palm-2-chat-bison': 0.0000005,
+
+       // Meta Models
+       'llama-3-70b': 0.0000007,
+       'llama-3-8b': 0.00000015,
+       'llama-2-70b': 0.000001,
+       'llama-2-13b': 0.0000003,
+       'llama-2-7b': 0.0000002,
+       'codellama-34b': 0.0000008,
+       'codellama-13b': 0.0000003,
+       'codellama-7b': 0.0000002,
+       'mistral-7b': 0.00000007,
+       'mixtral-8x7b': 0.00000027,
+
+       // Mistral AI Models
+       'mistral-large': 0.000004,
+       'mistral-medium': 0.0000027,
+       'mistral-small': 0.0000002,
+       'mistral-tiny': 0.0000001,
+       'open-mistral-7b': 0.00000025,
+       'open-mixtral-8x7b': 0.0000007,
+
+       // Cohere Models
+       'command-r-plus': 0.000003,
+       'command-r': 0.0000005,
+       'command': 0.0000015,
+       'command-light': 0.0000003,
+       'command-nightly': 0.000001,
+
+       // AI21 Labs Models
+       'jamba-instruct': 0.00000025,
+       'j2-grande-instruct': 0.0000125,
+       'j2-jumbo-instruct': 0.0000188,
+
+       // DeepInfra Models
+       'deepseek-coder-33b': 0.00000014,
+       'qwen-72b-chat': 0.0000008,
+       'yi-34b-chat': 0.0000007,
+
+       // Microsoft Azure Models
+       'phi-3-medium-128k': 0.0000001,
+       'phi-3-mini-4k': 0.00000005,
+
+       default: 0.00001,
+     };
+
+     const rate: number = costPerToken[model] || costPerToken['default'];
+     return tokens * rate;
+   }
 
   /**
    * Calculates a complexity score for the given prompt based on factors like length, token count, or semantic depth.
