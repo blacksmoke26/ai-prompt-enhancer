@@ -203,11 +203,47 @@ export const isValidUrl = (string: string): boolean => {
  * @example toSelectGroupedOptions([{id: '1', name: 'Option 1', category: 'A'}]) // Returns grouped options
  * @developer-note Customize categoryField/descriptionField for different data structures.
  */
-export const toSelectGroupedOptions = (list: { id: string; name: string; description?: string; [key: string]: any; }[], categoryField: string = 'category', descriptionField: string = 'description'): GroupedOption[] => {
+export const toSelectGroupedOptions = (list: {
+  id: string;
+  name: string;
+  description?: string;
+  [key: string]: any;
+}[], categoryField: string = 'category', descriptionField: string = 'description'): GroupedOption[] => {
   const mapped: Record<string, { label: string; value: string; description?: string; }[]> = {};
 
   for (const data of list) {
-    const option = {label: data.name, value: data.id, description: data[descriptionField], category: data[categoryField]};
+    const option = {
+      label: data.name,
+      value: data.id,
+      description: data[descriptionField],
+      category: data[categoryField],
+    };
+    if (Object.prototype.hasOwnProperty.call(mapped, data[categoryField])) {
+      mapped[data[categoryField]].push(option);
+    } else {
+      mapped[data[categoryField]] = [option];
+    }
+  }
+
+  return Object.entries(mapped).map(([label, options]) => ({label, options}));
+};
+
+
+/**
+ * Converts a flat list into grouped options for a select component.
+ * @example toSelectGroupedOptions([{id: '1', name: 'Option 1', category: 'A'}]) // Returns grouped options
+ * @developer-note Customize categoryField/descriptionField for different data structures.
+ */
+export const toSelectGroupedOptionsPlain = (list: {
+  key: string;
+  name: string;
+  category: string;
+  [key: string]: any;
+}[], categoryField: string = 'category', keyField: string = 'key'): GroupedOption[] => {
+  const mapped: Record<string, { label: string; value: string; }[]> = {};
+
+  for (const data of list) {
+    const option = {label: data.name, value: data[keyField], category: data[categoryField]};
     if (Object.prototype.hasOwnProperty.call(mapped, data[categoryField])) {
       mapped[data[categoryField]].push(option);
     } else {
