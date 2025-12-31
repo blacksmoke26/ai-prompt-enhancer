@@ -719,18 +719,95 @@ export interface HistoryStatistics {
     percentage: number;
   }[];
 
+  /**
+   * Represents the distribution of processing times across different percentiles.
+   * Example: { p50: 150, p90: 300, p99: 500 }
+   * @developerNotes Ensure percentiles align with backend data collection intervals.
+   */
   processingTimePercentiles: ProcessingTimePercentiles;
+
+  /**
+   * Tracks token usage distribution across different percentiles.
+   * Example: { p50: 100, p90: 500, p99: 1000 }
+   * @developerNotes Validate that token counting logic is consistent across services.
+   */
   tokenUsagePercentiles: TokenUsagePercentiles;
+
+  /**
+   * Contains statistics about errors encountered during processing.
+   * Example: { totalErrors: 42, errorRate: 0.05, mostCommonErrors: ['404', '500'] }
+   * @developerNotes Maintain error classification consistency with backend logging.
+   */
   errorStatistics: ErrorStatistics;
+
+  /**
+   * Tracks user engagement metrics over time.
+   * Example: { activeUsers: 1000, sessionCount: 2500, sessionDuration: 120 }
+   * @developerNotes Ensure tracking events are synchronized with analytics tools.
+   */
   userActivity: UserActivity;
+
+  /**
+   * Tracks performance trends over time intervals.
+   * Example: { trend: 'increasing', slope: 0.5, confidenceInterval: [0.4, 0.6] }
+   * @developerNotes Use time-series data to validate trend calculations.
+   */
   performanceTrends: PerformanceTrends;
+
+  /**
+   * Contains metrics for different models used in the system.
+   * Example: [{ modelName: 'gpt-4', accuracy: 0.95, latency: 200 }, ...]
+   * @developerNotes Update model list when new models are deployed.
+   */
   modelMetrics: ModelMetrics[];
+
+  /**
+   * Tracks improvements and enhancements across features.
+   * Example: [{ feature: 'search', improvementRate: 0.3 }, ...]
+   * @developerNotes Align enhancement metrics with feature release cycles.
+   */
   enhancementMetrics: EnhancementMetrics[];
+
+  /**
+   * Measures complexity of content processed by the system.
+   * Example: { averageLength: 250, complexityScore: 75, complexityTrend: 'stable' }
+   * @developerNotes Ensure scoring aligns with content analysis algorithms.
+   */
   contentComplexity: ContentComplexity;
+
+  /**
+   * Tracks system health and resource utilization.
+   * Example: { uptime: 14400, loadAverage: 0.75, cpuUsage: 65 }
+   * @developerNotes Monitor metrics in real-time for proactive maintenance.
+   */
   systemHealth: SystemHealth;
+
+  /**
+   * Captures user interface and interaction preferences.
+   * Example: { preferredThemes: ['dark'], languageSettings: 'en-US' }
+   * @developerNotes Synchronize with user profile storage mechanisms.
+   */
   userPreferences: UserPreferences;
+
+  /**
+   * Breaks down costs by category and usage type.
+   * Example: { apiCalls: 150, storage: 25, bandwidth: 50 }
+   * @developerNotes Ensure cost tracking aligns with billing system definitions.
+   */
   costBreakdown: CostBreakdown;
+
+  /**
+   * Tracks seasonal patterns in usage and performance.
+   * Example: { pattern: 'winter_peak', peakMonth: 'December', amplitude: 2.5 }
+   * @developerNotes Validate patterns against historical data archives.
+   */
   seasonalPatterns: SeasonalPatterns;
+
+  /**
+   * Tracks geographic distribution of users and activity.
+   * Example: { regions: [{ country: 'US', users: 1200 }, { country: 'IN', users: 800 }] }
+   * @developerNotes Maintain region definitions in sync with localization systems.
+   */
   geographicDistribution: GeographicDistribution;
 }
 
