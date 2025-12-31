@@ -398,7 +398,9 @@ export default abstract class BaseAIProvider {
    * @example
    * const metrics = await provider.getUsageMetrics(Date.now() - 86400000); // last 24 hours
    */
-  abstract getUsageMetrics?(since?: number): Promise<UsageMetrics>;
+  public async getUsageMetrics?(since?: number): Promise<UsageMetrics> {
+    throw new Error(`No usage metrics`);
+  }
 
   /**
    * Handles rate limiting by implementing backoff strategies.
