@@ -188,7 +188,6 @@ export const useAppStore = create<AppState>()(
       // Config
       config: {} as AppConfig,
       async setConfig(updates, save: boolean = false) {
-        console.log('Updates', updates);
         // Call the original setConfig function
         set((state) => ({
           config: {...state.config, ...updates},
