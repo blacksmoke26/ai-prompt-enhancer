@@ -9,7 +9,17 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 
 // types
-import type {AIModel, AIProvider, AppConfig, EnhancementType, UserRole, VisibleComponents} from '~/types';
+import type {
+  AIModel,
+  AIProvider,
+  AppConfig,
+  EnhancementType,
+  ResponseLength, Tone,
+  UserRole,
+  VisibleComponents,
+} from '~/types';
+import ToneService from '~/services/ToneService.ts';
+import ResponseLengthService from '~/services/ResponseLengthService.ts';
 
 /**
  * Represents a single item in a dashboard layout, defining its position, size, and behavior.
@@ -106,6 +116,19 @@ export interface AppState {
   /** Sets the user roles */
   setUserRoles(roles: UserRole[]): void;
 
+  // Response Lengths and Tones
+  /** Types of response length available */
+  responseLengths: ResponseLength[];
+
+  /** Tones for prompt context */
+  tones: Tone[];
+
+  /** Sets the response lengts */
+  setResponseLengths(types: ResponseLength[]): void;
+
+  /** Sets the tones */
+  setTones(roles: Tone[]): void;
+
   // Theme
   /** Current theme preference */
   theme: 'light' | 'dark' | 'system';
@@ -136,8 +159,14 @@ export interface AppState {
   /** Toggles a user role */
   toggleUserRole(key: string, hidden: boolean): Promise<void>;
 
-  /** Toggles the enhancement type */
+  /** Toggles the response length */
   toggleEnhancementType(key: string, hidden: boolean): Promise<void>;
+
+  /** Toggles a user role */
+  toggleResponseLength(key: string, hidden: boolean): Promise<void>;
+
+  /** Toggles the tone */
+  toggleTone(key: string, hidden: boolean): Promise<void>;
 
   // Model Selector Settings
   /** Component order for the model selector */
@@ -244,25 +273,57 @@ export const useAppStore = create<AppState>()(
         }
       },
 
+      async toggleResponseLength(key: string, hidden: boolean) {
+        try {
+          await ResponseLengthService.update(key, hidden);
+          set(state => ({
+            responseLengths: state.responseLengths.map((length) =>
+              length.key === key ? {...length, hidden} : length,
+            ),
+          }));
+        } catch (error) {
+          console.error('Failed to save configuration:', error);
+        }
+      },
+
+      async toggleTone(key: string, hidden: boolean) {
+        try {
+          await ToneService.update(key, hidden);
+          set(state => ({
+            tones: state.tones.map((tone) =>
+              tone.key === key ? {...tone, hidden} : tone,
+            ),
+          }));
+        } catch (error) {
+          console.error('Failed to save configuration:', error);
+        }
+      },
+
       // Models and Providers
       models: [],
       providers: [],
-      setModels: (models) => set({models}),
-      setProviders: (providers) => set({providers}),
+      setModels: models => set({models}),
+      setProviders: providers => set({providers}),
 
       // Enhancement Types and User Roles
       enhancementTypes: [],
       userRoles: [],
-      setEnhancementTypes: (types) => set({enhancementTypes: types}),
-      setUserRoles: (roles) => set({userRoles: roles}),
+      setEnhancementTypes: types => set({enhancementTypes: types}),
+      setUserRoles: roles => set({userRoles: roles}),
+
+      // Response lengths and Tones
+      responseLengths: [],
+      tones: [],
+      setResponseLengths: responseLengths => set({responseLengths}),
+      setTones: tones => set({tones}),
 
       // Theme
       theme: 'system',
-      setTheme: (theme) => set({theme}),
+      setTheme: theme => set({theme}),
 
       // Sidebar
       sidebarOpen: true,
-      setSidebarOpen: (open) => set({sidebarOpen: open}),
+      setSidebarOpen: open => set({sidebarOpen: open}),
 
       // Dashboard Layout
       dashboardLayout: {
@@ -297,17 +358,11 @@ export const useAppStore = create<AppState>()(
         const autoItems = visibleItems.map((item) => {
           const width = Math.floor(12 / visibleItems.length);
 
-          return {
-            ...item,
-            width: width,
-          };
+          return {...item, width: width};
         });
 
         return {
-          dashboardLayout: {
-            ...state.dashboardLayout,
-            items: autoItems,
-          },
+          dashboardLayout: {...state.dashboardLayout, items: autoItems},
         };
       }),
 

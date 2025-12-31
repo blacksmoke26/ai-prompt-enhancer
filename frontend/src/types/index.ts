@@ -281,6 +281,7 @@ export interface PromptHistory {
  */
 export interface AIProviderConfig {
   [key: string]: any;
+
   /** Whether the AI provider is enabled or disabled */
   enabled?: boolean;
   /** The API key for authenticating requests to the AI provider */
@@ -448,6 +449,61 @@ export interface EnhancementType {
   /** System prompt to use for this enhancement type */
   systemPrompt: string;
   /** Whether this enhancement type is hidden from the UI */
+  hidden: boolean;
+}
+
+/**
+ * Represents predefined categories for tones, used to classify different types of data sizes in an application.
+ * @example
+ * ```typescript
+ * {
+ *   key: 'friendly',
+ *   name: 'Friendly',
+ *   category: 'Original core tones',
+ *   hidden: false
+ * }
+ */
+export interface Tone {
+  /**
+   * A unique identifier for the tone (e.g., "friendly", "executive").
+   */
+  key: string;
+
+  /** The human-readable name of the tone (e.g., "Friendly", "Executive") */
+  name: string;
+
+  /** A category grouping similar tones (e.g., "Original core tones", "Emotional & Relational") */
+  category: string;
+
+  /** A flag indicating whether the tone is hidden from the user interface. */
+  hidden: boolean;
+}
+
+/**
+ * Represents predefined categories for response lengths, used to classify different types of data sizes in an application.
+ * @example
+ * ```typescript
+ * {
+ *   key: 'detailed',
+ *   name: 'Detailed',
+ *   category: 'Structured formats',
+ *   hidden: false
+ * }
+ */
+export interface ResponseLength {
+  /**
+   * A unique identifier for the response length (e.g., "short", "detailed").
+   * This field is required and must be unique across the database.
+   */
+  key: string;
+
+  /** The human-readable name of the role (e.g., "Short", "Detailed") */
+  name: string;
+
+  /** A category grouping similar response lengths (e.g., "Original values", "Structured formats") */
+  category: string;
+
+  /** A flag indicating whether the response length is hidden from the user interface. */
   hidden: boolean;
 }
 
