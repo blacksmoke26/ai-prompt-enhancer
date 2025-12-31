@@ -6,10 +6,10 @@
 
 import axios from 'axios';
 import {create} from 'zustand';
-import {persist, createJSONStorage} from 'zustand/middleware';
+import {createJSONStorage, persist} from 'zustand/middleware';
 
 // types
-import type {AppConfig, AIModel, AIProvider, EnhancementType, UserRole, PromptRequest} from '~/types';
+import type {AIModel, AIProvider, AppConfig, EnhancementType, UserRole, VisibleComponents} from '~/types';
 
 /**
  * Represents a single item in a dashboard layout, defining its position, size, and behavior.
@@ -64,15 +64,6 @@ export interface DashboardLayout {
 }
 
 /**
- * Application configuration interface for storing and managing application settings
- * @example
- * ```typescript
- * const { config } = useAppStore();
- * ```
- */
-export type ApplicationConfig = AppConfig & PromptRequest;
-
-/**
  * Application state interface for managing app configuration and UI state
  * @example
  * ```typescript
@@ -82,13 +73,13 @@ export type ApplicationConfig = AppConfig & PromptRequest;
 export interface AppState {
   // Config
   /** Global application configuration settings */
-  config: ApplicationConfig;
+  config: AppConfig;
 
   /** Updates configuration with partial changes */
-  setConfig(config: Partial<ApplicationConfig>, save?: boolean): Promise<void>;
+  setConfig(config: Partial<AppConfig>, save?: boolean): Promise<void>;
 
   /** Saves the current configuration to the backend */
-  saveConfig(config: Partial<ApplicationConfig>): Promise<void>;
+  saveConfig(config: Partial<AppConfig>): Promise<void>;
 
   // Models and Providers
   /** Available AI models in the system */
@@ -153,13 +144,13 @@ export interface AppState {
   componentOrder: string[];
 
   /** Component visibility settings for the model selector */
-  visibleComponents: Record<string, boolean>;
+  visibleComponents: VisibleComponents;
 
   /** Sets the component order */
   setComponentOrder(order: string[]): void;
 
   /** Sets the component visibility */
-  setVisibleComponents(components: Record<string, boolean>): void;
+  setVisibleComponents(components: VisibleComponents): void;
 }
 
 /**
@@ -195,8 +186,9 @@ export const useAppStore = create<AppState>()(
   persist(
     (set) => ({
       // Config
-      config: {} as ApplicationConfig,
+      config: {} as AppConfig,
       async setConfig(updates, save: boolean = false) {
+        console.log('Updates', updates);
         // Call the original setConfig function
         set((state) => ({
           config: {...state.config, ...updates},
@@ -350,8 +342,8 @@ export const useAppStore = create<AppState>()(
         temperature: true,
         maxTokens: true,
         targetAudience: false,
-        tone: true,
-        responseLength: true,
+        tone: false,
+        responseLength: false,
         customInstructions: false,
         enhancementParameters: false,
         format: false,
@@ -372,7 +364,6 @@ export const useAppStore = create<AppState>()(
       partialize: (state) => ({
         config: {
           ...state.config,
-          systemPrompt: state.config.systemPrompt,
           targetAudience: state.config.targetAudience,
           tone: state.config.tone,
           responseLength: state.config.responseLength,
