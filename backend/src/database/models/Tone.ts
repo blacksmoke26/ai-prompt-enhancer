@@ -30,7 +30,7 @@ export class Tone extends Model<InferAttributes<Tone>, InferCreationAttributes<T
    */
   declare key: string;
 
-  /** The human-readable name of the role (e.g., "Friendly", "Executive") */
+  /** The human-readable name of the tone (e.g., "Friendly", "Executive") */
   declare name: string;
 
   /** A category grouping similar tones (e.g., "Original core tones", "Emotional & Relational") */
