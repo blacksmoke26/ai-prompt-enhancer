@@ -20,7 +20,7 @@ import {Select} from '~/components/ui/Select';
  * Tone input component for AI configuration
  * @component
  */
-const ToneInput: React.FC = () => {
+const ResponseLengthInput: React.FC = () => {
   const {config, setConfig, responseLengths} = useAppStore();
 
   const handleChange = (value: string) => {
@@ -41,4 +41,4 @@ const ToneInput: React.FC = () => {
   );
 };
 
-export default ToneInput;
+export default ResponseLengthInput;
