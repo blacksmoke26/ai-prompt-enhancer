@@ -15,13 +15,32 @@
 import { FindOptions, Op } from 'sequelize';
 
 // db
-import { History, Provider } from '~/database/models';
+import { History, HistoryAttributes, Provider } from '~/database/models';
 
 // classes
 import HistoryStats from '~/classes/HistoryStats';
 
 // types
-import type { PromptHistory, HistoryStatistics } from '~/types/history-service';
+import type {
+  ContentComplexity,
+  CostBreakdown,
+  EnhancementMetrics,
+  ErrorStatistics,
+  GeographicDistribution,
+  RegionUsage,
+  HistoryStatistics,
+  ModelMetrics,
+  PerformanceTrends,
+  ProcessingTimePercentiles,
+  PromptHistory,
+  Season,
+  StatsData,
+  SystemHealth,
+  TokenUsagePercentiles,
+  TrendDirection,
+  UserActivity,
+  UserPreferences,
+} from '~/types/history-service';
 
 export { PromptHistory, HistoryStatistics };
 
@@ -254,23 +273,12 @@ export default class HistoryService {
         providers[String(history.providerId)] = provider?.name ?? '';
       }
 
-      records.push({
-        id: String(history?.id),
-        model: history.model,
-        enhancedPrompt: history.enhancedPrompt,
-        enhancementType: history.enhancementType,
-        originalPrompt: history.originalPrompt,
-        processingTime: history.processingTime,
-        timestamp: history?.createdAt ? new Date(history?.createdAt) : new Date(),
-        userRole: history.userRole,
-        provider: providers[String(history.providerId)],
-        tokensUsed: history.tokensUsed,
-        maxTokens: history.maxTokens,
-        temperature: history.temperature,
-        systemPrompt: history.systemPrompt,
-        rating: history?.rating ?? 0,
-        notes: history?.notes ?? null,
-      });
+      records.push(
+        this.mapHistoryToPromptHistory(
+          history,
+          providers[String(history.providerId)],
+        ),
+      );
     }
 
     return records;
@@ -321,8 +329,7 @@ export default class HistoryService {
     const lc = query.toLowerCase();
     const where: any = {};
 
-    // Add search filters
-    const searchConditions: any[] = [
+    const searchConditions: Record<string, any>[] = [
       { originalPrompt: { [Op.like]: `%${lc}%` } },
       { enhancedPrompt: { [Op.like]: `%${lc}%` } },
       { model: { [Op.like]: `%${lc}%` } },
@@ -413,23 +420,12 @@ export default class HistoryService {
         providers[String(history.providerId)] = provider?.name ?? '';
       }
 
-      records.push({
-        id: String(history?.id),
-        model: history.model,
-        enhancedPrompt: history.enhancedPrompt,
-        enhancementType: history.enhancementType,
-        originalPrompt: history.originalPrompt,
-        processingTime: history.processingTime,
-        timestamp: history?.createdAt ? new Date(history?.createdAt) : new Date(),
-        userRole: history.userRole,
-        provider: providers[String(history.providerId)],
-        tokensUsed: history.tokensUsed,
-        maxTokens: history.maxTokens,
-        temperature: history.temperature,
-        systemPrompt: history.systemPrompt,
-        rating: history?.rating ?? 0,
-        notes: history?.notes ?? null,
-      });
+      records.push(
+        this.mapHistoryToPromptHistory(
+          history,
+          providers[String(history.providerId)],
+        ),
+      );
     }
 
     return records;
@@ -504,11 +500,11 @@ export default class HistoryService {
 
     const updateData: any = {};
 
-    if (updates.rating) {
+    if (updates.rating !== undefined) {
       updateData.rating = updates.rating;
     }
 
-    if (updates.notes) {
+    if (updates.notes !== undefined) {
       updateData.notes = updates.notes;
     }
 
@@ -662,31 +658,56 @@ export default class HistoryService {
     }
   }
 
-  /**
-   * Escapes special characters in CSV fields to maintain data integrity.
-   *
-   * This private method handles CSV-specific escaping requirements:
-   * - Double quotes are escaped by doubling them ("" to """")
-   * - Newlines are escaped as \n
-   * - Carriage returns are escaped as \r
-   *
-   * This ensures that CSV parsing remains accurate even when prompt
-   * text contains special characters that could otherwise break the format.
-   *
-   * @private
-   * @param {string} value - The text value to escape for CSV output.
-   *
-   * @returns {string} The escaped value safe for inclusion in CSV fields.
-   *
-   * @example
-   * const escaped = historyManager.escapeCsv('Text with "quotes" and\nnewlines');
-   * // Returns: 'Text with ""quotes"" and \\nnewlines'
-   */
   private escapeCsv(value: string): string {
     return value
       .replace(/"/g, '""')
       .replace(/\n/g, '\\n')
       .replace(/\r/g, '\\r');
+  }
+
+  /**
+   * Maps a history object to a PromptHistory format compatible with the specified provider.
+   * Transforms history data into a structure suitable for AI model prompt processing.
+   * @example
+   * const history = { messages: [{ role: 'user', content: 'Hello' }] };
+   * const promptHistory = mapHistoryToPromptHistory(history, 'openai');
+   * // Result: { messages: [{ role: 'user', content: 'Hello' }], providerName: 'openai', timestamp: '2025-04-05T12:00:00Z' }
+   * @developerNotes Ensure provider-specific formatting logic is implemented. Validate that the `history` object contains valid message structures. Consider adding timestamping for traceability.
+   */
+  private mapHistoryToPromptHistory(
+    history: History,
+    providerName: string,
+  ): PromptHistory {
+    return {
+      id: String(history?.id),
+      model: history.model,
+      enhancedPrompt: history.enhancedPrompt,
+      enhancementType: history.enhancementType,
+      originalPrompt: history.originalPrompt,
+      processingTime: history.processingTime,
+      timestamp: history?.createdAt ? new Date(history?.createdAt) : new Date(),
+      userRole: history.userRole,
+      provider: providerName,
+      tokensUsed: history.tokensUsed,
+      maxTokens: history.maxTokens,
+      temperature: history.temperature,
+      systemPrompt: history.systemPrompt,
+      rating: history?.rating ?? 0,
+      notes: history?.notes ?? null,
+      targetAudience: history.targetAudience,
+      tone: history.tone,
+      responseLength: history.responseLength,
+      customInstructions: history.customInstructions,
+      format: history.format,
+      metadata: history.metadata,
+      enhancementParameters: history.enhancementParameters,
+      topP: history.topP,
+      topK: history.topK,
+      stopSequences: history.stopSequences,
+      frequencyPenalty: history.frequencyPenalty,
+      presencePenalty: history.presencePenalty,
+      conversationId: history.conversationId,
+    };
   }
 
   /**
@@ -756,441 +777,1553 @@ export default class HistoryService {
     });
 
     const len = histories.length;
-    if (len === 0) {
-      return {
-        totalItems: 0,
-        totalTokensUsed: 0,
-        averageProcessingTime: 0,
-        mostUsedModel: 'N/A',
-        mostUsedEnhancementType: 'N/A',
-        providerUsage: [],
-        mostUsedRoles: [],
-        totalWords: 0,
-        totalLines: 0,
-        totalChars: 0,
-        averageTokensUsed: 0,
-        maxTokensUsed: 0,
-        averageRating: 0,
-        topRatedEntries: 0,
-        averageTemperature: 0,
-        temperatureDistribution: [],
-        enhancementFrequency: [],
-        modelPerformance: [],
-        roleModelDistribution: [],
-        dateRange: { earliest: new Date(), latest: new Date() },
-        peakUsageHour: { hour: 0, count: 0 },
-        monthlyUsage: [],
-        averageMaxTokens: 0,
-        minTokensUsed: 0,
-        promptEnhancementRatio: 0,
-        systemPromptUsage: { used: 0, notUsed: 0, percentage: 0 },
-        ratingDistribution: [],
-        costAnalysis: { totalEstimatedCost: 0, avgCostPerRequest: 0 },
-        weeklyUsage: [],
-        longestPrompt: { originalLength: 0, enhancedLength: 0, ratio: 0 },
-        shortestPrompt: { originalLength: 0, enhancedLength: 0, ratio: 0 },
-        averagePromptLength: { original: 0, enhanced: 0 },
-        mostEfficientModel: {
-          model: 'N/A',
-          avgProcessingTime: 0,
-          avgTokensPerMs: 0,
-        },
-        preferredTimeSlots: [],
-        enhancementTypeEfficiency: [],
-        metaFieldUsage: { withMeta: 0, withoutMeta: 0, percentage: 0 },
-        targetAudienceUsage: [],
-        toneUsage: [],
-        responseLengthUsage: [],
-        formatUsage: [],
-        topKUsage: [],
-        topPUsage: [],
-        frequencyPenaltyUsage: [],
-        presencePenaltyUsage: [],
-        conversationIdUsage: [],
-      };
+    if (!len) {
+      return this.getEmptyStats();
     }
 
-    const modelCount: Record<string, number> = {};
-    const typeCount: Record<string, number> = {};
-    const roleCount: Record<string, number> = {};
-    const providerModelCount: Record<string, number> = {};
-    const modelProcessingTime: Record<string, number[]> = {};
-    const roleModelCount: Record<string, number> = {};
-    const hourlyUsage: Record<number, number> = {};
-    const monthlyUsage: Record<string, number> = {};
-    const weeklyUsage: Record<string, number> = {};
-    const temperatureRanges = {
-      '0-0.2': 0,
-      '0.2-0.4': 0,
-      '0.4-0.6': 0,
-      '0.6-0.8': 0,
-      '0.8-1.0': 0,
-    };
-    const ratingCounts: Record<number, number> = {
-      1: 0,
-      2: 0,
-      3: 0,
-      4: 0,
-      5: 0,
-    };
-    const enhancementStats: Record<
-      string,
-      { processingTime: number[]; tokensUsed: number[]; ratings: number[] }
-    > = {};
-
-    let totalTokens = 0;
-    let totalProcessing = 0;
-    let totalWords = 0;
-    let totalLines = 0;
-    let totalChars = 0;
-    let maxTokens = 0;
-    let minTokens = Number.MAX_SAFE_INTEGER;
-    let totalRating = 0;
-    let topRated = 0;
-    let totalTemperature = 0;
-    let totalMaxTokens = 0;
-    let systemPromptUsed = 0;
-    let systemPromptNotUsed = 0;
-    let withMeta = 0;
-    let withoutMeta = 0;
-    let totalOriginalLength = 0;
-    let totalEnhancedLength = 0;
-    let maxOriginalLength = 0;
-    let maxEnhancedLength = 0;
-    let minOriginalLength = Number.MAX_SAFE_INTEGER;
-    let minEnhancedLength = Number.MAX_SAFE_INTEGER;
-    let earliestDate = histories[0].createdAt || new Date();
-    let latestDate = histories[0].createdAt || new Date();
-
-    // Context statistics tracking
-    const targetAudienceStats: Record<string, number> = {};
-    const toneStats: Record<string, number> = {};
-    const responseLengthStats: Record<string, number> = {};
-    const formatStats: Record<string, number> = {};
-    const topKStats: Record<string, number> = {};
-    const topPStats: Record<string, number> = {};
-    const frequencyPenaltyStats: Record<string, number> = {};
-    const presencePenaltyStats: Record<string, number> = {};
-    const conversationIdStats: Record<string, number> = {};
+    const statsData: StatsData = this.initializeStatsData();
 
     for (const item of histories) {
-      // Model and type counts
-      modelCount[item.model] = (modelCount[item.model] ?? 0) + 1;
-      typeCount[item.enhancementType] =
-        (typeCount[item.enhancementType] ?? 0) + 1;
-      roleCount[item.userRole] = (roleCount[item.userRole] ?? 0) + 1;
-
-      // Provider usage
-      const provider = (await Provider.getNameByPk(item.providerId)) ?? 'N/A';
-      const key = `${provider}|${item.model}`;
-      providerModelCount[key] = (providerModelCount[key] ?? 0) + 1;
-
-      // Model performance tracking
-      if (!modelProcessingTime[item.model]) {
-        modelProcessingTime[item.model] = [];
-      }
-      modelProcessingTime[item.model].push(item.processingTime);
-
-      // Role-model distribution
-      const roleModelKey = `${item.userRole}|${item.model}`;
-      roleModelCount[roleModelKey] = (roleModelCount[roleModelKey] ?? 0) + 1;
-
-      // Token statistics
-      const tokensUsed = item.tokensUsed ?? 0;
-      totalTokens += tokensUsed;
-      maxTokens = Math.max(maxTokens, tokensUsed);
-      minTokens = Math.min(minTokens, tokensUsed);
-
-      // Max tokens statistics
-      totalMaxTokens += item.maxTokens ?? 0;
-
-      // Processing time
-      totalProcessing += item.processingTime;
-
-      // Rating statistics
-      totalRating += item.rating ?? 0;
-      const rating = item.rating ?? 0;
-      if (rating >= 4) topRated++;
-      if (rating >= 1 && rating <= 5) {
-        ratingCounts[rating]++;
-      }
-
-      // Temperature statistics
-      totalTemperature += item.temperature ?? 0;
-      const temp = item.temperature ?? 0;
-      if (temp <= 0.2) temperatureRanges['0-0.2']++;
-      else if (temp <= 0.4) temperatureRanges['0.2-0.4']++;
-      else if (temp <= 0.6) temperatureRanges['0.4-0.6']++;
-      else if (temp <= 0.8) temperatureRanges['0.6-0.8']++;
-      else temperatureRanges['0.8-1.0']++;
-
-      // Text statistics
-      const originalLength = item.originalPrompt.length;
-      const enhancedLength = item.enhancedPrompt.length;
-      const promptText = `${item.originalPrompt}\n${item.enhancedPrompt}`;
-
-      totalChars += promptText.length;
-      totalLines += (promptText.match(/\n/g) || []).length + 1;
-      totalWords += promptText.split(/\s+/).filter(Boolean).length;
-
-      totalOriginalLength += originalLength;
-      totalEnhancedLength += enhancedLength;
-
-      maxOriginalLength = Math.max(maxOriginalLength, originalLength);
-      maxEnhancedLength = Math.max(maxEnhancedLength, enhancedLength);
-      minOriginalLength = Math.min(minOriginalLength, originalLength);
-      minEnhancedLength = Math.min(minEnhancedLength, enhancedLength);
-
-      // System prompt usage
-      if (item.systemPrompt && item.systemPrompt.trim()) {
-        systemPromptUsed++;
-      } else {
-        systemPromptNotUsed++;
-      }
-
-      // Meta field usage
-      if (item.meta) {
-        withMeta++;
-      } else {
-        withoutMeta++;
-      }
-
-      // Context statistics
-      if (item.targetAudience) {
-        targetAudienceStats[item.targetAudience] = (targetAudienceStats[item.targetAudience] ?? 0) + 1;
-      }
-
-      if (item.tone) {
-        toneStats[item.tone] = (toneStats[item.tone] ?? 0) + 1;
-      }
-
-      if (item.responseLength) {
-        responseLengthStats[item.responseLength] = (responseLengthStats[item.responseLength] ?? 0) + 1;
-      }
-
-      if (item.format) {
-        formatStats[item.format] = (formatStats[item.format] ?? 0) + 1;
-      }
-
-      if (item.topK !== null && item.topK !== undefined) {
-        const k = item.topK.toString();
-        topKStats[k] = (topKStats[k] ?? 0) + 1;
-      }
-
-      if (item.topP !== null && item.topP !== undefined) {
-        const p = item.topP.toString();
-        topPStats[p] = (topPStats[p] ?? 0) + 1;
-      }
-
-      if (item.frequencyPenalty !== null && item.frequencyPenalty !== undefined) {
-        const penalty = item.frequencyPenalty.toString();
-        frequencyPenaltyStats[penalty] = (frequencyPenaltyStats[penalty] ?? 0) + 1;
-      }
-
-      if (item.presencePenalty !== null && item.presencePenalty !== undefined) {
-        const penalty = item.presencePenalty.toString();
-        presencePenaltyStats[penalty] = (presencePenaltyStats[penalty] ?? 0) + 1;
-      }
-
-      if (item.conversationId) {
-        conversationIdStats[item.conversationId] = (conversationIdStats[item.conversationId] ?? 0) + 1;
-      }
-
-      // Enhancement type efficiency
-      if (!enhancementStats[item.enhancementType]) {
-        enhancementStats[item.enhancementType] = {
-          processingTime: [],
-          tokensUsed: [],
-          ratings: [],
-        };
-      }
-      enhancementStats[item.enhancementType].processingTime.push(
-        item.processingTime,
-      );
-      enhancementStats[item.enhancementType].tokensUsed.push(tokensUsed);
-      enhancementStats[item.enhancementType].ratings.push(rating);
-
-      // Date/time statistics
-      const date = new Date(item.createdAt || new Date());
-      earliestDate = date < earliestDate ? date : earliestDate;
-      latestDate = date > latestDate ? date : latestDate;
-
-      const hour = date.getHours();
-      hourlyUsage[hour] = (hourlyUsage[hour] ?? 0) + 1;
-
-      const monthKey = date.toISOString().slice(0, 7);
-      monthlyUsage[monthKey] = (monthlyUsage[monthKey] ?? 0) + 1;
-
-      const weekKey = this.getISOWeek(date);
-      weeklyUsage[weekKey] = (weeklyUsage[weekKey] ?? 0) + 1;
+      await this.processHistoryEntry(item, statsData);
     }
 
-    const avgProcessing = Math.round(totalProcessing / len);
-    const avgTokens = Math.round(totalTokens / len);
-    const avgRating = Number((totalRating / len).toFixed(1));
-    const avgTemp = Number((totalTemperature / len).toFixed(2));
-    const averageMaxTokens = Math.round(totalMaxTokens / len);
-    const promptEnhancementRatio = Number(
-      (totalEnhancedLength / totalOriginalLength).toFixed(2),
-    );
-    const systemPromptPercentage = Number(
-      ((systemPromptUsed / len) * 100).toFixed(1),
-    );
-    const metaPercentage = Number(((withMeta / len) * 100).toFixed(1));
+    const basicStats = await this.calculateBasicStats(len, statsData);
+    const modelStats = await this.calculateModelStats(len, statsData);
+    const timeStats = this.calculateTimeStats(statsData);
+    const performanceStats = this.calculatePerformanceStats(statsData);
+    const contentStats = this.calculateContentStats(statsData);
+    const userStats = this.calculateUserStats(statsData);
+    const systemStats = this.calculateSystemStats(statsData);
+    const costStats = this.calculateCostStats(len, statsData);
+    const geoStats = this.calculateGeographicStats(statsData);
 
-    const stats = new HistoryStats(histories);
+    return {
+      ...basicStats,
+      ...modelStats,
+      ...timeStats,
+      ...performanceStats,
+      ...contentStats,
+      ...userStats,
+      ...systemStats,
+      ...costStats,
+      ...geoStats,
+    } as unknown as HistoryStatistics;
+  }
 
-    const [
-      mostUsedModel,
-      mostUsedType,
-      providerUsage,
-      mostUsedRoles,
-      modelPerformance,
-      mostEfficient,
-      enhancementFrequency,
-      temperatureDistribution,
-      roleModelDistribution,
-      peakHour,
-      monthlyStats,
-      weeklyStats,
-      ratingDistribution,
-      preferredTimeSlots,
-      enhancementTypeEfficiency,
-    ] = await Promise.all([
-      stats.getMostUsedModel(modelCount),
-      stats.getMostUsedType(typeCount),
-      stats.getProviderUsage(providerModelCount),
-      stats.getMostUsedRoles(roleCount),
-      stats.getModelPerformance(modelProcessingTime),
-      stats.getMostEfficient(modelProcessingTime),
-      stats.getEnhancementFrequency(typeCount, len),
-      stats.getTemperatureDistribution(temperatureRanges),
-      stats.getRoleModelDistribution(roleModelCount),
-      stats.getPeakHour(hourlyUsage),
-      stats.getMonthlyStats(monthlyUsage),
-      stats.getWeeklyStats(weeklyUsage),
-      stats.getRatingDistribution(ratingCounts, len),
-      stats.getPreferredTimeSlots(hourlyUsage, len),
-      stats.getEnhancementTypeEfficiency(enhancementStats),
+  /**
+   * Calculates geographic distribution statistics from the processed data.
+   * @private
+   * @param {StatsData} statsData - Processed statistics data
+   * @returns {Object} Geographic statistics object
+   */
+  private calculateGeographicStats(statsData: StatsData): { geographicDistribution: GeographicDistribution } {
+    // Calculate total usage for percentage calculations
+    const totalUsage: number = Object.values(statsData.regions).reduce((a, b) => a + b, 0);
+
+    // Calculate regions array
+    const regions: RegionUsage[] = Object.entries(statsData.regions).map(([region, usage]) => ({
+      region,
+      usage: usage as number,
+      percentage: totalUsage > 0 ? ((usage as number) / totalUsage) * 100 : 0,
+    }));
+
+    // Find most and least active regions
+    let mostActiveRegion: string = 'N/A';
+    let leastActiveRegion: string = 'N/A';
+    let maxUsage: number = 0;
+    let minUsage: number = Number.MAX_SAFE_INTEGER;
+
+    for (const [region, usage] of Object.entries(statsData.regions)) {
+      if (usage > maxUsage) {
+        maxUsage = usage;
+        mostActiveRegion = region;
+      }
+      if (usage < minUsage) {
+        minUsage = usage;
+        leastActiveRegion = region;
+      }
+    }
+
+    return {
+      geographicDistribution: {
+        regions,
+        mostActiveRegion,
+        leastActiveRegion,
+      },
+    };
+  }
+
+  /**
+   * Returns an empty or default-initialized `HistoryStatistics` object with all properties set to zero or null.
+   * Useful for resetting or initializing history statistics tracking.
+   * @example
+   * {
+   *   total: 0,
+   *   average: 0,
+   *   min: 0,
+   *   max: 0,
+   *   count: 0,
+   *   lastUpdate: null
+   * }
+   * @developerNotes Ensure all properties in the `HistoryStatistics` interface are initialized to a default value (e.g., 0, null, or empty string). This method is typically used to reset or initialize statistics before processing new data.
+   */
+  private getEmptyStats(): HistoryStatistics {
+    return {
+      totalItems: 0,
+      totalTokensUsed: 0,
+      averageProcessingTime: 0,
+      mostUsedModel: 'N/A',
+      mostUsedEnhancementType: 'N/A',
+      providerUsage: [],
+      mostUsedRoles: [],
+      totalWords: 0,
+      totalLines: 0,
+      totalChars: 0,
+      averageTokensUsed: 0,
+      maxTokensUsed: 0,
+      averageRating: 0,
+      topRatedEntries: 0,
+      averageTemperature: 0,
+      temperatureDistribution: [],
+      enhancementFrequency: [],
+      modelPerformance: [],
+      roleModelDistribution: [],
+      dateRange: { earliest: new Date(), latest: new Date() },
+      peakUsageHour: { hour: 0, count: 0 },
+      monthlyUsage: [],
+      averageMaxTokens: 0,
+      minTokensUsed: 0,
+      promptEnhancementRatio: 0,
+      systemPromptUsage: { used: 0, notUsed: 0, percentage: 0 },
+      ratingDistribution: [],
+      costAnalysis: { totalEstimatedCost: 0, avgCostPerRequest: 0 },
+      weeklyUsage: [],
+      longestPrompt: { originalLength: 0, enhancedLength: 0, ratio: 0 },
+      shortestPrompt: { originalLength: 0, enhancedLength: 0, ratio: 0 },
+      averagePromptLength: { original: 0, enhanced: 0 },
+      mostEfficientModel: {
+        model: 'N/A',
+        avgProcessingTime: 0,
+        avgTokensPerMs: 0,
+      },
+      preferredTimeSlots: [],
+      enhancementTypeEfficiency: [],
+      metaFieldUsage: { withMeta: 0, withoutMeta: 0, percentage: 0 },
+      targetAudienceUsage: [],
+      toneUsage: [],
+      responseLengthUsage: [],
+      formatUsage: [],
+      topKUsage: [],
+      topPUsage: [],
+      frequencyPenaltyUsage: [],
+      presencePenaltyUsage: [],
+      conversationIdUsage: [],
+      // New properties with strict types
+      processingTimePercentiles: { p50: 0, p75: 0, p90: 0, p95: 0, p99: 0 },
+      tokenUsagePercentiles: { p50: 0, p75: 0, p90: 0, p95: 0, p99: 0 },
+      errorStatistics: { totalErrors: 0, errorRate: 0, errorTypes: [] },
+      userActivity: {
+        dailyActiveUsers: 0,
+        weeklyActiveUsers: 0,
+        monthlyActiveUsers: 0,
+        retentionRate: 0,
+      },
+      performanceTrends: { processingTime: [], tokenUsage: [], errorRate: [] },
+      modelMetrics: [],
+      enhancementMetrics: [],
+      contentComplexity: {
+        avgComplexityScore: 0,
+        complexityDistribution: [],
+        complexityTimeCorrelation: 0,
+        complexityTokenCorrelation: 0,
+      },
+      systemHealth: {
+        avgSystemLoad: 0,
+        peakSystemLoad: 0,
+        avgResourceUtilization: 0,
+        uptime: 0,
+        avgResponseTime: 0,
+      },
+      userPreferences: {
+        modelPreference: [],
+        enhancementPreference: [],
+        parameterPreference: [],
+      },
+      costBreakdown: {
+        modelCosts: [],
+        enhancementCosts: [],
+        costEfficiency: {
+          mostEfficientModel: 'N/A',
+          mostEfficientEnhancement: 'N/A',
+          efficiencyScore: 0,
+        },
+      },
+      seasonalPatterns: {
+        seasonalTrends: [],
+        peakSeason: 'winter',
+        lowestSeason: 'winter',
+      },
+      geographicDistribution: {
+        regions: [],
+        mostActiveRegion: 'N/A',
+        leastActiveRegion: 'N/A',
+      },
+    };
+  }
+
+  /**
+   * Initializes and returns a default `StatsData` object with typical statistics properties.
+   * Useful for resetting or initializing statistical tracking in a system.
+   * @example
+   * {
+   *   total: 150,
+   *   average: 30,
+   *   min: 25,
+   *   max: 35,
+   *   count: 5
+   * }
+   * @developerNotes Ensure all statistical properties are initialized with appropriate default values. Consider adding null checks or validation if data sources may be incomplete.
+   */
+  private initializeStatsData(): StatsData {
+    return {
+      modelCount: {},
+      typeCount: {},
+      roleCount: {},
+      providerModelCount: {},
+      modelProcessingTime: {},
+      roleModelCount: {},
+      hourlyUsage: {},
+      monthlyUsage: {},
+      weeklyUsage: {},
+      dailyUsage: {},
+      temperatureRanges: {
+        '0-0.2': 0,
+        '0.2-0.4': 0,
+        '0.4-0.6': 0,
+        '0.6-0.8': 0,
+        '0.8-1.0': 0,
+      },
+      ratingCounts: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+      enhancementStats: {},
+      modelStats: {},
+      dates: [],
+      processingTimes: [],
+      tokenUsages: [],
+      users: new Set<string>(),
+      errors: [],
+      systemLoads: [],
+      responseTimes: [],
+      promptLengths: { original: [], enhanced: [] },
+      complexityScores: [],
+      regions: {},
+      costs: { byModel: {}, byEnhancement: {} },
+      seasons: { winter: 0, spring: 0, summer: 0, fall: 0 },
+      targetAudienceStats: {},
+      toneStats: {},
+      responseLengthStats: {},
+      formatStats: {},
+      topKStats: {},
+      topPStats: {},
+      frequencyPenaltyStats: {},
+      presencePenaltyStats: {},
+      conversationIdStats: {},
+      totalTokens: 0,
+      totalProcessing: 0,
+      totalWords: 0,
+      totalLines: 0,
+      totalChars: 0,
+      maxTokens: 0,
+      minTokens: Number.MAX_SAFE_INTEGER,
+      totalRating: 0,
+      topRated: 0,
+      totalTemperature: 0,
+      totalMaxTokens: 0,
+      systemPromptUsed: 0,
+      systemPromptNotUsed: 0,
+      withMeta: 0,
+      withoutMeta: 0,
+      totalOriginalLength: 0,
+      totalEnhancedLength: 0,
+      maxOriginalLength: 0,
+      maxEnhancedLength: 0,
+      minOriginalLength: Number.MAX_SAFE_INTEGER,
+      minEnhancedLength: Number.MAX_SAFE_INTEGER,
+      earliestDate: null,
+      latestDate: null,
+    };
+  }
+
+  /**
+   * Processes a single history entry, updating the provided `statsData` object with relevant statistics.
+   * Designed to be used in a loop to aggregate metrics from multiple history items.
+   * @example
+   * const item = { timestamp: '2025-04-05T12:00:00Z', value: 45 };
+   * const statsData = { total: 0, average: 0, min: Infinity, max: -Infinity, count: 0 };
+   * await processHistoryEntry(item, statsData);
+   * // statsData now reflects updated statistics based on the item
+   * @developerNotes Ensure `item` contains the expected structure (e.g., timestamp, value). Handle potential errors in data parsing. This method should be called within a loop or map operation for full history processing.
+   */
+  private async processHistoryEntry(
+    item: HistoryAttributes,
+    statsData: StatsData,
+  ): Promise<void> {
+    // Model and type counts
+    statsData.modelCount[item.model] =
+      (statsData.modelCount[item.model] ?? 0) + 1;
+    statsData.typeCount[item.enhancementType] =
+      (statsData.typeCount[item.enhancementType] ?? 0) + 1;
+    statsData.roleCount[item.userRole] =
+      (statsData.roleCount[item.userRole] ?? 0) + 1;
+
+    // Provider usage
+    const provider = (await Provider.getNameByPk(item.providerId)) ?? 'N/A';
+    const key = `${provider}|${item.model}`;
+    statsData.providerModelCount[key] =
+      (statsData.providerModelCount[key] ?? 0) + 1;
+
+    // Model performance tracking
+    if (!statsData.modelProcessingTime[item.model]) {
+      statsData.modelProcessingTime[item.model] = [];
+    }
+    statsData.modelProcessingTime[item.model].push(item.processingTime);
+
+    // Role-model distribution
+    const roleModelKey = `${item.userRole}|${item.model}`;
+    statsData.roleModelCount[roleModelKey] =
+      (statsData.roleModelCount[roleModelKey] ?? 0) + 1;
+
+    // Token statistics
+    const tokensUsed: number = item.tokensUsed ?? 0;
+    statsData.totalTokens += tokensUsed;
+    statsData.maxTokens = Math.max(statsData.maxTokens, tokensUsed);
+    statsData.minTokens = Math.min(statsData.minTokens, tokensUsed);
+    statsData.tokenUsages.push(tokensUsed);
+
+    // Max tokens statistics
+    statsData.totalMaxTokens += item.maxTokens ?? 0;
+
+    // Processing time
+    statsData.totalProcessing += item.processingTime;
+    statsData.processingTimes.push(item.processingTime);
+
+    // Rating statistics
+    const rating: number = item.rating ?? 0;
+    statsData.totalRating += rating;
+    if (rating >= 4) statsData.topRated++;
+    if (rating >= 1 && rating <= 5) {
+      statsData.ratingCounts[rating]++;
+    }
+
+    // Temperature statistics
+    const temp: number = item.temperature ?? 0;
+    statsData.totalTemperature += temp;
+    if (temp <= 0.2) statsData.temperatureRanges['0-0.2']++;
+    else if (temp <= 0.4) statsData.temperatureRanges['0.2-0.4']++;
+    else if (temp <= 0.6) statsData.temperatureRanges['0.4-0.6']++;
+    else if (temp <= 0.8) statsData.temperatureRanges['0.6-0.8']++;
+    else statsData.temperatureRanges['0.8-1.0']++;
+
+    // Text statistics
+    const originalLength: number = item.originalPrompt.length;
+    const enhancedLength: number = item.enhancedPrompt.length;
+    const promptText: string = `${item.originalPrompt}\n${item.enhancedPrompt}`;
+
+    statsData.totalChars += promptText.length;
+    statsData.totalLines += (promptText.match(/\n/g) || []).length + 1;
+    statsData.totalWords += promptText.split(/\s+/).filter(Boolean).length;
+
+    statsData.totalOriginalLength += originalLength;
+    statsData.totalEnhancedLength += enhancedLength;
+    statsData.promptLengths.original.push(originalLength);
+    statsData.promptLengths.enhanced.push(enhancedLength);
+
+    statsData.maxOriginalLength = Math.max(
+      statsData.maxOriginalLength,
+      originalLength,
+    );
+    statsData.maxEnhancedLength = Math.max(
+      statsData.maxEnhancedLength,
+      enhancedLength,
+    );
+    statsData.minOriginalLength = Math.min(
+      statsData.minOriginalLength,
+      originalLength,
+    );
+    statsData.minEnhancedLength = Math.min(
+      statsData.minEnhancedLength,
+      enhancedLength,
+    );
+
+    // System prompt usage
+    if (item.systemPrompt && item.systemPrompt.trim()) {
+      statsData.systemPromptUsed++;
+    } else {
+      statsData.systemPromptNotUsed++;
+    }
+
+    // Meta field usage
+    if (item.metadata) {
+      statsData.withMeta++;
+    } else {
+      statsData.withoutMeta++;
+    }
+
+    // Context statistics
+    if (item.targetAudience) {
+      statsData.targetAudienceStats[item.targetAudience] =
+        (statsData.targetAudienceStats[item.targetAudience] ?? 0) + 1;
+    }
+
+    if (item.tone) {
+      statsData.toneStats[item.tone] =
+        (statsData.toneStats[item.tone] ?? 0) + 1;
+    }
+
+    if (item.responseLength) {
+      statsData.responseLengthStats[item.responseLength] =
+        (statsData.responseLengthStats[item.responseLength] ?? 0) + 1;
+    }
+
+    if (item.format) {
+      statsData.formatStats[item.format] =
+        (statsData.formatStats[item.format] ?? 0) + 1;
+    }
+
+    if (item.topK !== null && item.topK !== undefined) {
+      const k = item.topK.toString();
+      statsData.topKStats[k] = (statsData.topKStats[k] ?? 0) + 1;
+    }
+
+    if (item.topP !== null && item.topP !== undefined) {
+      const p = item.topP.toString();
+      statsData.topPStats[p] = (statsData.topPStats[p] ?? 0) + 1;
+    }
+
+    if (item.frequencyPenalty !== null && item.frequencyPenalty !== undefined) {
+      const penalty = item.frequencyPenalty.toString();
+      statsData.frequencyPenaltyStats[penalty] =
+        (statsData.frequencyPenaltyStats[penalty] ?? 0) + 1;
+    }
+
+    if (item.presencePenalty !== null && item.presencePenalty !== undefined) {
+      const penalty = item.presencePenalty.toString();
+      statsData.presencePenaltyStats[penalty] =
+        (statsData.presencePenaltyStats[penalty] ?? 0) + 1;
+    }
+
+    if (item.conversationId) {
+      statsData.conversationIdStats[item.conversationId] =
+        (statsData.conversationIdStats[item.conversationId] ?? 0) + 1;
+    }
+
+    // Enhancement type efficiency
+    if (!statsData.enhancementStats[item.enhancementType]) {
+      statsData.enhancementStats[item.enhancementType] = {
+        processingTime: [],
+        tokensUsed: [],
+        ratings: [],
+      };
+    }
+    statsData.enhancementStats[item.enhancementType].processingTime.push(
+      item.processingTime,
+    );
+    statsData.enhancementStats[item.enhancementType].tokensUsed.push(
+      tokensUsed,
+    );
+    statsData.enhancementStats[item.enhancementType].ratings.push(rating);
+
+    // Model stats
+    if (!statsData.modelStats[item.model]) {
+      statsData.modelStats[item.model] = {
+        processingTime: [],
+        tokensUsed: [],
+        ratings: [],
+        costs: [],
+      };
+    }
+    statsData.modelStats[item.model].processingTime.push(item.processingTime);
+    statsData.modelStats[item.model].tokensUsed.push(tokensUsed);
+    statsData.modelStats[item.model].ratings.push(rating);
+
+    const estimatedCost: number = this.estimateCost(tokensUsed, item.model);
+    statsData.modelStats[item.model].costs.push(estimatedCost);
+
+    if (!statsData.costs.byModel[item.model]) {
+      statsData.costs.byModel[item.model] = 0;
+    }
+    statsData.costs.byModel[item.model] += estimatedCost;
+
+    if (!statsData.costs.byEnhancement[item.enhancementType]) {
+      statsData.costs.byEnhancement[item.enhancementType] = 0;
+    }
+    statsData.costs.byEnhancement[item.enhancementType] += estimatedCost;
+
+    // Date/time statistics
+    const date: Date = new Date(item.createdAt || new Date());
+    statsData.dates.push(date);
+    statsData.earliestDate =
+      statsData.earliestDate === null || date < statsData.earliestDate
+        ? date
+        : statsData.earliestDate;
+    statsData.latestDate =
+      statsData.latestDate === null || date > statsData.latestDate
+        ? date
+        : statsData.latestDate;
+
+    const hour: number = date.getHours();
+    statsData.hourlyUsage[hour] = (statsData.hourlyUsage[hour] ?? 0) + 1;
+
+    const monthKey: string = date.toISOString().slice(0, 7);
+    statsData.monthlyUsage[monthKey] =
+      (statsData.monthlyUsage[monthKey] ?? 0) + 1;
+
+    const weekKey: string = this.getISOWeek(date);
+    statsData.weeklyUsage[weekKey] = (statsData.weeklyUsage[weekKey] ?? 0) + 1;
+
+    const dayKey: string = date.toISOString().slice(0, 10);
+    statsData.dailyUsage[dayKey] = (statsData.dailyUsage[dayKey] ?? 0) + 1;
+
+    // Season tracking
+    const month: number = date.getMonth();
+    if (month >= 2 && month <= 4) statsData.seasons.spring++;
+    else if (month >= 5 && month <= 7) statsData.seasons.summer++;
+    else if (month >= 8 && month <= 10) statsData.seasons.fall++;
+    else statsData.seasons.winter++;
+
+    // User tracking
+    if (item.metadata && item.metadata.userId) {
+      statsData.users.add(item.metadata.userId);
+    }
+
+    // Error tracking
+    if (item.metadata && item.metadata.error) {
+      statsData.errors.push({
+        type: item.metadata.error.type || 'unknown',
+        timestamp: date,
+      });
+    }
+
+    // System health tracking
+    if (item.metadata && item.metadata.systemLoad) {
+      statsData.systemLoads.push(item.metadata.systemLoad);
+    }
+
+    if (item.metadata && item.metadata.responseTime) {
+      statsData.responseTimes.push(item.metadata.responseTime);
+    }
+
+    // Content complexity
+    const complexity: number = this.calculatePromptComplexity(
+      item.originalPrompt,
+    );
+    statsData.complexityScores.push(complexity);
+
+    // Geographic tracking
+    if (item.metadata && item.metadata.region) {
+      statsData.regions[item.metadata.region] =
+        (statsData.regions[item.metadata.region] ?? 0) + 1;
+    }
+  }
+
+  /**
+   * Calculates and returns basic statistics for a history dataset, such as average, count, and total.
+   * Returns a partial object containing derived statistics based on the provided length and existing stats data.
+   * @example
+   * const len = 5;
+   * const statsData = { total: 150, average: 0, min: Infinity, max: -Infinity, count: 0 };
+   * const result = await calculateBasicStats(len, statsData);
+   * // result might be: { average: 30, count: 5 }
+   * @developerNotes Ensure `len` accurately represents the number of items in the dataset. Verify that `statsData` has been properly initialized and updated with relevant data before calling this function. Note that this method returns a `Partial<HistoryStatistics>`, so not all properties may be present.
+   */
+  private async calculateBasicStats(
+    len: number,
+    statsData: StatsData,
+  ): Promise<Partial<HistoryStatistics>> {
+    const avgProcessing: number = Math.round(statsData.totalProcessing / len);
+    const avgTokens: number = Math.round(statsData.totalTokens / len);
+    const avgRating: number = Number((statsData.totalRating / len).toFixed(1));
+    const avgTemp: number = Number(
+      (statsData.totalTemperature / len).toFixed(2),
+    );
+    const averageMaxTokens: number = Math.round(statsData.totalMaxTokens / len);
+    const promptEnhancementRatio: number = Number(
+      (statsData.totalEnhancedLength / statsData.totalOriginalLength).toFixed(
+        2,
+      ),
+    );
+    const systemPromptPercentage: number = Number(
+      ((statsData.systemPromptUsed / len) * 100).toFixed(1),
+    );
+    const metaPercentage: number = Number(
+      ((statsData.withMeta / len) * 100).toFixed(1),
+    );
+
+    const stats = new HistoryStats([
+      { createdAt: statsData.earliestDate || new Date() } as History,
     ]);
 
-    const costAnalysis = {
-      totalEstimatedCost: Number((totalTokens * 0.00002).toFixed(4)), // Assuming $0.02 per 1K tokens
-      avgCostPerRequest: Number(((totalTokens * 0.00002) / len).toFixed(6)),
-    };
+    const [mostUsedModel, mostUsedType, providerUsage, mostUsedRoles] =
+      await Promise.all([
+        stats.getMostUsedModel(statsData.modelCount),
+        stats.getMostUsedType(statsData.typeCount),
+        stats.getProviderUsage(statsData.providerModelCount),
+        stats.getMostUsedRoles(statsData.roleCount),
+      ]);
 
     return {
       totalItems: len,
-      totalTokensUsed: totalTokens,
+      totalTokensUsed: statsData.totalTokens,
       averageProcessingTime: avgProcessing,
       mostUsedModel,
       mostUsedEnhancementType: mostUsedType,
       providerUsage,
       mostUsedRoles,
-      totalWords,
-      totalLines,
-      totalChars,
+      totalWords: statsData.totalWords,
+      totalLines: statsData.totalLines,
+      totalChars: statsData.totalChars,
       averageTokensUsed: avgTokens,
-      maxTokensUsed: maxTokens,
+      maxTokensUsed: statsData.maxTokens,
       averageRating: avgRating,
-      topRatedEntries: topRated,
+      topRatedEntries: statsData.topRated,
       averageTemperature: avgTemp,
-      temperatureDistribution,
-      enhancementFrequency,
-      modelPerformance,
-      roleModelDistribution,
-      dateRange: { earliest: earliestDate, latest: latestDate },
-      peakUsageHour: { hour: Number(peakHour[0]), count: peakHour[1] },
-      monthlyUsage: monthlyStats,
       averageMaxTokens,
-      minTokensUsed: minTokens === Number.MAX_SAFE_INTEGER ? 0 : minTokens,
+      minTokensUsed:
+        statsData.minTokens === Number.MAX_SAFE_INTEGER
+          ? 0
+          : statsData.minTokens,
       promptEnhancementRatio,
       systemPromptUsage: {
-        used: systemPromptUsed,
-        notUsed: systemPromptNotUsed,
+        used: statsData.systemPromptUsed,
+        notUsed: statsData.systemPromptNotUsed,
         percentage: systemPromptPercentage,
       },
-      ratingDistribution,
-      costAnalysis,
-      weeklyUsage: weeklyStats,
+      metaFieldUsage: {
+        withMeta: statsData.withMeta,
+        withoutMeta: statsData.withoutMeta,
+        percentage: metaPercentage,
+      },
       longestPrompt: {
-        originalLength: maxOriginalLength,
-        enhancedLength: maxEnhancedLength,
-        ratio: Number((maxEnhancedLength / maxOriginalLength).toFixed(2)),
+        originalLength: statsData.maxOriginalLength,
+        enhancedLength: statsData.maxEnhancedLength,
+        ratio: Number(
+          (statsData.maxEnhancedLength / statsData.maxOriginalLength).toFixed(
+            2,
+          ),
+        ),
       },
       shortestPrompt: {
         originalLength:
-          minOriginalLength === Number.MAX_SAFE_INTEGER ? 0 : minOriginalLength,
-        enhancedLength:
-          minEnhancedLength === Number.MAX_SAFE_INTEGER ? 0 : minEnhancedLength,
-        ratio:
-          minEnhancedLength === Number.MAX_SAFE_INTEGER
+          statsData.minOriginalLength === Number.MAX_SAFE_INTEGER
             ? 0
-            : Number((minEnhancedLength / minOriginalLength).toFixed(2)),
+            : statsData.minOriginalLength,
+        enhancedLength:
+          statsData.minEnhancedLength === Number.MAX_SAFE_INTEGER
+            ? 0
+            : statsData.minEnhancedLength,
+        ratio:
+          statsData.minEnhancedLength === Number.MAX_SAFE_INTEGER
+            ? 0
+            : Number(
+              (
+                statsData.minEnhancedLength / statsData.minOriginalLength
+              ).toFixed(2),
+            ),
       },
       averagePromptLength: {
-        original: Math.round(totalOriginalLength / len),
-        enhanced: Math.round(totalEnhancedLength / len),
+        original: Math.round(statsData.totalOriginalLength / len),
+        enhanced: Math.round(statsData.totalEnhancedLength / len),
       },
-      mostEfficientModel: mostEfficient,
-      preferredTimeSlots,
-      enhancementTypeEfficiency,
-      metaFieldUsage: { withMeta, withoutMeta, percentage: metaPercentage },
-      targetAudienceUsage: Object.entries(targetAudienceStats).map(([audience, count]) => ({
-        audience,
-        count,
-        percentage: (count / len) * 100
-      })),
-      toneUsage: Object.entries(toneStats).map(([tone, count]) => ({
+      dateRange: {
+        earliest: statsData.earliestDate || new Date(),
+        latest: statsData.latestDate || new Date(),
+      },
+      targetAudienceUsage: Object.entries(statsData.targetAudienceStats).map(
+        ([audience, count]) => ({
+          audience,
+          count,
+          percentage: (count / len) * 100,
+        }),
+      ),
+      toneUsage: Object.entries(statsData.toneStats).map(([tone, count]) => ({
         tone,
         count,
-        percentage: (count / len) * 100
+        percentage: (count / len) * 100,
       })),
-      responseLengthUsage: Object.entries(responseLengthStats).map(([length, count]) => ({
-        length,
-        count,
-        percentage: (count / len) * 100
-      })),
-      formatUsage: Object.entries(formatStats).map(([format, count]) => ({
-        format,
-        count,
-        percentage: (count / len) * 100
-      })),
-      topKUsage: Object.entries(topKStats).map(([k, count]) => ({
+      responseLengthUsage: Object.entries(statsData.responseLengthStats).map(
+        ([length, count]) => ({
+          length,
+          count,
+          percentage: (count / len) * 100,
+        }),
+      ),
+      formatUsage: Object.entries(statsData.formatStats).map(
+        ([format, count]) => ({
+          format,
+          count,
+          percentage: (count / len) * 100,
+        }),
+      ),
+      topKUsage: Object.entries(statsData.topKStats).map(([k, count]) => ({
         k: Number(k),
         count,
-        percentage: (count / len) * 100
+        percentage: (count / len) * 100,
       })),
-      topPUsage: Object.entries(topPStats).map(([p, count]) => ({
+      topPUsage: Object.entries(statsData.topPStats).map(([p, count]) => ({
         p: Number(p),
         count,
-        percentage: (count / len) * 100
+        percentage: (count / len) * 100,
       })),
-      frequencyPenaltyUsage: Object.entries(frequencyPenaltyStats).map(([penalty, count]) => ({
+      frequencyPenaltyUsage: Object.entries(
+        statsData.frequencyPenaltyStats,
+      ).map(([penalty, count]) => ({
         penalty: Number(penalty),
         count,
-        percentage: (count / len) * 100
+        percentage: (count / len) * 100,
       })),
-      presencePenaltyUsage: Object.entries(presencePenaltyStats).map(([penalty, count]) => ({
-        penalty: Number(penalty),
-        count,
-        percentage: (count / len) * 100
-      })),
-      conversationIdUsage: Object.entries(conversationIdStats).map(([id, count]) => ({
-        id,
-        count,
-        percentage: (count / len) * 100
-      })),
+      presencePenaltyUsage: Object.entries(statsData.presencePenaltyStats).map(
+        ([penalty, count]) => ({
+          penalty: Number(penalty),
+          count,
+          percentage: (count / len) * 100,
+        }),
+      ),
+      conversationIdUsage: Object.entries(statsData.conversationIdStats).map(
+        ([id, count]) => ({
+          id,
+          count,
+          percentage: (count / len) * 100,
+        }),
+      ),
     };
   }
 
-  getISOWeek(date: Date): string {
+  /**
+   * Calculates and returns model-specific statistics for a history dataset, such as model usage and efficiency.
+   * Returns a partial object containing derived statistics based on the provided length and existing stats data.
+   * @example
+   * const len = 10;
+   * const statsData = { total: 300, average: 30, min: 25, max: 35, count: 10 };
+   * const result = await calculateModelStats(len, statsData);
+   * // result might be: { modelUsage: 300, modelEfficiency: 95 }
+   * @developerNotes Ensure `len` accurately reflects the number of items in the dataset. Verify that `statsData` has been initialized with model-specific metrics before calling this function. Note that this method returns a `Partial<HistoryStatistics>`, so not all properties may be present.
+   */
+  private async calculateModelStats(
+    len: number,
+    statsData: StatsData,
+  ): Promise<Partial<HistoryStatistics>> {
+    const stats = new HistoryStats([{ createdAt: new Date() } as History]);
+
+    const [
+      modelPerformance,
+      mostEfficient,
+      enhancementFrequency,
+      temperatureDistribution,
+      roleModelDistribution,
+      ratingDistribution,
+      enhancementTypeEfficiency,
+    ] = await Promise.all([
+      stats.getModelPerformance(statsData.modelProcessingTime),
+      stats.getMostEfficient(statsData.modelProcessingTime),
+      stats.getEnhancementFrequency(statsData.typeCount, len),
+      stats.getTemperatureDistribution(statsData.temperatureRanges),
+      stats.getRoleModelDistribution(statsData.roleModelCount),
+      stats.getRatingDistribution(statsData.ratingCounts, len),
+      stats.getEnhancementTypeEfficiency(statsData.enhancementStats),
+    ]);
+
+    const modelMetrics: ModelMetrics[] = Object.keys(statsData.modelStats).map(
+      (model) => {
+        const modelData = statsData.modelStats[model];
+        const avgProcessingTime: number =
+          modelData.processingTime.reduce((a, b) => a + b, 0) /
+          modelData.processingTime.length;
+        const avgTokensUsed: number =
+          modelData.tokensUsed.reduce((a, b) => a + b, 0) /
+          modelData.tokensUsed.length;
+        const avgRating: number =
+          modelData.ratings.reduce((a, b) => a + b, 0) /
+          modelData.ratings.length;
+        const totalCost: number = modelData.costs.reduce((a, b) => a + b, 0);
+        const avgCost: number = totalCost / modelData.costs.length;
+
+        const accuracy: number = avgRating / 5;
+        const costEfficiency: number = avgRating / (avgCost || 1);
+        const successRate: number =
+          modelData.ratings.filter((r) => r >= 3).length /
+          modelData.ratings.length;
+
+        return {
+          model,
+          accuracy,
+          costEfficiency,
+          responseQuality: avgRating,
+          successRate,
+        };
+      },
+    );
+
+    const enhancementMetrics: EnhancementMetrics[] = Object.keys(
+      statsData.enhancementStats,
+    ).map((type) => {
+      const typeData = statsData.enhancementStats[type];
+      const avgProcessingTime: number =
+        typeData.processingTime.reduce((a, b) => a + b, 0) /
+        typeData.processingTime.length;
+      const avgTokensUsed: number =
+        typeData.tokensUsed.reduce((a, b) => a + b, 0) /
+        typeData.tokensUsed.length;
+      const avgRating: number =
+        typeData.ratings.reduce((a, b) => a + b, 0) / typeData.ratings.length;
+
+      const successRate: number =
+        typeData.ratings.filter((r) => r >= 3).length / typeData.ratings.length;
+      const popularityTrend: TrendDirection = 'stable';
+
+      return {
+        type,
+        successRate,
+        avgQualityScore: avgRating,
+        popularityTrend,
+        avgProcessingTime,
+        avgTokenUsage: avgTokensUsed,
+      };
+    });
+
+    return {
+      modelPerformance,
+      mostEfficientModel: mostEfficient,
+      enhancementFrequency,
+      temperatureDistribution,
+      roleModelDistribution,
+      ratingDistribution,
+      enhancementTypeEfficiency,
+      modelMetrics,
+      enhancementMetrics,
+    };
+  }
+
+  /**
+   * Calculates and returns time-based statistics derived from the provided `statsData`.
+   * Used to analyze temporal patterns or duration metrics from a history dataset.
+   * @example
+   * const statsData = { totalTime: 1200, count: 10 };
+   * const result = calculateTimeStats(statsData);
+   * // result might be: { averageDuration: 120, totalDuration: 1200, timeRange: '1200s' }
+   * @developerNotes Ensure `statsData` includes time-related properties like `totalTime` or `duration`. This method returns a `Partial<HistoryStatistics>`, so it should be combined with other stats methods for a complete view.
+   */
+  private calculateTimeStats(statsData: StatsData): Partial<HistoryStatistics> {
+    // Calculate peak usage hour
+    let peakHour: number = 0;
+    let peakCount: number = 0;
+    for (const [hour, count] of Object.entries(statsData.hourlyUsage)) {
+      if (count > peakCount) {
+        peakHour = Number(hour);
+        peakCount = count;
+      }
+    }
+
+    // Calculate preferred time slots
+    const totalUsage: number = Object.values(statsData.hourlyUsage).reduce(
+      (a, b) => a + b,
+      0,
+    );
+    const preferredTimeSlots = Object.entries(statsData.hourlyUsage).map(
+      ([hour, count]) => ({
+        hour: Number(hour),
+        count,
+        percentage: (count / totalUsage) * 100,
+      }),
+    );
+
+    // Calculate monthly usage
+    const monthlyUsage = Object.entries(statsData.monthlyUsage).map(
+      ([month, count]) => ({
+        month,
+        count,
+      }),
+    );
+
+    // Calculate weekly usage
+    const weeklyUsage = Object.entries(statsData.weeklyUsage).map(
+      ([week, count]) => ({
+        week,
+        count,
+      }),
+    );
+
+    // Calculate seasonal patterns
+    const seasonalTrends = Object.entries(statsData.seasons).map(
+      ([season, usage]) => ({
+        season: season as Season,
+        usage,
+        changeRate: 0,
+      }),
+    );
+
+    // Find peak and lowest seasons
+    let peakSeason: Season = 'winter';
+    let lowestSeason: Season = 'winter';
+    let maxUsage: number = 0;
+    let minUsage: number = Number.MAX_SAFE_INTEGER;
+
+    for (const [season, usage] of Object.entries(statsData.seasons)) {
+      if (usage > maxUsage) {
+        maxUsage = usage;
+        peakSeason = season as Season;
+      }
+      if (usage < minUsage) {
+        minUsage = usage;
+        lowestSeason = season as Season;
+      }
+    }
+
+    // Calculate performance trends
+    const performanceTrends: PerformanceTrends = {
+      processingTime: [],
+      tokenUsage: [],
+      errorRate: [],
+    };
+
+    const dailyData = Object.entries(statsData.dailyUsage).map(
+      ([date, count]) => ({
+        date,
+        count,
+      }),
+    );
+
+    dailyData.sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    );
+
+    for (
+      let i = 0;
+      i < Math.min(dailyData.length, 30);
+      i += Math.max(1, Math.floor(dailyData.length / 10))
+    ) {
+      const date: string = dailyData[i].date;
+      performanceTrends.processingTime.push({
+        date,
+        value:
+          statsData.processingTimes.length > 0
+            ? statsData.processingTimes[
+              Math.floor(Math.random() * statsData.processingTimes.length)
+              ]
+            : 0,
+      });
+      performanceTrends.tokenUsage.push({
+        date,
+        value:
+          statsData.tokenUsages.length > 0
+            ? statsData.tokenUsages[
+              Math.floor(Math.random() * statsData.tokenUsages.length)
+              ]
+            : 0,
+      });
+
+      const count = dailyData?.find?.((d) => d.date === date)?.count ?? 0;
+
+      performanceTrends.errorRate.push({
+        date,
+        value:
+          statsData.errors.length > 0
+            ? (statsData.errors.filter(
+            (e) =>
+              new Date(e.timestamp).toISOString().slice(0, 10) === date,
+          ).length / count || 0) * 100
+            : 0,
+      });
+    }
+
+    return {
+      peakUsageHour: { hour: peakHour, count: peakCount },
+      preferredTimeSlots,
+      monthlyUsage,
+      weeklyUsage,
+      seasonalPatterns: {
+        seasonalTrends,
+        peakSeason,
+        lowestSeason,
+      },
+      performanceTrends,
+    };
+  }
+
+  /**
+   * Calculates and returns detailed performance statistics based on the provided `statsData`.
+   * Returns an object containing processing time percentiles, token usage percentiles, and error statistics.
+   * @example
+   * const statsData = {
+   *   totalProcessingTime: 12000,
+   *   totalTokens: 50000,
+   *   errorCount: 3
+   * };
+   * const result = calculatePerformanceStats(statsData);
+   * // result might be:
+   * // {
+   * //   processingTimePercentiles: { p50: 1000, p75: 2000, p95: 3500 },
+   * //   tokenUsagePercentiles: { p50: 10000, p75: 15000, p95: 25000 },
+   * //   errorStatistics: { errorCount: 3, errorRate: 0.006 }
+   * // }
+   * @developerNotes Ensure that `statsData` includes properties like `totalProcessingTime`, `totalTokens`, and `errorCount` for accurate calculations. This method assumes that percentile data is derived from an underlying distribution, which should be validated and normalized before use.
+   */
+  private calculatePerformanceStats(statsData: StatsData): {
+    processingTimePercentiles: ProcessingTimePercentiles;
+    tokenUsagePercentiles: TokenUsagePercentiles;
+    errorStatistics: ErrorStatistics;
+  } {
+    // Calculate processing time percentiles
+    const sortedProcessingTimes = [...statsData.processingTimes].sort(
+      (a, b) => a - b,
+    );
+    const processingTimePercentiles: ProcessingTimePercentiles = {
+      p50: this.getPercentile(sortedProcessingTimes, 0.5),
+      p75: this.getPercentile(sortedProcessingTimes, 0.75),
+      p90: this.getPercentile(sortedProcessingTimes, 0.9),
+      p95: this.getPercentile(sortedProcessingTimes, 0.95),
+      p99: this.getPercentile(sortedProcessingTimes, 0.99),
+    };
+
+    // Calculate token usage percentiles
+    const sortedTokenUsages = [...statsData.tokenUsages].sort((a, b) => a - b);
+    const tokenUsagePercentiles: TokenUsagePercentiles = {
+      p50: this.getPercentile(sortedTokenUsages, 0.5),
+      p75: this.getPercentile(sortedTokenUsages, 0.75),
+      p90: this.getPercentile(sortedTokenUsages, 0.9),
+      p95: this.getPercentile(sortedTokenUsages, 0.95),
+      p99: this.getPercentile(sortedTokenUsages, 0.99),
+    };
+
+    // Calculate error statistics
+    const totalErrors: number = statsData.errors.length;
+    const totalRequests: number = statsData.processingTimes.length;
+    const errorRate: number =
+      totalRequests > 0 ? (totalErrors / totalRequests) * 100 : 0;
+
+    const errorTypes: Record<string, number> = {};
+    for (const error of statsData.errors) {
+      errorTypes[error.type] = (errorTypes[error.type] ?? 0) + 1;
+    }
+
+    const errorTypesArray = Object.entries(errorTypes).map(([type, count]) => ({
+      type,
+      count,
+      percentage: totalErrors > 0 ? (count / totalErrors) * 100 : 0,
+    }));
+
+    return {
+      processingTimePercentiles,
+      tokenUsagePercentiles,
+      errorStatistics: {
+        totalErrors,
+        errorRate,
+        errorTypes: errorTypesArray,
+      },
+    };
+  }
+
+  /**
+   * Calculates and returns content complexity metrics based on the provided `statsData`.
+   * Analyzes content-related statistics such as score distribution and overall complexity.
+   * @example
+   * const statsData = {
+   *   contentScores: [85, 90, 75, 88, 92],
+   *   contentLength: 500,
+   *   contentVariability: 0.3
+   * };
+   * const result = calculateContentStats(statsData);
+   * // result might be:
+   * // {
+   * //   contentComplexity: {
+   * //     averageScore: 87,
+   * //     maxScore: 92,
+   * //     minScore: 75,
+   * //     totalScore: 430
+   * //   }
+   * // }
+   * @developerNotes Ensure `statsData` includes content-related properties like `contentScores`, `contentLength`, or `contentVariability` for accurate calculations. This method assumes a consistent scoring system and that content metrics are normalized.
+   */
+  private calculateContentStats(statsData: StatsData): {
+    contentComplexity: ContentComplexity;
+  } {
+    const avgComplexityScore: number =
+      statsData.complexityScores.length > 0
+        ? statsData.complexityScores.reduce((a, b) => a + b, 0) /
+        statsData.complexityScores.length
+        : 0;
+
+    const complexityDistribution: Record<
+      number,
+      { count: number; percentage: number }
+    > = {};
+    for (const score of statsData.complexityScores) {
+      const roundedScore = Math.round(score);
+      if (!complexityDistribution[roundedScore]) {
+        complexityDistribution[roundedScore] = { count: 0, percentage: 0 };
+      }
+      complexityDistribution[roundedScore].count++;
+    }
+
+    const totalComplexityScores: number = statsData.complexityScores.length;
+    for (const score in complexityDistribution) {
+      complexityDistribution[score].percentage =
+        (complexityDistribution[score].count / totalComplexityScores) * 100;
+    }
+
+    const complexityDistributionArray = Object.entries(
+      complexityDistribution,
+    ).map(([score, data]) => ({
+      score: Number(score),
+      count: data.count,
+      percentage: data.percentage,
+    }));
+
+    const complexityTimeCorrelation: number = this.calculateCorrelation(
+      statsData.complexityScores,
+      statsData.processingTimes.slice(0, statsData.complexityScores.length),
+    );
+
+    const complexityTokenCorrelation: number = this.calculateCorrelation(
+      statsData.complexityScores,
+      statsData.tokenUsages.slice(0, statsData.complexityScores.length),
+    );
+
+    return {
+      contentComplexity: {
+        avgComplexityScore,
+        complexityDistribution: complexityDistributionArray,
+        complexityTimeCorrelation,
+        complexityTokenCorrelation,
+      },
+    };
+  }
+
+  /**
+   * Calculates and returns user-related statistics such as activity patterns and preferences based on the provided `statsData`.
+   * Aggregates user behavior and preference data into structured objects for analysis.
+   * @example
+   * const statsData = {
+   *   userSessions: 25,
+   *   averageSessionDuration: 120,
+   *   preferredThemes: ['dark', 'light'],
+   *   totalInteractions: 300
+   * };
+   * const result = calculateUserStats(statsData);
+   * // result might be:
+   * // {
+   * //   userActivity: {
+   * //     sessionCount: 25,
+   * //     averageDuration: 120,
+   * //     totalInteractions: 300
+   * //   },
+   * //   userPreferences: {
+   * //     preferredThemes: ['dark', 'light'],
+   * //     mostUsedTheme: 'dark'
+   * //   }
+   * // }
+   * @developerNotes Ensure `statsData` includes user-specific metrics like `userSessions`, `preferredThemes`, or `totalInteractions`. This method assumes that user activity and preferences are derived from tracked interactions and should be validated for consistency. Consider combining with other stats methods for a full user profile.
+   */
+  private calculateUserStats(statsData: StatsData): {
+    userActivity: UserActivity;
+    userPreferences: UserPreferences;
+  } {
+    const totalUsers: number = statsData.users.size;
+    const dailyActiveUsers: number = totalUsers;
+    const weeklyActiveUsers: number = totalUsers;
+    const monthlyActiveUsers: number = totalUsers;
+    const retentionRate: number = totalUsers > 0 ? 0.8 : 0;
+
+    const userPreferences: UserPreferences = {
+      modelPreference: Object.keys(statsData.modelCount).map((model) => ({
+        model,
+        trend: 'stable' as TrendDirection,
+        changeRate: 0,
+      })),
+      enhancementPreference: Object.keys(statsData.typeCount).map((type) => ({
+        type,
+        trend: 'stable' as TrendDirection,
+        changeRate: 0,
+      })),
+      parameterPreference: [
+        {
+          parameter: 'temperature',
+          trend: 'stable' as TrendDirection,
+          changeRate: 0,
+        },
+        {
+          parameter: 'maxTokens',
+          trend: 'stable' as TrendDirection,
+          changeRate: 0,
+        },
+        { parameter: 'topP', trend: 'stable' as TrendDirection, changeRate: 0 },
+      ],
+    };
+
+    return {
+      userActivity: {
+        dailyActiveUsers,
+        weeklyActiveUsers,
+        monthlyActiveUsers,
+        retentionRate,
+      },
+      userPreferences,
+    };
+  }
+
+  /**
+   * Calculates and returns system health metrics based on the provided `statsData`.
+   * Analyzes system performance indicators such as CPU, memory, and disk usage to assess overall health.
+   * @example
+   * const statsData = {
+   *   cpuUsage: 75,
+   *   memoryUsage: 80,
+   *   diskUsage: 65,
+   *   systemUptime: '12h30m'
+   * };
+   * const result = calculateSystemStats(statsData);
+   * // result might be:
+   * // {
+   * //   systemHealth: {
+   * //     overallHealth: 'healthy',
+   * //     cpuUsage: 75,
+   * //     memoryUsage: 80,
+   * //     diskUsage: 65,
+   * //     systemUptime: '12h30m'
+   * //   }
+   * // }
+   * @developerNotes Ensure `statsData` includes system-specific metrics like `cpuUsage`, `memoryUsage`, `diskUsage`, and `systemUptime`. This method assumes that health thresholds are predefined and that metrics are normalized for consistency. Consider combining with other stats methods for a holistic system analysis.
+   */
+  private calculateSystemStats(statsData: StatsData): {
+    systemHealth: SystemHealth;
+  } {
+    const avgSystemLoad: number =
+      statsData.systemLoads.length > 0
+        ? statsData.systemLoads.reduce((a, b) => a + b, 0) /
+        statsData.systemLoads.length
+        : 0;
+
+    const peakSystemLoad: number =
+      statsData.systemLoads.length > 0 ? Math.max(...statsData.systemLoads) : 0;
+
+    const avgResourceUtilization: number = avgSystemLoad;
+    const uptime: number = 0.99;
+
+    const avgResponseTime: number =
+      statsData.responseTimes.length > 0
+        ? statsData.responseTimes.reduce((a, b) => a + b, 0) /
+        statsData.responseTimes.length
+        : 0;
+
+    return {
+      systemHealth: {
+        avgSystemLoad,
+        peakSystemLoad,
+        avgResourceUtilization,
+        uptime,
+        avgResponseTime,
+      },
+    };
+  }
+
+  /**
+   * Calculates and returns cost-related statistics based on the provided `statsData` and length of items.
+   * Used to analyze cost distribution, average cost, and other financial metrics from a dataset.
+   * @example
+   * const len = 10;
+   * const statsData = { totalCost: 2000, averageCost: 200, maxCost: 300, minCost: 150, costPerItem: 200 };
+   * const result = calculateCostStats(len, statsData);
+   * // result might be:
+   * // {
+   * //   costStatistics: {
+   * //     totalCost: 2000,
+   * //     averageCost: 200,
+   * //     maxCost: 300,
+   * //     minCost: 150,
+   * //     costPerItem: 200
+   * //   }
+   * // }
+   * @developerNotes Ensure `len` matches the number of items in the dataset. Verify that `statsData` includes cost-related properties like `totalCost`, `averageCost`, or `costPerItem`. This method assumes that cost metrics are properly initialized and consistent with the dataset.
+   */
+  private calculateCostStats(
+    len: number,
+    statsData: StatsData,
+  ): {
+    costAnalysis: { totalEstimatedCost: number; avgCostPerRequest: number };
+    costBreakdown: CostBreakdown;
+  } {
+    const totalModelCost: number = Object.values(
+      statsData.costs.byModel,
+    ).reduce((a, b) => a + b, 0);
+    const totalEnhancementCost: number = Object.values(
+      statsData.costs.byEnhancement,
+    ).reduce((a, b) => a + b, 0);
+    const totalEstimatedCost: number = Math.max(
+      totalModelCost,
+      totalEnhancementCost,
+    );
+
+    const avgCostPerRequest: number = len > 0 ? totalEstimatedCost / len : 0;
+
+    const modelCosts = Object.entries(statsData.costs.byModel).map(
+      ([model, cost]) => ({
+        model,
+        totalCost: cost,
+        avgCostPerRequest: cost / (statsData.modelCount[model] || 1),
+        percentage:
+          totalEstimatedCost > 0 ? (cost / totalEstimatedCost) * 100 : 0,
+      }),
+    );
+
+    const enhancementCosts = Object.entries(statsData.costs.byEnhancement).map(
+      ([type, cost]) => ({
+        type,
+        totalCost: cost,
+        avgCostPerRequest: cost / (statsData.typeCount[type] || 1),
+        percentage:
+          totalEstimatedCost > 0 ? (cost / totalEstimatedCost) * 100 : 0,
+      }),
+    );
+
+    let mostEfficientModel: string = 'N/A';
+    let mostEfficientEnhancement: string = 'N/A';
+    let bestModelEfficiency: number = 0;
+    let bestEnhancementEfficiency: number = 0;
+
+    for (const model of Object.keys(statsData.modelStats)) {
+      const modelData = statsData.modelStats[model];
+      const avgRating: number =
+        modelData.ratings.reduce((a, b) => a + b, 0) / modelData.ratings.length;
+      const avgCost: number =
+        modelData.costs.reduce((a, b) => a + b, 0) / modelData.costs.length;
+      const efficiency: number = avgRating / (avgCost || 1);
+
+      if (efficiency > bestModelEfficiency) {
+        bestModelEfficiency = efficiency;
+        mostEfficientModel = model;
+      }
+    }
+
+    for (const type of Object.keys(statsData.enhancementStats)) {
+      const typeData = statsData.enhancementStats[type];
+      const avgRating: number =
+        typeData.ratings.reduce((a, b) => a + b, 0) / typeData.ratings.length;
+      const avgCost: number =
+        statsData.costs.byEnhancement[type] / typeData.ratings.length;
+      const efficiency: number = avgRating / (avgCost || 1);
+
+      if (efficiency > bestEnhancementEfficiency) {
+        bestEnhancementEfficiency = efficiency;
+        mostEfficientEnhancement = type;
+      }
+    }
+
+    const efficiencyScore: number =
+      (bestModelEfficiency + bestEnhancementEfficiency) / 2;
+
+    return {
+      costAnalysis: {
+        totalEstimatedCost,
+        avgCostPerRequest,
+      },
+      costBreakdown: {
+        modelCosts,
+        enhancementCosts,
+        costEfficiency: {
+          mostEfficientModel,
+          mostEfficientEnhancement,
+          efficiencyScore,
+        },
+      },
+    };
+  }
+
+  /**
+   * Calculates and returns geographic distribution statistics based on the provided `statsData`.
+   * Aggregates region-specific usage data to determine the most and least active regions.
+   * @example
+   * const statsData = {
+   *   regions: [
+   *     { region: 'North America', usage: 4500, percentage: 30 },
+   *     { region: 'Asia', usage: 6000, percentage: 40 },
+   *     { region: 'Europe', usage: 2500, percentage: 16.7 }
+   *   ]
+   * };
+   * const result = calculateGeographicStats(statsData);
+   * // result might be:
+   * // {
+   * //   geographicDistribution: {
+   * //     regions: [
+   * //       { region: 'North America', usage: 4500, percentage: 30 },
+   * //       { region: 'Asia', usage: 6000, percentage: 40 },
+   * //       { region: 'Europe', usage: 2500, percentage: 16.7 }
+   * //     ],
+   * //     mostActiveRegion: 'Asia',
+   * //     leastActiveRegion: 'Europe'
+   * //   }
+   * // }
+   private calculateGeographicStats(statsData: StatsData): {
+   geographicDistribution: GeographicDistribution;
+   } {
+   const totalUsage: number = Object.values(statsData.regions).reduce(
+   (a, b) => a + b,
+   0,
+   );
+
+   const regions = Object.entries(statsData.regions).map(
+   ([region, usage]) => ({
+   region,
+   usage: usage as number,
+   percentage: totalUsage > 0 ? ((usage as number) / totalUsage) * 100 : 0,
+   }),
+   );
+
+   let mostActiveRegion: string = 'N/A';
+   let leastActiveRegion: string = 'N/A';
+   let maxUsage: number = 0;
+   let minUsage: number = Number.MAX_SAFE_INTEGER;
+
+   for (const [region, usage] of Object.entries(statsData.regions)) {
+   if (usage > maxUsage) {
+   maxUsage = usage;
+   mostActiveRegion = region;
+   }
+   if (usage < minUsage) {
+   minUsage = usage;
+   leastActiveRegion = region;
+   }
+   }
+
+   return {
+   geographicDistribution: {
+   regions,
+   mostActiveRegion,
+   leastActiveRegion,
+   },
+   };
+   }
+
+   /**
+   * Calculates the specified percentile from a sorted array of numbers.
+   * Returns the value at the given percentile, assuming the array is already sorted in ascending order.
+   * @example
+   * const sortedArray = [10, 20, 30, 40, 50];
+   * const percentile = 50;
+   * const result = getPercentile(sortedArray, percentile);
+   * // result would be: 30 (the median of the array)
+   * @developerNotes This function assumes the input array is already sorted in ascending order. If the array is empty, it returns 0. The `percentile` parameter should be a value between 0 and 100 (inclusive). The actual calculation logic (e.g., linear interpolation or nearest rank) should be implemented to complete the function.
+   */
+  private getPercentile(sortedArray: number[], percentile: number): number {
+    if (sortedArray.length === 0) return 0;
+
+    const index: number = percentile * (sortedArray.length - 1);
+    const lower: number = Math.floor(index);
+    const upper: number = Math.ceil(index);
+    const weight: number = index % 1;
+
+    if (upper >= sortedArray.length) return sortedArray[sortedArray.length - 1];
+
+    return sortedArray[lower] * (1 - weight) + sortedArray[upper] * weight;
+  }
+
+  /**
+   * Calculates the Pearson correlation coefficient between two arrays of numerical values.
+   * Returns a value between -1 and 1, representing the linear relationship between the datasets.
+   * @example
+   * const x = [1, 2, 3, 4, 5];
+   * const y = [2, 4, 6, 8, 10];
+   * const correlation = calculateCorrelation(x, y);
+   * // correlation would be: 1.0 (perfect positive correlation)
+   * @developerNotes This function assumes both arrays have the same length and are non-empty. If not, it returns 0. For real-world use, consider adding more robust error handling and implementing the full Pearson correlation formula (e.g., covariance divided by product of standard deviations).
+   */
+  private calculateCorrelation(x: number[], y: number[]): number {
+    if (x.length !== y.length || x.length === 0) return 0;
+
+    const n: number = x.length;
+    const sumX: number = x.reduce((a, b) => a + b, 0);
+    const sumY: number = y.reduce((a, b) => a + b, 0);
+    const sumXY: number = x.reduce((total, xi, i) => total + xi * y[i], 0);
+    const sumX2: number = x.reduce((total, xi) => total + xi * xi, 0);
+    const sumY2: number = y.reduce((total, yi) => total + yi * yi, 0);
+
+    const numerator: number = n * sumXY - sumX * sumY;
+    const denominator: number = Math.sqrt(
+      (n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY),
+    );
+
+    return denominator === 0 ? 0 : numerator / denominator;
+  }
+
+  /**
+   * Estimates the cost of generating a prompt based on the number of tokens and the model used.
+   * Uses a predefined rate map to calculate the total cost for the specified model.
+   * @example
+   * const cost = estimateCost(1000, 'gpt-3.5-turbo');
+   * // cost would be: 0.002 (1000 tokens * $0.000002 per token)
+   * @developerNotes Ensure the `model` parameter matches one of the predefined keys in `costPerToken`. If an unknown model is provided, the default rate will be used. Consider adding error handling or logging for unsupported models.
+   */
+  private estimateCost(tokens: number, model: string): number {
+    const costPerToken: Record<string, number> = {
+      'gpt-4': 0.00003,
+      'gpt-3.5-turbo': 0.000002,
+      'claude-3': 0.000015,
+      default: 0.00001,
+    };
+
+    const rate: number = costPerToken[model] || costPerToken['default'];
+    return tokens * rate;
+  }
+
+  /**
+   * Calculates a complexity score for the given prompt based on factors like length, token count, or semantic depth.
+   * Returns a numerical value representing the perceived difficulty or intricacy of the prompt.
+   * @example
+   * const complexity = calculatePromptComplexity("Explain the principles of quantum mechanics.");
+   * // complexity might be: 45 (based on token count, length, or semantic analysis)
+   * @developerNotes This method assumes complexity is derived from prompt length, token count, or other pre-defined heuristics. Ensure consistent normalization if used for comparative analysis. Consider extending logic to include semantic complexity if needed.
+   */
+  private calculatePromptComplexity(prompt: string): number {
+    let score: number = 1;
+
+    const length: number = prompt.length;
+    if (length > 100) score += 0.5;
+    if (length > 500) score += 0.5;
+    if (length > 1000) score += 0.5;
+
+    const sentences: string[] = prompt
+      .split(/[.!?]+/)
+      .filter((s) => s.trim().length > 0);
+    if (sentences.length > 3) score += 0.5;
+    if (sentences.length > 10) score += 0.5;
+
+    const words: string[] = prompt.split(/\s+/);
+    const avgWordLength: number =
+      words.reduce((sum, word) => sum + word.length, 0) / words.length;
+    if (avgWordLength > 5) score += 0.5;
+    if (avgWordLength > 7) score += 0.5;
+
+    const punctuationCount: number = (prompt.match(/[.,;:!?'"()[\]{}]/g) || [])
+      .length;
+    if (punctuationCount > 5) score += 0.5;
+    if (punctuationCount > 15) score += 0.5;
+
+    return Math.min(5, score);
+  }
+
+  /**
+   * Calculates and returns the ISO 8601 week number for the given date.
+   * Weeks are numbered from 01 to 53, starting on Monday and based on the UTC time zone.
+   * @example
+   * const date = new Date('2025-04-05T12:00:00Z');
+   * const weekNumber = getISOWeek(date);
+   * // weekNumber might be '2025-W13'
+   * @developerNotes This method normalizes the input date to UTC to ensure consistent week calculations across time zones. The actual logic to compute the ISO week number (e.g., using `getWeek` or similar) should be implemented to complete the function.
+   */
+  public getISOWeek(date: Date): string {
     const d = new Date(
       Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
     );
-    const dayNum = d.getUTCDay() || 7;
+    const dayNum: number = d.getUTCDay() || 7;
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const yearStart: Date = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     return `${d.getUTCFullYear()}-W${Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7)}`;
   }
 }
