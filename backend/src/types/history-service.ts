@@ -4,6 +4,9 @@
  * @see https://github.com/blacksmoke26
  */
 
+// types
+import type { OutputFormatName } from '~/constants/output-format';
+
 /**
  * Represents a single entry in the prompt history with comprehensive metadata.
  *
@@ -63,6 +66,34 @@ export interface PromptHistory {
   rating: number;
   /** Any additional notes about the response */
   notes: string | null;
+  /** The target audience for the response (e.g., "beginner", "intermediate", "expert") */
+  targetAudience?: string | null;
+  /** The tone of the response (e.g., "formal", "informal", "neutral") */
+  tone?: string | null;
+  /** The length of the response (e.g., "short", "medium", "long") */
+  responseLength?: string | null;
+  /** The style of the response (e.g., "formal", "informal", "neutral") */
+  customInstructions?: string | null;
+  /** The output format of the response (e.g., "text", "markdown", "html") */
+  format?: OutputFormatName | null;
+  /** Additional metadata about the request */
+  metadata?: Record<string, any> | null;
+  /** Parameters used for AI enhancement */
+  enhancementParameters?: Record<string, any> | null;
+  /** Parameters for controlling the AI model's behavior */
+  topP?: number | null;
+  /** The top-k parameter for AI model */
+  topK?: number | null;
+  /** The logit bias parameter for AI model */
+  logitBias?: Record<string, number> | null;
+  /** The stop sequences for AI model */
+  stopSequences?: string[] | null;
+  /** The penalty for repetition in AI model's output */
+  frequencyPenalty?: number | null;
+  /** The penalty for non-repetition in AI model's output */
+  presencePenalty?: number | null;
+  /** Unique conversation identifier */
+  conversationId?: string | null;
 }
 
 /**
@@ -687,4 +718,879 @@ export interface HistoryStatistics {
     /** The proportion of total requests that used this conversation ID, represented as a percentage (0–100) */
     percentage: number;
   }[];
+
+  processingTimePercentiles: ProcessingTimePercentiles;
+  tokenUsagePercentiles: TokenUsagePercentiles;
+  errorStatistics: ErrorStatistics;
+  userActivity: UserActivity;
+  performanceTrends: PerformanceTrends;
+  modelMetrics: ModelMetrics[];
+  enhancementMetrics: EnhancementMetrics[];
+  contentComplexity: ContentComplexity;
+  systemHealth: SystemHealth;
+  userPreferences: UserPreferences;
+  costBreakdown: CostBreakdown;
+  seasonalPatterns: SeasonalPatterns;
+  geographicDistribution: GeographicDistribution;
+}
+
+/**
+ * Represents temperature ranges and their corresponding associated values.
+ * The keys denote temperature intervals, and the values represent measurements or data points.
+ * @example
+ * {
+ *   '0-0.2': 25.5,
+ *   '0.2-0.4': 30.0,
+ *   '0.4-0.6': 35.2,
+ *   '0.6-0.8': 40.1,
+ *   '0.8-1.0': 45.0
+ * }
+ * @developerNotes Ensure keys follow the format "X-Y" where X and Y are numeric bounds. Values should be consistent in type and unit.
+ */
+export interface TemperatureRanges {
+  /** The value associated with the temperature range from 0 to 0.2 */
+  '0-0.2': number;
+  /** The value associated with the temperature range from 0.2 to 0.4 */
+  '0.2-0.4': number;
+  /** The value associated with the temperature range from 0.4 to 0.6 */
+  '0.4-0.6': number;
+  /** The value associated with the temperature range from 0.6 to 0.8 */
+  '0.6-0.8': number;
+  /** The value associated with the temperature range from 0.8 to 1.0 */
+  '0.8-1.0': number;
+}
+
+/**
+ * A comprehensive statistics data structure containing a wide range of metrics related to model usage, user behavior, system performance, and more.
+ * Aggregates data across multiple dimensions such as time, models, enhancements, regions, and content characteristics.
+ * @example
+ * {
+ *   modelCount: { 'gpt-4': 50, 'gpt-3.5-turbo': 30 },
+ *   temperatureRanges: { '0-0.2': 10, '0.2-0.4': 20 },
+ *   enhancementStats: { 'text_summary': { processingTime: [150, 200], tokensUsed: [100, 120] } },
+ *   processingTimes: [150, 200, 250],
+ *   users: new Set(['user1', 'user2']),
+ *   errors: [{ type: 'validation', timestamp: new Date() }],
+ *   totalTokens: 5000,
+ *   totalProcessing: 10000,
+ *   earliestDate: new Date('2025-01-01'),
+ *   latestDate: new Date('2025-04-05')
+ * }
+ * @developerNotes This interface is designed to be a central repository for aggregated statistics. Ensure that nested interfaces like `EnhancementStats`, `ModelStats`, and `TemperatureRanges` are properly initialized and validated. All time-based properties should use standardized date formats (e.g., ISO 8601).
+ */
+export interface StatsData {
+  // Basic counters
+  /** A map of model names to their total usage counts */
+  modelCount: Record<string, number>;
+  /** A map of enhancement or feature types to their total usage counts */
+  typeCount: Record<string, number>;
+  /** A map of role types (e.g., 'user', 'assistant') to their total counts */
+  roleCount: Record<string, number>;
+  /** A map of provider model names to their total usage counts */
+  providerModelCount: Record<string, number>;
+  /** A map of model names to arrays of processing times */
+  modelProcessingTime: Record<string, number[]>;
+  /** A map of role-model combinations to their total usage counts */
+  roleModelCount: Record<string, number>;
+  /** A map of hourly timestamps to their total usage counts */
+  hourlyUsage: Record<number, number>;
+  /** A map of monthly timestamps to their total usage counts */
+  monthlyUsage: Record<string, number>;
+  /** A map of weekly timestamps to their total usage counts */
+  weeklyUsage: Record<string, number>;
+  /** A map of daily timestamps to their total usage counts */
+  dailyUsage: Record<string, number>;
+
+  // Temperature and rating
+  /** A map of temperature range intervals to their associated counts */
+  temperatureRanges: TemperatureRanges;
+  /** A map of rating values to their associated counts */
+  ratingCounts: Record<number, number>;
+
+  // Enhancement and model stats
+  /** A map of enhancement types to their detailed statistics (processing time, tokens used, ratings) */
+  enhancementStats: Record<string, EnhancementStats>;
+  /** A map of model names to their detailed statistics (processing time, tokens used, ratings, costs) */
+  modelStats: Record<string, ModelStats>;
+
+  // Time and date
+  /** An array of dates associated with the data points */
+  dates: Date[];
+  /** An array of processing times recorded */
+  processingTimes: number[];
+  /** An array of token usages recorded */
+  tokenUsages: number[];
+
+  // User and system metrics
+  /** A set of unique user identifiers */
+  users: Set<string>;
+  /** An array of error entries with type and timestamp */
+  errors: ErrorEntry[];
+  /** An array of system load values recorded */
+  systemLoads: number[];
+  /** An array of response times recorded */
+  responseTimes: number[];
+
+  // Content metrics
+  /** A structure containing original and enhanced prompt lengths */
+  promptLengths: PromptLengths;
+  /** An array of complexity scores for the content */
+  complexityScores: number[];
+
+  // Geographic data
+  /** A map of region names to their total usage counts */
+  regions: Record<string, number>;
+
+  // Cost data
+  /** A structure containing cost breakdowns by model and enhancement */
+  costs: CostData;
+
+  // Seasonal data
+  /** A structure containing usage counts per season (winter, spring, summer, fall) */
+  seasons: SeasonData;
+
+  // Context statistics
+  /** A map of target audience categories to their associated counts */
+  targetAudienceStats: Record<string, number>;
+  /** A map of tone categories to their associated counts */
+  toneStats: Record<string, number>;
+  /** A map of response length categories to their associated counts */
+  responseLengthStats: Record<string, number>;
+  /** A map of format categories to their associated counts */
+  formatStats: Record<string, number>;
+  /** A map of top-k values to their associated counts */
+  topKStats: Record<string, number>;
+  /** A map of top-p values to their associated counts */
+  topPStats: Record<string, number>;
+  /** A map of frequency penalty values to their associated counts */
+  frequencyPenaltyStats: Record<string, number>;
+  /** A map of presence penalty values to their associated counts */
+  presencePenaltyStats: Record<string, number>;
+  /** A map of conversation ID values to their associated counts */
+  conversationIdStats: Record<string, number>;
+
+  // Basic totals
+  /** The total number of tokens used across all data points */
+  totalTokens: number;
+  /** The total amount of processing time recorded */
+  totalProcessing: number;
+  /** The total number of words across all data points */
+  totalWords: number;
+  /** The total number of lines across all data points */
+  totalLines: number;
+  /** The total number of characters across all data points */
+  totalChars: number;
+  /** The maximum number of tokens recorded */
+  maxTokens: number;
+  /** The minimum number of tokens recorded */
+  minTokens: number;
+  /** The total sum of all ratings */
+  totalRating: number;
+  /** The highest-rated item in the dataset */
+  topRated: number;
+  /** The total sum of all temperature values */
+  totalTemperature: number;
+  /** The total sum of all max token values */
+  totalMaxTokens: number;
+  /** The total number of requests with system prompts */
+  systemPromptUsed: number;
+  /** The total number of requests without system prompts */
+  systemPromptNotUsed: number;
+  /** The total number of requests with metadata */
+  withMeta: number;
+  /** The total number of requests without metadata */
+  withoutMeta: number;
+  /** The total length of original prompts */
+  totalOriginalLength: number;
+  /** The total length of enhanced prompts */
+  totalEnhancedLength: number;
+  /** The maximum length of original prompts */
+  maxOriginalLength: number;
+  /** The maximum length of enhanced prompts */
+  maxEnhancedLength: number;
+  /** The minimum length of original prompts */
+  minOriginalLength: number;
+  /** The minimum length of enhanced prompts */
+  minEnhancedLength: number;
+  /** The earliest date recorded in the dataset */
+  earliestDate: Date | null;
+  /** The latest date recorded in the dataset */
+  latestDate: Date | null;
+}
+
+/**
+ * Statistics related to a specific enhancement type, including processing time, tokens used, and ratings.
+ * @example
+ * {
+ *   processingTime: [150, 200],
+ *   tokensUsed: [100, 120],
+ *   ratings: [4.5, 4.8]
+ * }
+ * @developerNotes Ensure all arrays are populated with valid numeric values. Validate that ratings are within a reasonable range (e.g., 0–5).
+ */
+export interface EnhancementStats {
+  /** An array of processing times recorded for the enhancement */
+  processingTime: number[];
+  /** An array of token usages recorded for the enhancement */
+  tokensUsed: number[];
+  /** An array of ratings given to the enhancement */
+  ratings: number[];
+}
+
+/**
+ * Statistics related to a specific model, including processing time, tokens used, ratings, and costs.
+ * @example
+ * {
+ *   processingTime: [150, 200],
+ *   tokensUsed: [100, 120],
+ *   ratings: [4.5, 4.8],
+ *   costs: [0.5, 0.6]
+ * }
+ * @developerNotes Ensure all arrays are populated with valid numeric values. Validate that costs are consistent with predefined pricing models.
+ */
+export interface ModelStats {
+  /** An array of processing times recorded for the model */
+  processingTime: number[];
+  /** An array of token usages recorded for the model */
+  tokensUsed: number[];
+  /** An array of ratings given to the model */
+  ratings: number[];
+  /** An array of costs associated with the model */
+  costs: number[];
+}
+
+/**
+ * A structure containing original and enhanced prompt lengths for comparison or analysis.
+ * @example
+ * {
+ *   original: [100, 150],
+ *   enhanced: [200, 250]
+ * }
+ * @developerNotes Ensure both arrays are of equal length and contain valid numeric values representing prompt lengths.
+ */
+export interface PromptLengths {
+  /** An array of original prompt lengths */
+  original: number[];
+  /** An array of enhanced prompt lengths */
+  enhanced: number[];
+}
+
+/**
+ * An error entry containing the type of error and the timestamp when it occurred.
+ * @example
+ * {
+ *   type: 'validation',
+ *   timestamp: new Date('2025-04-05T12:00:00Z')
+ * }
+ * @developerNotes Ensure the `type` field corresponds to a recognized error category and the `timestamp` is in ISO 8601 format.
+ */
+export interface ErrorEntry {
+  /** The type or category of the error */
+  type: string;
+  /** The timestamp when the error occurred */
+  timestamp: Date;
+}
+
+/**
+ * A structure containing cost breakdowns by model and enhancement type.
+ * @example
+ * {
+ *   byModel: { 'gpt-4': 500, 'gpt-3.5-turbo': 300 },
+ *   byEnhancement: { 'text_summary': 200 }
+ * }
+ * @developerNotes Ensure that all costs are calculated accurately and reflect the actual pricing for the corresponding models and enhancements.
+ */
+export interface CostData {
+  /** A map of model names to their total costs */
+  byModel: Record<string, number>;
+  /** A map of enhancement types to their total costs */
+  byEnhancement: Record<string, number>;
+}
+
+/**
+ * A structure containing usage counts for each season (winter, spring, summer, fall).
+ * @example
+ * {
+ *   winter: 100,
+ *   spring: 150,
+ *   summer: 200,
+ *   fall: 120
+ * }
+ * @developerNotes Ensure that the counts are derived from a consistent time range and are updated regularly.
+ */
+export interface SeasonData {
+  /** The total usage count for the winter season */
+  winter: number;
+  /** The total usage count for the spring season */
+  spring: number;
+  /** The total usage count for the summer season */
+  summer: number;
+  /** The total usage count for the fall season */
+  fall: number;
+}
+
+/**
+ * A structure containing processing time percentiles (p50, p75, p90, p95, p99) for analyzing performance distributions.
+ * @example
+ * {
+ *   p50: 150,
+ *   p75: 200,
+ *   p90: 250,
+ *   p95: 300,
+ *   p99: 350
+ * }
+ * @developerNotes Ensure percentile values are calculated from a representative dataset and are consistent with other performance metrics.
+ */
+export interface ProcessingTimePercentiles {
+  /** The 50th percentile (median) of processing times */
+  p50: number;
+  /** The 75th percentile of processing times */
+  p75: number;
+  /** The 90th percentile of processing times */
+  p90: number;
+  /** The 95th percentile of processing times */
+  p95: number;
+  /** The 99th percentile of processing times */
+  p99: number;
+}
+
+/**
+ * Represents token usage percentiles (e.g., 50th, 75th, 99th percentiles) for a dataset.
+ * Used to analyze distribution patterns in token consumption.
+ * @example
+ * {
+ *   p50: 100,
+ *   p75: 150,
+ *   p90: 200,
+ *   p95: 250,
+ *   p99: 300
+ * }
+ * @developerNotes Ensure percentile values are calculated from a representative dataset. Percentile keys should be standard (p50, p75, etc.) for consistency with other systems.
+ */
+export interface TokenUsagePercentiles {
+  /** The 50th percentile (median) of token usage */
+  p50: number;
+  /** The 75th percentile of token usage */
+  p75: number;
+  /** The 90th percentile of token usage */
+  p90: number;
+  /** The 95th percentile of token usage */
+  p95: number;
+  /** The 99th percentile of token usage */
+  p99: number;
+}
+
+/**
+ * Tracks statistics related to errors, including total counts, error rates, and breakdown by type.
+ * Used to monitor and improve system reliability.
+ * @example
+ * {
+ *   totalErrors: 150,
+ *   errorRate: 0.05,
+ *   errorTypes: [
+ *     { type: 'validation', count: 80, percentage: 53.3 },
+ *     { type: 'network', count: 50, percentage: 33.3 }
+ *   ]
+ * }
+ * @developerNotes Ensure `errorTypes` percentages sum to 100%. Validate that error types are properly categorized and tracked in the system.
+ */
+export interface ErrorStatistics {
+  /** Total number of errors recorded */
+  totalErrors: number;
+  /** The proportion of errors relative to total requests or operations */
+  errorRate: number;
+  /** An array of error type statistics */
+  errorTypes: ErrorTypeStats[];
+}
+
+/**
+ * Represents statistics for a specific error type, including its frequency and proportion.
+ * @example
+ * { type: 'validation', count: 80, percentage: 53.3 }
+ * @developerNotes Ensure `percentage` is calculated correctly relative to `totalErrors`. Validate that `type` corresponds to a recognized error category.
+ */
+export interface ErrorTypeStats {
+  /** The name or category of the error */
+  type: string;
+  /** The number of occurrences for this error type */
+  count: number;
+  /** The percentage of total errors this type represents */
+  percentage: number;
+}
+
+/**
+ * Tracks user activity metrics, including daily, weekly, monthly active users and retention.
+ * @example
+ * {
+ *   dailyActiveUsers: 1000,
+ *   weeklyActiveUsers: 8000,
+ *   monthlyActiveUsers: 30000,
+ *   retentionRate: 0.85
+ * }
+ * @developerNotes Ensure metrics are updated in real-time or at regular intervals. Validate that retention rate is calculated from accurate user engagement data.
+ */
+export interface UserActivity {
+  /** The number of unique users active on a daily basis */
+  dailyActiveUsers: number;
+  /** The number of unique users active on a weekly basis */
+  weeklyActiveUsers: number;
+  /** The number of unique users active on a monthly basis */
+  monthlyActiveUsers: number;
+  /** The proportion of users who continue to engage with the system */
+  retentionRate: number;
+}
+
+/**
+ * Tracks performance trends over time, including processing time, token usage, and error rate.
+ * @example
+ * {
+ *   processingTime: [
+ *     { date: '2025-04-01', value: 200 },
+ *     { date: '2025-04-02', value: 210 }
+ *   ],
+ *   tokenUsage: [
+ *     { date: '2025-04-01', value: 1000 },
+ *     { date: '2025-04-02', value: 1050 }
+ *   ],
+ *   errorRate: [
+ *     { date: '2025-04-01', value: 0.05 },
+ *     { date: '2025-04-02', value: 0.04 }
+ *   ]
+ * }
+ * @developerNotes Ensure date formats are standardized (e.g., ISO 8601) and values are consistent with other metrics. Validate that trends are updated regularly.
+ */
+export interface PerformanceTrends {
+  /** An array of data points representing processing time trends over time */
+  processingTime: TrendDataPoint[];
+  /** An array of data points representing token usage trends over time */
+  tokenUsage: TrendDataPoint[];
+  /** An array of data points representing error rate trends over time */
+  errorRate: TrendDataPoint[];
+}
+
+/**
+ * Represents a single data point in a trend, with a date and a numeric value.
+ * @example
+ * { date: '2025-04-01', value: 200 }
+ * @developerNotes Ensure the date format is consistent (e.g., YYYY-MM-DD) and the value is a numeric type. Validate that data points are ordered chronologically.
+ */
+export interface TrendDataPoint {
+  /** The date associated with this data point */
+  date: string;
+  /** The numeric value representing the metric at the given date */
+  value: number;
+}
+
+/**
+ * Metrics related to a specific AI model, including accuracy, cost efficiency, and response quality.
+ * @example
+ * {
+ *   model: 'gpt-4',
+ *   accuracy: 0.95,
+ *   costEfficiency: 85,
+ *   responseQuality: 0.92,
+ *   successRate: 0.98
+ * }
+ * @developerNotes Ensure metrics are updated based on real-world performance data. Validate that values are normalized and consistent across models.
+ */
+export interface ModelMetrics {
+  /** The name of the model being evaluated */
+  model: string;
+  /** The accuracy of the model's predictions or outputs */
+  accuracy: number;
+  /** A measure of how efficiently the model uses resources (e.g., cost per request) */
+  costEfficiency: number;
+  /** The quality of the model's responses or outputs */
+  responseQuality: number;
+  /** The proportion of successful requests or operations */
+  successRate: number;
+}
+
+/**
+ * Metrics related to an enhancement (e.g., feature or tool), including success rate, quality, and usage trends.
+ * @example
+ * {
+ *   type: 'text_summary',
+ *   successRate: 0.99,
+ *   avgQualityScore: 88,
+ *   popularityTrend: 'increasing',
+ *   avgProcessingTime: 150,
+ *   avgTokenUsage: 200
+ * }
+ * @developerNotes Ensure metrics are tracked consistently for all enhancements. Validate that popularity trends are calculated based on user interaction data.
+ */
+export interface EnhancementMetrics {
+  /** The type or name of the enhancement */
+  type: string;
+  /** The proportion of successful enhancement requests */
+  successRate: number;
+  /** The average quality score for the enhancement */
+  avgQualityScore: number;
+  /** The trend in popularity of the enhancement (e.g., increasing, stable) */
+  popularityTrend: 'increasing' | 'decreasing' | 'stable';
+  /** The average time taken to process the enhancement */
+  avgProcessingTime: number;
+  /** The average number of tokens used by the enhancement */
+  avgTokenUsage: number;
+}
+
+/**
+ * Metrics related to content complexity, including average scores, distribution, and correlations.
+ * @example
+ * {
+ *   avgComplexityScore: 75,
+ *   complexityDistribution: [
+ *     { score: 50, count: 100, percentage: 10 },
+ *     { score: 75, count: 400, percentage: 40 }
+ *   ],
+ *   complexityTimeCorrelation: 0.65,
+ *   complexityTokenCorrelation: 0.35
+ * }
+ * @developerNotes Ensure complexity scores are calculated consistently. Validate that correlations are based on accurate statistical analysis.
+ */
+export interface ContentComplexity {
+  /** The average complexity score across all content items */
+  avgComplexityScore: number;
+  /** An array of complexity score distributions */
+  complexityDistribution: ComplexityDistribution[];
+  /** The correlation between content complexity and processing time */
+  complexityTimeCorrelation: number;
+  /** The correlation between content complexity and token usage */
+  complexityTokenCorrelation: number;
+}
+
+/**
+ * Represents a distribution of complexity scores across a dataset.
+ * @example
+ * { score: 75, count: 400, percentage: 40 }
+ * @developerNotes Ensure percentages sum to 100% across all entries. Validate that scores are normalized to a consistent scale.
+ */
+export interface ComplexityDistribution {
+  /** The complexity score for this range */
+  score: number;
+  /** The number of content items with this complexity score */
+  count: number;
+  /** The percentage of total content items with this complexity score */
+  percentage: number;
+}
+
+/**
+ * Metrics related to system health, including load, utilization, and uptime.
+ * @example
+ * {
+ *   avgSystemLoad: 70,
+ *   peakSystemLoad: 95,
+ *   avgResourceUtilization: 80,
+ *   uptime: 1209600,
+ *   avgResponseTime: 200
+ * }
+ * @developerNotes Ensure metrics are collected in real-time or at regular intervals. Validate that thresholds for load and utilization are properly defined.
+ */
+export interface SystemHealth {
+  /** The average system load over a defined period */
+  avgSystemLoad: number;
+  /** The highest system load recorded */
+  peakSystemLoad: number;
+  /** The average resource utilization (e.g., CPU, memory */
+  avgResourceUtilization: number;
+  /** The total uptime of the system in seconds */
+  uptime: number;
+  /** The average response time for system operations */
+  avgResponseTime: number;
+}
+
+/**
+ * Tracks user preferences for models, enhancements, and parameters.
+ * @example
+ * {
+ *   modelPreference: [
+ *     { model: 'gpt-4', trend: 'increasing', changeRate: 15 },
+ *     { model: 'gpt-3.5-turbo', trend: 'stable', changeRate: 0 }
+ *   ],
+ *   enhancementPreference: [
+ *     { type: 'text_summary', trend: 'increasing', changeRate: 10 }
+ *   ],
+ *   parameterPreference: [
+ *     { parameter: 'max_tokens', trend: 'decreasing', changeRate: -5 }
+ *   ]
+ * }
+ * @developerNotes Ensure preference trends are calculated based on user behavior data. Validate that `changeRate` reflects accurate changes in preference over time.
+ */
+export interface UserPreferences {
+  /** An array of preference trends for specific models */
+  modelPreference: PreferenceTrend[];
+  /** An array of preference trends for specific enhancements */
+  enhancementPreference: PreferenceTrend[];
+  /** An array of preference trends for specific parameters */
+  parameterPreference: ParameterPreference[];
+}
+
+/**
+ * Represents a trend in preference for a specific model or parameter type over time.
+ * Tracks whether the preference is increasing, decreasing, or stable, along with the rate of change.
+ * @example
+ * {
+ *   model: 'gpt-4',
+ *   type: 'temperature',
+ *   trend: 'increasing',
+ *   changeRate: 15.2
+ * }
+ * @developerNotes Ensure `trend` is one of the allowed values: 'increasing', 'decreasing', or 'stable'. Validate that `changeRate` is a numeric value reflecting the rate of change in preference.
+ */
+export interface PreferenceTrend {
+  /** The model or parameter type associated with the preference trend */
+  model?: string;
+  /** The type of parameter being tracked for preference trends */
+  type?: string;
+  /** The direction of the preference trend (e.g., increasing, stable) */
+  trend: 'increasing' | 'decreasing' | 'stable';
+  /** The rate of change in preference, measured as a percentage or absolute value */
+  changeRate: number;
+}
+
+/**
+ * Represents a preference trend for a specific parameter.
+ * Tracks how the preference for a parameter changes over time.
+ * @example
+ * {
+ *   parameter: 'max_tokens',
+ *   trend: 'decreasing',
+ *   changeRate: -5.3
+ * }
+ * @developerNotes Ensure `parameter` is a valid parameter name and `trend` is one of the allowed values. Validate that `changeRate` reflects the actual rate of change in parameter usage.
+ */
+export interface ParameterPreference {
+  /** The name of the parameter being tracked */
+  parameter: string;
+  /** The direction of the preference trend (e.g., increasing, stable) */
+  trend: 'increasing' | 'decreasing' | 'stable';
+  /** The rate of change in preference, measured as a percentage or absolute value */
+  changeRate: number;
+}
+
+/**
+ * Provides a detailed breakdown of costs associated with different models and enhancements.
+ * Includes metrics for cost distribution, average cost, and overall efficiency.
+ * @example
+ * {
+ *   modelCosts: [
+ *     { model: 'gpt-4', totalCost: 500, avgCostPerRequest: 2.5, percentage: 40 },
+ *     { model: 'gpt-3.5-turbo', totalCost: 300, avgCostPerRequest: 1.2, percentage: 25 }
+ *   ],
+ *   enhancementCosts: [
+ *     { type: 'text_summary', totalCost: 150, avgCostPerRequest: 0.5, percentage: 10 }
+ *   ],
+ *   costEfficiency: {
+ *     mostEfficientModel: 'gpt-3.5-turbo',
+ *     mostEfficientEnhancement: 'text_summary',
+ *     efficiencyScore: 95
+ *   }
+ * }
+ * @developerNotes Ensure `modelCosts` and `enhancementCosts` arrays are populated with valid entries. Verify that percentages sum up to 100% for accurate cost distribution. The `efficiencyScore` in `costEfficiency` should reflect a calculated value based on usage and cost data.
+ */
+export interface CostBreakdown {
+  /** An array of cost metrics for different AI models */
+  modelCosts: ModelCost[];
+  /** An array of cost metrics for different enhancement types */
+  enhancementCosts: EnhancementCost[];
+  /** Metrics representing overall cost efficiency */
+  costEfficiency: CostEfficiency;
+}
+
+/**
+ * Represents cost metrics for a specific AI model.
+ * Includes total cost, average cost per request, and the percentage of total cost.
+ * @example
+ * {
+ *   model: 'gpt-4',
+ *   totalCost: 500,
+ *   avgCostPerRequest: 2.5,
+ *   percentage: 40
+ * }
+ * @developerNotes Ensure `model` is a valid AI model name. Verify that `totalCost`, `avgCostPerRequest`, and `percentage` are consistent and accurately reflect the model's usage and cost.
+ */
+export interface ModelCost {
+  /** The name of the AI model */
+  model: string;
+  /** The total cost incurred for using the model */
+  totalCost: number;
+  /** The average cost per request for the model */
+  avgCostPerRequest: number;
+  /** The percentage of total cost attributed to this model */
+  percentage: number;
+}
+
+/**
+ * Represents cost metrics for a specific enhancement type.
+ * Includes total cost, average cost per request, and the percentage of total cost.
+ * @example
+ * {
+ *   type: 'text_summary',
+ *   totalCost: 150,
+ *   avgCostPerRequest: 0.5,
+ *   percentage: 10
+ * }
+ * @developerNotes Ensure `type` is a valid enhancement type. Verify that `totalCost`, `avgCostPerRequest`, and `percentage` are consistent and accurately reflect the enhancement's usage and cost.
+ */
+export interface EnhancementCost {
+  /** The type of enhancement being tracked */
+  type: string;
+  /** The total cost incurred for using the enhancement */
+  totalCost: number;
+  /** The average cost per request for the enhancement */
+  avgCostPerRequest: number;
+  /** The percentage of total cost attributed to this enhancement */
+  percentage: number;
+}
+
+/**
+ * Represents metrics for cost efficiency across models and enhancements.
+ * Includes the most efficient model and enhancement, along with an efficiency score.
+ * @example
+ * {
+ *   mostEfficientModel: 'gpt-3.5-turbo',
+ *   mostEfficientEnhancement: 'text_summary',
+ *   efficiencyScore: 95
+ * }
+ * @developerNotes Ensure `mostEfficientModel` and `mostEfficientEnhancement` are derived from the actual cost and usage data. The `efficiencyScore` should be calculated based on a predefined formula or benchmark.
+ */
+export interface CostEfficiency {
+  /** The model with the highest cost efficiency */
+  mostEfficientModel: string;
+  /** The enhancement with the highest cost efficiency */
+  mostEfficientEnhancement: string;
+  /** A numeric score representing overall cost efficiency */
+  efficiencyScore: number;
+}
+
+/**
+ * Represents seasonal trends in data usage or preference.
+ * Tracks usage trends for each season and identifies peak and lowest seasons.
+ * @example
+ * {
+ *   seasonalTrends: [
+ *     { season: 'summer', usage: 7500, changeRate: 12.5 },
+ *     { season: 'winter', usage: 5000, changeRate: -5.0 }
+ *   ],
+ *   peakSeason: 'summer',
+ *   lowestSeason: 'winter'
+ * }
+ * @developerNotes Ensure `seasonalTrends` contains valid `SeasonalTrend` objects. `peakSeason` and `lowestSeason` must match the seasons listed in `seasonalTrends` to avoid mismatches.
+ */
+export interface SeasonalPatterns {
+  /** An array of seasonal trends with usage data and change rates */
+  seasonalTrends: SeasonalTrend[];
+  /** The season with the highest usage or preference */
+  peakSeason: 'winter' | 'spring' | 'summer' | 'fall';
+  /** The season with the lowest usage or preference */
+  lowestSeason: 'winter' | 'spring' | 'summer' | 'fall';
+}
+
+/**
+ * Represents a seasonal trend with associated usage data and rate of change.
+ * Used to analyze patterns in usage over different seasons.
+ * @example
+ * {
+ *   season: 'summer',
+ *   usage: 7500,
+ *   changeRate: 12.5
+ * }
+ * @developerNotes Ensure `season` is one of the allowed values, and `usage`/`changeRate` are numeric and reflect real-world data.
+ */
+export interface SeasonalTrend {
+  /** The season associated with the trend (e.g., winter, summer) */
+  season: 'winter' | 'spring' | 'summer' | 'fall';
+  /** The total usage recorded during the season */
+  usage: number;
+  /** The rate of change in usage compared to the previous season */
+  changeRate: number;
+}
+
+/**
+ * Describes the geographic distribution of usage across different regions.
+ * Includes aggregated region data and identifies the most and least active regions.
+ * @example
+ * {
+ *   regions: [
+ *     { region: 'North America', usage: 4500, percentage: 30 },
+ *     { region: 'Asia', usage: 6000, percentage: 40 }
+ *   ],
+ *   mostActiveRegion: 'Asia',
+ *   leastActiveRegion: 'Europe'
+ * }
+ * @developerNotes Ensure `regions` array is populated with valid `RegionUsage` objects. `mostActiveRegion` and `leastActiveRegion` must match region names in the `regions` array.
+ */
+export interface GeographicDistribution {
+  /** An array of region-specific usage data */
+  regions: RegionUsage[];
+  /** The region with the highest usage */
+  mostActiveRegion: string;
+  /** The region with the lowest usage */
+  leastActiveRegion: string;
+}
+
+/**
+ * Represents usage statistics for a specific geographic region.
+ * @example
+ * { region: 'Europe', usage: 2500, percentage: 16.7 }
+ * @developerNotes Ensure `percentage` reflects the proportion of total usage relative to all regions.
+ */
+export interface RegionUsage {
+  /** The name of the geographic region */
+  region: string;
+  /** The total usage recorded in the region */
+  usage: number;
+  /** The percentage of total usage attributed to this region */
+  percentage: number;
+}
+
+/**
+ * A type representing the four standard seasons.
+ * Used for categorizing data based on seasonal periods.
+ */
+export type Season = 'winter' | 'spring' | 'summer' | 'fall';
+
+/**
+ * A type representing the direction of a trend over time.
+ * Used to classify whether a metric is increasing, decreasing, or stable.
+ */
+export type TrendDirection = 'increasing' | 'decreasing' | 'stable';
+
+/**
+ * Represents the geographic distribution of usage across different regions.
+ * Contains an array of region-specific usage data along with the most and least active regions.
+ * @example
+ * {
+ *   regions: [
+ *     { region: 'North America', usage: 4500, percentage: 30 },
+ *     { region: 'Asia', usage: 6000, percentage: 40 },
+ *     { region: 'Europe', usage: 2500, percentage: 16.7 }
+ *   ],
+ *   mostActiveRegion: 'Asia',
+ *   leastActiveRegion: 'Europe'
+ * }
+ * @developerNotes Ensure `regions` is an array of valid `RegionUsage` objects. `mostActiveRegion` and `leastActiveRegion` must match the region names in the `regions` array to avoid mismatches.
+ */
+export interface GeographicDistribution {
+  /** An array of region-specific usage data */
+  regions: RegionUsage[];
+  /** The region with the highest usage */
+  mostActiveRegion: string;
+  /** The region with the lowest usage */
+  leastActiveRegion: string;
+}
+
+/**
+ * Represents usage statistics for a specific geographic region.
+ * @example
+ * { region: 'Asia', usage: 6000, percentage: 40 }
+ * @developerNotes Ensure `region` is a valid geographic identifier. `usage` should be a numeric value, and `percentage` should represent the proportion of total usage for the region (e.g., relative to all regions).
+ */
+export interface RegionUsage {
+  /** The name of the geographic region */
+  region: string;
+  /** The total usage recorded in the region */
+  usage: number;
+  /** The percentage of total usage attributed to this region */
+  percentage: number;
 }
