@@ -44,7 +44,7 @@ export default abstract class ResponseLengthService {
    */
   public static async update(key: string, hidden: boolean): Promise<void> {
     try {
-      await api.put(`/api/response-lengths/${key}`, {hidden});
+      await api.put(`/response-lengths/${key}`, {hidden});
     } catch (error) {
       ConfigService.handleApiError(error, 'Unable to update response length. Please try again.');
     }

@@ -44,7 +44,7 @@ export default abstract class ToneService {
    */
   public static async update(key: string, hidden: boolean): Promise<void> {
     try {
-      await api.put(`/api/tones/${key}`, {hidden});
+      await api.put(`/tones/${key}`, {hidden});
     } catch (error) {
       ConfigService.handleApiError(error, 'Unable to update tone. Please try again.');
     }
