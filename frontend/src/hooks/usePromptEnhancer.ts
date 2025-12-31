@@ -16,6 +16,12 @@ import PromptService from '~/services/PromptService';
 // types
 import type {PromptRequest} from '~/types';
 
+const nullOrString = (value: any | undefined | null): any | null => {
+  return !value
+    ? null
+    : (value?.trim?.() ? value.trim() : null);
+};
+
 /**
  * Custom hook for enhancing AI prompts with various settings.
  *
@@ -48,27 +54,38 @@ export const usePromptEnhancer = () => {
    * console.log(params); // { method: 'GET', path: '/', headers: {}, queryParams: {} }
    * @developerNotes This is a factory function and should be customized based on specific API requirements.
    */
-  const requestParams = () => ({
-    model: config.model!,
-    provider: config.provider!,
-    enhancementType: 'refine',
-    userRole: config.userRole,
-    systemPrompt: config.defaultSystemPrompt,
-    temperature: config?.temperature ?? 0.7,
-    maxTokens: config?.maxTokens ?? 2000,
-    targetAudience: config.targetAudience,
-    tone: config.tone,
-    responseLength: config.responseLength,
-    customInstructions: config.customInstructions,
-    enhancementParameters: config.enhancementParameters,
-    format: config.format,
-    offTheRecord: config.offTheRecord,
-    topP: config.topP,
-    topK: config.topK,
-    stopSequences: config.stopSequences,
-    frequencyPenalty: config.frequencyPenalty,
-    presencePenalty: config.presencePenalty,
-  });
+  const requestParams = (): PromptRequest => {
+    const values = {
+      model: config.model!,
+      provider: config.provider!,
+      enhancementType: 'refine',
+      userRole: config.userRole,
+      systemPrompt: config.defaultSystemPrompt,
+      temperature: config?.temperature ?? 0.7,
+      maxTokens: config?.maxTokens ?? 2000,
+      targetAudience: nullOrString(config.targetAudience),
+      tone: nullOrString(config.tone),
+      responseLength: nullOrString(config.responseLength),
+      customInstructions: nullOrString(config.customInstructions),
+      enhancementParameters: nullOrString(config.enhancementParameters),
+      format: nullOrString(config.format),
+      offTheRecord: config.offTheRecord,
+      topP: nullOrString(config.topP),
+      topK: nullOrString(config.topK),
+      stopSequences: nullOrString(config.stopSequences),
+      frequencyPenalty: nullOrString(config.frequencyPenalty),
+      presencePenalty: nullOrString(config.presencePenalty),
+    };
+
+    // filter non-null values
+    return Object.entries(values).reduce((acc, [key, value]) => {
+      if (value !== null) {
+        acc[key] = value;
+      }
+
+      return acc;
+    }, {} as PromptRequest);
+  };
 
   /**
    * Enhances a text prompt using the selected AI model and settings.
@@ -109,8 +126,8 @@ export const usePromptEnhancer = () => {
       setError(null);
 
       const request: PromptRequest = {
-        text: text.trim(),
         ...requestParams(),
+        text: text.trim(),
       };
 
       const response = await PromptService.enhancePrompt(request);
@@ -156,8 +173,8 @@ export const usePromptEnhancer = () => {
       setError(null);
 
       const request: PromptRequest = {
-        text: `${enhancedText}\n\nAdditional context: ${additionalContext}`,
         ...requestParams(),
+        text: `${enhancedText}\n\nAdditional context: ${additionalContext}`,
       };
 
       const response = await PromptService.enhancePrompt(request);
@@ -203,8 +220,8 @@ export const usePromptEnhancer = () => {
       const combinedText = prompts.map((p, i) => `[Prompt ${i + 1}]: ${p}`).join('\n\n');
 
       const request: PromptRequest = {
-        text: combinedText,
         ...requestParams(),
+        text: combinedText,
       };
 
       const response = await PromptService.enhancePrompt(request);
