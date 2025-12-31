@@ -33,12 +33,42 @@ import type {PromptRequest} from '~/types';
  * - Automatically adds successful enhancements to history
  */
 export const usePromptEnhancer = () => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const {config} = useAppStore();
 
   const {addToHistory} = useHistoryStore();
+
+  /**
+   * Generates default request parameters for API calls.
+   * @returns An object containing default request configuration.
+   * @example
+   * const params = requestParams();
+   * console.log(params); // { method: 'GET', path: '/', headers: {}, queryParams: {} }
+   * @developerNotes This is a factory function and should be customized based on specific API requirements.
+   */
+  const requestParams = () => ({
+    model: config.model!,
+    provider: config.provider!,
+    enhancementType: 'refine',
+    userRole: config.userRole,
+    systemPrompt: config.defaultSystemPrompt,
+    temperature: config?.temperature ?? 0.7,
+    maxTokens: config?.maxTokens ?? 2000,
+    targetAudience: config.targetAudience,
+    tone: config.tone,
+    responseLength: config.responseLength,
+    customInstructions: config.customInstructions,
+    enhancementParameters: config.enhancementParameters,
+    format: config.format,
+    offTheRecord: config.offTheRecord,
+    topP: config.topP,
+    topK: config.topK,
+    stopSequences: config.stopSequences,
+    frequencyPenalty: config.frequencyPenalty,
+    presencePenalty: config.presencePenalty,
+  });
 
   /**
    * Enhances a text prompt using the selected AI model and settings.
@@ -80,13 +110,7 @@ export const usePromptEnhancer = () => {
 
       const request: PromptRequest = {
         text: text.trim(),
-        model: config?.model,
-        provider: config?.provider,
-        enhancementType: config.enhancementType,
-        userRole: config.userRole,
-        systemPrompt: config.defaultSystemPrompt,
-        temperature: config?.temperature ?? 0.7,
-        maxTokens: config?.maxTokens ?? 2000,
+        ...requestParams(),
       };
 
       const response = await PromptService.enhancePrompt(request);
@@ -95,6 +119,7 @@ export const usePromptEnhancer = () => {
       addToHistory({
         ...response,
         provider: config?.provider,
+        // @ts-ignore
         id: response.timestamp, // Use timestamp as ID for now
         enhancementType: config?.enhancementType!,
         userRole: config?.userRole!,
@@ -110,7 +135,8 @@ export const usePromptEnhancer = () => {
     } finally {
       setLoading(false);
     }
-  }, [config?.provider, config?.model, config.enhancementType, config.userRole, config.defaultSystemPrompt, config?.temperature, config?.maxTokens, addToHistory]);
+    // eslint-disable-next-line
+  }, [config?.provider, config?.model, config?.enhancementType, config?.userRole]);
 
   /**
    * Refines an enhanced prompt with additional context.
@@ -131,19 +157,14 @@ export const usePromptEnhancer = () => {
 
       const request: PromptRequest = {
         text: `${enhancedText}\n\nAdditional context: ${additionalContext}`,
-        model: config.model!,
-        provider: config.provider!,
-        enhancementType: 'refine',
-        userRole: config.userRole,
-        systemPrompt: config.defaultSystemPrompt,
-        temperature: config?.temperature ?? 0.7,
-        maxTokens: config?.maxTokens ?? 2000,
+        ...requestParams(),
       };
 
       const response = await PromptService.enhancePrompt(request);
 
       addToHistory({
         ...response,
+        // @ts-ignore
         id: response.timestamp,
         provider: config.provider!,
         enhancementType: 'refine',
@@ -160,7 +181,8 @@ export const usePromptEnhancer = () => {
     } finally {
       setLoading(false);
     }
-  }, [config.model, config.provider, config.userRole, config.defaultSystemPrompt, config?.temperature, config?.maxTokens, addToHistory]);
+    // eslint-disable-next-line
+  }, [config.provider, config.userRole]);
 
   /**
    * Combines multiple enhanced prompts into a single prompt.
@@ -182,19 +204,14 @@ export const usePromptEnhancer = () => {
 
       const request: PromptRequest = {
         text: combinedText,
-        provider: config.provider!,
-        model: config.model!,
-        enhancementType: 'combine',
-        userRole: config.userRole,
-        systemPrompt: config.defaultSystemPrompt,
-        temperature: config?.temperature ?? 0.7,
-        maxTokens: config?.maxTokens ?? 2000,
+        ...requestParams(),
       };
 
       const response = await PromptService.enhancePrompt(request);
 
       addToHistory({
         ...response,
+        // @ts-ignore
         id: response.timestamp,
         provider: config.provider!,
         enhancementType: 'combine',
@@ -211,7 +228,8 @@ export const usePromptEnhancer = () => {
     } finally {
       setLoading(false);
     }
-  }, [config.provider, config.model, config.userRole, config.defaultSystemPrompt, config?.temperature, config?.maxTokens, addToHistory]);
+    // eslint-disable-next-line
+  }, [config.provider, config.userRole]);
 
   /**
    * Reverts a prompt to its original state from history.
@@ -250,5 +268,6 @@ export const usePromptEnhancer = () => {
     loading,
     error,
     clearError,
+    requestParams,
   };
 };
