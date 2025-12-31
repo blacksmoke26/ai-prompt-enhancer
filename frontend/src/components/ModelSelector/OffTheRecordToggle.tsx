@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import {SaveOff} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -27,7 +28,7 @@ const OffTheRecordToggle: React.FC = () => {
   return (
     <div className="space-y-2">
       <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Off-the-Record
+        <SaveOff className="inline-flex display-inline" size="16"/> Off-the-Record
       </label>
       <div className="flex items-center space-x-2">
         <Switch

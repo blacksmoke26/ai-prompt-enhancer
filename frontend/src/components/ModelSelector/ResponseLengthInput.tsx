@@ -5,43 +5,40 @@
  */
 
 import React from 'react';
+import {AudioLines} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
+
+// utils
+import {toSelectGroupedOptionsPlain} from '~/utils/helpers';
 
 // ui components
 import {Select} from '~/components/ui/Select';
 
 /**
- * Response length input component for AI configuration
+ * Tone input component for AI configuration
  * @component
  */
-const ResponseLengthInput: React.FC = () => {
-  const {config, setConfig} = useAppStore();
+const ToneInput: React.FC = () => {
+  const {config, setConfig, responseLengths} = useAppStore();
 
   const handleChange = (value: string) => {
     // Update the config in store
-    setConfig({responseLength: value}, true);
+    setConfig({tone: value}, true);
   };
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Response Length
-      </label>
       <Select
-        placeholder="Select response length"
-        value={config.responseLength}
+        placeholder="Select Response Length"
+        value={config?.responseLength}
         onChange={v => handleChange(v as string)}
-        options={[
-          {value: 'short', label: 'Short'},
-          {value: 'medium', label: 'Medium'},
-          {value: 'long', label: 'Long'},
-          {value: 'detailed', label: 'Detailed'},
-          {value: 'concise', label: 'Concise'},
-        ]}/>
+        options={toSelectGroupedOptionsPlain(responseLengths.filter(x => !x.hidden))}
+        label={<strong><AudioLines className="inline-flex display-inline" size="16"/> Response Length</strong>}
+      />
     </div>
   );
 };
 
-export default ResponseLengthInput;
+export default ToneInput;
