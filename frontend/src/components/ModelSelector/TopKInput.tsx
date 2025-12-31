@@ -4,34 +4,40 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 
 // store
-import { useAppStore } from '~/stores/appStore';
+import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import { Slider } from '@radix-ui/themes';
+import {Slider} from '@radix-ui/themes';
+
+// hooks
+import useDebounce from '~/hooks/useDebounce';
 
 /**
  * Top-K input component for AI configuration
  * @component
  */
 const TopKInput: React.FC = () => {
-  const { config } = useAppStore();
+  const {config, setConfig} = useAppStore();
   const [topK, setTopK] = useState<number>(config?.topK || 40);
 
   useEffect(() => {
     setTopK(config?.topK || 40);
   }, [config?.topK]);
 
+  const updateConfig = useCallback((newValue: number) => {
+    setConfig({topK: newValue}, true);
+    // eslint-disable-next-line
+  }, []);
+
+  const debouncedUpdateConfig = useDebounce(updateConfig, 300);
+
   const handleChange = (value: number[]) => {
     const newValue = value[0];
     setTopK(newValue);
-
-    // Update the config in store
-    useAppStore.getState().setConfig({
-      topK: newValue
-    }, true);
+    debouncedUpdateConfig(newValue);
   };
 
   return (

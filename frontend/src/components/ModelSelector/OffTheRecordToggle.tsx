@@ -4,36 +4,24 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 // store
-import { useAppStore } from '~/stores/appStore';
+import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import { Switch } from '~/components/ui/Switch';
-
-// types
-import type { PromptRequest } from '~/types';
+import {Switch} from '~/components/ui/Switch';
 
 /**
  * Off the record toggle component for AI configuration
  * @component
  */
 const OffTheRecordToggle: React.FC = () => {
-  const { config } = useAppStore();
-  const [offTheRecord, setOffTheRecord] = useState<boolean>(config?.offTheRecord || false);
-
-  useEffect(() => {
-    setOffTheRecord(config?.offTheRecord || false);
-  }, [config?.offTheRecord]);
+  const {config, setConfig} = useAppStore();
 
   const handleChange = (checked: boolean) => {
-    setOffTheRecord(checked);
-    
     // Update the config in store
-    useAppStore.getState().setConfig({
-      offTheRecord: checked
-    }, true);
+    setConfig({offTheRecord: checked}, true);
   };
 
   return (
@@ -42,8 +30,8 @@ const OffTheRecordToggle: React.FC = () => {
         Off-the-Record
       </label>
       <div className="flex items-center space-x-2">
-        <Switch 
-          checked={offTheRecord} 
+        <Switch
+          checked={config.offTheRecord}
           onCheckedChange={handleChange}
           id="off-the-record"
         />

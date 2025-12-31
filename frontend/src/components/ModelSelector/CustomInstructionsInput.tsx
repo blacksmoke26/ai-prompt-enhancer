@@ -12,26 +12,32 @@ import { useAppStore } from '~/stores/appStore';
 // ui components
 import { Textarea } from '~/components/ui/Textarea';
 
+// hooks
+import useDebounce from '~/hooks/useDebounce';
+
 /**
  * Custom instructions input component for AI configuration
  * @component
  */
 const CustomInstructionsInput: React.FC = () => {
-  const { config } = useAppStore();
+  const { config, setConfig } = useAppStore();
+
   const [customInstructions, setCustomInstructions] = useState<string>(config?.customInstructions || '');
+  const debouncedCustomInstructions = useDebounce(customInstructions, 500);
 
   useEffect(() => {
     setCustomInstructions(config?.customInstructions || '');
   }, [config?.customInstructions]);
 
+  useEffect(() => {
+    if (debouncedCustomInstructions !== config.customInstructions) {
+      setConfig({customInstructions: debouncedCustomInstructions}, true);
+    }
+  }, [debouncedCustomInstructions, config.customInstructions, setConfig]);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setCustomInstructions(value);
-
-    // Update the config in store
-    useAppStore.getState().setConfig({
-      customInstructions: value
-    }, true);
   };
 
   return (

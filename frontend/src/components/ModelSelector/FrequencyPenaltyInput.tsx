@@ -4,37 +4,40 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 
 // store
-import { useAppStore } from '~/stores/appStore';
+import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import { Slider } from '@radix-ui/themes';
-
-// types
-import type { PromptRequest } from '~/types';
+import {Slider} from '@radix-ui/themes';
 
 /**
  * Frequency penalty input component for AI configuration
  * @component
  */
 const FrequencyPenaltyInput: React.FC = () => {
-  const { config } = useAppStore();
+  const {config, setConfig} = useAppStore();
   const [frequencyPenalty, setFrequencyPenalty] = useState<number>(config?.frequencyPenalty || 0.0);
 
   useEffect(() => {
     setFrequencyPenalty(config?.frequencyPenalty || 0.0);
   }, [config?.frequencyPenalty]);
 
+  const setConfigDebounced = useCallback(
+    (newValue: number) => {
+      setConfig({frequencyPenalty: newValue}, true);
+    },
+    // eslint-disable-next-line
+    [],
+  );
+
   const handleChange = (value: number[]) => {
     const newValue = value[0];
     setFrequencyPenalty(newValue);
 
-    // Update the config in store
-    useAppStore.getState().setConfig({
-      frequencyPenalty: newValue
-    }, true);
+    // Update the config in store with debounce
+    setConfigDebounced(newValue);
   };
 
   return (

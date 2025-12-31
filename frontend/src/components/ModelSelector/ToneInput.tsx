@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -17,20 +17,11 @@ import {Select} from '~/components/ui/Select';
  * @component
  */
 const ToneInput: React.FC = () => {
-  const {config} = useAppStore();
-  const [tone, setTone] = useState<string>(config?.tone || '');
-
-  useEffect(() => {
-    setTone(config?.tone || '');
-  }, [config?.tone]);
+  const {config, setConfig} = useAppStore();
 
   const handleChange = (value: string) => {
-    setTone(value);
-
     // Update the config in store
-    useAppStore.getState().setConfig({
-      tone: value,
-    }, true);
+    setConfig({tone: value}, true);
   };
 
   return (
@@ -40,17 +31,17 @@ const ToneInput: React.FC = () => {
       </label>
       <Select
         placeholder="Select tone"
-        value={tone}
-        onValueChange={v => handleChange(v as string)}
+        value={config?.tone}
+        onChange={v => handleChange(v as string)}
         options={[
-          {key: 'professional', label: 'Professional'},
-          {key: 'friendly', label: 'Friendly'},
-          {key: 'casual', label: 'Casual'},
-          {key: 'technical', label: 'Technical'},
-          {key: 'humorous', label: 'Humorous'},
-          {key: 'formal', label: 'Formal'},
-          {key: 'informal', label: 'Informal'},
-          {key: 'concise', label: 'Concise'},
+          {value: 'professional', label: 'Professional'},
+          {value: 'friendly', label: 'Friendly'},
+          {value: 'casual', label: 'Casual'},
+          {value: 'technical', label: 'Technical'},
+          {value: 'humorous', label: 'Humorous'},
+          {value: 'formal', label: 'Formal'},
+          {value: 'informal', label: 'Informal'},
+          {value: 'concise', label: 'Concise'},
         ]}
       />
     </div>

@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -17,20 +17,11 @@ import {Select} from '~/components/ui/Select';
  * @component
  */
 const TargetAudienceInput: React.FC = () => {
-  const {config} = useAppStore();
-  const [targetAudience, setTargetAudience] = useState<string>(config?.targetAudience || '');
-
-  useEffect(() => {
-    setTargetAudience(config?.targetAudience || '');
-  }, [config?.targetAudience]);
+  const {config, setConfig} = useAppStore();
 
   const handleChange = (value: string) => {
-    setTargetAudience(value);
-
     // Update the config in store
-    useAppStore.getState().setConfig({
-      targetAudience: value,
-    }, true);
+    setConfig({targetAudience: value}, true);
   };
 
   return (
@@ -40,16 +31,16 @@ const TargetAudienceInput: React.FC = () => {
       </label>
       <Select
         placeholder="Select target audience"
-        value={targetAudience}
-        onValueChange={value => handleChange(value as string)}
+        value={config.targetAudience}
+        onChange={value => handleChange(value as string)}
         options={[
-          {key: 'general', label: 'General'},
-          {key: 'technical-experts', label: 'Technical Experts'},
-          {key: 'developers', label: 'Developers'},
-          {key: 'students', label: 'Students'},
-          {key: 'executives', label: 'Executives'},
-          {key: 'beginners', label: 'Beginners'},
-          {key: 'researchers', label: 'Researchers'},
+          {value: 'general', label: 'General'},
+          {value: 'technical-experts', label: 'Technical Experts'},
+          {value: 'developers', label: 'Developers'},
+          {value: 'students', label: 'Students'},
+          {value: 'executives', label: 'Executives'},
+          {value: 'beginners', label: 'Beginners'},
+          {value: 'researchers', label: 'Researchers'},
         ]}
       />
     </div>

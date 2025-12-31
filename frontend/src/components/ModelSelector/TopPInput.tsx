@@ -4,34 +4,39 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 
 // store
-import { useAppStore } from '~/stores/appStore';
+import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import { Slider } from '@radix-ui/themes';
+import {Slider} from '@radix-ui/themes';
+
+// hooks
+import useDebounce from '~/hooks/useDebounce';
 
 /**
  * Top-P input component for AI configuration
  * @component
  */
 const TopPInput: React.FC = () => {
-  const { config } = useAppStore();
+  const {config, setConfig} = useAppStore();
   const [topP, setTopP] = useState<number>(config?.topP || 1.0);
+  const debouncedTopP = useDebounce(topP, 300);
 
   useEffect(() => {
     setTopP(config?.topP || 1.0);
   }, [config?.topP]);
 
+  useEffect(() => {
+    // Update the config in store with debounced value
+    setConfig({topP: debouncedTopP}, true);
+    // eslint-disable-next-line
+  }, [debouncedTopP]);
+
   const handleChange = (value: number[]) => {
     const newValue = value[0];
     setTopP(newValue);
-
-    // Update the config in store
-    useAppStore.getState().setConfig({
-      topP: newValue
-    }, true);
   };
 
   return (

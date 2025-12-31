@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -20,20 +20,11 @@ import type {ResponseOutputFormat} from '~/types';
  * @component
  */
 const FormatInput: React.FC = () => {
-  const { config } = useAppStore();
-  const [format, setFormat] = useState<ResponseOutputFormat>(config?.format || 'markdown');
-
-  useEffect(() => {
-    setFormat(config?.format || 'markdown');
-  }, [config?.format]);
+  const {config, setConfig} = useAppStore();
 
   const handleChange = (value: ResponseOutputFormat) => {
-    setFormat(value);
-
     // Update the config in store
-    useAppStore.getState().setConfig({
-      format: value
-    }, true);
+    setConfig({format: value}, true);
   };
 
   return (
@@ -43,13 +34,13 @@ const FormatInput: React.FC = () => {
       </label>
       <Select
         placeholder="Select output format"
-        value={format}
+        value={config?.format ?? 'markdown'}
         onChange={v => handleChange(v as ResponseOutputFormat)}
         options={[
-          {key: 'markdown', label: 'Markdown'},
-          {key: 'html', label: 'HTML'},
-          {key: 'json', label: 'JSON'},
-          {key: 'text', label: 'Text'},
+          {value: 'markdown', label: 'Markdown'},
+          {value: 'html', label: 'HTML'},
+          {value: 'json', label: 'JSON'},
+          {value: 'text', label: 'Text'},
         ]}
       />
     </div>

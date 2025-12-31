@@ -12,8 +12,8 @@ import { useAppStore } from '~/stores/appStore';
 // ui components
 import { Textarea } from '~/components/ui/Textarea';
 
-// types
-import type { PromptRequest } from '~/types';
+// hooks
+import useDebounce from '~/hooks/useDebounce';
 
 /**
  * Stop sequences input component for AI configuration
@@ -27,6 +27,12 @@ const StopSequencesInput: React.FC = () => {
     setStopSequences(config?.stopSequences?.join('\n') || '');
   }, [config?.stopSequences]);
 
+  const debouncedSetConfig = useDebounce((sequences: string[]) => {
+    useAppStore.getState().setConfig({
+      stopSequences: sequences
+    }, true);
+  }, 500);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setStopSequences(value);
@@ -34,10 +40,8 @@ const StopSequencesInput: React.FC = () => {
     // Split by newlines and filter out empty strings
     const sequences = value.split('\n').filter(seq => seq.trim() !== '');
 
-    // Update the config in store
-    useAppStore.getState().setConfig({
-      stopSequences: sequences
-    }, true);
+    // Update the config in store with debounced function
+    debouncedSetConfig(sequences);
   };
 
   return (

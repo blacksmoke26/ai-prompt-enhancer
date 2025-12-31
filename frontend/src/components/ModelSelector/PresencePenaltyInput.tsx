@@ -4,16 +4,13 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // store
 import { useAppStore } from '~/stores/appStore';
 
 // ui components
 import { Slider } from '@radix-ui/themes';
-
-// types
-import type { PromptRequest } from '~/types';
 
 /**
  * Presence penalty input component for AI configuration
@@ -22,6 +19,7 @@ import type { PromptRequest } from '~/types';
 const PresencePenaltyInput: React.FC = () => {
   const { config } = useAppStore();
   const [presencePenalty, setPresencePenalty] = useState<number>(config?.presencePenalty || 0.0);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     setPresencePenalty(config?.presencePenalty || 0.0);
@@ -31,10 +29,18 @@ const PresencePenaltyInput: React.FC = () => {
     const newValue = value[0];
     setPresencePenalty(newValue);
 
-    // Update the config in store
-    useAppStore.getState().setConfig({
-      presencePenalty: newValue
-    }, true);
+    // Clear previous timeout
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    // Set new timeout
+    debounceRef.current = setTimeout(() => {
+      // Update the config in store
+      useAppStore.getState().setConfig({
+        presencePenalty: newValue
+      }, true);
+    }, 500);
   };
 
   return (

@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -12,28 +12,16 @@ import {useAppStore} from '~/stores/appStore';
 // ui components
 import {Select} from '~/components/ui/Select';
 
-// types
-import type {PromptRequest} from '~/types';
-
 /**
  * Response length input component for AI configuration
  * @component
  */
 const ResponseLengthInput: React.FC = () => {
-  const {config} = useAppStore();
-  const [responseLength, setResponseLength] = useState<string>(config?.responseLength || '');
-
-  useEffect(() => {
-    setResponseLength(config?.responseLength || '');
-  }, [config?.responseLength]);
+  const {config, setConfig} = useAppStore();
 
   const handleChange = (value: string) => {
-    setResponseLength(value);
-
     // Update the config in store
-    useAppStore.getState().setConfig({
-      responseLength: value,
-    }, true);
+    setConfig({responseLength: value}, true);
   };
 
   return (
@@ -43,14 +31,14 @@ const ResponseLengthInput: React.FC = () => {
       </label>
       <Select
         placeholder="Select response length"
-        value={responseLength}
+        value={config.responseLength}
         onChange={v => handleChange(v as string)}
         options={[
-          {key: 'short', label: 'Short'},
-          {key: 'medium', label: 'Medium'},
-          {key: 'long', label: 'Long'},
-          {key: 'detailed', label: 'Detailed'},
-          {key: 'concise', label: 'Concise'},
+          {value: 'short', label: 'Short'},
+          {value: 'medium', label: 'Medium'},
+          {value: 'long', label: 'Long'},
+          {value: 'detailed', label: 'Detailed'},
+          {value: 'concise', label: 'Concise'},
         ]}/>
     </div>
   );

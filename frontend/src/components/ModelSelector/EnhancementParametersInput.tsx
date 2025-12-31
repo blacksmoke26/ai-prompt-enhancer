@@ -4,16 +4,16 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 
 // store
-import { useAppStore } from '~/stores/appStore';
+import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import { Textarea } from '~/components/ui/Textarea';
+import {Textarea} from '~/components/ui/Textarea';
 
-// types
-import type { PromptRequest } from '~/types';
+// hooks
+import useDebounce from '~/hooks/useDebounce';
 
 /**
  * Enhancement parameters input component for AI configuration
@@ -27,22 +27,28 @@ const EnhancementParametersInput: React.FC = () => {
     setEnhancementParameters(config?.enhancementParameters ? JSON.stringify(config.enhancementParameters) : '');
   }, [config?.enhancementParameters]);
 
+  const debouncedValue = useDebounce(enhancementParameters, 500);
+
+  useEffect(() => {
+    if (debouncedValue) {
+      try {
+        // Try to parse the JSON to validate it
+        const parsed = JSON.parse(debouncedValue);
+
+        // Update the config in store
+        useAppStore.getState().setConfig({
+          enhancementParameters: parsed
+        }, true);
+      } catch (error) {
+        // If invalid JSON, don't update the store but still update the input
+        console.warn('Invalid JSON for enhancement parameters');
+      }
+    }
+  }, [debouncedValue]);
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const value = e.target.value;
     setEnhancementParameters(value);
-
-    try {
-      // Try to parse the JSON to validate it
-      const parsed = JSON.parse(value);
-
-      // Update the config in store
-      useAppStore.getState().setConfig({
-        enhancementParameters: parsed
-      }, true);
-    } catch (error) {
-      // If invalid JSON, don't update the store but still update the input
-      console.warn('Invalid JSON for enhancement parameters');
-    }
   };
 
   return (

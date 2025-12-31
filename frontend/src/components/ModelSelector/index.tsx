@@ -37,6 +37,9 @@ import StopSequencesInput from './StopSequencesInput';
 import FrequencyPenaltyInput from './FrequencyPenaltyInput';
 import PresencePenaltyInput from './PresencePenaltyInput';
 
+// types
+import type {VisibleComponents} from '~/types';
+
 /**
  * Props for the ModelSelector component
  * @interface ModelSelectorProps
@@ -85,7 +88,7 @@ const ModelSelectorComponent: React.FC<ModelSelectorProps> = ({className = ''}) 
   } = useAppStore();
 
   // State for local component visibility and order (to avoid direct store mutations)
-  const [localVisibleComponents, setLocalVisibleComponents] = useState<Record<string, boolean>>(visibleComponents);
+  const [localVisibleComponents, setLocalVisibleComponents] = useState<VisibleComponents>(visibleComponents);
   const [localComponentOrder, setLocalComponentOrder] = useState<string[]>(componentOrder);
 
   // Sync local state with store
