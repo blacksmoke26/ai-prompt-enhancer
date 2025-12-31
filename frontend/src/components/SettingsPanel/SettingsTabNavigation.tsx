@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import {User2, WandSparkles ,Settings as SettingsIcon, TestTube} from 'lucide-react';
+import {User2, WandSparkles, Settings as SettingsIcon, TestTube, Speech, AudioLines} from 'lucide-react';
 
 // helpers
 import {cn} from '~/utils/helpers';
@@ -40,6 +40,8 @@ const SettingsTabNavigation: React.FC<SettingsTabNavigationProps> = ({activeTab,
     {id: 'providers', label: 'AI Providers', icon: TestTube},
     {id: 'enhancement', label: 'Enhancement', icon: WandSparkles},
     {id: 'user-role', label: 'User Role', icon: User2},
+    {id: 'tones', label: 'Tones', icon: Speech},
+    {id: 'response-lengths', label: 'Response Lengths', icon: AudioLines},
     {id: 'data', label: 'Data Management', icon: SettingsIcon},
     {id: 'layout', label: 'Layout', icon: SettingsIcon},
     {id: 'advanced', label: 'Advanced', icon: SettingsIcon},

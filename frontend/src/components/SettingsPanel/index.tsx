@@ -32,6 +32,8 @@ import LayoutSettingsPanel from './LayoutSettingsPanel';
 // types
 import {AppConfig} from '~/types';
 import {ProviderConfig} from '~/types';
+import TonesSettingsPanel from '~/components/SettingsPanel/TonesSettingsPanel.tsx';
+import ResponseLengthSettingsPanel from '~/components/SettingsPanel/ResponseLengthSettingsPanel.tsx';
 
 /**
  * Type definition for available settings tabs
@@ -39,7 +41,16 @@ import {ProviderConfig} from '~/types';
  * const activeTab: SettingsTab = 'general';
  * @developer Note: Add new tabs here and update the renderTabContent function
  */
-export type SettingsTab = 'general' | 'providers' | 'enhancement' | 'user-role' | 'data' | 'layout' | 'advanced';
+export type SettingsTab =
+  'general'
+  | 'providers'
+  | 'enhancement'
+  | 'user-role'
+  | 'tones'
+  | 'response-lengths'
+  | 'data'
+  | 'layout'
+  | 'advanced';
 
 /**
  * Main settings panel component for configuring the AI Prompt Enhancer
@@ -212,19 +223,13 @@ const SettingsPanel: React.FC = () => {
           />
         );
       case 'enhancement':
-        return (
-          <EnhancementSettingsPanel
-            localConfig={localConfig}
-            setLocalConfig={setLocalConfig}
-          />
-        );
+        return <EnhancementSettingsPanel/>;
       case 'user-role':
-        return (
-          <UserRoleSettingsPanel
-            localConfig={localConfig}
-            setLocalConfig={setLocalConfig}
-          />
-        );
+        return <UserRoleSettingsPanel/>;
+      case 'tones':
+        return <TonesSettingsPanel/>;
+      case 'response-lengths':
+        return <ResponseLengthSettingsPanel/>;
       case 'data':
         return (
           <DataSettingsPanel
@@ -233,9 +238,7 @@ const SettingsPanel: React.FC = () => {
           />
         );
       case 'layout':
-        return (
-          <LayoutSettingsPanel/>
-        );
+        return <LayoutSettingsPanel/>;
       case 'advanced':
         return (
           <AdvancedSettingsPanel
