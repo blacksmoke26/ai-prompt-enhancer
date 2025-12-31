@@ -525,4 +525,166 @@ export interface HistoryStatistics {
     /** The proportion of prompts that included metadata fields, represented as a decimal (0–1) */
     percentage: number;
   };
+
+  /**
+   * Represents the usage statistics for target audiences, including audience name, count, and percentage.
+   * @example
+   * { audience: 'technical-experts', count: 120, percentage: 24.0 }
+   *
+   * Developer Notes:
+   * - `percentage` is calculated as `count / totalRequests` and should be a decimal between 0 and 100.
+   * - This interface is commonly used in arrays to track and analyze target audience usage patterns.
+   */
+  targetAudienceUsage: {
+    /** The name or identifier of the target audience (e.g., 'technical-experts', 'general-users') */
+    audience: string;
+    /** The total number of times this audience was used */
+    count: number;
+    /** The proportion of total requests that used this audience, represented as a percentage (0–100) */
+    percentage: number;
+  }[];
+
+  /**
+   * Represents the usage statistics for tone preferences, including tone name, count, and percentage.
+   * @example
+   * { tone: 'professional', count: 150, percentage: 30.0 }
+   *
+   * Developer Notes:
+   * - `percentage` is calculated as `count / totalRequests` and should be a decimal between 0 and 100.
+   * - This interface is commonly used in arrays to track and analyze tone usage patterns.
+   */
+  toneUsage: {
+    /** The name or identifier of the tone (e.g., 'professional', 'casual', 'formal') */
+    tone: string;
+    /** The total number of times this tone was used */
+    count: number;
+    /** The proportion of total requests that used this tone, represented as a percentage (0–100) */
+    percentage: number;
+  }[];
+
+  /**
+   * Represents the usage statistics for response lengths, including length category, count, and percentage.
+   * @example
+   * { length: 'short', count: 80, percentage: 16.0 }
+   *
+   * Developer Notes:
+   * - `percentage` is calculated as `count / totalRequests` and should be a decimal between 0 and 100.
+   * - This interface is commonly used in arrays to track and analyze response length usage patterns.
+   */
+  responseLengthUsage: {
+    /** The category or identifier of the response length (e.g., 'short', 'medium', 'long') */
+    length: string;
+    /** The total number of times this length was used */
+    count: number;
+    /** The proportion of total requests that used this length, represented as a percentage (0–100) */
+    percentage: number;
+  }[];
+
+  /**
+   * Represents the usage statistics for output formats, including format name, count, and percentage.
+   * @example
+   * { format: 'markdown', count: 200, percentage: 40.0 }
+   *
+   * Developer Notes:
+   * - `percentage` is calculated as `count / totalRequests` and should be a decimal between 0 and 100.
+   * - This interface is commonly used in arrays to track and analyze output format usage patterns.
+   */
+  formatUsage: {
+    /** The name or identifier of the output format (e.g., 'markdown', 'json', 'text') */
+    format: string;
+    /** The total number of times this format was used */
+    count: number;
+    /** The proportion of total requests that used this format, represented as a percentage (0–100) */
+    percentage: number;
+  }[];
+
+  /**
+   * Represents the usage statistics for top-k sampling parameters, including parameter value, count, and percentage.
+   * @example
+   * { k: 40, count: 100, percentage: 20.0 }
+   *
+   * Developer Notes:
+   * - `percentage` is calculated as `count / totalRequests` and should be a decimal between 0 and 100.
+   * - This interface is commonly used in arrays to track and analyze top-k parameter usage patterns.
+   */
+  topKUsage: {
+    /** The top-k sampling parameter value */
+    k: number;
+    /** The total number of times this k value was used */
+    count: number;
+    /** The proportion of total requests that used this k value, represented as a percentage (0–100) */
+    percentage: number;
+  }[];
+
+  /**
+   * Represents the usage statistics for top-p sampling parameters, including parameter value, count, and percentage.
+   * @example
+   * { p: 0.9, count: 150, percentage: 30.0 }
+   *
+   * Developer Notes:
+   * - `percentage` is calculated as `count / totalRequests` and should be a decimal between 0 and 100.
+   * - This interface is commonly used in arrays to track and analyze top-p parameter usage patterns.
+   */
+  topPUsage: {
+    /** The top-p sampling parameter value */
+    p: number;
+    /** The total number of times this p value was used */
+    count: number;
+    /** The proportion of total requests that used this p value, represented as a percentage (0–100) */
+    percentage: number;
+  }[];
+
+  /**
+   * Represents the usage statistics for frequency penalty parameters, including penalty value, count, and percentage.
+   * @example
+   * { penalty: 0.5, count: 120, percentage: 24.0 }
+   *
+   * Developer Notes:
+   * - `percentage` is calculated as `count / totalRequests` and should be a decimal between 0 and 100.
+   * - This interface is commonly used in arrays to track and analyze frequency penalty parameter usage patterns.
+   */
+  frequencyPenaltyUsage: {
+    /** The frequency penalty parameter value */
+    penalty: number;
+    /** The total number of times this penalty value was used */
+    count: number;
+    /** The proportion of total requests that used this penalty value, represented as a percentage (0–100) */
+    percentage: number;
+  }[];
+
+  /**
+   * Represents the usage statistics for presence penalty parameters, including penalty value, count, and percentage.
+   * @example
+   * { penalty: 0.3, count: 100, percentage: 20.0 }
+   *
+   * Developer Notes:
+   * - `percentage` is calculated as `count / totalRequests` and should be a decimal between 0 and 100.
+   * - This interface is commonly used in arrays to track and analyze presence penalty parameter usage patterns.
+   */
+  presencePenaltyUsage: {
+    /** The presence penalty parameter value */
+    penalty: number;
+    /** The total number of times this penalty value was used */
+    count: number;
+    /** The proportion of total requests that used this penalty value, represented as a percentage (0–100) */
+    percentage: number;
+  }[];
+
+  /**
+   * Represents the usage statistics for conversation IDs, including ID, count, and percentage.
+   * @example
+   * { id: 'conv_12345', count: 150, percentage: 30.0 }
+   *
+   * Developer Notes:
+   * - `percentage` is calculated as `count / totalRequests` and should be a decimal between 0 and 100.
+   * - This interface is commonly used in arrays to track and analyze conversation ID usage patterns.
+   */
+  conversationIdUsage: {
+    /** The conversation ID used for tracking context */
+    id: string;
+    /** The total number of times this conversation ID was used */
+    count: number;
+    /** The proportion of total requests that used this conversation ID, represented as a percentage (0–100) */
+    percentage: number;
+  }[];
 }

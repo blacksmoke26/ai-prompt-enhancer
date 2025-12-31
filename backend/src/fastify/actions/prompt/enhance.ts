@@ -73,6 +73,20 @@ const enhance = async (
         maxTokens: promptRequest?.maxTokens ?? 0,
         rating: 0,
         notes: null,
+        targetAudience: promptRequest.targetAudience ?? null,
+        tone: promptRequest.tone ?? null,
+        responseLength: promptRequest.responseLength ?? null,
+        customInstructions: promptRequest.customInstructions ?? null,
+        enhancementParameters: promptRequest.enhancementParameters ?? null,
+        format: promptRequest.format ?? null,
+        timestamp: promptRequest.timestamp ?? null,
+        metadata: promptRequest.metadata ?? null,
+        topP: promptRequest.topP ?? null,
+        topK: promptRequest.topK ?? null,
+        stopSequences: promptRequest.stopSequences ?? null,
+        frequencyPenalty: promptRequest.frequencyPenalty ?? null,
+        presencePenalty: promptRequest.presencePenalty ?? null,
+        conversationId: promptRequest.conversationId ?? null,
       });
     }
 

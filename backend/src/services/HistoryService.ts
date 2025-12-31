@@ -261,15 +261,15 @@ export default class HistoryService {
         enhancementType: history.enhancementType,
         originalPrompt: history.originalPrompt,
         processingTime: history.processingTime,
-        timestamp: new Date(history?.createdAt),
+        timestamp: history?.createdAt ? new Date(history?.createdAt) : new Date(),
         userRole: history.userRole,
         provider: providers[String(history.providerId)],
         tokensUsed: history.tokensUsed,
         maxTokens: history.maxTokens,
         temperature: history.temperature,
         systemPrompt: history.systemPrompt,
-        rating: history.rating,
-        notes: history.notes,
+        rating: history?.rating ?? 0,
+        notes: history?.notes ?? null,
       });
     }
 
@@ -420,15 +420,15 @@ export default class HistoryService {
         enhancementType: history.enhancementType,
         originalPrompt: history.originalPrompt,
         processingTime: history.processingTime,
-        timestamp: new Date(history?.createdAt),
+        timestamp: history?.createdAt ? new Date(history?.createdAt) : new Date(),
         userRole: history.userRole,
         provider: providers[String(history.providerId)],
         tokensUsed: history.tokensUsed,
         maxTokens: history.maxTokens,
         temperature: history.temperature,
         systemPrompt: history.systemPrompt,
-        rating: history.rating,
-        notes: history.notes,
+        rating: history?.rating ?? 0,
+        notes: history?.notes ?? null,
       });
     }
 
@@ -598,7 +598,7 @@ export default class HistoryService {
       case 'json':
         return JSON.stringify(records, null, 2);
 
-      case 'csv':
+      case 'csv': {
         const headers = [
           'ID',
           'Original Prompt',
@@ -637,6 +637,7 @@ export default class HistoryService {
           ),
         ];
         return rows.join('\n');
+      }
 
       case 'txt':
         return records
@@ -797,6 +798,15 @@ export default class HistoryService {
         preferredTimeSlots: [],
         enhancementTypeEfficiency: [],
         metaFieldUsage: { withMeta: 0, withoutMeta: 0, percentage: 0 },
+        targetAudienceUsage: [],
+        toneUsage: [],
+        responseLengthUsage: [],
+        formatUsage: [],
+        topKUsage: [],
+        topPUsage: [],
+        frequencyPenaltyUsage: [],
+        presencePenaltyUsage: [],
+        conversationIdUsage: [],
       };
     }
 
@@ -849,8 +859,19 @@ export default class HistoryService {
     let maxEnhancedLength = 0;
     let minOriginalLength = Number.MAX_SAFE_INTEGER;
     let minEnhancedLength = Number.MAX_SAFE_INTEGER;
-    let earliestDate = histories[0].createdAt;
-    let latestDate = histories[0].createdAt;
+    let earliestDate = histories[0].createdAt || new Date();
+    let latestDate = histories[0].createdAt || new Date();
+
+    // Context statistics tracking
+    const targetAudienceStats: Record<string, number> = {};
+    const toneStats: Record<string, number> = {};
+    const responseLengthStats: Record<string, number> = {};
+    const formatStats: Record<string, number> = {};
+    const topKStats: Record<string, number> = {};
+    const topPStats: Record<string, number> = {};
+    const frequencyPenaltyStats: Record<string, number> = {};
+    const presencePenaltyStats: Record<string, number> = {};
+    const conversationIdStats: Record<string, number> = {};
 
     for (const item of histories) {
       // Model and type counts
@@ -934,6 +955,47 @@ export default class HistoryService {
         withoutMeta++;
       }
 
+      // Context statistics
+      if (item.targetAudience) {
+        targetAudienceStats[item.targetAudience] = (targetAudienceStats[item.targetAudience] ?? 0) + 1;
+      }
+
+      if (item.tone) {
+        toneStats[item.tone] = (toneStats[item.tone] ?? 0) + 1;
+      }
+
+      if (item.responseLength) {
+        responseLengthStats[item.responseLength] = (responseLengthStats[item.responseLength] ?? 0) + 1;
+      }
+
+      if (item.format) {
+        formatStats[item.format] = (formatStats[item.format] ?? 0) + 1;
+      }
+
+      if (item.topK !== null && item.topK !== undefined) {
+        const k = item.topK.toString();
+        topKStats[k] = (topKStats[k] ?? 0) + 1;
+      }
+
+      if (item.topP !== null && item.topP !== undefined) {
+        const p = item.topP.toString();
+        topPStats[p] = (topPStats[p] ?? 0) + 1;
+      }
+
+      if (item.frequencyPenalty !== null && item.frequencyPenalty !== undefined) {
+        const penalty = item.frequencyPenalty.toString();
+        frequencyPenaltyStats[penalty] = (frequencyPenaltyStats[penalty] ?? 0) + 1;
+      }
+
+      if (item.presencePenalty !== null && item.presencePenalty !== undefined) {
+        const penalty = item.presencePenalty.toString();
+        presencePenaltyStats[penalty] = (presencePenaltyStats[penalty] ?? 0) + 1;
+      }
+
+      if (item.conversationId) {
+        conversationIdStats[item.conversationId] = (conversationIdStats[item.conversationId] ?? 0) + 1;
+      }
+
       // Enhancement type efficiency
       if (!enhancementStats[item.enhancementType]) {
         enhancementStats[item.enhancementType] = {
@@ -949,7 +1011,7 @@ export default class HistoryService {
       enhancementStats[item.enhancementType].ratings.push(rating);
 
       // Date/time statistics
-      const date = new Date(item.createdAt);
+      const date = new Date(item.createdAt || new Date());
       earliestDate = date < earliestDate ? date : earliestDate;
       latestDate = date > latestDate ? date : latestDate;
 
@@ -1074,6 +1136,51 @@ export default class HistoryService {
       preferredTimeSlots,
       enhancementTypeEfficiency,
       metaFieldUsage: { withMeta, withoutMeta, percentage: metaPercentage },
+      targetAudienceUsage: Object.entries(targetAudienceStats).map(([audience, count]) => ({
+        audience,
+        count,
+        percentage: (count / len) * 100
+      })),
+      toneUsage: Object.entries(toneStats).map(([tone, count]) => ({
+        tone,
+        count,
+        percentage: (count / len) * 100
+      })),
+      responseLengthUsage: Object.entries(responseLengthStats).map(([length, count]) => ({
+        length,
+        count,
+        percentage: (count / len) * 100
+      })),
+      formatUsage: Object.entries(formatStats).map(([format, count]) => ({
+        format,
+        count,
+        percentage: (count / len) * 100
+      })),
+      topKUsage: Object.entries(topKStats).map(([k, count]) => ({
+        k: Number(k),
+        count,
+        percentage: (count / len) * 100
+      })),
+      topPUsage: Object.entries(topPStats).map(([p, count]) => ({
+        p: Number(p),
+        count,
+        percentage: (count / len) * 100
+      })),
+      frequencyPenaltyUsage: Object.entries(frequencyPenaltyStats).map(([penalty, count]) => ({
+        penalty: Number(penalty),
+        count,
+        percentage: (count / len) * 100
+      })),
+      presencePenaltyUsage: Object.entries(presencePenaltyStats).map(([penalty, count]) => ({
+        penalty: Number(penalty),
+        count,
+        percentage: (count / len) * 100
+      })),
+      conversationIdUsage: Object.entries(conversationIdStats).map(([id, count]) => ({
+        id,
+        count,
+        percentage: (count / len) * 100
+      })),
     };
   }
 
