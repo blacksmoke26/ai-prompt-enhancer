@@ -1,7 +1,8 @@
 import {create} from 'zustand';
 
 // types
-import type {PromptHistory, HistoryStats, } from '~/types';
+import type {PromptHistory} from '~/types';
+import type {HistoryStatistics} from '~/types/history-service';
 
 /**
  * Interface defining the shape and actions of the history state management store.
@@ -13,7 +14,7 @@ export interface HistoryState {
   /** Array of prompt history items */
   history: PromptHistory[];
   /** Statistics about the history data */
-  stats: HistoryStats | null;
+  stats: HistoryStatistics | null;
   /** Loading state indicator */
   loading: boolean;
   /** Error message if any operation fails */
@@ -36,7 +37,7 @@ export interface HistoryState {
   clearHistory(): void;
 
   /** Updates the history statistics */
-  setStats(stats: HistoryStats): void;
+  setStats(stats: HistoryStatistics): void;
 
   /** Sets the loading state */
   setLoading(loading: boolean): void;

@@ -9,7 +9,8 @@
 import api from '~/utils/api';
 
 // types
-import type {PromptHistory, HistoryStats} from '~/types';
+import type {PromptHistory} from '~/types';
+import type {HistoryStatistics} from '~/types/history-service';
 
 /**
  * History service class for managing prompt history operations
@@ -128,10 +129,10 @@ export default abstract class HistoryService {
    * const stats = await HistoryService.getStats();
    * @developerNote Includes counts by category and most used prompts
    */
-  static async getStats(refreshCache: boolean = false): Promise<HistoryStats> {
+  static async getStats(refreshCache: boolean = false): Promise<HistoryStatistics> {
     try {
       const params = refreshCache ? '?refresh=true' : '';
-      const {data} = await api.get<{ data: HistoryStats }>(`/history/stats${params}`);
+      const {data} = await api.get<{ data: HistoryStatistics }>(`/history/stats${params}`);
       return data.data;
     } catch (error) {
       console.error('Failed to retrieve statistics:', error);
