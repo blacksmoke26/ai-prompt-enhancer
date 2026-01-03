@@ -4,12 +4,27 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useEffect, useMemo, useState} from 'react';
-import {CheckIcon, CrossCircledIcon, MagnifyingGlassIcon} from '@radix-ui/react-icons';
-import {Box, Flex, ScrollArea, Separator, Text, Select, Popover, TextField} from '@radix-ui/themes';
+import React, {useEffect, useMemo, useState, useRef, useCallback} from 'react';
+import {
+  CheckIcon,
+  CrossCircledIcon,
+  MagnifyingGlassIcon,
+  ChevronDownIcon,
+  ChevronUpIcon
+} from '@radix-ui/react-icons';
+import {
+  Box,
+  Flex,
+  ScrollArea,
+  Separator,
+  Text,
+  Select,
+  Popover,
+  TextField
+} from '@radix-ui/themes';
 
 // hooks
-import useDebounce from '~/hooks/useDebounce'; // Keeping your import path
+import useDebounce from '~/hooks/useDebounce';
 
 // ui components
 import {LoadingDots} from '~/components/ui/Loading';
@@ -225,6 +240,13 @@ export interface SelectAdvancedProps extends Omit<Select.RootProps, 'onValueChan
    * Override this to implement custom filtering logic (e.g., fuzzy search).
    */
   filterOption?(option: SelectOption, query: string): boolean;
+
+  /**
+   * Custom function to format the selected option in the trigger.
+   * @param label - The label of the selected option.
+   * @param option - The full option object.
+   */
+  selectedOption?(label: string, option: SelectOption): React.ReactNode;
 }
 
 /**
@@ -275,96 +297,34 @@ export const getLabelByValue = (options: (SelectOption | GroupedOption)[], value
 };
 
 /**
+ * Flattens options into a single array for keyboard navigation purposes.
+ */
+const flattenOptions = (options: (SelectOption | GroupedOption)[]): SelectOption[] => {
+  const flat: SelectOption[] = [];
+  options.forEach((opt) => {
+    if ('options' in opt) {
+      flat.push(...(opt.options || []));
+    } else {
+      flat.push(opt as SelectOption);
+    }
+  });
+  return flat;
+};
+
+/**
  * A highly customizable select component with advanced features like search, creation, and formatting.
- * Ideal for complex selection scenarios with grouped options and dynamic rendering.
- * @example
- * <selectAdvanced
- *   options={[
- *     { value: '1', label: 'Option 1' },
- *     { label: 'Group', options: [{ value: '2', label: 'Suboption' }] }
- *   ]}
- *   value="1"
- *   onChange={(val) => console.log(val)}
- *   formatValue={(opt) => <span style={{ color: 'blue' }}>{opt?.label}</span>}
- * />
- * @developerNotes
- * This component is built on top of Select.RootProps and provides full control over rendering, filtering, and user interaction.
- * It supports grouped options, search, creation, and custom formatting through various props.
- *
- * @example `formatValue` (Customizing the Trigger Button)
- * ```tsx
- * <SelectAdvanced
- *   options={userOptions}
- *   value={selectedId}
- *   onChange={setSelectedId}
- *   formatValue={(option) => (
- *     <Flex align="center" gap="2">
- *       <Avatar src={option?.avatar} size="1" fallback={option?.label[0]} />
- *       <Text weight="bold">{option?.label}</Text>
- *     </Flex>
- *   )}
- * />
- * ```
- *
- * @example `formatLabel` (Customizing List Items)
- * ```tsx
- * <SelectAdvanced
- *   options={productOptions}
- *   searchable
- *   formatLabel={(option) => (
- *     <Flex direction="column">
- *       <Text>{option.label}</Text>
- *       <Text size="1" color="gray">
- *         {option.meta?.sku} • {option.meta?.stock} in stock
- *       </Text>
- *     </Flex>
- *   )}
- * />
- *
- * @example `renderOption` (Full Control)
- * ```tsx
- * <SelectAdvanced
- *   options={statusOptions}
- *   renderOption={(option, isSelected, onSelect) => (
- *     <Flex
- *       justify="between"
- *       align="center"
- *       className={`p-2 ${isSelected ? 'bg-blue-100' : ''}`}
- *       onClick={onSelect}
- *     >
- *       <Badge color={option.meta?.color}>{option.label}</Badge>
- *       {isSelected && <CheckIcon />}
- *     </Flex>
- *   )}
- * />
- * ```
- *
- * @example `filterOption` (Custom Search Logic)
- * ```tsx
- * <SelectAdvanced
- *   options={data}
- *   searchable
- *   filterOption={(option, query) => {
- *     // Search in label OR description
- *     return (
- *       option.label.toLowerCase().includes(query) ||
- *       option.meta?.description?.toLowerCase().includes(query)
- *     );
- *   }}
- * />
- * ```
  */
 export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
   const {
     options = [],
     value,
-    onChange = () => {
-    },
+    onChange = () => {},
+    selectedOption = () => {},
     placeholder = 'Select...',
     disabled = false,
     clearable = true,
     loading = false,
-    triggerWidth = '140px',
+    triggerWidth = '200px',
     icon,
 
     // Advanced
@@ -375,7 +335,7 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
     debounceTime = 300,
     noResultMessage = 'No results found.',
 
-    // New Props
+    // Render Props
     formatValue,
     formatLabel,
     renderOption,
@@ -384,18 +344,30 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [focusedIndex, setFocusedIndex] = useState<number>(-1);
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const debouncedQuery = useDebounce(searchQuery, debounceTime);
 
+  // Auto-focus search input when popover opens
+  useEffect(() => {
+    if (isOpen && searchable && inputRef.current) {
+      setTimeout(() => inputRef.current?.focus(), 0);
+    }
+  }, [isOpen, searchable]);
+
+  // Handle Search Logic
   useEffect(() => {
     if (searchable && onSearch) {
       onSearch(debouncedQuery);
     }
   }, [debouncedQuery, onSearch, searchable]);
 
+  // Reset state on close
   useEffect(() => {
     if (!isOpen) {
       setSearchQuery('');
+      setFocusedIndex(-1);
     }
   }, [isOpen]);
 
@@ -406,16 +378,11 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
 
   // --- Helper: Determine Display Content in Trigger ---
   const triggerContent = useMemo(() => {
-    // If value is empty, show placeholder
     if (!value) return placeholder;
-
-    // If custom formatValue is provided, use it
     if (formatValue) {
-      const selectedOption = getOptionByValue(options, value);
-      return formatValue(selectedOption);
+      const selectedOpt = getOptionByValue(options, value);
+      return formatValue(selectedOpt);
     }
-
-    // Default: use label or raw value
     return getLabelByValue(options, value) || value;
   }, [value, options, formatValue, placeholder]);
 
@@ -424,7 +391,6 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
     if (!searchable || !searchQuery) return options;
 
     const lowerQuery = searchQuery.toLowerCase();
-
     const filtered: (SelectOption | GroupedOption)[] = [];
 
     options.forEach((option) => {
@@ -433,8 +399,6 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
       if (isGroup) {
         const matchingItems = option.options?.filter((opt) => {
           if (filterOption) return filterOption(opt, lowerQuery);
-
-          // Default Fuzzy Match
           return (
             opt.label.toLowerCase().includes(lowerQuery) ||
             opt.value.toLowerCase().includes(lowerQuery)
@@ -448,8 +412,8 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
         const isMatch = filterOption
           ? filterOption(option as SelectOption, lowerQuery)
           : (
-            option.label.toLowerCase().includes(lowerQuery) ||
-            option.value.toLowerCase().includes(lowerQuery)
+            (option as SelectOption).label.toLowerCase().includes(lowerQuery) ||
+            (option as SelectOption).value.toLowerCase().includes(lowerQuery)
           );
 
         if (isMatch) {
@@ -461,7 +425,51 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
     return filtered;
   }, [options, searchQuery, searchable, filterOption]);
 
-  //const currentLabel = getLabelByValue(options, value);
+  // --- Helper: Keyboard Navigation ---
+  const flattenedOptions = useMemo(() => flattenOptions(filteredOptions), [filteredOptions]);
+  const hasCreatableOption = creatable && searchQuery && !getOptionByValue(filteredOptions, searchQuery);
+
+  const navOptions = useMemo(() => {
+    if (hasCreatableOption) {
+      return [...flattenedOptions, {value: searchQuery, label: `Create "${searchQuery}"`, isCreatable: true}];
+    }
+    return flattenedOptions;
+  }, [flattenedOptions, hasCreatableOption, searchQuery]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!isOpen) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setFocusedIndex((prev) => {
+          if (navOptions.length === 0) return -1;
+          return prev < navOptions.length - 1 ? prev + 1 : prev;
+        });
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setFocusedIndex((prev) => {
+          if (prev <= 0) return 0;
+          return prev - 1;
+        });
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (focusedIndex >= 0 && navOptions[focusedIndex]) {
+          const option = navOptions[focusedIndex];
+          if ('isCreatable' in option) {
+            onCreateOption?.(option.value);
+          }
+          onChange?.(option.value);
+          setIsOpen(false);
+        }
+        break;
+      case 'Escape':
+        setIsOpen(false);
+        break;
+    }
+  }, [isOpen, navOptions, focusedIndex, onChange, onCreateOption]);
 
   // ==========================================
   // 1. Standard Non-Searchable Select
@@ -475,25 +483,37 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
         onValueChange={onChange}
         onOpenChange={(open) => setIsOpen(open)}>
         <Select.Trigger
-          className={`w-[${triggerWidth}]`}
+          className={(/^[0-9]/.test(triggerWidth) ? `w-[${triggerWidth}]` : triggerWidth) + ' SelectTrigger'}
           style={{width: triggerWidth}}>
-          <Flex align="center" gap="2" as="span" className="overflow-hidden">
-            {icon}
-            <Text className="truncate" size="2">
-              {triggerContent}
+          {/* Left Side: Icon and Text */}
+          <Flex align="center" gap="2" as="span" className="overflow-hidden" style={{flex: 1}}>
+            {/* FIX: Added color="gray" for Light theme visibility */}
+            <Text className="truncate flex" size="2" color="gray">
+              {selectedOption?.(triggerContent as string, getOptionByValue(options, value)!) ?? triggerContent}
             </Text>
           </Flex>
-          {loading && <LoadingDots/>}
-          {clearable && value && !disabled && (
-            <Box
-              position="absolute"
-              right="8"
-              onClick={handleClear}
-              style={{cursor: 'pointer', pointerEvents: 'auto', zIndex: 10}}>
-              <CrossCircledIcon height="14" width="14" color="gray"/>
-            </Box>
-          )}
+
+          {/* Right Side: Loading, Clear, Arrow Icon */}
+          {/* Using Flex to group controls naturally without absolute positioning conflicts */}
+          <Flex align="center" gap="2">
+            {loading && <LoadingDots />}
+
+            {clearable && value && !disabled && (
+              <CrossCircledIcon
+                height="14"
+                width="14"
+                color="gray"
+                className="hover:text-red-500"
+                onClick={handleClear}
+                style={{cursor: 'pointer', zIndex: 1230}}
+              />
+            )}
+
+            {/* Conditional Arrow Icon */}
+            {isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />}
+          </Flex>
         </Select.Trigger>
+
         <Select.Content>
           <Select.Group>
             {options.map((opt, idx) => {
@@ -526,8 +546,6 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
   // 2. Searchable Combobox (Popover based)
   // ==========================================
 
-  const hasCreatableOption = creatable && searchQuery && !getOptionByValue(filteredOptions, searchQuery);
-
   return (
     <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
       <Popover.Trigger>
@@ -536,38 +554,46 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
           justify="between"
           className={`w-[${triggerWidth}] h-9 px-2 rounded-md border border-gray-6 bg-gray-1 hover:bg-gray-2 data-[state=open]:bg-gray-2 cursor-pointer text-sm transition-colors`}
           style={{width: triggerWidth}}
-          tabIndex={0}>
+          tabIndex={0}
+        >
           <Flex align="center" gap="2" className="overflow-hidden">
             {icon}
-            {/* Render content via helper or default */}
-            <Text className="truncate text-gray-11" size="2">
-              {triggerContent}
+            <Text className="truncate" size="2" color="gray">
+              {selectedOption?.(triggerContent as string, getOptionByValue(options, value)!) ?? triggerContent}
             </Text>
           </Flex>
-          {loading && <CrossCircledIcon className="animate-spin"/>}
-          {!loading && clearable && value && (
-            <CrossCircledIcon
-              className="hover:text-red-500"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleClear(e);
-              }}
-            />
-          )}
+
+          <Flex align="center" gap="2">
+            {loading && <LoadingDots />}
+            {!loading && clearable && value && (
+              <CrossCircledIcon
+                className="hover:text-red-500"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClear(e);
+                }}
+              />
+            )}
+            {!loading && (
+              isOpen ? <ChevronUpIcon /> : <ChevronDownIcon />
+            )}
+          </Flex>
         </Flex>
       </Popover.Trigger>
 
       <Popover.Content
         style={{width: triggerWidth, padding: 0, zIndex: 50}}
         align="start"
-        sideOffset={4}>
-        {/* Search Header */}
+        sideOffset={4}
+        onKeyDown={handleKeyDown}
+      >
         <Box px="2" pt="2" pb="0">
           <TextField.Root
             placeholder="Search..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            autoFocus>
+            ref={inputRef}
+          >
             <TextField.Slot>
               <MagnifyingGlassIcon height="14" width="14"/>
             </TextField.Slot>
@@ -597,28 +623,35 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
                       <Text size="1" weight="bold" color="gray" className="px-3 py-1">
                         {opt.label}
                       </Text>
-                      {opt.options?.map((groupOpt) => (
-                        <ComboboxItem
-                          key={groupOpt.value}
-                          option={groupOpt} // Passing full object
-                          isSelected={value === groupOpt.value}
-                          onSelect={() => {
-                            onChange?.(groupOpt.value);
-                            setIsOpen(false);
-                          }}
-                          formatLabel={formatLabel}
-                          renderOption={renderOption}
-                        />
-                      ))}
+                      {opt.options?.map((groupOpt) => {
+                        const navIndex = navOptions.findIndex(o => o.value === groupOpt.value);
+                        return (
+                          <ComboboxItem
+                            key={groupOpt.value}
+                            option={groupOpt}
+                            isSelected={value === groupOpt.value}
+                            isFocused={focusedIndex === navIndex}
+                            onSelect={() => {
+                              onChange?.(groupOpt.value);
+                              setIsOpen(false);
+                            }}
+                            formatLabel={formatLabel}
+                            renderOption={renderOption}
+                          />
+                        );
+                      })}
                     </Box>
                   );
                 }
 
+                const navIndex = navOptions.findIndex(o => o.value === opt.value);
+
                 return (
                   <ComboboxItem
                     key={opt.value}
-                    option={opt as SelectOption} // Passing full object
+                    option={opt as SelectOption}
                     isSelected={value === opt.value}
+                    isFocused={focusedIndex === navIndex}
                     onSelect={() => {
                       onChange?.(opt.value);
                       setIsOpen(false);
@@ -630,11 +663,11 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
               })
             )}
 
-            {/* Creatable Option */}
             {hasCreatableOption && (
               <ComboboxItem
                 option={{value: searchQuery, label: `Create "${searchQuery}"`}}
                 isSelected={false}
+                isFocused={focusedIndex === navOptions.length - 1}
                 onSelect={() => {
                   onCreateOption?.(searchQuery);
                   onChange?.(searchQuery);
@@ -675,6 +708,11 @@ export interface ComboboxItemProps {
    * Whether the option is currently selected.
    */
   isSelected: boolean;
+
+  /**
+   * Whether the option is currently focused.
+   */
+  isFocused: boolean;
 
   /**
    * Callback function to trigger when the option is selected.
@@ -721,6 +759,7 @@ const ComboboxItem: React.FC<ComboboxItemProps> = (props) => {
   const {
     option,
     isSelected,
+    isFocused,
     onSelect,
     formatLabel,
     renderOption,
@@ -731,7 +770,12 @@ const ComboboxItem: React.FC<ComboboxItemProps> = (props) => {
     return <>{renderOption(option, isSelected, onSelect)}</>;
   }
 
-// Default styling with potential label formatting
+  const bgClass = isSelected
+    ? 'bg-indigo-5'
+    : isFocused
+      ? 'bg-gray-4 text-gray-12'
+      : 'hover:bg-gray-4 text-gray-12';
+
   return (
     <Flex
       align="center"
@@ -739,12 +783,9 @@ const ComboboxItem: React.FC<ComboboxItemProps> = (props) => {
       px="3"
       py="2"
       mx="2"
-      className={`rounded-md text-sm cursor-pointer transition-colors ${
-        isSelected
-          ? 'bg-indigo-5 text-white'
-          : 'hover:bg-gray-4 text-gray-12'
-      }`}
-      onClick={onSelect}>
+      className={`rounded-md text-sm cursor-pointer transition-colors ${bgClass}`}
+      onClick={onSelect}
+    >
       <Flex align="center" gap="2" className="flex-1 overflow-hidden">
         {formatLabel ? formatLabel(option) : (
           <Text className="truncate">{option.label}</Text>
@@ -754,4 +795,3 @@ const ComboboxItem: React.FC<ComboboxItemProps> = (props) => {
     </Flex>
   );
 };
-
