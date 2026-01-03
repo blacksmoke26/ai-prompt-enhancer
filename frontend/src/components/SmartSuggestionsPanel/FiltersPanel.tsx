@@ -5,13 +5,14 @@
  */
 
 import React from 'react';
+import {TextField} from '@radix-ui/themes';
 
 // ui components
-import {Input} from '~/components/ui/Input.tsx';
-import {Select} from '~/components/ui/Select.tsx';
+import {Input} from '~/components/ui/Input';
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
 
 // constants
-import {categories, complexities, intelligenceLevels} from '~/constants/prompt-suggestions.ts';
+import {categories, complexities, intelligenceLevels} from '~/constants/prompt-suggestions';
 
 /**
  * Interface defining the props for the `FiltersPanel` component.
@@ -101,25 +102,27 @@ const FiltersPanel = (props: FiltersPanelProps) => {
   return (
     <div className="mb-4 flex flex-col md:flex-row gap-3">
       <div className="flex-1 min-w-[200px] relative">
-        <Input
+        <TextField.Root
           type="text"
           placeholder="Search suggestions by keyword, tag, or description..."
-          className="w-full pl-10 pr-4 py-2 text-sm"
+          className="w-full pr-4 py-2 text-sm"
           value={props.value}
           onChange={props.onQueryChange}
-        />
-        <div className="absolute left-3 top-2.5 text-gray-500">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24"
-               stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-          </svg>
-        </div>
+        >
+          <TextField.Slot>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+          </TextField.Slot>
+        </TextField.Root>
+
       </div>
 
       <div className="flex gap-3 flex-wrap">
-        <Select
-          className="min-w-[150px]"
+        <SelectAdvanced
+          triggerWidth="min-w-[180px]"
           value={props.category}
           options={[
             {label: 'All Categories', value: 'all'},
@@ -128,8 +131,8 @@ const FiltersPanel = (props: FiltersPanelProps) => {
           onChange={value => props.onCategoryChange(value as string)}
         />
 
-        <Select
-          className="min-w-[150px]"
+        <SelectAdvanced
+          triggerWidth="min-w-[190px]"
           value={props.complexity}
           options={[
             {label: 'All Complexities', value: 'all'},
@@ -138,8 +141,8 @@ const FiltersPanel = (props: FiltersPanelProps) => {
           onChange={value => props.onComplexityChange(value as string)}
         />
 
-        <Select
-          className="min-w-[170px]"
+        <SelectAdvanced
+          triggerWidth="min-w-[230px]"
           value={props.intelligence}
           options={[
             {label: 'All Intelligence Levels', value: 'all'},

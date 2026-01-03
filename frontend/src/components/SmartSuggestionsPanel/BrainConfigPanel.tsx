@@ -9,11 +9,11 @@ import {Brain, BrainCircuit, LayersIcon} from 'lucide-react';
 import {Slider} from '@radix-ui/themes';
 
 // libs
-import {EnhancedAIBrainConfig} from '~/lib/ai-brain-enhanced.ts';
+import {EnhancedAIBrainConfig} from '~/lib/ai-brain-enhanced';
 
 // ui components
-import {Switch} from '~/components/ui/Switch.tsx';
-import {Select} from '~/components/ui/Select.tsx';
+import {Switch} from '~/components/ui/Switch';
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
 
 /**
  * Defines the props for the BrainConfigPanel component, which allows users to configure AI brain settings with optional advanced mode toggles.
@@ -110,8 +110,10 @@ const BrainConfigPanel: React.FC<BrainConfigPanelProps> = (props) => {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium">Intelligence Mode</label>
-        <Select
+        <div><label className="text-sm font-medium">Intelligence Mode</label></div>
+        <SelectAdvanced
+          clearable={false}
+          triggerWidth="w-full"
           value={localConfig.core?.enableEthicalFramework ? 'ethics-focused' : 'performance-focused'}
           options={[
             {label: 'Performance Focused', value: 'performance-focused'},

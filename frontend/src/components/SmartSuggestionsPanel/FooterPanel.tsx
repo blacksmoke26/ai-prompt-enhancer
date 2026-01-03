@@ -6,7 +6,7 @@
 
 import React from 'react';
 import {RefreshCw, Settings} from 'lucide-react';
-import {Dialog, Flex} from '@radix-ui/themes';
+import {Dialog, Flex, Button} from '@radix-ui/themes';
 
 // libs
 import {EnhancedAIBrainV3} from '~/lib/ai-brain-enhanced';
@@ -16,7 +16,6 @@ import {SmartSuggestion} from '~/constants/prompt-suggestions';
 
 // ui  components
 import {Badge} from '~/components/ui/Badge';
-import {Button} from '~/components/ui/Button';
 import {CardFooter} from '~/components/ui/Card';
 
 // components
@@ -105,7 +104,6 @@ const FooterPanel: React.FC<FooterPanelProps> = (props) => {
           <Dialog.Trigger>
             <Button
               variant="outline"
-              size="sm"
               className="hidden md:flex"
             >
               <Settings className="mr-1 h-3 w-3"/>
@@ -137,15 +135,14 @@ const FooterPanel: React.FC<FooterPanelProps> = (props) => {
         </Dialog.Root>
 
         <Button
-          variant="secondary"
-          size="sm"
+          color="iris"
           onClick={props.onReanalyzeClick}
         >
           <RefreshCw className="mr-1 h-3 w-3"/>
           Re-analyze
         </Button>
-        <Button variant="ghost" size="sm" onClick={props.onCloseClick}>
-          Close Panel
+        <Button className="ml-1 mr-1" variant="ghost" onClick={props.onCloseClick}>
+          Close
         </Button>
       </div>
     </CardFooter>
