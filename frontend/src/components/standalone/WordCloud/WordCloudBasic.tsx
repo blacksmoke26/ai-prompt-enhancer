@@ -42,22 +42,75 @@ import {useAppStore} from '~/stores/appStore.ts';
 // types
 import type {AppConfig} from '~/types';
 
-export interface WordCloudProps {
+/**
+ * Defines the props for the `WordCloudBasic` component, including text input, word frequency data, visibility state, and optional UI controls.
+ * @example
+ * const props = {
+ *   text: "This is a sample text for the basic word cloud",
+ *   showWordCloudBasic: true,
+ *   setShowWordCloudBasic: setShowWordCloudBasic,
+ *   showAdvancedControls: true,
+ * };
+ * <WordCloudBasic {...props} />
+ * @developerNotes
+ * - `text` and `wordFrequency` are mutually optional — provide one or the other.
+ * - `showAdvancedControls` defaults to `false` if not provided.
+ * - Designed for integration with React's state management via `useState`.
+ */
+export interface WordCloudBasicProps {
+  /**
+   * The raw text input to generate the word cloud from.
+   * If not provided, `wordFrequency` must be used instead.
+   */
   text?: string;
-  /** Pre-calculated word frequency array (optional if text is provided) */
+
+  /**
+   * Pre-calculated word frequency array for rendering.
+   * Optional if `text` is provided.
+   */
   wordFrequency?: Array<{ word: string; count: number }>;
-  showWordCloud: boolean;
-  setShowWordCloud: React.Dispatch<React.SetStateAction<boolean>>;
+
+  /**
+   * Controls the visibility of the word cloud.
+   * Required prop to manage state via React.
+   */
+  showWordCloudBasic: boolean;
+
+  /**
+   * Function to update the visibility state of the word cloud.
+   * Required for managing component state.
+   */
+  setShowWordCloudBasic: React.Dispatch<React.SetStateAction<boolean>>;
+
+  /**
+   * Optional flag to show/hide advanced controls in the UI.
+   * Defaults to `false` if not provided.
+   */
   showAdvancedControls?: boolean;
 }
 
-// ─── MAIN COMPONENT ────────────────────────────────────────────
-const WordCloud: React.FC<WordCloudProps> = (props) => {
+/**
+ * A React functional component for rendering a basic word cloud using either raw text or pre-calculated word frequency data.
+ * @example
+ * const [showWordCloud, setShowWordCloud] = useState(true);
+ *
+ * <WordCloudBasic
+ *   text="This is a sample text for the basic word cloud"
+ *   showWordCloudBasic={showWordCloud}
+ *   setShowWordCloudBasic={setShowWordCloud}
+ *   showAdvancedControls={true}
+ * />
+ * @developerNotes
+ * - Renders words either from raw text (processed internally) or from a pre-calculated `wordFrequency` array.
+ * - Uses React's `useState` for visibility control via `showWordCloudBasic` and `setShowWordCloudBasic`.
+ * - Optional `showAdvancedControls` toggles UI elements like filters or settings.
+ */
+const WordCloudBasic: React.FC<WordCloudBasicProps> = (props) => {
   const {
     text,
     wordFrequency: externalWordFrequency = [],
-    showWordCloud,
-    setShowWordCloud,
+    showWordCloudBasic,
+    setShowWordCloudBasic,
     showAdvancedControls = true,
   } = props;
 
@@ -70,7 +123,7 @@ const WordCloud: React.FC<WordCloudProps> = (props) => {
   const [expandedInsights, setExpandedInsights] = useState(false);
   const [selectedInsightCategory, setSelectedInsightCategory] = useState<string | null>(null);
 
-  if (!showWordCloud) return null;
+  if (!showWordCloudBasic) return null;
 
   const {processedWords, insights} = useMemo(() => {
     if (!text) {
@@ -195,7 +248,7 @@ const WordCloud: React.FC<WordCloudProps> = (props) => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setShowWordCloud(false)}
+            onClick={() => setShowWordCloudBasic(false)}
             className="hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20"
           >
             <EyeOff className="h-4 w-4"/>
@@ -666,4 +719,4 @@ const WordCloud: React.FC<WordCloudProps> = (props) => {
   );
 };
 
-export default WordCloud;
+export default WordCloudBasic;

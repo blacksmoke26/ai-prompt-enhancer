@@ -14,7 +14,7 @@ import {MdxEditor} from '~/components/ui/MdxEditor';
 
 // components
 import TextStats from './TextStats';
-import WordCloud from './WordCloud';
+import WordCloud from '~/components/standalone/WordCloud/WordCloudAdvance';
 import SmartSuggestionsTrigger from './SmartSuggestionsTrigger';
 import EnhancedPrompt, {type EnhancedPromptResponse} from './EnhancedPrompt';
 
