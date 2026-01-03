@@ -14,7 +14,7 @@ import {useAppStore} from '~/stores/appStore';
 import {toSelectGroupedOptionsPlain} from '~/utils/helpers';
 
 // ui components
-import {Select} from '~/components/ui/Select';
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
 
 /**
  * Tone input component for AI configuration
@@ -30,12 +30,17 @@ const ResponseLengthInput: React.FC = () => {
 
   return (
     <div className="space-y-2">
-      <Select
-        placeholder="Select Response Length"
-        value={config?.responseLength}
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <strong><AudioLines className="inline-flex display-inline" size="16"/> Response Length</strong>
+      </label>
+      <SelectAdvanced
+        placeholder="Select output format"
+        searchable
+        triggerWidth="w-full"
+        value={config?.responseLength as string}
         onChange={v => handleChange(v as string)}
         options={toSelectGroupedOptionsPlain(responseLengths.filter(x => !x.hidden))}
-        label={<strong><AudioLines className="inline-flex display-inline" size="16"/> Response Length</strong>}
       />
     </div>
   );

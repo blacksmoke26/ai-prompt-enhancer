@@ -5,17 +5,17 @@
  */
 
 import React, {useMemo} from 'react';
-import {Brain} from 'lucide-react';
+import {Brain, Cloud} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import {Select} from '~/components/ui/Select';
 import {Badge} from '~/components/ui/Badge';
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
 
 // utils
-import {toSelectGroupedOptions} from '~/utils/helpers.ts';
+import {toSelectGroupedOptions} from '~/utils/helpers';
 
 /**
  * Interface defining the props for the ModelSelector component.
@@ -50,25 +50,29 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
   const selectedModelData = models.find(model => model.id === config.model);
 
   return (
-    <div className={className}>
-      <Select
-        isSearchable
-        value={config.model}
+    <div className={`space-y-2 ${className || ''}`}>
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <strong><Brain className="inline-flex display-inline" size="16"/> AI Model</strong>
+      </label>
+      <SelectAdvanced
+        searchable
+        clearable={false}
+        triggerWidth="w-full"
         onChange={name => setConfig({model: name as string}, true)}
+        value={config.model as string}
         options={toSelectGroupedOptions(filteredModels as any, 'provider')}
-        label={<strong><Brain className="inline-flex display-inline" size="16"/> AI Model</strong>}
-        formatOptionLabel={(option, context) => {
-          return context?.context === 'menu'
-            ? <div><Brain className="inline-flex" size="16"/> {option.label} <span
-              className="text-xs">({option.value?.replace?.(option.label + ':', '')})</span><p
-              className="text-xs pl-5 mt-1">{option.description}</p></div>
-            : (
-              <div>
-                {option.label} <span className="text-xs">({option?.value?.replace?.(option.label + ':', '')})</span>
-              </div>
-            );
-        }}
+        formatLabel={option => (
+          <div><Brain className="inline-flex" size="16"/> {option.label} <span
+            className="text-xs">({option.value?.replace?.(option.label + ':', '')})</span><p
+            className="text-xs pl-5 mt-1">{option.description}</p></div>
+        )}
         disabled={!config.provider}
+        selectedOption={(_, option) => (
+          <div>
+            {option.label} <span className="text-xs">({option?.value?.replace?.(option.label + ':', '')})</span>
+          </div>
+        )}
       />
       {selectedModelData && (
         <div className="mt-2 flex flex-wrap gap-2">

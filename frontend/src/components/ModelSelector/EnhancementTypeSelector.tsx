@@ -5,17 +5,17 @@
  */
 
 import React from 'react';
-import {Type} from 'lucide-react';
+import {Cloud, Type} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import {Select} from '~/components/ui/Select';
 import {Badge} from '~/components/ui/Badge';
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
 
 // utils
-import {toSelectGroupedOptions} from '~/utils/helpers.ts';
+import {toSelectGroupedOptions} from '~/utils/helpers';
 
 export interface EnhancementTypeSelectorProps {
   className?: string;
@@ -28,21 +28,27 @@ const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({classN
   const selectedEnhancementData = enhancementTypes.find(type => type.id === config.enhancementType);
 
   return (
-    <div className={className}>
-      <Select
-        isSearchable={true}
-        value={config.enhancementType}
-        onChange={(value) => {
-          setConfig({enhancementType: value as string}, true);
-        }}
+    <div className={`space-y-2 ${className || ''}`}>
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        {<strong><Type className="inline-flex display-inline" size="16"/> Enhancement Type</strong>}
+      </label>
+      <SelectAdvanced
+        searchable
+        clearable={false}
+        triggerWidth="w-full"
+        value={config.enhancementType as string}
+        onChange={(e) => setConfig({enhancementType: e as string}, true)}
         options={toSelectGroupedOptions(enhancementTypes.filter(x => !x.hidden))}
-        label={<strong><Type className="inline-flex display-inline" size="16"/> Enhancement Type</strong>}
-        formatOptionLabel={(option, context) => {
-          return context?.context === 'menu'
-            ? <div><Type className="inline-flex" size="16"/> {option.label}<p
-              className="text-xs pl-5 mt-1">{option.description}</p></div>
-            : <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
-        }}
+        formatLabel={option => (
+          <div><Type className="inline-flex" size="16"/> {option.label}
+            <p
+              className="text-xs pl-5 mt-1">{option.description}</p>
+          </div>
+        )}
+        selectedOption={(_, option) => (
+          <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>
+        )}
       />
       {selectedEnhancementData && (
         <p className="mt-1 text-xs text-muted-foreground">

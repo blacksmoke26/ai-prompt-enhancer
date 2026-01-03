@@ -16,6 +16,7 @@ import {Badge} from '~/components/ui/Badge';
 
 // utils
 import {toSelectGroupedOptions} from '~/utils/helpers.ts';
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced.tsx';
 
 interface UserRoleSelectorProps {
   className?: string;
@@ -28,19 +29,26 @@ const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => 
   const selectedRoleData = userRoles.find(role => role.id === config.userRole);
 
   return (
-    <div className={className}>
-      <Select
-        isSearchable
-        value={config.userRole}
+    <div className={`space-y-2 ${className || ''}`}>
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <strong><User2 className="inline-flex display-inline" size="16"/> User Role</strong>
+      </label>
+      <SelectAdvanced
+        searchable
+        clearable={false}
+        triggerWidth="w-full"
+        value={config.userRole as string}
         onChange={(e) => setConfig({userRole: e as string}, true)}
         options={toSelectGroupedOptions(userRoles.filter(x => !x.hidden))}
-        label={<strong><User2 className="inline-flex display-inline" size="16"/> User Role</strong>}
-        formatOptionLabel={(option, context) => {
-          return context?.context === 'menu'
-            ? <div><User2 className="inline-flex" size="16"/> {option.label}<p
-              className="text-xs pl-5 mt-1">{option.description}</p></div>
-            : <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>;
-        }}
+        formatLabel={option => (
+          <div><User2 className="inline-flex" size="16"/> {option.label}<p
+            className="text-xs pl-5 mt-1">{option.description}</p>
+          </div>
+        )}
+        selectedOption={(_, option) => (
+          <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>
+        )}
       />
       {selectedRoleData && (
         <p className="mt-1 text-xs text-muted-foreground">

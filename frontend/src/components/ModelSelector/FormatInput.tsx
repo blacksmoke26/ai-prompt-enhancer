@@ -10,7 +10,7 @@ import React from 'react';
 import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import {Select} from '~/components/ui/Select';
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
 
 // types
 import type {ResponseOutputFormat} from '~/types';
@@ -29,11 +29,14 @@ const FormatInput: React.FC = () => {
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Output Format
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <strong>Output Format</strong>
       </label>
-      <Select
+      <SelectAdvanced
+        searchable
         placeholder="Select output format"
+        triggerWidth="w-full"
         value={config?.format ?? 'markdown'}
         onChange={v => handleChange(v as ResponseOutputFormat)}
         options={[

@@ -10,7 +10,7 @@ import React from 'react';
 import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import {Select} from '~/components/ui/Select';
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
 
 /**
  * Target audience input component for AI configuration
@@ -26,12 +26,15 @@ const TargetAudienceInput: React.FC = () => {
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Target Audience
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <strong>Target Audience</strong>
       </label>
-      <Select
+      <SelectAdvanced
         placeholder="Select target audience"
-        value={config.targetAudience}
+        searchable
+        triggerWidth="w-full"
+        value={config.targetAudience as string}
         onChange={value => handleChange(value as string)}
         options={[
           {value: 'general', label: 'General'},

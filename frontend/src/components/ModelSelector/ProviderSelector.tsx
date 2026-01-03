@@ -6,13 +6,21 @@
 
 import React, {useMemo} from 'react';
 import {Cloud} from 'lucide-react';
+
+// hooks
 import {useAppStore} from '~/stores/appStore';
-import {Select} from '~/components/ui/Select';
+
+// ui components
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
 
 export interface ProviderSelectorProps {
+  /** Class name for the component */
   className?: string;
 }
 
+/**
+ * The ProviderSelector component
+ */
 const ProviderSelector: React.FC<ProviderSelectorProps> = ({className = ''}) => {
   const {models, providers, config, setConfig} = useAppStore();
 
@@ -33,18 +41,21 @@ const ProviderSelector: React.FC<ProviderSelectorProps> = ({className = ''}) => 
   }, [models, providers]);
 
   return (
-    <Select
-      isSearchable
-      value={config.provider}
-      onChange={value => setConfig({provider: value as string}, true)}
-      options={providerOptions}
-      label={<strong><Cloud className="inline-flex display-inline" size="16"/> AI Provider</strong>}
-      formatOptionLabel={(option, context) => {
-        return context?.context === 'menu'
-          ? <div><Cloud className="inline-flex" size="16"/> {option.label}</div>
-          : <div>{option.label}</div>;
-      }}
-    />
+    <div className={`space-y-2 ${className || ''}`}>
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <strong><Cloud className="inline-flex display-inline" size="16"/> AI Provider</strong>
+      </label>
+      <SelectAdvanced
+        searchable
+        clearable={false}
+        triggerWidth="w-full"
+        onChange={value => setConfig({provider: value as string}, true)}
+        value={config.provider as string}
+        options={providerOptions}
+        formatLabel={option => <div><Cloud className="inline-flex display-inline mr-1" size="16"/> {option.label}</div>}
+      />
+    </div>
   );
 };
 

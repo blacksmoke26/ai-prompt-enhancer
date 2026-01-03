@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import {Speech} from 'lucide-react';
+import {AudioLines} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -14,7 +14,7 @@ import {useAppStore} from '~/stores/appStore';
 import {toSelectGroupedOptionsPlain} from '~/utils/helpers';
 
 // ui components
-import {Select} from '~/components/ui/Select';
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
 
 /**
  * Tone input component for AI configuration
@@ -30,12 +30,17 @@ const ToneInput: React.FC = () => {
 
   return (
     <div className="space-y-2">
-      <Select
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <strong><AudioLines className="inline-flex display-inline" size="16"/> Response Length</strong>
+      </label>
+      <SelectAdvanced
         placeholder="Select tone"
-        value={config?.tone}
+        searchable
+        triggerWidth="w-full"
+        value={config?.tone as string}
         onChange={v => handleChange(v as string)}
         options={toSelectGroupedOptionsPlain(tones.filter(x => !x.hidden))}
-        label={<strong><Speech className="inline-flex display-inline" size="16"/> Tone</strong>}
       />
     </div>
   );
