@@ -43,7 +43,7 @@ export default [
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       'react-hooks/exhaustive-deps': 'warn',
-      'react-refresh/only-export-components': 'warn',
+      'react-refresh/only-export-components': 'off',
       'no-console': 'off',
       'no-debugger': 'off',
       'no-undef': 'off',
