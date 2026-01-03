@@ -40,6 +40,28 @@
     animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
 }
 
+svg.rt-SelectIcon {
+  display: none;
+}
+
+.rt-SelectTriggerInner>span {
+    display: flex;
+    width: 100%;
+    z-index: 10000;
+}
+
+button.rt-reset.rt-SelectTrigger {
+    display: inline-block;
+}
+
+.SelectTrigger {
+    appearance: none; /* for Chrome, Safari, Opera, and Edge */
+    -moz-appearance: none; /* for Firefox */
+    -webkit-appearance: none; /* for Safari */
+    /* Optionally, you might need to handle IE10+ with a vendor prefix */
+    /* -ms-appearance: none; */
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;
