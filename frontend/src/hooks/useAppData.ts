@@ -10,10 +10,10 @@ import {useEffect, useState} from 'react';
 import {useAppStore} from '~/stores/appStore';
 
 // services
+import ToneService from '~/services/ToneService';
 import PromptService from '~/services/PromptService';
 import ConfigService from '~/services/ConfigService';
 import UserRoleService from '~/services/UserRoleService';
-import ToneService from '~/services/ToneService';
 import ResponseLengthService from '~/services/ResponseLengthService';
 import EnhancementTypeService from '~/services/EnhancementTypeService';
 
@@ -64,24 +64,15 @@ export const useAppData = () => {
       setError(null);
 
       // Load all data in parallel
-      const [models, providers, enhancementTypes, userRoles, appConfig, responseLengths, tones] = await Promise.all([
-        PromptService.getModels(),
-        PromptService.getProviders(),
-        EnhancementTypeService.getAll(),
-        UserRoleService.getAll(),
-        ConfigService.getConfig(),
-        ResponseLengthService.getAll(),
-        ToneService.getAll(),
+      await Promise.all([
+        ToneService.getAll().then(setTones),
+        ConfigService.getConfig().then(setConfig),
+        PromptService.getModels().then(setModels),
+        UserRoleService.getAll().then(setUserRoles),
+        PromptService.getProviders().then(setProviders),
+        ResponseLengthService.getAll().then(setResponseLengths),
+        EnhancementTypeService.getAll().then(setEnhancementTypes),
       ]);
-
-      setModels(models);
-      setProviders(providers);
-      setEnhancementTypes(enhancementTypes);
-      setUserRoles(userRoles);
-      setConfig(appConfig);
-      setResponseLengths(responseLengths);
-      setTones(tones);
-
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
