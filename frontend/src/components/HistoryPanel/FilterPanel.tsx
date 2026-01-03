@@ -13,6 +13,7 @@ import {useAppStore} from '~/stores/appStore.ts';
 import {Input} from '~/components/ui/Input';
 import {Select} from '~/components/ui/Select';
 import {Label} from '~/components/ui/Label';
+import {AdvancedInput} from '~/components/ui/AdvancedInput';
 import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
 
 /**
@@ -194,10 +195,12 @@ const FilterPanel: React.FC<FilterPanelProps> = (props) => {
         {/* Search */}
         <div>
           <Label htmlFor="history-search">Search</Label>
-          <Input
+          <AdvancedInput
+            allowClear shakeOnLimitReach={true} maxLength={100}
+            onClearClick={() => setSearchQuery('')}
             id="history-search"
-            placeholder="Search prompts…"
-            value={searchQuery}
+            placeholder="Search prompts..."
+            value={searchQuery} debounceMs={300}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
@@ -272,7 +275,8 @@ const FilterPanel: React.FC<FilterPanelProps> = (props) => {
         <div className="sm:col-span-2 md:col-span-3">
           <Label>Date Range</Label>
           <div className="flex items-center gap-2 mt-1">
-            <Input
+            <AdvancedInput allowClear allowCopy
+                           onClearClick={() => setDateRange([null, endDate])}
               type="date"
               value={startDate ?? ''}
               onChange={(e) => setDateRange([e.target.value || null, endDate])}
