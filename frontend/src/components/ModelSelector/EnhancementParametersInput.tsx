@@ -46,8 +46,7 @@ const EnhancementParametersInput: React.FC = () => {
     }
   }, [debouncedValue]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const value = e.target.value;
+  const handleChange = (value) => {
     setEnhancementParameters(value);
   };
 

@@ -104,10 +104,10 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
             <AdvancedTextarea
               maxLength={300} showCopyButton
               value={localConfig.defaultSystemPrompt}
-              onChange={(e) =>
+              onChange={value =>
                 setLocalConfig({
                   ...localConfig,
-                  defaultSystemPrompt: e.target.value,
+                  defaultSystemPrompt: value,
                 })
               }
               placeholder="Enter default system prompt..."
