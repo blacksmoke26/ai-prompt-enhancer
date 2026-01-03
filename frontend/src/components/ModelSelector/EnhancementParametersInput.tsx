@@ -10,7 +10,7 @@ import React, {useEffect, useState} from 'react';
 import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import {Textarea} from '~/components/ui/Textarea';
+import {AdvancedTextarea} from '~/components/ui/AdvancedTextarea';
 
 // hooks
 import useDebounce from '~/hooks/useDebounce';
@@ -56,7 +56,7 @@ const EnhancementParametersInput: React.FC = () => {
       <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
         Enhancement Parameters
       </label>
-      <Textarea
+      <AdvancedTextarea jsonMode={true} enableAutoClosing={true}
         value={enhancementParameters}
         onChange={handleChange}
         placeholder="Enter enhancement parameters as JSON (e.g. {&quot;complexity&quot;: 5, &quot;focus&quot;: &quot;performance&quot;})"

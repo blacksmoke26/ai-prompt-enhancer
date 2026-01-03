@@ -21,10 +21,10 @@ import useDebounce from '~/hooks/useDebounce';
  */
 const StopSequencesInput: React.FC = () => {
   const { config } = useAppStore();
-  const [stopSequences, setStopSequences] = useState<string>(config?.stopSequences?.join('\n') || '');
+  const [stopSequences, setStopSequences] = useState<string>(config?.stopSequences?.join?.('\n') || '');
 
   useEffect(() => {
-    setStopSequences(config?.stopSequences?.join('\n') || '');
+    setStopSequences(config?.stopSequences?.join?.('\n') || '');
   }, [config?.stopSequences]);
 
   const debouncedSetConfig = useDebounce((sequences: string[]) => {
