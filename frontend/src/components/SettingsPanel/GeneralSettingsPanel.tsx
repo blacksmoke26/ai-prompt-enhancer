@@ -5,18 +5,20 @@
  */
 
 import React from 'react';
+import {Brain} from 'lucide-react';
+import {Button} from '@radix-ui/themes';
 
 // ui components
-import {Button} from '~/components/ui/Button';
 import {Input} from '~/components/ui/Input';
-import {Select} from '~/components/ui/Select';
-import {Textarea} from '~/components/ui/Textarea';
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
+import {AdvancedTextarea} from '~/components/ui/AdvancedTextarea';
+
+// utils
+import {toSelectGroupedOptions} from '~/utils/helpers';
 
 // types
 import type {AppConfig} from '~/types';
-import type {Theme} from '~/components/ThemeProvider.tsx';
-import {toSelectGroupedOptions} from '~/utils/helpers.ts';
-import {Badge, Brain} from 'lucide-react';
+import type {Theme} from '~/components/ThemeProvider';
 
 export interface GeneralSettingsPanelProps {
   /** Current application configuration */
@@ -57,14 +59,13 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
           <div>
             <div className="text-sm font-medium mb-2">Theme</div>
             <div className="mt-2">
-              <Select
+              <SelectAdvanced
                 value={theme}
                 onChange={(e) => setTheme(e as any)}
                 options={[
                   {value: 'light', label: 'Light'},
                   {value: 'dark', label: 'Dark'},
                 ]}
-                isSearchable
               />
             </div>
           </div>
@@ -75,31 +76,33 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
         <h3 className="text-lg font-semibold mb-4">Defaults</h3>
         <div className="space-y-4">
           <div>
-            <div className="text-sm font-medium mb-2">Default Model</div>
-            <Select
-              isSearchable
+            <div className="text-sm font-medium mb-2"><Brain className="inline-flex display-inline" size="16"/> Default Model</div>
+            <SelectAdvanced
+              searchable
               value={localConfig.defaultModel}
               onChange={(e) =>
                 setLocalConfig({...localConfig, defaultModel: e as string})
               }
               options={toSelectGroupedOptions(models, 'provider')}
-              formatOptionLabel={(option, context) => {
-                return context?.context === 'menu'
-                  ? <div><Brain className="inline-flex" size="16"/> {option.label} <span
-                    className="text-xs">({option.value?.replace?.(option.label + ':', '')})</span><p
-                    className="text-xs pl-5 mt-1">{option.description}</p></div>
-                  : (
-                    <div >
-                      {option.label} <span className="text-xs">({option.value?.replace?.(option.label + ':', '')} | {option.category})</span>
-                    </div>
-                  );
-              }}
+              triggerWidth="w-full"
+              selectedOption={(_, option) => (
+                <div>
+                  {option.label} <span
+                  className="text-xs">({option.value?.replace?.(option.label + ':', '')} | {option.category})</span>
+                </div>
+              )}
+              formatLabel={option => (
+                <div>{option.label}
+                  <span className="text-xs">({option.value?.replace?.(option.label + ':', '')})</span>
+                </div>
+              )}
             />
           </div>
 
           <div>
             <label className="text-sm font-medium">Default System Prompt</label>
-            <Textarea
+            <AdvancedTextarea
+              maxLength={300} showCopyButton
               value={localConfig.defaultSystemPrompt}
               onChange={(e) =>
                 setLocalConfig({
@@ -125,7 +128,7 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
               </p>
             </div>
             <Button
-              variant={localConfig.autoSave ? 'default' : 'outline'}
+              variant={localConfig.autoSave ? 'soft' : 'outline'}
               onClick={() =>
                 setLocalConfig({...localConfig, autoSave: !localConfig.autoSave})
               }
@@ -138,6 +141,7 @@ const GeneralSettingsPanel: React.FC<GeneralSettingsPanelProps> = (props) => {
             <div className="text-sm font-medium mb-2">Max History Items</div>
             <Input
               type="number"
+              maxLength={4}
               value={localConfig.maxHistoryItems}
               onChange={(e) =>
                 setLocalConfig({
