@@ -4,11 +4,11 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useEffect, useRef, useState, useCallback} from 'react';
-import {X, Sun, Moon, Monitor, Menu, ChevronLeft, ChevronRight} from 'lucide-react';
+import React, {useEffect, useRef, useState} from 'react';
+import {ChevronLeft, ChevronRight, Menu, Monitor, Moon, Sun, X} from 'lucide-react';
 
 // hooks
-import {useTheme} from './ThemeProvider';
+import {useTheme} from '~/components/ThemeProvider';
 import {useMediaQuery} from '~/hooks/useMediaQuery';
 
 // store
@@ -17,10 +17,9 @@ import {useAppStore} from '~/stores/appStore';
 // helpers
 import {cn} from '~/utils/helpers';
 
-// components
-import {Button} from './ui/Button';
-import {Separator} from './ui/Separator';
-import {Tooltip, TooltipContent, TooltipTrigger} from './ui/Tooltip';
+// ui components
+import {Button} from '~/components/ui/Button';
+import {Tooltip, TooltipContent, TooltipTrigger} from '~/components/ui/Tooltip';
 
 /**
  * Props for the Sidebar component
@@ -76,22 +75,26 @@ export interface SidebarProps {
  * Height is managed through flexbox and viewport units for consistent behavior across devices.
  * State management is handled through Zustand for performance and theme context for theming.
  */
-const Sidebar: React.FC<SidebarProps> = ({
-                                           children,
-                                           header,
-                                           footer,
-                                           title = 'AI Prompt Enhancer',
-                                           collapsible = false,
-                                           showThemeSwitcher = true,
-                                           className,
-                                           brand
-                                         }) => {
+const Sidebar: React.FC<SidebarProps> = (props) => {
+  const {
+    children,
+    header,
+    footer,
+    title = 'AI Prompt Enhancer',
+    collapsible = false,
+    showThemeSwitcher = true,
+    className,
+    brand
+  } = props;
+
   const {sidebarOpen, setSidebarOpen} = useAppStore();
-  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
   const {theme, setTheme} = useTheme();
+
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+  const [isMounted, setIsMounted] = useState(false);
+
   const sidebarRef = useRef<HTMLDivElement>(null);
   const isDesktop = useMediaQuery('(min-width: 1024px)');
-  const [isMounted, setIsMounted] = useState(false);
 
   // Initialize mounted state for client-side rendering
   useEffect(() => {
@@ -150,14 +153,6 @@ const Sidebar: React.FC<SidebarProps> = ({
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [sidebarOpen, setSidebarOpen]);
-
-  const toggleSidebar = useCallback(() => {
-    if (isDesktop && collapsible) {
-      setSidebarCollapsed(!sidebarCollapsed);
-    } else {
-      setSidebarOpen(!sidebarOpen);
-    }
-  }, [isDesktop, collapsible, sidebarCollapsed, sidebarOpen, setSidebarCollapsed, setSidebarOpen]);
 
   // Calculate sidebar width based on state
   const sidebarWidth = isDesktop && sidebarCollapsed ? 'w-16' : 'w-64';
@@ -273,7 +268,6 @@ const Sidebar: React.FC<SidebarProps> = ({
               footer
             ) : showThemeSwitcher && (
               <>
-                <Separator className="my-2" />
                 <div className={cn(
                   'flex items-center justify-between p-2',
                   sidebarCollapsed && 'justify-center'
