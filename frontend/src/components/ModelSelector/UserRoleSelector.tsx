@@ -11,12 +11,11 @@ import {User2} from 'lucide-react';
 import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import {Select} from '~/components/ui/Select';
 import {Badge} from '~/components/ui/Badge';
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
 
 // utils
-import {toSelectGroupedOptions} from '~/utils/helpers.ts';
-import {SelectAdvanced} from '~/components/ui/SelectAdvanced.tsx';
+import {toSelectGroupedOptions} from '~/utils/helpers';
 
 interface UserRoleSelectorProps {
   className?: string;
@@ -47,7 +46,7 @@ const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => 
           </div>
         )}
         selectedOption={(_, option) => (
-          <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>
+          <div>{option?.label ?? 'N/A'} <Badge variant="outline" className="text-xs">{option?.category ?? 'N/A'}</Badge></div>
         )}
       />
       {selectedRoleData && (
