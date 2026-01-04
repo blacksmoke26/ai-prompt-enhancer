@@ -379,7 +379,7 @@ const SyntaxHighlighter: React.FC<{ json: string }> = ({json}) => {
  *   jsonMode
  *   enableAutoClosing
  *   value={value}
- *   onChange={(e) => setValue(e.target.value)}
+ *   onChange={v => setValue(v)}
  *   placeholder="Type or paste JSON here..."
  * />
  *
