@@ -180,145 +180,170 @@ export interface EnhancementType {
  * - Used for validating enhancement types data structures (e.g., in form inputs or API responses).
  * - 'hidden' is optional and not included in the required fields.
  */
-export const getEnhancementTypesJsonSchema = (): JSONSchema7 => ({
-  type: 'object',
-  properties: {
-    id: {
-      type: 'string',
-      description:
-        'Unique identifier for the enhancement (must be globally unique)',
-      examples: ['correct', 'enhance', 'optimize'],
-    },
-    key: {
-      type: 'string',
-      description:
-        'Technical key used for internal referencing and API operations',
-      examples: ['correct-grammar-spelling', 'enhance-expand', 'optimize-ai'],
-    },
-    name: {
-      type: 'string',
-      description: 'Human-readable name displayed to users',
-      examples: [
-        'Correct Grammar & Spelling',
-        'Enhance & Expand',
-        'Optimize for AI',
-      ],
-    },
-    shortDescription: {
-      type: 'string',
-      description:
-        "Brief summary of the enhancement's purpose and functionality",
-      examples: [
-        'Fix grammatical errors, spelling mistakes, and improve clarity.',
-      ],
-    },
-    longDescription: {
-      type: 'string',
-      description:
-        "Detailed explanation of the enhancement's capabilities and use cases",
-    },
-    systemPrompt: {
-      type: 'string',
-      description: 'System-specific prompt used for AI model interactions',
-    },
-    category: {
-      type: 'string',
-      description:
-        'Functional category grouping (e.g., "NLP", "DataProcessing")',
-      examples: ['Language', 'Writing', 'Technical', 'Creative'],
-    },
-    hidden: {
-      type: 'boolean',
-      description: 'Optional flag to hide the enhancement from user interfaces',
-    },
-    parameters: {
+export const getEnhancementTypesJsonSchema = (): JSONSchema7 => (
+  {
+    type: 'array',
+    description:
+      'Array of enhancement types definitions with their properties and metadata',
+    items: {
       type: 'object',
-      description: 'Configuration parameters for the enhancement',
-    },
-    chainingEnabled: {
-      type: 'boolean',
-      description: 'Whether this enhancement can be chained with others',
-    },
-    templateVariables: {
-      type: 'array',
-      items: { type: 'string' },
-      description: 'Variables available for template substitution',
-    },
-    dependencies: {
-      type: 'array',
-      items: { type: 'string' },
-      description: 'List of required prerequisite enhancements',
-    },
-    metadata: {
-      type: 'object',
-      description: 'Metadata containing versioning and authorship information',
       properties: {
-        version: {
+        id: {
           type: 'string',
-          description: 'Version number of the enhancement',
-          examples: ['1.0.0', '2.1.0'],
+          description:
+            'Unique identifier for the enhancement (must be globally unique)',
+          examples: ['correct', 'enhance', 'optimize'],
         },
-        author: {
+        key: {
           type: 'string',
-          description: 'Author or organization responsible for the enhancement',
-          examples: ['Linguistics Core Team', 'AI Optimization Lab'],
+          description:
+            'Technical key used for internal referencing and API operations',
+          examples: ['correct-grammar-spelling', 'enhance-expand', 'optimize-ai'],
         },
-        updated: {
+        name: {
           type: 'string',
-          description: 'Last updated timestamp (ISO 8601 format)',
-          format: 'date-time',
+          description: 'Human-readable name displayed to users',
+          examples: [
+            'Correct Grammar & Spelling',
+            'Enhance & Expand',
+            'Optimize for AI',
+          ],
+        },
+        shortDescription: {
+          type: 'string',
+          description:
+            "Brief summary of the enhancement's purpose and functionality",
+          examples: [
+            'Fix grammatical errors, spelling mistakes, and improve clarity.',
+          ],
+        },
+        longDescription: {
+          type: 'string',
+          description:
+            "Detailed explanation of the enhancement's capabilities and use cases",
+        },
+        systemPrompt: {
+          type: 'string',
+          description: 'System-specific prompt used for AI model interactions',
+        },
+        category: {
+          type: 'string',
+          description:
+            'Functional category grouping (e.g., "NLP", "DataProcessing")',
+          examples: ['Language', 'Writing', 'Technical', 'Creative'],
+        },
+        parameters: {
+          type: 'object',
+          description: 'Configuration parameters for the enhancement',
+        },
+        chainingEnabled: {
+          type: 'boolean',
+          description: 'Whether this enhancement can be chained with others',
+        },
+        templateVariables: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Variables available for template substitution',
+        },
+        dependencies: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'List of required prerequisite enhancements',
+        },
+        metadata: {
+          type: 'object',
+          description: 'Metadata containing versioning and authorship information',
+          properties: {
+            version: {
+              type: 'string',
+              description: 'Version number of the enhancement',
+              examples: ['1.0.0', '2.1.0'],
+            },
+            author: {
+              type: 'string',
+              description: 'Author or organization responsible for the enhancement',
+              examples: ['Linguistics Core Team', 'AI Optimization Lab'],
+            },
+            updated: {
+              type: 'string',
+              description: 'Last updated timestamp (ISO 8601 format)',
+              format: 'date-time',
+            },
+          },
+          required: ['version', 'author'],
+        },
+        tags: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Keywords for search and categorization',
+          examples: [
+            ['grammar', 'spelling', 'editing'],
+            ['prompt-engineering', 'optimization'],
+          ],
+        },
+        complexity: {
+          type: 'string',
+          enum: ['low', 'medium', 'high', 'expert'],
+          description: 'Complexity level of the enhancement',
+        },
+        experimental: {
+          type: 'boolean',
+          description: 'Experimental flag indicating unstable or preview status',
+        },
+        exampleUsage: {
+          type: 'string',
+          description: 'Example of how to use this enhancement in practice',
+        },
+        performance: {
+          type: 'object',
+          description: 'Performance characteristics of the enhancement',
+          properties: {
+            estimatedProcessingTime: {
+              type: 'number',
+              description: 'Estimated processing time in seconds',
+              examples: [120, 200, 500],
+            },
+            tokenUsage: {
+              type: 'number',
+              description: 'Estimated token usage for typical operations',
+              examples: [150, 300, 1000],
+            },
+            complexityScore: {
+              type: 'number',
+              description: 'Complexity score (0-10) for resource allocation',
+              minimum: 0,
+              maximum: 10,
+            },
+          },
+          required: ['estimatedProcessingTime', 'tokenUsage', 'complexityScore'],
+        },
+        hidden: {
+          type: 'boolean',
+          description: 'Optional flag to hide the enhancement from user interfaces',
         },
       },
-      required: ['version', 'author'],
-    },
-    tags: {
-      type: 'array',
-      items: { type: 'string' },
-      description: 'Keywords for search and categorization',
-      examples: [
-        ['grammar', 'spelling', 'editing'],
-        ['prompt-engineering', 'optimization'],
+      required: [
+        'id',
+        'key',
+        'name',
+        'shortDescription',
+        'longDescription',
+        'systemPrompt',
+        'category',
+        'parameters',
+        'chainingEnabled',
+        'templateVariables',
+        'dependencies',
+        'metadata',
+        'tags',
+        'complexity',
+        'experimental',
+        'exampleUsage',
+        'performance',
+        'hidden',
       ],
     },
-    complexity: {
-      type: 'string',
-      enum: ['low', 'medium', 'high', 'expert'],
-      description: 'Complexity level of the enhancement',
-    },
-    experimental: {
-      type: 'boolean',
-      description: 'Experimental flag indicating unstable or preview status',
-    },
-    exampleUsage: {
-      type: 'string',
-      description: 'Example of how to use this enhancement in practice',
-    },
-    performance: {
-      type: 'object',
-      description: 'Performance characteristics of the enhancement',
-      properties: {
-        estimatedProcessingTime: {
-          type: 'number',
-          description: 'Estimated processing time in seconds',
-          examples: [120, 200, 500],
-        },
-        tokenUsage: {
-          type: 'number',
-          description: 'Estimated token usage for typical operations',
-          examples: [150, 300, 1000],
-        },
-        complexityScore: {
-          type: 'number',
-          description: 'Complexity score (0-10) for resource allocation',
-          minimum: 0,
-          maximum: 10,
-        },
-      },
-      required: ['estimatedProcessingTime', 'tokenUsage', 'complexityScore'],
-    },
-  },
-  required: ['id', 'name', 'description', 'systemPrompt', 'category'],
-});
+  });
 
 /**
  * Available enhancement types with their descriptions and system prompts

@@ -95,120 +95,123 @@ export interface PromptUserRole {
  * @returns {JSONSchema7} A JSON schema object with properties and required fields for user roles data.
  */
 export const getPromptUserRolesJsonSchema = (): JSONSchema7 => ({
-  type: 'object',
-  description:
-    'Represents a user role definition with metadata, permissions, categorization, and advanced behavioral settings.',
-  properties: {
-    id: {
-      type: 'string',
-      description:
-        'A unique identifier for the user role. This is used for referencing the role in systems, APIs, or databases. It should be immutable and globally unique across all role definitions.',
-      examples: ['general', 'developer'],
+  type: 'array',
+  items: {
+    type: 'object',
+    description:
+      'Represents a user role definition with metadata, permissions, categorization, and advanced behavioral settings.',
+    properties: {
+      id: {
+        type: 'string',
+        description:
+          'A unique identifier for the user role. This is used for referencing the role in systems, APIs, or databases. It should be immutable and globally unique across all role definitions.',
+        examples: ['general', 'developer'],
+      },
+      name: {
+        type: 'string',
+        description:
+          'The human-readable name of the role. This is used for display purposes in UIs, documentation, or configuration interfaces.',
+        examples: ['General User', 'Developer'],
+      },
+      shortDescription: {
+        type: 'string',
+        description:
+          "A concise, one-line summary of the role's primary function. Used for dropdown menus, tooltips, or list views where space is limited.",
+        examples: [
+          'A versatile assistant for general tasks, information retrieval, and everyday prompt enhancement.',
+        ],
+      },
+      longDescription: {
+        type: 'string',
+        description:
+          "A detailed explanation of the role's scope, responsibilities, ideal use cases, and the specific value it brings to the interaction. Used in detailed selection views or documentation.",
+        examples: [
+          'Designed for a broad audience, this role handles queries that do not require specialized technical knowledge. It focuses on clarity, logical structuring of information, and neutral, supportive communication. Ideal for drafting emails, summarizing text, or explaining general concepts.',
+        ],
+      },
+      systemPrompt: {
+        type: 'string',
+        description:
+          'A complex, high-density system prompt that defines the persona, reasoning framework, behavioral constraints, and output formatting requirements for the AI.',
+        examples: [
+          "You are a high-intelligence generalist assistant. Your primary directive is to maximize the informational density and clarity of the user's output.",
+        ],
+      },
+      category: {
+        type: 'string',
+        description:
+          'A string that categorizes the role for organizational purposes.',
+        examples: ['Software Engineering', 'General'],
+      },
+      hidden: {
+        type: 'boolean',
+        description: 'Whether the user role is hidden from the user.',
+        examples: [false],
+      },
+      expertiseLevel: {
+        type: 'string',
+        description:
+          'The proficiency level of the persona. This guides the depth of technical jargon and the complexity of the reasoning steps.',
+        enum: ['Junior', 'Mid', 'Senior', 'Expert', 'Principal', 'Fellow'],
+        examples: ['Senior'],
+      },
+      tone: {
+        type: 'array',
+        description:
+          'The communication style of the persona. This affects sentence structure, formality, and the emotional weight of the response.',
+        items: { type: 'string' },
+        examples: [['Direct', 'Helpful', 'Objective']],
+      },
+      capabilities: {
+        type: 'array',
+        description:
+          'A list of specific skills, tools, or methodologies the persona is explicitly expert in. Used to tailor the prompt enhancement context.',
+        items: { type: 'string' },
+        examples: [['Reasoning', 'Information Synthesis', 'Editing']],
+      },
+      tags: {
+        type: 'array',
+        description: 'Keywords for filtering and searching roles.',
+        items: { type: 'string' },
+        examples: [['all-purpose', 'basic', 'assistant']],
+      },
+      constraints: {
+        type: 'array',
+        description:
+          'Strict negative constraints or rules the persona must obey (e.g., "No code generation", "No medical advice").',
+        items: { type: 'string' },
+        examples: [['No hallucinations of APIs']],
+      },
+      tools: {
+        type: 'array',
+        description:
+          'Specific external tools or APIs the persona is assumed to have access to (e.g., "Calculator", "WebSearch").',
+        items: { type: 'string' },
+        examples: [['Terminal', 'Code Linter']],
+      },
+      temperature: {
+        type: 'number',
+        description:
+          'Suggested model temperature (0.0 - 1.0). Lower values for deterministic/technical, higher for creative.',
+        minimum: 0,
+        maximum: 1,
+        examples: [0.7],
+      },
+      version: {
+        type: 'string',
+        description: 'Version of the role definition for change tracking.',
+        examples: ['1.0.0'],
+      },
     },
-    name: {
-      type: 'string',
-      description:
-        'The human-readable name of the role. This is used for display purposes in UIs, documentation, or configuration interfaces.',
-      examples: ['General User', 'Developer'],
-    },
-    shortDescription: {
-      type: 'string',
-      description:
-        "A concise, one-line summary of the role's primary function. Used for dropdown menus, tooltips, or list views where space is limited.",
-      examples: [
-        'A versatile assistant for general tasks, information retrieval, and everyday prompt enhancement.',
-      ],
-    },
-    longDescription: {
-      type: 'string',
-      description:
-        "A detailed explanation of the role's scope, responsibilities, ideal use cases, and the specific value it brings to the interaction. Used in detailed selection views or documentation.",
-      examples: [
-        'Designed for a broad audience, this role handles queries that do not require specialized technical knowledge. It focuses on clarity, logical structuring of information, and neutral, supportive communication. Ideal for drafting emails, summarizing text, or explaining general concepts.',
-      ],
-    },
-    systemPrompt: {
-      type: 'string',
-      description:
-        'A complex, high-density system prompt that defines the persona, reasoning framework, behavioral constraints, and output formatting requirements for the AI.',
-      examples: [
-        "You are a high-intelligence generalist assistant. Your primary directive is to maximize the informational density and clarity of the user's output.",
-      ],
-    },
-    category: {
-      type: 'string',
-      description:
-        'A string that categorizes the role for organizational purposes.',
-      examples: ['Software Engineering', 'General'],
-    },
-    hidden: {
-      type: 'boolean',
-      description: 'Whether the user role is hidden from the user.',
-      examples: [false],
-    },
-    expertiseLevel: {
-      type: 'string',
-      description:
-        'The proficiency level of the persona. This guides the depth of technical jargon and the complexity of the reasoning steps.',
-      enum: ['Junior', 'Mid', 'Senior', 'Expert', 'Principal', 'Fellow'],
-      examples: ['Senior'],
-    },
-    tone: {
-      type: 'array',
-      description:
-        'The communication style of the persona. This affects sentence structure, formality, and the emotional weight of the response.',
-      items: { type: 'string' },
-      examples: [['Direct', 'Helpful', 'Objective']],
-    },
-    capabilities: {
-      type: 'array',
-      description:
-        'A list of specific skills, tools, or methodologies the persona is explicitly expert in. Used to tailor the prompt enhancement context.',
-      items: { type: 'string' },
-      examples: [['Reasoning', 'Information Synthesis', 'Editing']],
-    },
-    tags: {
-      type: 'array',
-      description: 'Keywords for filtering and searching roles.',
-      items: { type: 'string' },
-      examples: [['all-purpose', 'basic', 'assistant']],
-    },
-    constraints: {
-      type: 'array',
-      description:
-        'Strict negative constraints or rules the persona must obey (e.g., "No code generation", "No medical advice").',
-      items: { type: 'string' },
-      examples: [['No hallucinations of APIs']],
-    },
-    tools: {
-      type: 'array',
-      description:
-        'Specific external tools or APIs the persona is assumed to have access to (e.g., "Calculator", "WebSearch").',
-      items: { type: 'string' },
-      examples: [['Terminal', 'Code Linter']],
-    },
-    temperature: {
-      type: 'number',
-      description:
-        'Suggested model temperature (0.0 - 1.0). Lower values for deterministic/technical, higher for creative.',
-      minimum: 0,
-      maximum: 1,
-      examples: [0.7],
-    },
-    version: {
-      type: 'string',
-      description: 'Version of the role definition for change tracking.',
-      examples: ['1.0.0'],
-    },
+    required: [
+      'id',
+      'name',
+      'shortDescription',
+      'longDescription',
+      'systemPrompt',
+      'category',
+    ],
   },
-  required: [
-    'id',
-    'name',
-    'shortDescription',
-    'longDescription',
-    'systemPrompt',
-    'category',
-  ],
 });
 
 /**
