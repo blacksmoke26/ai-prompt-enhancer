@@ -213,6 +213,7 @@ export const toSelectGroupedOptions = (list: {
 
   for (const data of list) {
     const option = {
+      ...data,
       label: data.name,
       value: data.id,
       description: data[descriptionField],
@@ -243,7 +244,7 @@ export const toSelectGroupedOptionsPlain = (list: {
   const mapped: Record<string, { label: string; value: string; }[]> = {};
 
   for (const data of list) {
-    const option = {label: data.name, value: data[keyField], category: data[categoryField]};
+    const option = {...data, label: data.name, value: data[keyField], category: data[categoryField]};
     if (Object.prototype.hasOwnProperty.call(mapped, data[categoryField])) {
       mapped[data[categoryField]].push(option);
     } else {
