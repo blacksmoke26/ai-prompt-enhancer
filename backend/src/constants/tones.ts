@@ -81,72 +81,70 @@ export interface ToneItem {
  * Each property includes descriptions and an examples array.
  */
  export const getTonesSchema = (): object => ({
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  title: 'ToneItem',
-  description: 'Defines a categorization system for tones with their associated properties and metadata.',
   type: 'array',
+  description: 'Array of tone definitions with their properties and metadata',
   items: {
     type: 'object',
     properties: {
+      id: {
+        type: 'integer',
+        description: 'Unique identifier',
+        examples: [1],
+      },
+      key: {
+        type: 'string',
+        description: 'Unique identifier for the tone within its category',
+        examples: ['formal', 'casual', 'empathetic'],
+      },
+      name: {
+        type: 'string',
+        description: 'Display name for the tone (user-facing)',
+        examples: ['Formal', 'Casual', 'Empathetic'],
+      },
       category: {
         type: 'string',
         description: 'Category name grouping related tones (e.g., "Professional", "Creative")',
         examples: ['Professional', 'Creative', 'Emotional & Relational'],
       },
-      tones: {
+      shortDescription: {
+        type: 'string',
+        description: 'Brief summary of the tone\'s characteristics',
+        examples: ['Adheres to strict grammatical and etiquette standards.', 'Relaxed and conversational language.'],
+      },
+      summary: {
+        type: 'string',
+        description: 'Concise six-word summary capturing the tone\'s essence',
+        examples: ['Strict, professional, and grammatically correct.', 'Relaxed, conversational, and everyday language.'],
+      },
+      description: {
+        type: 'string',
+        description: 'Detailed description of the tone\'s purpose and usage',
+        examples: ['Uses standard grammar, complex sentence structures, and avoids slang or contractions to convey authority and respect.'],
+      },
+      parameters: {
+        type: 'object',
+        description: 'Configuration parameters specific to the tone',
+        examples: [{ grammar: 'strict', contractions: false, vocabulary: 'elevated' }],
+      },
+      tags: {
         type: 'array',
-        description: 'Array of tone definitions with their properties and metadata',
-        items: {
-          type: 'object',
-          properties: {
-            key: {
-              type: 'string',
-              description: 'Unique identifier for the tone within its category',
-              examples: ['formal', 'casual', 'empathetic'],
-            },
-            label: {
-              type: 'string',
-              description: 'Display name for the tone (user-facing)',
-              examples: ['Formal', 'Casual', 'Empathetic'],
-            },
-            shortDescription: {
-              type: 'string',
-              description: 'Brief summary of the tone\'s characteristics',
-              examples: ['Adheres to strict grammatical and etiquette standards.', 'Relaxed and conversational language.'],
-            },
-            summary: {
-              type: 'string',
-              description: 'Concise six-word summary capturing the tone\'s essence',
-              examples: ['Strict, professional, and grammatically correct.', 'Relaxed, conversational, and everyday language.'],
-            },
-            description: {
-              type: 'string',
-              description: 'Detailed description of the tone\'s purpose and usage',
-              examples: ['Uses standard grammar, complex sentence structures, and avoids slang or contractions to convey authority and respect.'],
-            },
-            parameters: {
-              type: 'object',
-              description: 'Configuration parameters specific to the tone',
-              examples: [{ grammar: 'strict', contractions: false, vocabulary: 'elevated' }],
-            },
-            tags: {
-              type: 'array',
-              description: 'Keywords for filtering and categorization',
-              items: { type: 'string' },
-              examples: [['professional', 'polite', 'standard']],
-            },
-            formality: {
-              type: 'string',
-              enum: ['high', 'medium', 'low', 'variable'],
-              description: 'Level of formality associated with the tone',
-              examples: ['high', 'medium', 'low'],
-            },
-          },
-          required: ['key', 'label', 'shortDescription', 'summary', 'description', 'parameters', 'tags', 'formality'],
-        },
+        description: 'Keywords for filtering and categorization',
+        items: { type: 'string' },
+        examples: [['professional', 'polite', 'standard']],
+      },
+      formality: {
+        type: 'string',
+        enum: ['high', 'medium', 'low', 'variable'],
+        description: 'Level of formality associated with the tone',
+        examples: ['high', 'medium', 'low'],
+      },
+      hidden: {
+        type: 'boolean',
+        description: 'Indicates whether the tone is hidden from the user',
+        examples: [false],
       },
     },
-    required: ['category', 'tones'],
+    required: ['id', 'key', 'name', 'category', 'shortDescription', 'summary', 'description', 'parameters', 'tags', 'formality', 'hidden'],
   },
 });
 

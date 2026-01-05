@@ -56,92 +56,93 @@ export interface ResponseLength {
  * @returns {object} The JSON Schema object.
  */
 export const getResponseLengthSchema = (): object => ({
-  $schema: 'http://json-schema.org/draft-07/schema#',
-  title: 'ResponseLength',
-  description: 'Represents a structured response with categorized values, often used for documentation or API response formatting.',
-  type: 'object',
-  properties: {
-    category: {
-      type: 'string',
-      description: 'The category or group this response belongs to',
-      examples: [
-        'Original values',
-        'Brevity-focused',
-        'Expansion-focused',
-        'Structured formats',
-        'Context-aware lengths',
-      ],
-    },
-    values: {
-      type: 'array',
-      description: 'An array of value objects, each representing a distinct item within the category',
-      items: {
+  type: 'array',
+  description: 'An array of value objects, each representing a distinct item within the category',
+  items: {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'string',
+        description: 'The unique identifier',
+        examples: [2],
+      },
+      key: {
+        type: 'string',
+        description: 'The unique identifier for the value',
+        examples: ['short', 'medium', 'long', 'concise', 'detailed'],
+      },
+      name: {
+        type: 'string',
+        description: 'The display name or title of this value',
+        examples: ['Short', 'Medium', 'Long', 'Concise', 'Detailed'],
+      },
+      category: {
+        type: 'string',
+        description: 'The category or group this response belongs to',
+        examples: [
+          'Original values',
+          'Brevity-focused',
+          'Expansion-focused',
+          'Structured formats',
+          'Context-aware lengths',
+        ],
+      },
+      shortDescription: {
+        type: 'string',
+        description: 'A brief, one-line summary of this value',
+        examples: [
+          'A very brief response containing only essential information.',
+          'A balanced response with sufficient detail.',
+          'An extended response with thorough explanations.',
+        ],
+      },
+      summary: {
+        type: 'string',
+        description: 'A more detailed summary than `shortDescription`, but less than `description`',
+        examples: [
+          'Brief answer, minimal details provided.',
+          'Balanced response, moderate detail included.',
+          'Extended answer with full explanations.',
+        ],
+      },
+      description: {
+        type: 'string',
+        description: 'A full explanation or detailed description of this value',
+        examples: [
+          'A very brief response containing only the essential information without unnecessary elaboration or filler content.',
+          'A balanced response that provides sufficient detail to answer the question without being overly wordy or excessively brief.',
+          'An extended response that explores the topic in detail, providing background information, examples, and thorough explanations.',
+        ],
+      },
+      parameters: {
         type: 'object',
-        properties: {
-          key: {
-            type: 'string',
-            description: 'The unique identifier for the value',
-            examples: ['short', 'medium', 'long', 'concise', 'detailed'],
-          },
-          label: {
-            type: 'string',
-            description: 'The display name or title of this value',
-            examples: ['Short', 'Medium', 'Long', 'Concise', 'Detailed'],
-          },
-          shortDescription: {
-            type: 'string',
-            description: 'A brief, one-line summary of this value',
-            examples: [
-              'A very brief response containing only essential information.',
-              'A balanced response with sufficient detail.',
-              'An extended response with thorough explanations.',
-            ],
-          },
-          summary: {
-            type: 'string',
-            description: 'A more detailed summary than `shortDescription`, but less than `description`',
-            examples: [
-              'Brief answer, minimal details provided.',
-              'Balanced response, moderate detail included.',
-              'Extended answer with full explanations.',
-            ],
-          },
-          description: {
-            type: 'string',
-            description: 'A full explanation or detailed description of this value',
-            examples: [
-              'A very brief response containing only the essential information without unnecessary elaboration or filler content.',
-              'A balanced response that provides sufficient detail to answer the question without being overly wordy or excessively brief.',
-              'An extended response that explores the topic in detail, providing background information, examples, and thorough explanations.',
-            ],
-          },
-          parameters: {
-            type: 'object',
-            description: 'A map of parameters associated with this value, where keys are parameter names and values are their corresponding values',
-            examples: [
-              { maxLength: 50, style: 'direct' },
-              { targetLength: 150, density: 'standard' },
-              { minLength: 300, depth: 'high' },
-            ],
-          },
-          tags: {
-            type: 'array',
-            description: 'An array of strings representing relevant tags or keywords for this value',
-            items: { type: 'string' },
-            examples: [['brevity', 'essential', 'fast'], ['balanced', 'standard', 'default'], ['detailed', 'extensive', 'comprehensive']],
-          },
-          tone: {
-            type: 'string',
-            description: 'The tone or style of the description',
-            enum: ['casual', 'formal', 'neutral', 'technical'],
-            examples: ['neutral', 'casual', 'formal', 'technical'],
-          },
-        },
-        required: ['key', 'label', 'shortDescription', 'summary', 'description', 'parameters', 'tags', 'tone'],
+        description: 'A map of parameters associated with this value, where keys are parameter names and values are their corresponding values',
+        examples: [
+          { maxLength: 50, style: 'direct' },
+          { targetLength: 150, density: 'standard' },
+          { minLength: 300, depth: 'high' },
+        ],
+      },
+      tags: {
+        type: 'array',
+        description: 'An array of strings representing relevant tags or keywords for this value',
+        items: { type: 'string' },
+        examples: [['brevity', 'essential', 'fast'], ['balanced', 'standard', 'default'], ['detailed', 'extensive', 'comprehensive']],
+      },
+      tone: {
+        type: 'string',
+        description: 'The tone or style of the description',
+        enum: ['casual', 'formal', 'neutral', 'technical'],
+        examples: ['neutral', 'casual', 'formal', 'technical'],
+      },
+      hidden: {
+        type: 'boolean',
+        description: 'Indicates whether the tone is hidden from the user',
+        examples: [false],
       },
     },
+    required: ['key', 'id', 'name', 'shortDescription', 'summary', 'description', 'parameters', 'tags', 'tone', 'hidden'],
   },
-  required: ['category', 'values'],
 });
 
 /**

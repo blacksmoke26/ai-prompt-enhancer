@@ -8,6 +8,9 @@
 import schema400WithError from '~/fastify/schemas/generic/400.schema';
 import schema200WithData from '~/fastify/schemas/generic/200-success-with-data.schema';
 
+// constants
+import { getResponseLengthSchema } from '~/constants/response-length';
+
 // types
 import type { FastifySchema } from 'fastify';
 
@@ -18,34 +21,6 @@ export default {
   security: [],
   response: {
     400: schema400WithError('Failed to fetch response length'),
-    200: schema200WithData({
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          key: {
-            description: 'A unique identifier for the response length',
-            type: 'string',
-            examples: ['short', 'detailed'],
-          },
-          name: {
-            description: 'The human-readable name of the response length',
-            type: 'string',
-            examples: ['Short', 'Detailed'],
-          },
-          category: {
-            description: 'A category grouping similar response length',
-            type: 'string',
-            examples: ['Expansion-focused', 'Original values'],
-          },
-          hidden: {
-            description: 'A flag indicating whether the response length is hidden from the UI',
-            type: 'boolean',
-            examples: [false],
-          },
-        },
-        required: ['key', 'name', 'category', 'hidden'],
-      },
-    }),
+    200: schema200WithData(getResponseLengthSchema()),
   },
 } as FastifySchema;
