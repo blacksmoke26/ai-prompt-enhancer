@@ -468,114 +468,234 @@ export interface AppConfig {
 }
 
 /**
- * Defines a type of prompt enhancement with associated metadata.
+ * Represents a type of enhancement with its properties, metadata, and performance metrics.
  * @example
- * const type: EnhancementType = {
- *   id: "enhance",
- *   category: "general",
- *   name: "Enhance",
- *   description: "Improves the prompt",
- *   systemPrompt: "Make this prompt better"
+ * const exampleEnhancement: EnhancementType = {
+ *   id: 'enhance-001',
+ *   key: 'summarize',
+ *   name: 'Text Summarization',
+ *   shortDescription: 'Summarizes long texts into concise summaries.',
+ *   longDescription: 'This enhancement uses advanced NLP techniques to generate accurate and concise summaries of long documents.',
+ *   systemPrompt: 'Please summarize the following text:',
+ *   category: 'Text Processing',
+ *   parameters: { summaryLength: 150 },
+ *   chainingEnabled: true,
+ *   templateVariables: ['{{text}}'],
+ *   dependencies: ['enhance-002'],
+ *   metadata: { version: '1.0.0', author: 'Jane Doe', updated: '2023-10-05T14:48:00Z' },
+ *   tags: ['summarize', 'nlp'],
+ *   complexity: 'medium',
+ *   experimental: false,
+ *   exampleUsage: 'Used to generate summaries for articles and reports.',
+ *   performance: { estimatedProcessingTime: 200, tokenUsage: 500, complexityScore: 7 },
+ *   hidden: false,
  * };
- * @developerNote
- * `category` allows for grouping similar enhancement types in the UI.
+ * @developerNotes This interface is used across the system to manage and categorize enhancements. All properties are required unless noted otherwise.
  */
 export interface EnhancementType {
   /** Unique identifier for the enhancement type */
   id: string;
-  /** Category for grouping similar types */
-  category: string;
+  /** A unique key used as a reference for the enhancement type */
+  key: string;
   /** Display name for the enhancement type */
   name: string;
-  /** Brief description of what this enhancement does */
-  description: string;
-  /** System prompt to use for this enhancement type */
+  /** A brief description of the enhancement's purpose or functionality */
+  shortDescription: string;
+  /** A detailed description of the enhancement's purpose, functionality, and use cases */
+  longDescription: string;
+  /** A system-level instruction or prompt used to guide the enhancement's execution */
   systemPrompt: string;
-  /** Whether this enhancement type is hidden from the UI */
+  /** Category for grouping similar types of enhancements */
+  category: string;
+  /** A dynamic set of parameters that can be configured for the enhancement */
+  parameters: Record<string, unknown>;
+  /** Whether this enhancement can be chained with other enhancements */
+  chainingEnabled: boolean;
+  /** Variables used in templates for dynamic content generation */
+  templateVariables: string[];
+  /** A list of other enhancement types this enhancement depends on */
+  dependencies: string[];
+  /** Metadata associated with the enhancement type */
+  metadata: {
+    /** Version of the enhancement type */
+    version: string;
+    /** Author of the enhancement type */
+    author: string;
+    /** Last updated date in ISO 8601 format */
+    updated: string; // ISO date string
+  };
+  /** Keywords or tags for categorization and search purposes */
+  tags: string[];
+  /** A string indicating the complexity level of the enhancement */
+  complexity: string;
+  /** Whether this enhancement is marked as experimental and may be unstable */
+  experimental: boolean;
+  /** A brief example of how the enhancement can be used in practice */
+  exampleUsage: string;
+  /** Performance metrics for the enhancement */
+  performance: {
+    /** Estimated processing time in milliseconds */
+    estimatedProcessingTime: number;
+    /** Estimated token usage for the enhancement */
+    tokenUsage: number;
+    /** A numerical score representing the complexity of the enhancement */
+    complexityScore: number;
+  };
+  /** Whether this enhancement is hidden from the user interface or listings */
   hidden: boolean;
 }
 
 /**
- * Represents predefined categories for tones, used to classify different types of data sizes in an application.
+ * Represents a tone style or voice that can be applied to text generation.
  * @example
- * ```typescript
- * {
- *   key: 'friendly',
- *   name: 'Friendly',
- *   category: 'Original core tones',
- *   hidden: false
- * }
+ * const exampleTone: Tone = {
+ *   id: 1,
+ *   key: 'professional',
+ *   name: 'Professional',
+ *   category: 'Tone',
+ *   shortDescription: 'Formal and objective tone for business contexts.',
+ *   summary: 'Used for reports, proposals, and professional communication.',
+ *   description: 'Emphasizes clarity, precision, and formal structure.',
+ *   parameters: { grammar: 'strict', contractions: false, vocabulary: 'formal' },
+ *   tags: ['business', 'formal'],
+ *   formality: 'high',
+ *   hidden: false,
+ * };
+ * @developerNotes All properties are required. The `parameters` object defines how the tone is applied (e.g., grammar rules, vocabulary).
  */
 export interface Tone {
-  /**
-   * A unique identifier for the tone (e.g., "friendly", "executive").
-   */
+  /** Unique numeric identifier for the tone */
+  id: number;
+  /** A unique key used as a reference for the tone */
   key: string;
-
-  /** The human-readable name of the tone (e.g., "Friendly", "Executive") */
+  /** Display name for the tone */
   name: string;
-
-  /** A category grouping similar tones (e.g., "Original core tones", "Emotional & Relational") */
+  /** Category for grouping similar tones */
   category: string;
-
-  /** A flag indicating whether the tone is hidden from the user interface. */
+  /** A brief description of the tone's purpose or style */
+  shortDescription: string;
+  /** A summary of the tone's primary use cases or context */
+  summary: string;
+  /** A detailed description of the tone's characteristics and applications */
+  description: string;
+  /** Configuration options for how the tone is applied (e.g., grammar, vocabulary) */
+  parameters: {
+    /** Grammar rules to apply (e.g., 'strict', 'relaxed') */
+    grammar: string;
+    /** Whether contractions (e.g., "don't") are allowed */
+    contractions: boolean;
+    /** Vocabulary style (e.g., 'formal', 'colloquial') */
+    vocabulary: string;
+  };
+  /** Keywords or tags for categorization and search purposes */
+  tags: string[];
+  /** Indicates the level of formality (e.g., 'high', 'medium', 'low') */
+  formality: string;
+  /** Whether the tone is hidden from the user interface or listings */
   hidden: boolean;
 }
 
 /**
- * Represents predefined categories for response lengths, used to classify different types of data sizes in an application.
+ * Represents a response length configuration for text generation.
  * @example
- * ```typescript
- * {
- *   key: 'detailed',
- *   name: 'Detailed',
- *   category: 'Structured formats',
- *   hidden: false
- * }
+ * const exampleResponseLength: ResponseLength = {
+ *   id: 2,
+ *   key: 'concise',
+ *   name: 'Concise',
+ *   category: 'Length',
+ *   shortDescription: 'Short and to-the-point responses.',
+ *   summary: 'Ideal for summaries or quick answers.',
+ *   description: 'Limits response length to ensure clarity and brevity.',
+ *   parameters: { maxLength: 150, style: 'direct' },
+ *   tags: ['summary', 'brief'],
+ *   tone: 'professional',
+ *   hidden: false,
+ * };
+ * @developerNotes The `tone` field references a `Tone` interface's `key` value. All properties are required.
  */
 export interface ResponseLength {
-  /**
-   * A unique identifier for the response length (e.g., "short", "detailed").
-   * This field is required and must be unique across the database.
-   */
+  /** Unique numeric identifier for the response length */
+  id: number;
+  /** A unique key used as a reference for the response length */
   key: string;
-
-  /** The human-readable name of the role (e.g., "Short", "Detailed") */
+  /** Display name for the response length */
   name: string;
-
-  /** A category grouping similar response lengths (e.g., "Original values", "Structured formats") */
+  /** Category for grouping similar response lengths */
   category: string;
-
-  /** A flag indicating whether the response length is hidden from the user interface. */
+  /** A brief description of the response length's purpose or style */
+  shortDescription: string;
+  /** A summary of the response length's primary use cases or context */
+  summary: string;
+  /** A detailed description of the response length's characteristics and applications */
+  description: string;
+  /** Configuration options for how the response length is applied (e.g., max character count) */
+  parameters: {
+    /** Maximum length of the response in characters or tokens */
+    maxLength: number;
+    /** Style of the response (e.g., 'direct', 'detailed') */
+    style: string;
+  };
+  /** Keywords or tags for categorization and search purposes */
+  tags: string[];
+  /** References a `Tone` interface's `key` value to apply a specific tone */
+  tone: string;
+  /** Whether the response length is hidden from the user interface or listings */
   hidden: boolean;
 }
 
 /**
- * Represents a user role that affects prompt enhancement behavior.
+ * Represents a user role with specific capabilities, constraints, and behavior.
  * @example
- * const role: UserRole = {
- *   id: "professional",
- *   category: "business",
- *   name: "Professional",
- *   description: "Business context",
- *   systemPrompt: "Adopt professional tone"
+ * const exampleUserRole: UserRole = {
+ *   id: 'role-001',
+ *   name: 'Legal Analyst',
+ *   shortDescription: 'Analyzes legal documents and provides summaries.',
+ *   longDescription: 'A role designed to review and summarize legal texts with high accuracy.',
+ *   systemPrompt: 'Analyze the provided legal document and summarize key points.',
+ *   category: 'Legal',
+ *   hidden: false,
+ *   expertiseLevel: 'Senior',
+ *   tone: ['professional', 'formal'],
+ *   capabilities: ['summarize', 'analyze', 'highlight'],
+ *   tags: ['legal', 'analysis'],
+ *   constraints: ['must not generate opinions', 'must use formal language'],
+ *   tools: ['documentParser', 'legalDatabase'],
+ *   temperature: 0.7,
+ *   version: '1.0.0',
  * };
- * @developerNote
- * Similar to EnhancementType but focused on persona-based modifications.
+ * @developerNotes The `expertiseLevel` is typically one of "Junior", "Mid", or "Senior". The `temperature` should be a float between 0 and 1.
  */
 export interface UserRole {
-  /** Unique identifier for the user role */
+  /** Unique string identifier for the user role */
   id: string;
+  /** Display name for the user role */
+  name: string;
+  /** A brief description of the role's purpose or responsibilities */
+  shortDescription: string;
+  /** A detailed description of the role's capabilities and use cases */
+  longDescription: string;
+  /** A system-level instruction or prompt used to guide the role's behavior */
+  systemPrompt: string;
   /** Category for grouping similar roles */
   category: string;
-  /** Display name for the role */
-  name: string;
-  /** Brief description of the role's context */
-  description: string;
-  /** System prompt to apply for this role */
-  systemPrompt: string;
-  /** Whether this user role is hidden from the UI */
+  /** Whether the role is hidden from the user interface or listings */
   hidden: boolean;
+  /** Indicates the expertise level of the role (e.g., "Junior", "Mid", "Senior */
+  expertiseLevel: string;
+  /** Array of tone keys (from `Tone`) to apply to the role's output */
+  tone: string[];
+  /** List of capabilities or functions the role can perform */
+  capabilities: string[];
+  /** Keywords or tags for categorization and search purposes */
+  tags: string[];
+  /** Constraints or rules the role must follow */
+  constraints: string[];
+  /** Tools or systems the role can access or use */
+  tools: string[];
+  /** Temperature parameter for controlling output randomness (0 to 1 */
+  temperature: number;
+  /** Version of the user role configuration */
+  version: string;
 }
 
 /**
