@@ -35,6 +35,34 @@ export const up = async (queryInterface: QueryInterface) => {
           type: DataTypes.STRING,
           allowNull: false,
         },
+        shortDescription: {
+          field: 'short_description',
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        summary: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        description: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        parameters: {
+          type: DataTypes.JSON,
+          allowNull: false,
+          defaultValue: {},
+        },
+        tags: {
+          type: DataTypes.JSON,
+          allowNull: false,
+          defaultValue: [],
+        },
+        tone: {
+          type: DataTypes.STRING(50),
+          allowNull: false,
+          defaultValue: 'neutral',
+        },
         hidden: {
           type: DataTypes.BOOLEAN,
           allowNull: false,

@@ -23,7 +23,7 @@ export const up = async (queryInterface: QueryInterface) => {
           primaryKey: true,
         },
         key: {
-          type: DataTypes.STRING,
+          type: DataTypes.STRING(50),
           primaryKey: false,
           allowNull: false,
         },
@@ -34,6 +34,34 @@ export const up = async (queryInterface: QueryInterface) => {
         category: {
           type: DataTypes.STRING,
           allowNull: false,
+        },
+        shortDescription: {
+          field: 'short_description',
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        summary: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        description: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        parameters: {
+          type: DataTypes.JSON,
+          allowNull: false,
+          defaultValue: {},
+        },
+        tags: {
+          type: DataTypes.JSON,
+          allowNull: false,
+          defaultValue: [],
+        },
+        formality: {
+          type: DataTypes.STRING(50),
+          allowNull: false,
+          defaultValue: 'variable',
         },
         hidden: {
           type: DataTypes.BOOLEAN,
