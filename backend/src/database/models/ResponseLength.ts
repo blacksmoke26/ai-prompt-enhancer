@@ -12,6 +12,13 @@ import {getInstance} from '~/database';
 // public types
 export type ResponseLengthAttributes = InferAttributes<ResponseLength>;
 
+export enum ResponseLengthTone {
+  Casual = 'casual',
+  Formal = 'formal',
+  Neutral = 'neutral',
+  Technical = 'technical'
+}
+
 /**
  * Represents a user role in an application, defining access permissions and categorization.
  * This class extends Sequelize's Model class to provide database persistence capabilities.
@@ -36,6 +43,41 @@ export class ResponseLength extends Model<InferAttributes<ResponseLength>, Infer
   /** A category grouping similar response lengths (e.g., "Original values", "Structured formats") */
   declare category: string;
 
+  /**
+   * A brief summary of the purpose or function.
+   * Ideal for quick overviews in API documentation.
+   */
+  declare shortDescription: string;
+
+  /**
+   * A concise summary of the entity's role.
+   * Used in navigation or indexing within documentation.
+   */
+  declare summary: string;
+
+  /**
+   * A detailed explanation of the entity's functionality.
+   * Should cover behavior, inputs, and outputs.
+   */
+  declare description: string;
+
+  /**
+   * A list of parameters or inputs required by the entity.
+   * Format: parameterName (type), parameterName (type)
+   */
+  declare parameters: Record<string, any>;
+
+  /**
+   * Keywords or tags for categorization.
+   * Used for filtering and searching in documentation.
+   */
+  declare tags: CreationOptional<string[]>;
+
+  /**
+   * Defines the tone or formality level of the documentation.
+   */
+  declare tone: CreationOptional<ResponseLengthTone>;
+
   /** A flag indicating whether the response length is hidden from the user interface. */
   declare hidden?: boolean;
 }
@@ -59,6 +101,34 @@ ResponseLength.init(
     category: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    shortDescription: {
+      field: 'short_description',
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    summary: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    parameters: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: {},
+    },
+    tags: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
+    },
+    tone: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      defaultValue: ResponseLengthTone.Neutral,
     },
     hidden: {
       type: DataTypes.BOOLEAN,

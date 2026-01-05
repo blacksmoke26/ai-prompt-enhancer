@@ -4,10 +4,27 @@
  * @see https://github.com/blacksmoke26
  */
 
-import {CreationOptional, DataTypes, InferAttributes, InferCreationAttributes, Model} from 'sequelize';
+import {
+  CreationOptional,
+  DataTypes,
+  InferAttributes,
+  InferCreationAttributes,
+  Model,
+} from 'sequelize';
 
 // db
-import {getInstance} from '~/database';
+import { getInstance } from '~/database';
+
+/**
+ * Enumeration representing levels of formality for documentation, communication, or UI design.
+ * Use this to categorize content based on its intended audience and context.
+ */
+export enum Formality {
+  Variable = 'variable',
+  High = 'high',
+  Medium = 'medium',
+  Low = 'low',
+}
 
 // public types
 export type ToneAttributes = InferAttributes<Tone>;
@@ -17,7 +34,10 @@ export type ToneAttributes = InferAttributes<Tone>;
  * This class extends Sequelize's Model class to provide database persistence capabilities.
  * It defines the structure of a user role entity with attributes like key, name, and description.
  */
-export class Tone extends Model<InferAttributes<Tone>, InferCreationAttributes<Tone>> {
+export class Tone extends Model<
+  InferAttributes<Tone>,
+  InferCreationAttributes<Tone>
+> {
   /**
    * The primary key of the role. Auto-incremented by the database.
    * This field is optional during creation but required for updates.
@@ -35,6 +55,41 @@ export class Tone extends Model<InferAttributes<Tone>, InferCreationAttributes<T
 
   /** A category grouping similar tones (e.g., "Original core tones", "Emotional & Relational") */
   declare category: string;
+
+  /**
+   * A brief summary of the purpose or function.
+   * Ideal for quick overviews in API documentation.
+   */
+  declare shortDescription: string;
+
+  /**
+   * A concise summary of the entity's role.
+   * Used in navigation or indexing within documentation.
+   */
+  declare summary: string;
+
+  /**
+   * A detailed explanation of the entity's functionality.
+   * Should cover behavior, inputs, and outputs.
+   */
+  declare description: string;
+
+  /**
+   * A list of parameters or inputs required by the entity.
+   * Format: parameterName (type), parameterName (type)
+   */
+  declare parameters: Record<string, any>;
+
+  /**
+   * Keywords or tags for categorization.
+   * Used for filtering and searching in documentation.
+   */
+  declare tags: CreationOptional<string[]>;
+
+  /**
+   * Defines the tone or formality level of the documentation.
+   */
+  declare formality: Formality;
 
   /** A flag indicating whether the tone is hidden from the user interface. */
   declare hidden?: boolean;
@@ -59,6 +114,34 @@ Tone.init(
     category: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    shortDescription: {
+      field: 'short_description',
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    summary: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    parameters: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: {},
+    },
+    tags: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
+    },
+    formality: {
+      type: DataTypes.STRING(50),
+      allowNull: false,
+      defaultValue: Formality.Variable,
     },
     hidden: {
       type: DataTypes.BOOLEAN,

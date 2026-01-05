@@ -7,8 +7,8 @@
 import History from './History';
 import Setting from './Setting';
 import Provider from './Provider';
-import UserRole from './UserRole';
 import Tone from './Tone';
+import PromptUserRole from './PromptUserRole';
 import ResponseLength from './ResponseLength';
 import EnhancementType from './EnhancementType';
 
@@ -18,8 +18,8 @@ import EnhancementType from './EnhancementType';
 export * from './History';
 export * from './Setting';
 export * from './Provider';
-export * from './UserRole';
 export * from './Tone';
+export * from './PromptUserRole';
 export * from './ResponseLength';
 export * from './EnhancementType';
 
@@ -34,8 +34,8 @@ export {
   History,
   Setting,
   Provider,
-  UserRole,
   Tone,
+  PromptUserRole,
   ResponseLength,
   EnhancementType,
 };
