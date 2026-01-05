@@ -4,9 +4,10 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { capitalCase } from 'case-anything';
+import { QueryInterface } from 'sequelize';
 
-import { QueryInterface, QueryTypes } from 'sequelize';
+// db
+import { Formality, Tone } from '~/database/models';
 
 // constants
 import { TONES_GROUPED } from '~/constants/tones';
@@ -16,27 +17,23 @@ export default {
   async up(queryInterface: QueryInterface) {
     for await (const { category, tones } of TONES_GROUPED) {
       for await (const tone of tones) {
-        const [result] = (await queryInterface.sequelize.query(
-          `SELECT COUNT(*) as total FROM tones WHERE key = '${tone}'`,
-          {
-            type: QueryTypes.SELECT,
-            raw: true,
-          },
-        )) as Awaited<[{ total: number }]>;
+        const count = await Tone.count({
+          where: { key: tone.key },
+        });
 
-        const bulkRecords: object[] = [];
-
-        if (!result.total) {
-          bulkRecords.push({
-            key: tone,
-            name: capitalCase(tone).replaceAll('-', ' '),
+        if (!count) {
+          await Tone.create({
+            key: tone.key,
+            name: tone.label,
             category: category,
+            shortDescription: tone.shortDescription,
+            summary: tone.summary,
+            description: tone.description,
+            parameters: tone.parameters,
+            tags: tone.tags,
+            formality: tone.formality as Formality,
             hidden: false,
           });
-        }
-
-        if (bulkRecords.length) {
-          await queryInterface.bulkInsert('tones', bulkRecords);
         }
       }
     }

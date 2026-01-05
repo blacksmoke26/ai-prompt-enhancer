@@ -1,38 +1,54 @@
-'use strict';
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
 
-import {QueryInterface, QueryTypes} from 'sequelize';
+import { QueryInterface, QueryTypes } from 'sequelize';
+
+// db
+import { ExpertiseLevel, PromptUserRole } from '~/database/models';
 
 // constants
-import userRoles from '~/constants/user-roles';
+import promptUserRoles from '~/constants/prompt-user-roles';
 
 /** @type {import('sequelize-cli').Migration} */
 export default {
   async up(queryInterface: QueryInterface) {
-    for await (const role of userRoles) {
-      const [result] = await queryInterface.sequelize.query(`SELECT COUNT(*) as total FROM user_roles WHERE key = '${role.id}'`, {
-        type: QueryTypes.SELECT,
-        raw: true,
-      }) as Awaited<[{ total: number }]>;
+    await queryInterface.sequelize.transaction(async (transaction) => {
+      for await (const role of promptUserRoles) {
+        const [result] = (await queryInterface.sequelize.query(
+          `SELECT COUNT(*) as total FROM prompt_user_roles WHERE key = '${role.id}'`,
+          {
+            type: QueryTypes.SELECT,
+            raw: true,
+          },
+        )) as Awaited<[{ total: number }]>;
 
-      const bulkRecords: object[] = [];
-
-      if (!result.total) {
-        bulkRecords.push({
-          key: role.id,
-          name: role.name,
-          description: role.description,
-          system_prompt: role.systemPrompt,
-          category: role.category,
-        });
+        if (!result.total) {
+          await PromptUserRole.create(
+            {
+              key: role.id,
+              name: role.name,
+              systemPrompt: role.systemPrompt as string,
+              shortDescription: role.shortDescription,
+              longDescription: role.longDescription,
+              category: role.category,
+              expertiseLevel: role.expertiseLevel as ExpertiseLevel,
+              tone: role.tone as string[],
+              capabilities: role.capabilities as string[],
+              tags: role.tags as string[],
+              temperature: role.temperature as number,
+              hidden: false,
+            },
+            { transaction },
+          );
+        }
       }
-
-      if (bulkRecords.length) {
-        await queryInterface.bulkInsert('user_roles', bulkRecords);
-      }
-    }
+    });
   },
 
   async down(queryInterface: QueryInterface) {
     // do nothing
-  }
+  },
 };

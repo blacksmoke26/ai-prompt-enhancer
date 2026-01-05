@@ -4,42 +4,36 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { capitalCase } from 'case-anything';
-import { QueryInterface, QueryTypes } from 'sequelize';
+import { QueryInterface } from 'sequelize';
+
+// db
+import { ResponseLength, ResponseLengthTone, Tone } from '~/database/models';
 
 // constants
 import { RESPONSE_LENGTH_GROUPED } from '~/constants/response-length';
-
-const noConversion: string[] = ['TL;DR'];
 
 /** @type {import('sequelize-cli').Migration} */
 export default {
   async up(queryInterface: QueryInterface) {
     for await (const { category, values } of RESPONSE_LENGTH_GROUPED) {
-      for await (const responseLength of values) {
-        const [result] = (await queryInterface.sequelize.query(
-          `SELECT COUNT(*) as total FROM response_length WHERE key = '${responseLength}'`,
-          {
-            type: QueryTypes.SELECT,
-            raw: true,
-          },
-        )) as Awaited<[{ total: number }]>;
+      for await (const value of values) {
+        const count = await Tone.count({
+          where: { key: value.key },
+        });
 
-        const bulkRecords: object[] = [];
-
-        if (!result.total) {
-          bulkRecords.push({
-            key: responseLength,
-            name: !noConversion.includes(responseLength)
-              ? capitalCase(responseLength).replaceAll('-', ' ')
-              : responseLength,
+        if (!count) {
+          await ResponseLength.create({
+            key: value.key,
+            name: value.label,
             category: category,
+            shortDescription: value.shortDescription,
+            summary: value.summary,
+            description: value.description,
+            parameters: value.parameters,
+            tags: value.tags,
+            tone: value.tone as ResponseLengthTone,
             hidden: false,
           });
-        }
-
-        if (bulkRecords.length) {
-          await queryInterface.bulkInsert('response_length', bulkRecords);
         }
       }
     }
