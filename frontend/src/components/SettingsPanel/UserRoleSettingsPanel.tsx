@@ -11,7 +11,7 @@ import {User2} from 'lucide-react';
 import {useAppStore} from '~/stores/appStore.ts';
 
 // components
-import AdvancedConfigPanel from '~/components/standalone/AdvancedConfigPanel';
+import AdvancedConfigPanel, {GenericConfigItem} from '~/components/standalone/AdvancedConfigPanel';
 
 /**
  * Original UserRoleSettingsPanel Props
@@ -31,18 +31,25 @@ export interface UserRoleSettingsPanelProps {
  */
 const UserRoleSettingsPanel: React.FC<UserRoleSettingsPanelProps> = () => {
   const {config, setConfig, userRoles, toggleUserRole} = useAppStore();
+
   const handleSelect = (roleId: string) => {
     setConfig({userRole: roleId}, true);
   };
+
   const handleToggle = (roleId: string, isVisible: boolean) => {
     toggleUserRole(roleId, !isVisible);
   };
+
+  const items: GenericConfigItem[] = userRoles.map(x => ({
+    ...x,
+    description: x.shortDescription,
+  }));
 
   return (
     <AdvancedConfigPanel
       title="User Role Management" titleIcon={<User2 size={20}/>}
       searchPlaceholder="Search roles, description, or categories..."
-      items={userRoles} selectedId={config.userRole} onSelect={handleSelect} onToggleVisibility={handleToggle}
+      items={items} selectedId={config.userRole} onSelect={handleSelect} onToggleVisibility={handleToggle}
       enableChart={true} enableLayoutToggle={true}  enablePinning={true} enableTiltEffect={true}
       allowBulkActions={true}
       density="compact" cardVariant="glass" cardBorderRadius="md" primaryColor="blue" categorySort="count-desc"

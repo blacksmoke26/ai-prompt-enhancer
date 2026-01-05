@@ -11,7 +11,7 @@ import {Type} from 'lucide-react';
 import {useAppStore} from '~/stores/appStore.ts';
 
 // components
-import AdvancedConfigPanel from '~/components/standalone/AdvancedConfigPanel';
+import AdvancedConfigPanel, {GenericConfigItem} from '~/components/standalone/AdvancedConfigPanel';
 
 /**
  * Original EnhancementSettingsPanel Props
@@ -38,11 +38,16 @@ const EnhancementSettingsPanel: React.FC<EnhancementSettingsPanelProps> = () => 
     toggleEnhancementType(id, !isVisible);
   };
 
+  const items: GenericConfigItem[] = enhancementTypes.map(x => ({
+    ...x,
+    description: x.shortDescription,
+  }));
+
   return (
     <AdvancedConfigPanel
       title="Enhancement Type Management" titleIcon={<Type size={20}/>}
       searchPlaceholder="Search enhancement, description, or categories..."
-      items={enhancementTypes} selectedId={config.enhancementType}
+      items={items} selectedId={config.enhancementType}
       onSelect={handleSelect} onToggleVisibility={handleToggle}
       enableChart={true} enableLayoutToggle={true} enablePinning={true} enableTiltEffect={true}
       allowBulkActions={true}
