@@ -33,7 +33,7 @@ The database models are defined using Sequelize ORM and are located in `src/data
 - `Provider.ts` - Defines the Provider model
 - `History.ts` - Defines the History model
 - `Setting.ts` - Defines the Setting model
-- `UserRole.ts` - Defines the User Role model
+- `PromptUserRole.ts` - Defines the User Role model
 - `EnhancementType.ts` - Defines the Enhancement Type model
 
 ## Database Initialization

@@ -8,7 +8,7 @@ The constants module follows a modular pattern where each file defines constants
 
 - `providers.ts` - AI provider configurations and mappings
 - `enhancement-types.ts` - Prompt enhancement type definitions
-- `user-roles.ts` - User role definitions and permissions
+- `prompt-user-roles.ts` - User role definitions and permissions
 - `configuration.ts` - Application configuration constants
 
 ## Provider Constants (`providers.ts`)
@@ -60,7 +60,7 @@ Defines the types of prompt enhancements that can be applied:
 - **summarize** - Summarize the prompt content
 - **rephrase** - Rephrase the prompt in different ways
 
-## User Roles (`user-roles.ts`)
+## User Roles (`prompt-user-roles.ts`)
 
 Defines user roles and their permissions:
 
