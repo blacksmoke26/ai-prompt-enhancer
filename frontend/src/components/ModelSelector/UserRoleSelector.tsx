@@ -42,7 +42,7 @@ const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => 
         options={toSelectGroupedOptions(userRoles.filter(x => !x.hidden))}
         formatLabel={option => (
           <div><User2 className="inline-flex" size="16"/> {option.label}<p
-            className="text-xs pl-5 mt-1">{option.description}</p>
+            className="text-xs pl-5 mt-1">{option.shortDescription}</p>
           </div>
         )}
         selectedOption={(_, option) => (

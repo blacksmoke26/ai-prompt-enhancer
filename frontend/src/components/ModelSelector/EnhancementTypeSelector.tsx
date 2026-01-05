@@ -43,11 +43,11 @@ const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({classN
         formatLabel={option => (
           <div><Type className="inline-flex" size="16"/> {option.label}
             <p
-              className="text-xs pl-5 mt-1">{option.description}</p>
+              className="text-xs pl-5 mt-1">{option.shortDescription}</p>
           </div>
         )}
         selectedOption={(_, option) => (
-          <div>{option.label} <Badge variant="outline" className="text-xs">{option.category}</Badge></div>
+          <div>{option?.label ?? 'N/A'} <Badge variant="outline" className="text-xs">{option?.category ?? 'N/A'}</Badge></div>
         )}
       />
       {selectedEnhancementData && (

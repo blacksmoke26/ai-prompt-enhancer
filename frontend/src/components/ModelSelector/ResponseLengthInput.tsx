@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import {AudioLines} from 'lucide-react';
+import {AudioLines, User2} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -15,6 +15,7 @@ import {toSelectGroupedOptionsPlain} from '~/utils/helpers';
 
 // ui components
 import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
+import {Badge} from '~/components/ui/Badge.tsx';
 
 /**
  * Tone input component for AI configuration
@@ -41,6 +42,14 @@ const ResponseLengthInput: React.FC = () => {
         value={config?.responseLength as string}
         onChange={v => handleChange(v as string)}
         options={toSelectGroupedOptionsPlain(responseLengths.filter(x => !x.hidden))}
+        formatLabel={option => (
+          <div><User2 className="inline-flex" size="16"/> {option.label}<p
+            className="text-xs pl-5 mt-1">{option.summary}</p>
+          </div>
+        )}
+        selectedOption={(_, option) => (
+          <div>{option?.name ?? 'N/A'} <Badge variant="outline" className="text-xs">{option?.category ?? 'N/A'}</Badge></div>
+        )}
       />
     </div>
   );
