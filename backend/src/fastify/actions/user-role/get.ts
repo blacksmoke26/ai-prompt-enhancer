@@ -5,7 +5,7 @@
  */
 
 // db
-import {PromptUserRole} from '~/database/models';
+import {PromptUserRole, PromptUserRoleAttributes } from '~/database/models';
 
 // helpers
 import ErrorHelper from '~/helpers/ErrorHelper';
@@ -17,7 +17,6 @@ import schema from './schemas/get.schema';
 // types
 import type {FastifyInstance} from 'fastify';
 import type {SuccessResponse} from '~/types/response';
-import type {UserRole as UserRol} from '~/constants/user-roles';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -25,20 +24,18 @@ export default (fastify: FastifyInstance) => {
    * @example GET /config/user-roles
    * @developer-note Used to populate dropdown options in UI
    */
-  fastify.get<{ Reply: SuccessResponse<UserRol[]>; }>('/', {schema}, async () => {
+  fastify.get<{ Reply: SuccessResponse<PromptUserRoleAttributes[]>; }>('/', {schema}, async () => {
     try {
       const records = await PromptUserRole.findAll({
-        attributes: ['id', 'key', 'name', 'description', 'systemPrompt', 'category', 'hidden'],
         order: [['id', 'ASC']],
         raw: true,
       });
 
       const list = records.map(record => ({
-        id: record.key,
-        name: record.name,
-        description: record.description,
-        systemPrompt: record.systemPrompt,
-        category: record.category,
+        ...record,
+        tone: record?.tone ? JSON.parse(record?.tone as unknown as string) : [],
+        capabilities: record?.capabilities ? JSON.parse(record?.capabilities as unknown as string) : [],
+        tags: record?.tags ? JSON.parse(record?.tags as unknown as string) : [],
         hidden: Boolean(record.hidden),
       }));
 

@@ -5,7 +5,7 @@
  */
 
 // db
-import {EnhancementType} from '~/database/models';
+import { EnhancementType, EnhancementTypeAttributes } from '~/database/models';
 
 // helpers
 import ErrorHelper from '~/helpers/ErrorHelper';
@@ -15,9 +15,8 @@ import ResponseHelper from '~/helpers/ResponseHelper';
 import schema from './schemas/get.schema';
 
 // types
-import type {FastifyInstance} from 'fastify';
-import type {SuccessResponse} from '~/types/response';
-import type {EnhancementType as Enhancement} from '~/constants/enhancement-types';
+import type { FastifyInstance } from 'fastify';
+import type { SuccessResponse } from '~/types/response';
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -25,27 +24,44 @@ export default (fastify: FastifyInstance) => {
    * @example GET /config/enhancement-types
    * @developer-note Used to populate dropdown options in UI
    */
-  fastify.get<{ Reply: SuccessResponse<Enhancement[]>; }>('/', {schema}, async () => {
-    try {
-      const records = await EnhancementType.findAll({
-        attributes: ['id', 'key', 'name', 'description', 'systemPrompt', 'category', 'hidden'],
-        order: [['id', 'ASC']],
-        raw: true,
-      });
+  fastify.get<{ Reply: SuccessResponse<EnhancementTypeAttributes[]> }>(
+    '/',
+    { schema },
+    async () => {
+      try {
+        const records = await EnhancementType.findAll({
+          order: [['id', 'ASC']],
+          raw: true,
+        });
 
-      const list = records.map(record => ({
-        id: record.key,
-        name: record.name,
-        description: record.description,
-        systemPrompt: record.systemPrompt,
-        category: record.category,
-        hidden: Boolean(record.hidden),
-      }));
+        const list = records.map((record) => ({
+          ...record,
+          parameters: record?.parameters
+            ? JSON.parse(record?.parameters as unknown as string)
+            : {},
+          metadata: record?.metadata
+            ? JSON.parse(record?.metadata as unknown as string)
+            : {},
+          performance: record?.performance
+            ? JSON.parse(record?.performance as unknown as string)
+            : {},
+          templateVariables: record?.templateVariables
+            ? JSON.parse(record?.templateVariables as unknown as string)
+            : [],
+          dependencies: record?.dependencies
+            ? JSON.parse(record?.dependencies as unknown as string)
+            : [],
+          tags: record?.tags
+            ? JSON.parse(record?.tags as unknown as string)
+            : [],
+          hidden: Boolean(record.hidden),
+        }));
 
-      return ResponseHelper.successWithData(list);
-    } catch (error: any) {
-      fastify.log.error('Failed to get enhancement types:', error);
-      ErrorHelper.throwWithStatus('Failed to fetch enhancement types');
-    }
-  });
-}
+        return ResponseHelper.successWithData(list);
+      } catch (error: any) {
+        fastify.log.error('Failed to get enhancement types:', error);
+        ErrorHelper.throwWithStatus('Failed to fetch enhancement types');
+      }
+    },
+  );
+};

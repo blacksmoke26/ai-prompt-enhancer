@@ -8,6 +8,9 @@
 import schema400WithError from '~/fastify/schemas/generic/400.schema';
 import schema200WithData from '~/fastify/schemas/generic/200-success-with-data.schema';
 
+// constants
+import { getPromptUserRolesJsonSchema } from '~/constants/prompt-user-roles';
+
 // types
 import type {FastifySchema} from 'fastify';
 
@@ -18,39 +21,6 @@ export default {
   security: [],
   response: {
     400: schema400WithError('Failed to fetch user roles'),
-    200: schema200WithData({
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          id: {
-            type: 'string',
-          },
-          name: {
-            type: 'string',
-          },
-          description: {
-            type: 'string',
-          },
-          systemPrompt: {
-            type: 'string',
-          },
-          category: {
-            type: 'string',
-          },
-          hidden: {
-            type: 'boolean',
-          },
-        },
-        required: [
-          'id',
-          'name',
-          'description',
-          'systemPrompt',
-          'category',
-          'hidden',
-        ],
-      },
-    }),
+    200: schema200WithData(getPromptUserRolesJsonSchema()),
   },
 } as FastifySchema;
