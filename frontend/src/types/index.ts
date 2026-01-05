@@ -220,6 +220,21 @@ export interface PromptResponse {
 }
 
 /**
+ * Represents the possible output format names as keys of the `OutputFormat` enum.
+ * @example
+ * type Example = OutputFormatName; // 'JSON', 'HTML', 'XML', etc.
+ * @developerNotes This type is automatically generated from the `OutputFormat` enum and ensures type safety when working with format keys.
+ */
+export type OutputFormatName =
+  | 'json'
+  | 'markdown'
+  | 'text'
+  | 'html'
+  | 'xml'
+  | 'yaml'
+  | string;
+
+/**
  * Represents a single entry in the prompt enhancement history.
  * @example
  * const history: PromptHistory = {
@@ -236,36 +251,64 @@ export interface PromptResponse {
  * Includes additional metadata like `rating` and `notes` for user feedback.
  */
 export interface PromptHistory {
-  /** Unique identifier for the history entry */
+  /** Unique identifier for the history entry, auto-generated */
   id: string;
-  /** The original prompt text */
+  /** The original, unmodified prompt text provided by the user */
   originalPrompt: string;
-  /** The enhanced version of the prompt */
+  /** The AI-enhanced or processed version of the prompt */
   enhancedPrompt: string;
-  /** The AI model used for enhancement */
+  /** The AI model name/identifier used for enhancement (e.g., "gpt-4", "claude-3") */
   model: string;
-  /** The AI provider used for enhancement */
-  provider: string;
-  /** Type of enhancement applied */
+  /** The type of enhancement applied (e.g., "grammar", "style", "expansion") */
   enhancementType: string;
-  /** Role used during enhancement */
+  /** The role or category of the user making the request (e.g., "developer", "content-writer") */
   userRole: string;
-  /** System prompt used for the enhancement */
+  /** The system prompt used for the request */
   systemPrompt?: string;
-  /** Timestamp of when the enhancement was created */
-  timestamp: string;
-  /** Number of tokens used in the response */
+  /** Optional AI service provider name (e.g., "OpenAI", "Anthropic", "Google") */
+  provider?: string;
+  /** Exact date and time when the prompt was processed */
+  timestamp: Date;
+  /** Number of tokens consumed during processing, if available */
   tokensUsed?: number;
-  /** Time taken to process the request in seconds */
+  /** Time taken to process the prompt in milliseconds */
   processingTime: number;
   /** Temperature setting for randomness in output (0-1) */
   temperature?: number;
   /** Maximum tokens allowed in the response */
   maxTokens?: number;
-  /** User rating for the enhancement (1-5) */
-  rating?: number;
-  /** User notes about the enhancement */
-  notes?: string;
+  /** Rating given to the response (1-5) */
+  rating: number;
+  /** Any additional notes about the response */
+  notes: string | null;
+  /** The target audience for the response (e.g., "beginner", "intermediate", "expert") */
+  targetAudience?: string | null;
+  /** The tone of the response (e.g., "formal", "informal", "neutral") */
+  tone?: string | null;
+  /** The length of the response (e.g., "short", "medium", "long") */
+  responseLength?: string | null;
+  /** The style of the response (e.g., "formal", "informal", "neutral") */
+  customInstructions?: string | null;
+  /** The output format of the response (e.g., "text", "markdown", "html") */
+  format?: OutputFormatName | null;
+  /** Additional metadata about the request */
+  metadata?: Record<string, any> | null;
+  /** Parameters used for AI enhancement */
+  enhancementParameters?: Record<string, any> | null;
+  /** Parameters for controlling the AI model's behavior */
+  topP?: number | null;
+  /** The top-k parameter for AI model */
+  topK?: number | null;
+  /** The logit bias parameter for AI model */
+  logitBias?: Record<string, number> | null;
+  /** The stop sequences for AI model */
+  stopSequences?: string[] | null;
+  /** The penalty for repetition in AI model's output */
+  frequencyPenalty?: number | null;
+  /** The penalty for non-repetition in AI model's output */
+  presencePenalty?: number | null;
+  /** Unique conversation identifier */
+  conversationId?: string | null;
 }
 
 /**
