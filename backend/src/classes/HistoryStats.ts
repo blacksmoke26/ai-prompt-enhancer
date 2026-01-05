@@ -9,7 +9,7 @@ import {
   EnhancementType,
   History,
   Provider,
-  UserRole,
+  PromptUserRole,
 } from '~/database/models';
 
 // types
@@ -39,7 +39,7 @@ export default class HistoryStats {
    * @developerNote This method is used to reduce database queries by caching results in memory.
    */
   private async getCachedValue<
-    T extends typeof Provider | typeof UserRole | typeof EnhancementType,
+    T extends typeof Provider | typeof PromptUserRole | typeof EnhancementType,
   >(
     cache: Map<string, string>,
     key: string,
@@ -83,7 +83,7 @@ export default class HistoryStats {
    * const roleName = await stats.getUserRoleFromDb('admin');
    */
   public async getUserRoleFromDb(key: string): Promise<string> {
-    return this.getCachedValue(this.userRoles, key, UserRole, 'key', 'name');
+    return this.getCachedValue(this.userRoles, key, PromptUserRole, 'key', 'name');
   }
 
   /**

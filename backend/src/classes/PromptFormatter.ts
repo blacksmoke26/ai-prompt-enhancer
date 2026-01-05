@@ -6,7 +6,7 @@
  */
 
 // db
-import {EnhancementType, UserRole} from '~/database/models';
+import {EnhancementType, PromptUserRole} from '~/database/models';
 
 // utils
 import { getInstance } from '~/cache';
@@ -204,7 +204,7 @@ export default abstract class PromptFormatter {
     if (effectiveConfig.includeMetadata) {
       if ( !request?.userRole?.trim?.() ) throw new Error ('User role is required');
 
-      const {name = request.userRole} = (await UserRole.findOne({
+      const {name = request.userRole} = (await PromptUserRole.findOne({
         where: {key: request.userRole},
         attributes: ['name'],
         raw: true,
@@ -404,7 +404,7 @@ export default abstract class PromptFormatter {
           raw: true,
         }).catch(() => null),
 
-        UserRole.findOne({
+        PromptUserRole.findOne({
           attributes: ['systemPrompt', 'key'],
           where: {key: request.userRole},
           raw: true,

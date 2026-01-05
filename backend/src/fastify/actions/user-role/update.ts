@@ -5,7 +5,7 @@
  */
 
 // db
-import {UserRole} from '~/database/models';
+import {PromptUserRole} from '~/database/models';
 
 // helpers
 import ErrorHelper from '~/helpers/ErrorHelper';
@@ -28,7 +28,7 @@ export default (fastify: FastifyInstance) => {
     Body: { hidden: boolean }
     Reply: SuccessOnlyResponse
   }>('/:key', {schema}, async (request, reply) => {
-    const record = await UserRole.findOne({
+    const record = await PromptUserRole.findOne({
       where: {key: request.params.key},
     });
 

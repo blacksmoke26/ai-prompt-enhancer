@@ -5,7 +5,7 @@
  */
 
 // db
-import {UserRole} from '~/database/models';
+import {PromptUserRole} from '~/database/models';
 
 // helpers
 import ErrorHelper from '~/helpers/ErrorHelper';
@@ -27,7 +27,7 @@ export default (fastify: FastifyInstance) => {
    */
   fastify.get<{ Reply: SuccessResponse<UserRol[]>; }>('/', {schema}, async () => {
     try {
-      const records = await UserRole.findAll({
+      const records = await PromptUserRole.findAll({
         attributes: ['id', 'key', 'name', 'description', 'systemPrompt', 'category', 'hidden'],
         order: [['id', 'ASC']],
         raw: true,
