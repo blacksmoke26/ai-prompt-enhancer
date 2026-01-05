@@ -27,17 +27,18 @@ export default (fastify: FastifyInstance) => {
   fastify.get<{ Reply: SuccessResponse<Omit<ToneAttributes, 'id'>[]>; }>('/', {schema}, async () => {
     try {
       const records = await Tone.findAll({
-        attributes: ['key', 'name', 'category', 'hidden'],
         order: [['id', 'ASC']],
         raw: true,
       });
 
       const list = records.map(record => ({
-        key: record.key,
-        name: record.name,
-        category: record.category,
+        ...record,
+        parameters: record?.parameters ? JSON.parse(record?.parameters as unknown as string) : {},
+        tags: record?.tags ? JSON.parse(record?.tags as unknown as string) : [],
         hidden: Boolean(record.hidden),
       }));
+
+      console.log(list[0]);
 
       return ResponseHelper.successWithData(list);
     } catch (error: any) {
