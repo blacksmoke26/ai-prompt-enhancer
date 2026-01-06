@@ -4618,7 +4618,6 @@ export const categories = [
   'structure',
   'perspective',
   'scenarios',
-  'refinement',
   'multi-modal',
   'feedback',
   'temporal',
