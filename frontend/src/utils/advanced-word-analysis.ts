@@ -421,29 +421,15 @@ export type InsightCategory = 'vocabulary' | 'readability' | 'tone' | 'grammar' 
  * };
  */
 export interface Insight {
-  /**
-   * Unique identifier for the insight.
-   */
+  /** Unique identifier for the insight */
   id: string;
-
-  /**
-   * Type of insight (e.g., warning, success, info, critical).
-   */
+  /** Type of insight (e.g., warning, success, info, critical) */
   type: InsightType;
-
-  /**
-   * Category of insight (e.g., vocabulary, readability, tone).
-   */
+  /** Category of insight (e.g., vocabulary, readability, tone) */
   category: InsightCategory;
-
-  /**
-   * Human-readable message describing the insight.
-   */
+  /** Human-readable message describing the insight */
   message: string;
-
-  /**
-   * Optional suggestion or action to address the insight.
-   */
+  /** Optional suggestion or action to address the insight */
   suggestion?: string;
 }
 
@@ -451,20 +437,25 @@ export interface Insight {
  * A complete result object containing word metadata, statistical analysis, and insights derived from text analysis.
  */
 export interface AnalysisResult {
-  /**
-   * Array of metadata for each word in the analyzed text.
-   */
+  /** Array of metadata for each word in the analyzed text */
   words: WordMetadata[];
-
-  /**
-   * Statistical summary of the text analysis (readability, sentiment, etc.).
-   */
+  /** Statistical summary of the text analysis (readability, sentiment, etc.) */
   stats: AnalysisStats;
-
-  /**
-   * Array of insights or recommendations derived from the analysis.
-   */
+  /** Array of insights or recommendations derived from the analysis */
   insights: Insight[];
+}
+
+export interface WordAnalysisConfig {
+  /** Default sidebar tab to display (e.g., 'composition') */
+  defaultSidebarTab?: SidebarTab;
+  /** Tabs to enable in the sidebar UI */
+  enabledTabs?: SidebarTab[];
+  /** Enable text rewriting or simplification features */
+  enableRewrite?: boolean;
+  /** Maximum number of words to analyze */
+  maxWords?: number;
+  /** Custom vocabulary for filtering or analysis */
+  customVocabulary?: CustomVocabulary;
 }
 
 /**
@@ -485,46 +476,14 @@ export interface AnalysisResult {
  * />
  */
 export interface AdvancedWordAnalysisProps {
-  /**
-   * The text to be analyzed.
-   */
+  /** The text to be analyzed */
   text: string;
-
-  /**
-   * Language of the text (default: English).
-   */
+  /** Language of the text (default: English) */
   language?: Language;
-
-  /**
-   * Optional configuration for analysis behavior and UI.
-   */
-  config?: {
-    /**
-     * Default sidebar tab to display (e.g., 'composition').
-     */
-    defaultSidebarTab?: SidebarTab;
-
-    /**
-     * Tabs to enable in the sidebar UI.
-     */
-    enabledTabs?: SidebarTab[];
-
-    /**
-     * Enable text rewriting or simplification features.
-     */
-    enableRewrite?: boolean;
-
-    /**
-     * Maximum number of words to analyze.
-     */
-    maxWords?: number;
-
-    /**
-     * Custom vocabulary for filtering or analysis.
-     */
-    customVocabulary?: CustomVocabulary;
-  };
+  /** Optional configuration for analysis behavior and UI */
+  config?: WordAnalysisConfig;
 }
+
 /**
  * A list of positive sentiment words in the Urdu language, derived from the `URDU_SENTIMENT_WORDS` object.
  * @example ["خوش", "مبارک", "آرام"]
