@@ -26,8 +26,11 @@ import {
   XCircle,
   Zap as Bolt,
 } from 'lucide-react';
+
+// utils
 import {
   AdvancedWordAnalysisProps,
+  WordAnalysisConfig,
   AnalysisResult,
   DEFAULT_VOCAB_EN,
   FilterType,
@@ -39,10 +42,17 @@ import {
   WordMetadata,
   WordType,
 } from '~/utils/advanced-word-analysis';
+
+// ui components
+import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
+import {AdvancedInput} from '~/components/ui/AdvancedInput';
+
+// components
 import DonutChart from './DonutChart';
 import RadarChart from './RadarChart';
 import WordPill from './WordPill';
 
+export {type AdvancedWordAnalysisProps, type WordAnalysisConfig};
 const AdvancedWordAnalysis: React.FC<AdvancedWordAnalysisProps> = (props) => {
   const {
     text,
@@ -105,12 +115,12 @@ const AdvancedWordAnalysis: React.FC<AdvancedWordAnalysisProps> = (props) => {
     }, 1500);
   };
 
-  const handleFilterChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setFilter(e.target.value as FilterType);
+  const handleFilterChange = (value: string) => {
+    setFilter(value as FilterType);
   };
 
-  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
+  const handleSearchChange = (value: string) => {
+    setSearch(value);
   };
 
   if (!text) {
@@ -128,7 +138,7 @@ const AdvancedWordAnalysis: React.FC<AdvancedWordAnalysisProps> = (props) => {
 
   return (
     <div
-      className={`w-full h-[calc(100vh-4rem)] flex gap-4 p-4 bg-gray-950 text-gray-100 font-sans relative overflow-hidden ${isUrdu ? 'urdu-font' : ''}`}
+      className={`flex h-[800px] gap-4 p-4 bg-gray-950 rounded-2xl text-gray-100 font-sans relative overflow-hidden ${isUrdu ? 'urdu-font' : ''}`}
       dir={isUrdu ? 'rtl' : 'ltr'}>
 
       <div
@@ -325,7 +335,7 @@ const AdvancedWordAnalysis: React.FC<AdvancedWordAnalysisProps> = (props) => {
       </div>
 
       <div
-        className="flex-1 lg:min-w-[500px] bg-gray-900/50 border border-gray-800 rounded-2xl shadow-inner flex flex-col relative overflow-hidden min-h-0">
+        className="flex-1 lg:min-w-[500px] bg-gray-900/50 border border-gray- shadow-inner flex flex-col relative overflow-hidden min-h-0">
         <div
           className="flex flex-col sm:flex-row justify-between items-center gap-4 p-4 bg-gray-900 border-b border-gray-800 z-10">
           <div className="flex items-center gap-2 text-gray-200">
@@ -335,45 +345,54 @@ const AdvancedWordAnalysis: React.FC<AdvancedWordAnalysisProps> = (props) => {
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <div className="relative group">
-              <Search
-                className={`absolute ${isUrdu ? 'right-2.5' : 'left-2.5'} top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-500 group-focus-within:text-indigo-400 transition-colors`}/>
-              <input
+              <AdvancedInput
                 type="text"
                 placeholder={isUrdu ? 'تلاش...' : 'Search...'}
                 value={search}
-                onChange={handleSearchChange}
-                className={`bg-gray-950 border border-gray-800 text-gray-300 text-xs rounded-lg ${isUrdu ? 'pr-9 pl-3' : 'pl-8 pr-3'} py-1.5 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-full sm:w-40 transition-all`}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                maxLength={30}
+                shakeOnLimitReach
+                showCharCount
+                onClearClick={() => handleSearchChange('')}
+                className={`bg-gray-950 border border-gray-800 text-gray-300 text-xs relative top-1 rounded-lg h-9 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-64 transition-all`}
               />
             </div>
             <div className="relative">
-              <Filter
-                className={`absolute ${isUrdu ? 'right-2' : 'left-2'} top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 pointer-events-none`}/>
-              <select value={filter} onChange={handleFilterChange}
-                      className={`appearance-none bg-gray-950 border border-gray-800 text-gray-300 text-xs rounded-lg ${isUrdu ? 'pl-3 pr-8' : 'pl-7 pr-7'} py-1.5 focus:outline-none focus:border-indigo-500 cursor-pointer hover:bg-gray-800 transition-colors`}>
-                {/* General */}
-                <option value={FilterType.All}>{isUrdu ? 'تم الفاظ' : 'All Words'}</option>
-                <option value={FilterType.StopWords}>{isUrdu ? 'رکاوٹ الفاظ' : 'Stopwords Only'}</option>
-                <optgroup label={isUrdu ? 'تعداد' : 'Frequency'}>
-                  <option value={FilterType.Unique}>{isUrdu ? 'نایاب' : 'Unique'}</option>
-                  <option value={FilterType.Common}>{isUrdu ? 'عام' : 'Common'}</option>
-                </optgroup>
-                <optgroup label={isUrdu ? 'ساخت' : 'Structure'}>
-                  <option value={FilterType.Long}>{isUrdu ? 'لمبے' : 'Long Words'}</option>
-                  <option value={FilterType.Short}>{isUrdu ? 'چھوٹے' : 'Short Words'}</option>
-                  <option value={FilterType.Technical}>{isUrdu ? 'پیچیدہ' : 'Complex/Tech'}</option>
-                </optgroup>
-                <optgroup label={isUrdu ? 'جذبات' : 'Sentiment'}>
-                  <option value={FilterType.Positive}>{isUrdu ? 'مثبت' : 'Positive'}</option>
-                  <option value={FilterType.Negative}>{isUrdu ? 'منفی' : 'Negative'}</option>
-                </optgroup>
-                <optgroup label={isUrdu ? 'حصے' : 'Part of Speech'}>
-                  <option value={FilterType.Noun}>{isUrdu ? 'نام' : 'Nouns'}</option>
-                  <option value={FilterType.Verb}>{isUrdu ? 'فعل' : 'Verbs'}</option>
-                  <option value={FilterType.Adjective}>{isUrdu ? 'صفت' : 'Adjectives'}</option>
-                </optgroup>
-              </select>
-              <ChevronDown
-                className={`absolute ${isUrdu ? 'left-2' : 'right-2'} top-1/2 -translate-y-1/2 w-3 h-3 text-gray-500 pointer-events-none`}/>
+              <SelectAdvanced
+                clearable={false}
+                value={filter}
+                onChange={v => handleFilterChange(v)}
+                options={[
+                  {label: isUrdu ? 'تم الفاظ' : 'All Words', value: FilterType.All},
+                  {label: isUrdu ? 'رکاوٹ الفاظ' : 'Stopwords Only', value: FilterType.StopWords},
+                  {
+                    label: isUrdu ? 'تعداد' : 'Frequency', options: [
+                      {label: isUrdu ? 'نایاب' : 'Unique', value: FilterType.Unique},
+                      {label: isUrdu ? 'عام' : 'Common', value: FilterType.Common},
+                    ],
+                  },
+                  {
+                    label: isUrdu ? 'ساخت' : 'Structure', options: [
+                      {label: isUrdu ? 'لمبے' : 'Long Words', value: FilterType.Long},
+                      {label: isUrdu ? 'چھوٹے' : 'Short Words', value: FilterType.Short},
+                      {label: isUrdu ? 'پیچیدہ' : 'Complex/Tech', value: FilterType.Technical},
+                    ],
+                  },
+                  {
+                    label: isUrdu ? 'جذبات' : 'Sentiment', options: [
+                      {label: isUrdu ? 'مثبت' : 'Positive', value: FilterType.Positive},
+                      {label: isUrdu ? 'منفی' : 'Negative', value: FilterType.Negative},
+                    ],
+                  },
+                  {
+                    label: isUrdu ? 'حصے' : 'Part of Speech', options: [
+                      {label: isUrdu ? 'نام' : 'Nouns', value: FilterType.Noun},
+                      {label: isUrdu ? 'فعل' : 'Verbs', value: FilterType.Verb},
+                      {label: isUrdu ? 'صفت' : 'Adjectives', value: FilterType.Adjective},
+                    ],
+                  },
+                ]}
+              />
             </div>
           </div>
         </div>
@@ -391,8 +410,9 @@ const AdvancedWordAnalysis: React.FC<AdvancedWordAnalysisProps> = (props) => {
               </div>
             ) : (
               filteredWords.map((w) => (
-                <WordPill key={w.id} word={w.word} data={w} isSelected={selectedWord?.id === w.id}
-                          onClick={setSelectedWord} lang={detectedLanguage}/>))
+                <WordPill
+                  key={w.id} word={w.word} data={w} isSelected={selectedWord?.id === w.id}
+                  onClick={setSelectedWord} lang={detectedLanguage}/>))
             )}
             <div className="h-20 w-full"/>
           </div>
@@ -438,9 +458,9 @@ const AdvancedWordAnalysis: React.FC<AdvancedWordAnalysisProps> = (props) => {
                       className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3 flex items-center gap-2">
                       <Replace className="w-3 h-3"/> {isUrdu ? 'بدلاؤ' : 'Replacements'}</h3>
                     {/* TS18048 FIX: Safe access to simplifications */}
-                    {customVocabulary?.simplifications?.[selectedWord.originalWord] || DEFAULT_VOCAB_EN.simplifications[selectedWord.originalWord] || URDU_SIMPLIFICATIONS[selectedWord.originalWord] ? (
+                    {customVocabulary?.simplifications?.[selectedWord.originalWord.toLowerCase()] || DEFAULT_VOCAB_EN.simplifications[selectedWord.originalWord.toLowerCase()] || URDU_SIMPLIFICATIONS[selectedWord.originalWord.toLowerCase()] ? (
                       <div
-                        className="space-y-1.5">{(customVocabulary?.simplifications?.[selectedWord.originalWord] || DEFAULT_VOCAB_EN.simplifications[selectedWord.originalWord] || URDU_SIMPLIFICATIONS[selectedWord.originalWord])?.map((s, i) => (
+                        className="space-y-1.5">{(customVocabulary?.simplifications?.[selectedWord.originalWord.toLowerCase()] || DEFAULT_VOCAB_EN.simplifications[selectedWord.originalWord.toLowerCase()] || URDU_SIMPLIFICATIONS[selectedWord.originalWord.toLowerCase()])?.map((s, i) => (
                         <button key={i} onClick={handleRewrite}
                                 className="w-full text-left px-3 py-2 bg-gray-800 hover:bg-indigo-900/30 border border-gray-700 hover:border-indigo-500/50 rounded text-xs text-gray-300 transition-all flex justify-between items-center group">
                           <span>{s}</span>
