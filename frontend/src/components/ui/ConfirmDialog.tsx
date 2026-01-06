@@ -6,6 +6,8 @@
 
 import * as React from 'react';
 import {AlertDialog, Button, Flex} from '@radix-ui/themes';
+import * as Dialog from '@radix-ui/react-dialog';
+import {AlertTriangle} from 'lucide-react';
 
 /**
  * Props for the ConfirmDialog component, defining customizable elements and text.
@@ -75,5 +77,56 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = (props) => {
         </Flex>
       </AlertDialog.Content>
     </AlertDialog.Root>
+  );
+};
+
+export interface ConfirmDialogAdvancedProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  description: string;
+  confirmCaption?: string;
+  cancelCaption?: string;
+  onConfirmClick: () => void;
+}
+
+// Confirm Dialog
+export const ConfirmDialogAdvanced: React.FC<ConfirmDialogAdvancedProps> = (props) => {
+  const {
+    open,
+    onOpenChange,
+    title,
+    description,
+    confirmCaption = 'Confirm',
+    cancelCaption = 'Cancel',
+    onConfirmClick
+  } = props;
+
+  return (
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay
+          className="fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 backdrop-blur-sm"/>
+        <Dialog.Content
+          className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-md translate-x-[-50%] translate-y-[-50%] gap-4 border bg-white p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out rounded-lg dark:bg-gray-900 dark:border-gray-700">
+          <div className="flex flex-col space-y-2 text-center sm:text-left">
+            <div className="flex items-center justify-center gap-2 sm:justify-start">
+              <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-amber-500"/> {title}
+              </Dialog.Title>
+            </div>
+            <Dialog.Description className="text-sm text-gray-500 dark:text-gray-400">
+              {description}
+            </Dialog.Description>
+          </div>
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-4">
+            <Dialog.Close asChild>
+              <Button variant="outline" className="mt-2 sm:mt-0">{cancelCaption}</Button>
+            </Dialog.Close>
+            <Button variant="solid" onClick={onConfirmClick}>{confirmCaption}</Button>
+          </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 };

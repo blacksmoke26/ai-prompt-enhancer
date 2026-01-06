@@ -298,7 +298,7 @@ const formatParsers: Record<FormatPreset, (val: string) => string> = {
  * @example
  * sizeStyles.sm // 'h-8 px-2 text-xs'
  */
-const sizeStyles: Record<inputSize, string> = {
+const sizeStyles: Record<InputSize, string> = {
   sm: 'h-8 px-2 text-xs',
   md: 'h-10 px-3 py-2 text-sm',
   lg: 'h-12 px-4 py-3 text-base',
@@ -324,7 +324,7 @@ const radiusStyles: Record<NonNullable<AdvancedInputProps['radius']>, string> = 
  * @example
  * variantStyles.otp // 'border-2 border-input text-center !tracking-[0.5em] font-mono bg-background'
  */
-const variantStyles: Record<inputVariant, string> = {
+const variantStyles: Record<InputVariant, string> = {
   outline: 'border border-input bg-background',
   filled: 'border-2 border-transparent bg-muted focus:bg-background focus:border-input',
   ghost: 'border-0 bg-transparent focus:bg-muted/50',
@@ -601,33 +601,37 @@ export const AdvancedInput = React.forwardRef<HTMLInputElement, AdvancedInputPro
             {!loading && rightIcon && <div className="text-muted-foreground pointer-events-none">{rightIcon}</div>}
 
             {masked && (
-              <button type="button" onClick={() => setShowPassword(p => !p)}
-                      className="rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
-                      tabIndex={-1}>
+              <button
+                type="button" onClick={() => setShowPassword(p => !p)}
+                className="rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                tabIndex={-1}>
                 {showPassword ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
               </button>
             )}
 
             {type === 'password' && !loading && (
-              <button type="button" onClick={() => setShowPassword(p => !p)}
-                      className="rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
-                      tabIndex={-1}>
+              <button
+                type="button" onClick={() => setShowPassword(p => !p)}
+                className="rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors"
+                tabIndex={-1}>
                 {showPassword ? <EyeOff className="h-4 w-4"/> : <Eye className="h-4 w-4"/>}
               </button>
             )}
 
             {!loading && allowClear && hasValue && (
-              <button type="button" onClick={handleClear}
-                      className={cn('rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50', 'opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all', hasValue && 'opacity-100')}
-                      tabIndex={-1}>
+              <button
+                type="button" onClick={handleClear}
+                className={cn('relative top-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50', 'opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all', hasValue && 'opacity-100')}
+                tabIndex={-1}>
                 <X className="h-4 w-4"/>
               </button>
             )}
 
             {!loading && allowCopy && hasValue && (
-              <button type="button" onClick={handleCopy}
-                      className={cn('rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50', 'opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all', hasValue && 'opacity-100')}
-                      tabIndex={-1}>
+              <button
+                type="button" onClick={handleCopy}
+                className={cn('rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50', 'opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all', hasValue && 'opacity-100')}
+                tabIndex={-1}>
                 {copyFeedback === 'copied' ? <Check className="h-4 w-4 text-green-500"/> : <Copy className="h-4 w-4"/>}
               </button>
             )}
@@ -637,7 +641,7 @@ export const AdvancedInput = React.forwardRef<HTMLInputElement, AdvancedInputPro
           {showCharCount && (maxLength || isFocused || isNearLimit) && (
             <div className="absolute bottom-1 right-2 pointer-events-none z-10">
               <span
-                className={cn('text-[10px] px-1 rounded bg-background/80 backdrop-blur-sm transition-colors', getCounterColor())}>
+                className={cn('text-[10px] px-5 relative -top-[0.02rem] rounded transition-colors', getCounterColor())}>
                 {maxLength ? `${remaining} / ${maxLength}` : length}
               </span>
             </div>

@@ -50,7 +50,7 @@ const TooltipTrigger = TooltipPrimitive.Trigger;
  * @developer Automatically positioned relative to the trigger element.
  */
 const TooltipContent = React.forwardRef<
-  React.ElementRef<typeof TooltipPrimitive.Content>,
+  React.ComponentRef<typeof TooltipPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TooltipPrimitive.Content>
 >(({ className, sideOffset = 4, ...props }, ref) => (
   <TooltipPrimitive.Content
@@ -64,5 +64,20 @@ const TooltipContent = React.forwardRef<
   />
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
+
+export const TooltipMini: React.FC<React.PropsWithChildren<{title: string | React.ReactNode}>> = (props) => {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          {props?.children}
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="font-normal">{props?.title}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
 
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger };
