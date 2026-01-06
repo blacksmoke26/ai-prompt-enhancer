@@ -13,9 +13,8 @@ import {cn} from '~/utils/helpers';
 import {MdxEditor} from '~/components/ui/MdxEditor';
 
 // components
-import TextStats from './TextStats';
+import TextStats from './widgets/TextStats';
 import WordCloud from '~/components/standalone/WordCloud/WordCloudAdvance';
-import SmartSuggestionsTrigger from './SmartSuggestionsTrigger';
 import EnhancedPrompt, {type EnhancedPromptResponse} from './EnhancedPrompt';
 
 // types
@@ -143,11 +142,9 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
     onKeyDown,
     onFocus,
     onBlur,
-    showSmartPanel = true,
     editorSettings,
   } = props;
 
-  const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedTheme, setSelectedTheme] = useState<string>(editorSettings?.theme ?? 'default');
   const editorRef = useRef<HTMLDivElement>(null);
 
@@ -233,15 +230,9 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
 
       {showStats && (
         <TextStats
-          wordCount={wordCount}
-          charCount={charCount}
-          lineCount={lineCount}
-          readingTime={readingTime}
-          tokenEstimate={tokenEstimate}
+          text={value}
           autoSaveStatus={autoSaveStatus}
           lastSaved={lastSaved}
-          maxLength={maxLength ?? 10000}
-          displayLineCount={displayLineCount ?? true}
         />
       )}
 
@@ -277,18 +268,6 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
           response={response as EnhancedPromptResponse}
           originalPrompt={originalPrompt ?? ''}
         />
-      )}
-
-      {/* Smart Suggestions Trigger */}
-      {showSmartPanel && (
-        <div className="absolute top-1 right-2 z-10">
-          <SmartSuggestionsTrigger
-            prompt={value}
-            isVisible={showSuggestions}
-            onTogglePanel={() => setShowSuggestions(!showSuggestions)}
-            response={response}
-          />
-        </div>
       )}
     </div>
   );

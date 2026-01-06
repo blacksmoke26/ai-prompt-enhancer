@@ -4,17 +4,18 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useState, useEffect} from 'react';
-
-// ui components
-import {Button} from '~/components/ui/Button';
-import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from '~/components/ui/Tooltip';
-
-// components
-import SmartSuggestionsPanel from '~/components/SmartSuggestionsPanel';
+import React, {useEffect, useState} from 'react';
+import {BrainCircuit} from 'lucide-react';
 
 // AI brain module
 import {EnhancedAIBrainV3} from '~/lib/ai-brain-enhanced';
+
+// ui components
+import {Button} from '~/components/ui/Button';
+import {TooltipMini} from '~/components/ui/Tooltip';
+
+// components
+import SmartSuggestionsPanel from '~/components/SmartSuggestionsPanel';
 
 export interface SmartSuggestionsTriggerProps {
   /** Current prompt text */
@@ -68,39 +69,28 @@ const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = (props) 
 
   return (
     <>
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onTogglePanel}
-              className="h-8 w-8 p-0 relative"
-            >
-              <div className="w-5 h-5 flex items-center justify-center">
-                {isAnalyzing ? (
-                  <span className="animate-spin">🧠</span>
-                ) : (
-                  '🧠'
-                )}
-              </div>
-              {isAnalyzing && (
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></span>
-              )}
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>AI-Powered Prompt Suggestions</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <TooltipMini title="AI-Powered Prompt Suggestions">
+        <Button
+          variant="plain"
+          size="icon"
+          onClick={onTogglePanel}
+        >
+            {isAnalyzing ? (
+              <span className="animate-spin"><BrainCircuit className="w-5 h-5"/></span>
+            ) : (
+              <BrainCircuit className="w-5 h-5"/>
+            )}
+          {isAnalyzing && (
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></span>
+          )}
+        </Button>
+      </TooltipMini>
 
       {isVisible && (
         <SmartSuggestionsPanel
           isVisible={isVisible}
           onClose={onTogglePanel}
           prompt={prompt}
-          response={response}
           analysis={analysis}
         />
       )}

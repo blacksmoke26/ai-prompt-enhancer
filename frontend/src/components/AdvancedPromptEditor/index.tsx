@@ -5,27 +5,26 @@
  */
 
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {ScrollText, WandSparkles} from 'lucide-react';
-import * as Popover from '@radix-ui/react-popover';
+import {WandSparkles} from 'lucide-react';
 
 // helpers
 import {cn, copyToClipboard, downloadFile} from '~/utils/helpers';
 
 // ui components
 import {Card, CardContent, CardHeader} from '~/components/ui/Card';
-import {Button} from '~/components/ui/Button';
-import {Textarea} from '~/components/ui/Textarea';
 
 // components
 import ActionButtons from './ActionButtons';
 import AutoSaveIndicator from './AutoSaveIndicator';
-import EditorContentWithSmartPanel, {
-  MDXEditorMethods,
-} from './EditorContentWithSmartPanel.tsx';
+import DefaultSystemPrompt from './widgets/DefaultSystemPrompt';
+import SmartSuggestionsTrigger from './SmartSuggestionsTrigger';
+import AdvancedWordAnalysisTrigger, {
+  WordAnalysisConfig,
+} from './AdvancedWordAnalysisTrigger';
+import EditorContentWithSmartPanel, {MDXEditorMethods} from './EditorContentWithSmartPanel';
 
 // types
 import type {PromptResponse} from '~/types';
-import {useAppStore} from '~/stores/appStore.ts';
 
 /**
  * Configuration props for the Advanced Prompt Editor component
@@ -165,12 +164,7 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
     selectedText: '',
   });
 
-  const {config, setConfig} = useAppStore();
-
-  const [localSystemPrompt, setLocalSystemPrompt] = useState<string>(config.defaultSystemPrompt);
   const textareaRef = useRef<MDXEditorMethods>(null);
-  const popoverRef = useRef<HTMLButtonElement>(null);
-
 
   /**
    * Calculates text statistics and handles auto-save
@@ -294,6 +288,9 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
   const displayWordCount = props.wordCount ?? state.wordCount;
   const displayLineCount = props.lineCount ?? state.lineCount;
 
+
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
   return (
     <div className={cn('w-full', className)}>
       <Card className="border-2 border-border/50">
@@ -305,48 +302,20 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
               {autoSave && <AutoSaveIndicator autoSaveStatus={state.autoSaveStatus} lastSaved={state.lastSaved}/>}
             </div>
 
-            <Popover.Root>
-              <Popover.Trigger asChild ref={popoverRef}>
-                <Button variant="plain" title="Change System Prompt px-0 text-sm" size="icon">
-                  <ScrollText className="h-10"/>
-                </Button>
-              </Popover.Trigger>
-              <Popover.Content
-                side="bottom"
-                align="end"
-                className="w-96 p-4 rounded bg-background shadow-lg z-50 outline-2 outline-blue-500 outline-solid"
-              >
-                <div className="space-y-2">
-                  <h3 className="font-medium">Default System Prompt</h3>
-                  <Textarea
-                    value={localSystemPrompt}
-                    onChange={(e) => setLocalSystemPrompt(e.target.value)}
-                    placeholder="Enter default system prompt..."
-                    rows={3}
-                  />
-                  <div className="flex justify-end space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setLocalSystemPrompt('You are a helpful AI assistant specialised in enhancing and improving prompts.');
-                      }}
-                    >
-                      Reset
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        setConfig({defaultSystemPrompt: config.defaultSystemPrompt}, true);
-                        popoverRef.current?.click();
-                      }}
-                    >
-                      Save
-                    </Button>
-                  </div>
-                </div>
-              </Popover.Content>
-            </Popover.Root>
+            <div className="flex justify-between">
+              <AdvancedWordAnalysisTrigger
+                config={{
+                  customVocabulary: {simplifications: {okey: ['Ok', 'K']}},
+                } as WordAnalysisConfig}
+                prompt={value}/>
+              <DefaultSystemPrompt/>
+              <SmartSuggestionsTrigger
+                prompt={value}
+                isVisible={showSuggestions}
+                onTogglePanel={() => setShowSuggestions(!showSuggestions)}
+                response={response}
+              />
+            </div>
           </div>
           <p className="text-sm">Enter your prompt below and let AI enhance it for better results</p>
         </CardHeader>
