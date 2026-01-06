@@ -403,13 +403,13 @@ const SmartSuggestionsPanel: React.FC<SmartSuggestionsPanelProps> = (props) => {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {filteredSuggestions.length > 0 ? (
-                  filteredSuggestions.map((suggestion) => {
+                  filteredSuggestions.map((suggestion, index) => {
                     const isAiRecommended = (suggestion as any).aiRecommended;
                     const adaptiveScore = (suggestion as any).adaptiveScore || 0.5;
 
                     return (
                       <FilteredSuggestion
-                        key={suggestion.id}
+                        key={suggestion.id + '_' + index}
                         aiRecommended={isAiRecommended}
                         onApplySuggestionClick={() => handleApplySuggestion(suggestion)} suggestion={suggestion}
                         adaptiveScore={adaptiveScore}

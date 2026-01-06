@@ -122,7 +122,8 @@ const FiltersPanel = (props: FiltersPanelProps) => {
 
       <div className="flex gap-3 flex-wrap">
         <SelectAdvanced
-          triggerWidth="min-w-[180px]"
+          searchable
+          triggerWidth="170px"
           value={props.category}
           options={[
             {label: 'All Categories', value: 'all'},
@@ -132,7 +133,8 @@ const FiltersPanel = (props: FiltersPanelProps) => {
         />
 
         <SelectAdvanced
-          triggerWidth="min-w-[190px]"
+          searchable
+          triggerWidth="180px"
           value={props.complexity}
           options={[
             {label: 'All Complexities', value: 'all'},
@@ -142,7 +144,8 @@ const FiltersPanel = (props: FiltersPanelProps) => {
         />
 
         <SelectAdvanced
-          triggerWidth="min-w-[230px]"
+          searchable
+          triggerWidth="210px"
           value={props.intelligence}
           options={[
             {label: 'All Intelligence Levels', value: 'all'},
