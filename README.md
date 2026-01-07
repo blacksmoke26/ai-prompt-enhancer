@@ -1,6 +1,8 @@
-# AI Prompt Enhancer v1.3
+# Synapse
 
-AI Prompt Enhancer is a powerful dual-platform application that helps users improve their AI prompts through intelligent enhancement techniques, providing better results from AI models with minimal effort.
+Synapse - *The junction between two neurons where signals pass.* 
+
+A powerful dual-platform application that helps users improve their AI prompts through intelligent enhancement techniques, providing better results from AI models with minimal effort.
 
 ## 🚀 Features
 
@@ -43,7 +45,7 @@ AI Prompt Enhancer is a powerful dual-platform application that helps users impr
 ## 📁 Project Structure
 
 ```
-ai-prompt-enhancer/
+synapse/
 ├── backend/              # Node.js backend API
 │   ├── src/              # Source code
 │   ├── database/         # Database models and migrations
@@ -76,10 +78,10 @@ ai-prompt-enhancer/
 
 ```bash
 # Clone the repository
-git clone https://github.com/blacksmoke26/ai-prompt-enhancer.git
+git clone https://github.com/blacksmoke26/synapse.git
 
 # Navigate to project directory
-cd ai-prompt-enhancer
+cd synapse
 
 # Install all dependencies
 npm run install:all
@@ -201,7 +203,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, please open an issue on the [GitHub repository](https://github.com/blacksmoke26/ai-prompt-enhancer/issues).
+For support, please open an issue on the [GitHub repository](https://github.com/blacksmoke26/synapse/issues).
 
 ## 🙏 Acknowledgments
 

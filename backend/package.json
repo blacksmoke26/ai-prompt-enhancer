@@ -1,5 +1,5 @@
 {
-  "name": "ai-prompt-enhancer-backend",
+  "name": "synapse-backend",
   "version": "1.0.0",
   "description": "Backend API for AI Prompt Enhancement Utility",
   "main": "dist/index.js",

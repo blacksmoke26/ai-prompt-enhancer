@@ -100,10 +100,10 @@ frontend/
 
 ```bash
 # Clone the repository
-git clone https://github.com/blacksmoke26/ai-prompt-enhancer.git
+git clone https://github.com/blacksmoke26/synapse.git
 
 # Navigate to frontend directory
-cd ai-prompt-enhancer/frontend
+cd synapse/frontend
 
 # Install dependencies
 npm install
@@ -283,7 +283,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-For support, please open an issue on the [GitHub repository](https://github.com/blacksmoke26/ai-prompt-enhancer/issues).
+For support, please open an issue on the [GitHub repository](https://github.com/blacksmoke26/synapse/issues).
 
 ## 🙏 Acknowledgments
 

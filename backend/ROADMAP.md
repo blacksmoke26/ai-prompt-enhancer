@@ -90,7 +90,7 @@ This roadmap outlines the planned features, improvements, and development priori
 We welcome contributions to the AI Prompt Enhancer project. Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
 
 ## Feedback
-We value your feedback! Please submit feature requests, bug reports, or suggestions through our [issue tracker](https://github.com/blacksmoke26/ai-prompt-enhancer/issues).
+We value your feedback! Please submit feature requests, bug reports, or suggestions through our [issue tracker](https://github.com/blacksmoke26/synapse/issues).
 
 ## Version History
 - **v1.0.0** - Initial release with core functionality

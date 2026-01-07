@@ -1,7 +1,7 @@
 {
-  "name": "ai-prompt-enhancer-frontend",
+  "name": "synapse-frontend",
   "version": "1.0.0",
-  "description": "Frontend for AI Prompt Enhancement Utility",
+  "description": "Frontend for Synapse",
   "author": "Junaid Atari",
   "type": "module",
   "scripts": {
