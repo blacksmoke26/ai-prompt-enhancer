@@ -1,6 +1,6 @@
-# AI Prompt Enhancer Backend
+# Synapse Backend
 
-AI Prompt Enhancer is a backend service that provides an API for enhancing AI prompts using various AI providers like OpenAI, Ollama, and others. The service allows users to submit prompts, enhance them using AI models, and track their history.
+Synapse is a backend service that provides an API for enhancing AI prompts using various AI providers like OpenAI, Ollama, and others. The service allows users to submit prompts, enhance them using AI models, and track their history.
 
 ## Table of Contents
 
@@ -157,7 +157,7 @@ Stores different types of prompt enhancement that can be applied.
 
 ## Supported Providers
 
-The AI Prompt Enhancer supports the following AI providers:
+The Synapse supports the following AI providers:
 
 - Ollama
 - OpenAI

@@ -1,7 +1,7 @@
-# AI Prompt Enhancer Backend Roadmap
+# Synapse Backend Roadmap
 
 ## Overview
-This roadmap outlines the planned features, improvements, and development priorities for the AI Prompt Enhancer backend project. The roadmap is organized by phases, with each phase containing specific features and milestones.
+This roadmap outlines the planned features, improvements, and development priorities for the Synapse backend project. The roadmap is organized by phases, with each phase containing specific features and milestones.
 
 ## Phase 1: Core Foundation (Completed)
 ### Features Implemented
@@ -87,7 +87,7 @@ This roadmap outlines the planned features, improvements, and development priori
    - Need for streaming and chunking support
 
 ## Contributing
-We welcome contributions to the AI Prompt Enhancer project. Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
+We welcome contributions to the Synapse project. Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to contribute to this project.
 
 ## Feedback
 We value your feedback! Please submit feature requests, bug reports, or suggestions through our [issue tracker](https://github.com/blacksmoke26/synapse/issues).

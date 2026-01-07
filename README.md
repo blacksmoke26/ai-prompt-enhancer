@@ -163,7 +163,7 @@ The application features a mobile-first responsive design:
 
 ## 📖 Supported AI Providers
 
-The AI Prompt Enhancer supports the following AI providers:
+The Synapse supports the following AI providers:
 - Ollama
 - OpenAI
 - OpenRouter

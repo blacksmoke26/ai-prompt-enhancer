@@ -1,6 +1,6 @@
 # Types Module
 
-The types module contains TypeScript type definitions and interfaces used throughout the AI Prompt Enhancer backend. These types ensure type safety and provide better development experience with autocompletion and error detection.
+The types module contains TypeScript type definitions and interfaces used throughout the Synapse backend. These types ensure type safety and provide better development experience with autocompletion and error detection.
 
 ## Architecture
 

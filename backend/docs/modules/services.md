@@ -1,6 +1,6 @@
 # Services Module
 
-The services module contains the core business logic for the AI Prompt Enhancer backend. Services encapsulate the application's functionality and provide a clean separation between the API layer and the data layer.
+The services module contains the core business logic for the Synapse backend. Services encapsulate the application's functionality and provide a clean separation between the API layer and the data layer.
 
 ## Architecture
 

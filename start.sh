@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# AI Prompt Enhancer - Development Setup Script
-echo "🚀 Setting up AI Prompt Enhancer..."
+# Synapse - Development Setup Script
+echo "🚀 Setting up Synapse.."
 
 # Change to backend directory and start the server
 echo "Starting backend server..."

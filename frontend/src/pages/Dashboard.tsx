@@ -92,7 +92,7 @@ export const Dashboard: React.FC = () => {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-lg font-medium">Loading AI Prompt Enhancer...</p>
+          <p className="text-lg font-medium">Loading Synapse...</p>
         </div>
       </div>
     );
@@ -151,7 +151,7 @@ export const Dashboard: React.FC = () => {
       )}>
         {/* Mobile Tab Bar */}
         <div className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-background">
-          <h1 className="text-lg font-semibold">AI Prompt Enhancer</h1>
+          <h1 className="text-lg font-semibold">Synapse</h1>
           <div className="flex space-x-2">
             {tabs.map((tab) => {
               const Icon = tab.icon;
@@ -200,6 +200,7 @@ export const Dashboard: React.FC = () => {
                     history={history}
                     loading={historyLoading}
                     onDelete={deleteItem}
+                    config={{allowBulkDelete: true, allowCompare: true, allowExport: true}}
                     onUpdate={updateItem}
                     onExport={exportHistory}
                     onClear={clearHistory}

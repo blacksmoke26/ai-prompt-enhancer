@@ -53,7 +53,7 @@ export type SettingsTab =
   | 'advanced';
 
 /**
- * Main settings panel component for configuring the AI Prompt Enhancer
+ * Main settings panel component for configuring the Synapse
  * @example
  * <SettingsPanel />
  * @developer Note: This component uses Zustand for state management and handles multiple settings categories
@@ -260,7 +260,7 @@ const SettingsPanel: React.FC = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">Configure your AI Prompt Enhancer</p>
+          <p className="text-muted-foreground">Configure your Synapse</p>
         </div>
 
         <div className="flex items-center space-x-2">

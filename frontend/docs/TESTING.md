@@ -1,8 +1,8 @@
-# AI Prompt Enhancer - Testing Documentation
+# Synapse - Testing Documentation
 
 ## Overview
 
-This document outlines the testing strategy, approach, and practices for the AI Prompt Enhancer frontend application. The testing framework is designed to ensure code quality, reliability, and maintainability of the application.
+This document outlines the testing strategy, approach, and practices for the Synapse frontend application. The testing framework is designed to ensure code quality, reliability, and maintainability of the application.
 
 ## Testing Approach
 

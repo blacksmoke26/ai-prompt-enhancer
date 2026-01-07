@@ -1,8 +1,8 @@
-# AI Prompt Enhancer Backend - Project Overview
+# Synapse Backend - Project Overview
 
 ## Project Description
 
-The AI Prompt Enhancer is a comprehensive backend service designed to provide prompt enhancement capabilities using various AI/ML providers. It allows users to submit prompts, enhance them using different AI models, and track their enhancement history. The system supports multiple AI providers including OpenAI, Ollama, Gemini, Anthropic, and many others.
+The Synapse is a comprehensive backend service designed to provide prompt enhancement capabilities using various AI/ML providers. It allows users to submit prompts, enhance them using different AI models, and track their enhancement history. The system supports multiple AI providers including OpenAI, Ollama, Gemini, Anthropic, and many others.
 
 ## Key Features
 
@@ -185,7 +185,7 @@ npm run test
 
 ## Contributing
 
-We welcome contributions to the AI Prompt Enhancer project. Please see our contributing guidelines for more information.
+We welcome contributions to the Synapse project. Please see our contributing guidelines for more information.
 
 ## License
 

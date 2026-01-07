@@ -11,8 +11,8 @@ export default async function (fastify: FastifyInstance) {
   await fastify.register(import('@fastify/swagger'), {
     openapi: {
       info: {
-        title: 'AI Prompt Enhancer',
-        description: 'The AI Prompt Enhancer is a comprehensive tool that transforms how users interact with AI models. By providing intelligent prompt enhancement capabilities, it helps users craft more effective prompts that yield better results from AI systems. The application offers a rich, intuitive interface with advanced features for prompt engineering, history management, and performance analytics.',
+        title: 'Synapse',
+        description: 'The Synapse is a comprehensive tool that transforms how users interact with AI models. By providing intelligent prompt enhancement capabilities, it helps users craft more effective prompts that yield better results from AI systems. The application offers a rich, intuitive interface with advanced features for prompt engineering, history management, and performance analytics.',
         version: '1.0',
         contact: {
           name: 'Junaid Atari',

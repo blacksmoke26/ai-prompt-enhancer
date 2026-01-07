@@ -1,6 +1,6 @@
 # Constants Module
 
-The constants module contains predefined values and configuration constants used throughout the AI Prompt Enhancer backend.
+The constants module contains predefined values and configuration constants used throughout the Synapse backend.
 
 ## Architecture
 

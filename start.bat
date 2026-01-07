@@ -1,5 +1,5 @@
 @echo off
-echo "🚀 Setting up AI Prompt Enhancer..."
+echo "🚀 Setting up Synapse..."
 
 echo.
 echo Starting backend server...

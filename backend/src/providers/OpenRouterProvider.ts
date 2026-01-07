@@ -111,7 +111,7 @@ export default class OpenRouterProvider extends BaseAIProvider {
     super(OpenRouterProvider.ProviderKey, {baseUrl: config?.baseUrl || OpenRouterProvider.ProviderConfig.baseUrl});
     this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
     this.client.defaults.headers.common['HTTP-Referer'] = 'http://localhost:5173';
-    this.client.defaults.headers.common['X-Title'] = 'AI Prompt Enhancer';
+    this.client.defaults.headers.common['X-Title'] = 'Synapse';
   }
 
   /**

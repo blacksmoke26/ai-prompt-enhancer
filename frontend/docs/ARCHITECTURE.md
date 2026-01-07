@@ -1,8 +1,8 @@
-# AI Prompt Enhancer - Frontend Architecture
+# Synapse - Frontend Architecture
 
 ## Overview
 
-The AI Prompt Enhancer is a modern React-based web application designed to help users improve their AI prompts through intelligent enhancement techniques. The frontend provides a rich user interface with real-time feedback, history management, and customization options.
+The Synapse is a modern React-based web application designed to help users improve their AI prompts through intelligent enhancement techniques. The frontend provides a rich user interface with real-time feedback, history management, and customization options.
 
 ## Architecture Components
 

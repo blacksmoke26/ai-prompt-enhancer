@@ -8,7 +8,7 @@ The providers module follows a base class pattern where each provider extends th
 
 ## Supported Providers
 
-The AI Prompt Enhancer supports the following AI providers:
+The Synapse supports the following AI providers:
 
 - **Ollama** - Local LLM models
 - **OpenAI** - GPT models

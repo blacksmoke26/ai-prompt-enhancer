@@ -1,6 +1,6 @@
 # Fastify Module
 
-The fastify module is responsible for the core Fastify server setup, configuration, and bootstrapping process for the AI Prompt Enhancer backend.
+The fastify module is responsible for the core Fastify server setup, configuration, and bootstrapping process for the Synapse backend.
 
 ## Architecture
 

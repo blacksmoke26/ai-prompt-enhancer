@@ -1,6 +1,6 @@
 # Schemas Module
 
-The schemas module contains JSON schema definitions used for request validation throughout the AI Prompt Enhancer backend.
+The schemas module contains JSON schema definitions used for request validation throughout the Synapse backend.
 
 ## Architecture
 

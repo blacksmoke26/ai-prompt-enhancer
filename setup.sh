@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# AI Prompt Enhancer - Development Setup Script
+# Synapse - Development Setup Script
 
-echo "🚀 Setting up AI Prompt Enhancer..."
+echo "🚀 Setting up Synapse..."
 
 # Check if Node.js is installed
 if ! command -v node &> /dev/null; then

@@ -1,7 +1,7 @@
-# AI Prompt Enhancer - Roadmap
+# Synapse - Roadmap
 
 ## Overview
-This document outlines the current status, completed features, and future development roadmap for the AI Prompt Enhancer application. The roadmap is organized by feature categories and includes planned enhancements, improvements, and new functionality.
+This document outlines the current status, completed features, and future development roadmap for the Synapse application. The roadmap is organized by feature categories and includes planned enhancements, improvements, and new functionality.
 
 ## Current Status
 

@@ -1,6 +1,6 @@
 # Helpers Module
 
-The helpers module contains utility functions and classes that provide common functionality used throughout the AI Prompt Enhancer backend.
+The helpers module contains utility functions and classes that provide common functionality used throughout the Synapse backend.
 
 ## Architecture
 

@@ -32,7 +32,7 @@ export interface SidebarProps {
   header?: React.ReactNode;
   /** Custom footer content */
   footer?: React.ReactNode;
-  /** Sidebar title (default: 'AI Prompt Enhancer') */
+  /** Sidebar title (default: 'Synapse') */
   title?: string;
   /** Enable collapsible sidebar functionality */
   collapsible?: boolean;
@@ -80,7 +80,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
     children,
     header,
     footer,
-    title = 'AI Prompt Enhancer',
+    title = 'Synapse',
     collapsible = false,
     showThemeSwitcher = true,
     className,

@@ -1,7 +1,7 @@
 # Base Classes Documentation
 
 ## Overview
-The base classes module provides foundational components that serve as the foundation for the AI Prompt Enhancer backend. These base classes define common interfaces, shared functionality, and patterns that are extended by various components throughout the application.
+The base classes module provides foundational components that serve as the foundation for the Synapse backend. These base classes define common interfaces, shared functionality, and patterns that are extended by various components throughout the application.
 
 ## Architecture
 The base classes module follows a clear inheritance pattern:

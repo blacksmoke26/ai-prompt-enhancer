@@ -1,6 +1,6 @@
 # Configuration Module
 
-The configuration module handles application settings and environment variable management for the AI Prompt Enhancer backend.
+The configuration module handles application settings and environment variable management for the Synapse backend.
 
 ## Architecture
 

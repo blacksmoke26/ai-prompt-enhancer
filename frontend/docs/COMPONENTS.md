@@ -1,8 +1,8 @@
-# AI Prompt Enhancer - Component Documentation
+# Synapse - Component Documentation
 
 ## Overview
 
-This document provides detailed documentation for all major components in the AI Prompt Enhancer frontend application. Each component is described with its purpose, props, and implementation details.
+This document provides detailed documentation for all major components in the Synapse frontend application. Each component is described with its purpose, props, and implementation details.
 
 ## Core Components
 

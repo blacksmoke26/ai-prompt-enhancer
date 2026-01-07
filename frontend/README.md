@@ -1,10 +1,10 @@
-# AI Prompt Enhancer
+# Synapse
 
-> **AI Prompt Enhancer** is a modern web application designed to help users improve their AI prompts through intelligent enhancement techniques, providing better results from AI models with minimal effort.
+> **Synapse** is a modern web application designed to help users improve their AI prompts through intelligent enhancement techniques, providing better results from AI models with minimal effort.
 
 ## 📋 Application Overview
 
-The AI Prompt Enhancer is a comprehensive tool that transforms how users interact with AI models. By providing intelligent prompt enhancement capabilities, it helps users craft more effective prompts that yield better results from AI systems. The application offers a rich, intuitive interface with advanced features for prompt engineering, history management, and performance analytics.
+The Synapse is a comprehensive tool that transforms how users interact with AI models. By providing intelligent prompt enhancement capabilities, it helps users craft more effective prompts that yield better results from AI systems. The application offers a rich, intuitive interface with advanced features for prompt engineering, history management, and performance analytics.
 
 ## 🎯 Key Benefits
 
