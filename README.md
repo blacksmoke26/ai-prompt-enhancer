@@ -1,3 +1,7 @@
+<p align="center">
+   <img style="width:100px;" src="frontend/assets/logos/svg/logo-only-animated.svg" alt="Synapse"/>
+</p>
+
 # Synapse
 
 Synapse - *The junction between two neurons where signals pass.* 
