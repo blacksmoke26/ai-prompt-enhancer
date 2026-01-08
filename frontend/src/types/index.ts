@@ -426,6 +426,10 @@ export interface AppConfig {
   frequencyPenalty?: number;
   /** The presence penalty parameter to influence token selection */
   presencePenalty?: number;
+  /** Whether to show deep text analysis in the UI */
+  showDeepTextAnalysis: boolean;
+  /** Whether to show prompt statistics in the UI */
+  showPromptStats: boolean;
   // Provider specific configuration objects
   /** Configuration for the Ollama AI provider */
   ollama?: AIProviderConfig;
