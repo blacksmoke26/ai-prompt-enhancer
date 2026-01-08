@@ -30,6 +30,9 @@ import {
   Zap,
 } from 'lucide-react';
 
+// hooks
+import {useAppStore} from '~/stores/appStore';
+
 // utils
 import {
   ColorStrategy,
@@ -76,10 +79,10 @@ const WordCloudAdvance: React.FC<WordCloudAdvanceProps> = (props) => {
   const {
     text,
     wordFrequency: externalWordFrequency = [],
-    showWordCloud,
-    setShowWordCloud,
     config: userConfig = {},
   } = props;
+
+  const {setConfig} = useAppStore();
 
   const config: WordCloudConfig = useMemo(() => ({
     ...defaultConfig,
@@ -102,14 +105,6 @@ const WordCloudAdvance: React.FC<WordCloudAdvanceProps> = (props) => {
 
   const [colorStrategy, setColorStrategy] = useState<ColorStrategy>(config.ui.defaultColorStrategy);
   const [fontScale, setFontScale] = useState(1);
-
-  useEffect(() => {
-    if (showWordCloud) {
-      setIsAnimating(true);
-      const timer = setTimeout(() => setIsAnimating(false), 600);
-      return () => clearTimeout(timer);
-    }
-  }, [showWordCloud]);
 
   const {processedWords, insights, stats: initialStats} = useMemo(() => {
     if (text) return processTextIntelligently(text, config);
@@ -215,8 +210,6 @@ const WordCloudAdvance: React.FC<WordCloudAdvanceProps> = (props) => {
     }
   }, [colorStrategy, maxCount, config]);
 
-  if (!showWordCloud) return null;
-
   // --- Helper for Insight Styling ---
   const getInsightStyle = (severity: Insight['severity']) => {
     switch (severity) {
@@ -264,16 +257,19 @@ const WordCloudAdvance: React.FC<WordCloudAdvanceProps> = (props) => {
           </div>
           <div className="flex items-center gap-3">
             <div className="flex bg-muted/80 rounded-lg p-1 border border-border shadow-inner">
-              <Button size="sm" variant={activeLanguage === 'en' ? 'default' : 'ghost'}
-                      className="h-8 w-8 p-0 text-xs font-bold rounded-md"
-                      onClick={() => setLanguageMode(activeLanguage === 'en' ? 'auto' : 'en')}>EN</Button>
-              <Button size="sm" variant={activeLanguage === 'ur' ? 'default' : 'ghost'}
-                      className="h-8 w-8 p-0 text-xs font-bold rounded-md"
-                      onClick={() => setLanguageMode(activeLanguage === 'ur' ? 'auto' : 'ur')}>اردو</Button>
+              <Button
+                size="sm" variant={activeLanguage === 'en' ? 'default' : 'ghost'}
+                className="h-8 w-8 p-0 text-xs font-bold rounded-md"
+                onClick={() => setLanguageMode(activeLanguage === 'en' ? 'auto' : 'en')}>EN</Button>
+              <Button
+                size="sm" variant={activeLanguage === 'ur' ? 'default' : 'ghost'}
+                className="h-8 w-8 p-0 text-xs font-bold rounded-md"
+                onClick={() => setLanguageMode(activeLanguage === 'ur' ? 'auto' : 'ur')}>اردو</Button>
             </div>
-            <Button variant="ghost" size="icon"
-                    className="rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
-                    onClick={() => setShowWordCloud(false)}><EyeOff className="h-4 w-4"/></Button>
+            <Button
+              variant="ghost" size="icon"
+              className="rounded-full hover:bg-destructive/10 hover:text-destructive transition-colors"
+              onClick={() => setConfig({showDeepTextAnalysis: false}, true)}><EyeOff className="h-4 w-4"/></Button>
           </div>
         </div>
       </CardHeader>
