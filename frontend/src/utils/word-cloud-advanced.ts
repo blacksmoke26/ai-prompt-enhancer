@@ -242,16 +242,6 @@ export interface WordCloudAdvanceProps {
   wordFrequency?: Array<{ word: string; count: number }>;
 
   /**
-   * Boolean indicating whether the word cloud should be displayed.
-   */
-  showWordCloud: boolean;
-
-  /**
-   * React state setter for controlling the visibility of the word cloud.
-   */
-  setShowWordCloud: React.Dispatch<React.SetStateAction<boolean>>;
-
-  /**
    * Optional configuration overrides for the word cloud, allowing partial customization of `WordCloudConfig`.
    */
   config?: Partial<WordCloudConfig>;
