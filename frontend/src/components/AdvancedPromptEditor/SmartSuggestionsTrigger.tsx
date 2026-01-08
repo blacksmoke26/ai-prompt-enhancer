@@ -69,8 +69,8 @@ const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = (props) 
 
   return (
     <>
-      <TooltipMini title="AI-Powered Prompt Suggestions">
-        <Button
+      <TooltipMini title="Intelligent Prompt Enhancement Engine">
+        <Button disabled={!prompt.trim()}
           variant="plain"
           size="icon"
           onClick={onTogglePanel}

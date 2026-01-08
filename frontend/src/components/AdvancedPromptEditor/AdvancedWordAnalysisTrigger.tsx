@@ -25,9 +25,7 @@ export type {WordAnalysisConfig};
  * This interface is a subset of `AdvancedWordAnalysisProps` with the `text` property omitted and includes the current prompt text.
  */
 export interface AdvancedWordAnalysisTriggerProps extends Omit<AdvancedWordAnalysisProps, 'text'> {
-  /**
-   * The current prompt text that triggers the advanced word analysis.
-   */
+  /** The current prompt text that triggers the advanced word analysis */
   prompt: string;
 }
 
@@ -55,7 +53,7 @@ const AdvancedWordAnalysisTrigger: React.FC<AdvancedWordAnalysisTriggerProps> = 
     <Dialog.Root>
       <Dialog.Trigger>
         <Button variant="plain" size="icon">
-          <TooltipMini title="Deep Prompt Analysis Engine">
+          <TooltipMini title="Deep Linguistic Analysis">
             <BookAlert className="w-5 h-5"/>
           </TooltipMini>
         </Button>
@@ -69,7 +67,7 @@ const AdvancedWordAnalysisTrigger: React.FC<AdvancedWordAnalysisTriggerProps> = 
                 <BookAlert className="w-5 h-5 display-inline text-white"/></div>
               <div>
                 <h3 className="font-semibold tracking-tight text-lg flex items-center gap-2">
-                  Deep Prompt Analysis Engine
+                  Deep Linguistic Analysis
                 </h3>
                 <p className="text-xs text-muted-foreground mt-0.5">Engine that deeply analyzes prompts, enhancing
                   clarity, precision, and effectiveness for optimized communication.</p>

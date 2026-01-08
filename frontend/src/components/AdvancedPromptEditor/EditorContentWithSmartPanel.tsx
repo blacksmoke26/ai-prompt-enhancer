@@ -9,17 +9,20 @@ import React, {useState, useRef, useEffect} from 'react';
 // utils
 import {cn} from '~/utils/helpers';
 
+// hooks
+import {useAppStore} from '~/stores/appStore';
+
 // ui components
 import {MdxEditor} from '~/components/ui/MdxEditor';
 
 // components
 import TextStats from './widgets/TextStats';
-import WordCloud from '~/components/standalone/WordCloud/WordCloudAdvance';
 import EnhancedPrompt, {type EnhancedPromptResponse} from './EnhancedPrompt';
+import DeepTextAnalysis from '~/components/standalone/WordCloud/WordCloudAdvance';
 
 // types
-import type {MDXEditorMethods} from '@mdxeditor/editor';
 import type {PromptResponse} from '~/types';
+import type {MDXEditorMethods} from '@mdxeditor/editor';
 
 export type {MDXEditorMethods};
 
@@ -31,28 +34,18 @@ export type {MDXEditorMethods};
 export interface EditorContentProps {
   /** Current editor text value */
   value: string;
-
-  /** Change handler for text value */
-  onChange(value: string): void;
-
   /** Placeholder text for empty editor */
   placeholder?: string;
   /** Whether editor is disabled */
   disabled?: boolean;
   /** Error message to display */
   error?: string;
-  /** Whether formatting toolbar is shown */
-  showFormatting?: boolean;
   /** Whether editor has focus */
   isFocused: boolean;
   /** Whether editor is in fullscreen mode */
   isFullscreen: boolean;
-  /** Whether word cloud is visible */
-  showWordCloud: boolean;
   /** Word frequency data for cloud */
   wordFrequency: { word: string; count: number }[];
-  /** Toggle word cloud visibility */
-  setShowWordCloud: React.Dispatch<React.SetStateAction<boolean>>;
   /** Whether templates section is shown */
   showTemplates?: boolean;
   /** Whether preview section is shown */
@@ -61,35 +54,10 @@ export interface EditorContentProps {
   response?: PromptResponse | null;
   /** Original prompt text */
   originalPrompt?: string;
-  /** Current word count */
-  wordCount: number;
-  /** Current character count */
-  charCount: number;
-  /** Current line count (duplicated) */
-  lineCount: number;
-  /** Estimated reading time in minutes */
-  readingTime: number;
-  /** Estimated token count */
-  tokenEstimate: number;
   /** Current auto-save status */
   autoSaveStatus: 'idle' | 'saving' | 'saved';
   /** Last saved timestamp */
   lastSaved: Date | null;
-  /** Maximum character limit */
-  maxLength?: number;
-  /** Whether line count is displayed */
-  displayLineCount?: boolean;
-  /** Whether statistics section is shown */
-  showStats?: boolean;
-
-  /** Key down event handler */
-  onKeyDown?(e: React.KeyboardEvent<HTMLTextAreaElement>): void;
-
-  /** Focus event handler */
-  onFocus?(): void;
-
-  /** Blur event handler */
-  onBlur?(): void;
 
   /** Whether to show the smart suggestion panel */
   showSmartPanel?: boolean;
@@ -108,6 +76,12 @@ export interface EditorContentProps {
     showLineNumbers?: boolean;
   };
 
+  /** Blur event handler */
+  onBlur?(): void;
+
+  /** Change handler for text value */
+  onChange(value: string): void;
+
   /** Theme change handler */
   onThemeChange?(theme: string): void;
 }
@@ -119,31 +93,20 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
     placeholder,
     disabled,
     error,
-    showFormatting,
     isFocused,
     isFullscreen,
-    showWordCloud,
     wordFrequency,
-    setShowWordCloud,
     showTemplates,
     showPreview,
     response,
     originalPrompt,
-    wordCount,
-    charCount,
-    lineCount,
-    readingTime,
-    tokenEstimate,
     autoSaveStatus,
     lastSaved,
-    maxLength,
-    displayLineCount,
-    showStats,
-    onKeyDown,
-    onFocus,
     onBlur,
     editorSettings,
   } = props;
+
+  const {config} = useAppStore();
 
   const [selectedTheme, setSelectedTheme] = useState<string>(editorSettings?.theme ?? 'default');
   const editorRef = useRef<HTMLDivElement>(null);
@@ -207,28 +170,24 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
     >
       <MdxEditor
         value={value}
+        enableFullscreen={isFullscreen}
         onChange={onChange}
-        contentEditableClassName="mdxeditor resize-none text-sm leading-relaxed transition-all duration-200 overflow-y-auto max-h-[400px] min-h-[350px]"
+        minHeight="350px"
+        maxHeight="400px"
         readOnly={disabled}
         placeholder={placeholder}
-        showFormatting={showFormatting}
+        plugins={{images: false, headings: false}}
         className={cn(
           isFocused && 'ring-2 ring-ring ring-offset-2',
           disabled && 'opacity-50 cursor-not-allowed',
         )}
-        onKeyDown={onKeyDown}
-        onFocus={onFocus}
         onBlur={onBlur}
         autoFocus
         ref={ref}
-        editorSettings={{
-          ...editorSettings,
-          theme: selectedTheme,
-        }}
       />
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      {showStats && (
+      {config.showPromptStats && (
         <TextStats
           text={value}
           autoSaveStatus={autoSaveStatus}
@@ -236,11 +195,9 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
         />
       )}
 
-      {showWordCloud && (
-        <WordCloud
+      {config.showDeepTextAnalysis && (
+        <DeepTextAnalysis
           wordFrequency={wordFrequency}
-          showWordCloud={showWordCloud}
-          setShowWordCloud={setShowWordCloud}
           text={value}
         />
       )}

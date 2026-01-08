@@ -5,7 +5,7 @@
  */
 
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {WandSparkles} from 'lucide-react';
+import {Brain, NotebookText, WandSparkles} from 'lucide-react';
 
 // helpers
 import {cn, copyToClipboard, downloadFile} from '~/utils/helpers';
@@ -18,13 +18,14 @@ import ActionButtons from './ActionButtons';
 import AutoSaveIndicator from './AutoSaveIndicator';
 import DefaultSystemPrompt from './widgets/DefaultSystemPrompt';
 import SmartSuggestionsTrigger from './SmartSuggestionsTrigger';
-import AdvancedWordAnalysisTrigger, {
-  WordAnalysisConfig,
-} from './AdvancedWordAnalysisTrigger';
+import AdvancedWordAnalysisTrigger, {WordAnalysisConfig} from './AdvancedWordAnalysisTrigger';
 import EditorContentWithSmartPanel, {MDXEditorMethods} from './EditorContentWithSmartPanel';
 
 // types
 import type {PromptResponse} from '~/types';
+import {Button} from '~/components/ui/Button.tsx';
+import {TooltipMini} from '~/components/ui/Tooltip.tsx';
+import {useAppStore} from '~/stores/appStore.ts';
 
 /**
  * Configuration props for the Advanced Prompt Editor component
@@ -284,12 +285,10 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
 
   const wordFrequency = getWordFrequency();
 
-  // Use provided wordCount/lineCount if available, otherwise use calculated values
-  const displayWordCount = props.wordCount ?? state.wordCount;
-  const displayLineCount = props.lineCount ?? state.lineCount;
-
 
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const {config, setConfig} = useAppStore();
 
   return (
     <div className={cn('w-full', className)}>
@@ -303,6 +302,16 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
             </div>
 
             <div className="flex justify-between">
+              <Button size="icon" variant="plain" onClick={() => {
+                setConfig({showPromptStats: !config.showPromptStats}, true);
+              }}>
+                <TooltipMini title="Show Prompt Statistics"><NotebookText className="h-5"/></TooltipMini>
+              </Button>
+              <Button size="icon" variant="plain" onClick={() => {
+                setConfig({showDeepTextAnalysis: !config.showDeepTextAnalysis}, true);
+              }}>
+                <TooltipMini title="Show Deep Text Analysis"><Brain className="h-5"/></TooltipMini>
+              </Button>
               <AdvancedWordAnalysisTrigger
                 config={{
                   customVocabulary: {simplifications: {okey: ['Ok', 'K']}},
@@ -327,26 +336,15 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
             placeholder={placeholder}
             disabled={disabled}
             error={error}
-            showFormatting={showFormatting}
             isFocused={state.isFocused}
             isFullscreen={state.isFullscreen}
-            showWordCloud={state.showWordCloud}
             wordFrequency={wordFrequency}
-            setShowWordCloud={(show) => setState(prev => ({...prev, showWordCloud: Boolean(show)}))}
             showTemplates={showTemplates}
             showPreview={showPreview}
             response={response}
             originalPrompt={value}
-            wordCount={displayWordCount}
-            charCount={state.charCount}
-            readingTime={state.readingTime}
-            tokenEstimate={state.tokenEstimate}
             autoSaveStatus={state.autoSaveStatus}
             lastSaved={state.lastSaved}
-            maxLength={maxLength}
-            displayLineCount={props.displayLineCount ?? true}
-            lineCount={displayLineCount}
-            showStats={showStats}
             ref={textareaRef}
           />
         </CardContent>
