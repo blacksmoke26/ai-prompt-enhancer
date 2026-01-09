@@ -5,9 +5,12 @@
  */
 
 import * as React from 'react';
-import {AlertDialog, Button, Flex} from '@radix-ui/themes';
-import * as Dialog from '@radix-ui/react-dialog';
 import {AlertTriangle} from 'lucide-react';
+import {AlertDialog, Flex} from '@radix-ui/themes';
+import * as Dialog from '@radix-ui/react-dialog';
+
+// ui components
+import {Button} from '~/components/ui/Button';
 
 /**
  * Props for the ConfirmDialog component, defining customizable elements and text.
@@ -64,16 +67,16 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = (props) => {
         </AlertDialog.Description>
 
         <Flex gap="3" mt="4" justify="end">
-          <AlertDialog.Cancel>
-            <Button variant="soft" color="gray" onClick={() => props?.onCancelClick?.()}>
-              {props?.cancelCaption ?? 'Cancel'}
-            </Button>
-          </AlertDialog.Cancel>
           <AlertDialog.Action>
-            <Button variant="solid" color="red" onClick={() => props?.onConfirmClick?.()}>
+            <Button variant="destructive" size="sm" onClick={() => props?.onConfirmClick?.()}>
               {props?.confirmCaption ?? 'Confirm'}
             </Button>
           </AlertDialog.Action>
+          <AlertDialog.Cancel>
+            <Button size="sm" onClick={() => props?.onCancelClick?.()}>
+              {props?.cancelCaption ?? 'Cancel'}
+            </Button>
+          </AlertDialog.Cancel>
         </Flex>
       </AlertDialog.Content>
     </AlertDialog.Root>
@@ -120,10 +123,10 @@ export const ConfirmDialogAdvanced: React.FC<ConfirmDialogAdvancedProps> = (prop
             </Dialog.Description>
           </div>
           <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 mt-4">
+            <Button variant="destructive" size="sm" onClick={onConfirmClick}>{confirmCaption}</Button>
             <Dialog.Close asChild>
-              <Button variant="outline" className="mt-2 sm:mt-0">{cancelCaption}</Button>
+              <Button size="sm" className="mt-2 sm:mt-0">{cancelCaption}</Button>
             </Dialog.Close>
-            <Button variant="solid" onClick={onConfirmClick}>{confirmCaption}</Button>
           </div>
         </Dialog.Content>
       </Dialog.Portal>
