@@ -1671,3 +1671,142 @@ export interface RegionUsage {
   /** The percentage of total usage attributed to this region */
   percentage: number;
 }
+
+/**
+ * Represents aggregated statistics for AI model usage and performance.
+ * This interface is typically used to summarize data from a collection of prompts and their associated metrics.
+ */
+export interface CalculateStats {
+  /**
+   * Total number of prompts processed within the tracked timeframe.
+   * This represents a raw count of all user interactions with the AI model.
+   *
+   * Example: 150 prompts processed in the last 24 hours
+   */
+  totalPrompts: number;
+
+  /**
+   * Total number of tokens consumed by all prompts during the tracked period.
+   * Tokens represent the number of words or subwords processed by the model.
+   *
+   * Example: 50,000 tokens used in the last week
+   */
+  totalTokens: number;
+
+  /**
+   * Average rating given to prompts by users, calculated as a weighted average.
+   * Ratings are typically on a scale from 1 to 5, with higher values indicating better performance.
+   *
+   * Example: 4.2 average rating (out of 5) for the last 100 prompts
+   */
+  avgRating: number;
+
+  /**
+   * Average time taken to process a prompt, measured in milliseconds.
+   * This metric helps identify performance bottlenecks in the system.
+   *
+   * Example: 250ms average processing time for the last 500 prompts
+   */
+  avgProcessingTime: number;
+
+  /**
+   * The AI model that was most frequently used during the tracked period.
+   * This helps identify the dominant model in the system's workload.
+   *
+   * Example: "gpt-3.5-turbo" as the top model used 75% of the time
+   */
+  topModel: string;
+
+  /**
+   * Number of active conversations currently being processed by the system.
+   * This metric is useful for monitoring real-time system load.
+   *
+   * Example: 12 active conversations in progress
+   */
+  activeConvos: number;
+}
+
+/**
+ * Represents structured data for generating various types of visualizations.
+ * This interface is used to organize data for charts, graphs, and other visual analytics.
+ */
+export interface CalculateChartData {
+  /**
+   * Trend data for time-series visualizations (e.g., line charts).
+   * Each entry represents a specific date and associated metrics.
+   *
+   * Example Usage:
+   * [
+   *   { date: "2023-10-01", tokens: 15000, count: 200 },
+   *   { date: "2023-10-02", tokens: 18000, count: 250 }
+   * ]
+   */
+  trendData: {
+    /**
+     * Date string in ISO 8601 format (YYYY-MM-DD).
+     * Represents the timeframe for the associated metrics.
+     */
+    date: string;
+
+    /**
+     * Total number of tokens processed on the given date.
+     * This is a cumulative value for the day.
+     */
+    tokens: number;
+
+    /**
+     * Number of prompts processed on the given date.
+     * This represents a raw count of interactions.
+     */
+    count: number;
+  }[];
+
+  /**
+   * Bar chart data for comparing different models or categories.
+   * Each entry represents a model and its associated metric.
+   *
+   * Example Usage:
+   * [
+   *   { model: "gpt-3.5-turbo", count: 75 },
+   *   { model: "gpt-4", count: 25 }
+   * ]
+   */
+  barData: {
+    /**
+     * Name of the AI model or category being compared.
+     * This should match the model identifiers used in the system.
+     */
+    model: string;
+
+    /**
+     * Numeric value representing the metric being compared.
+     * This could be a count, percentage, or any quantitative measure.
+     */
+    count: number;
+  }[];
+
+  /**
+   * Pie chart data for showing proportions of different categories.
+   * Each entry represents a category and its corresponding value.
+   *
+   * Example Usage:
+   * [
+   *   { name: "High Priority", value: 45 },
+   *   { name: "Medium Priority", value: 35 },
+   *   { name: "Low Priority", value: 20 }
+   * ]
+   */
+  pieData: {
+    /**
+     * Name of the category or segment being represented.
+     * This should be a human-readable label for the pie chart.
+     */
+    name: string;
+
+    /**
+     * Numeric value representing the size of the segment.
+     * This value is typically a percentage or proportional value.
+     */
+    value: number;
+  }[];
+}

@@ -21,7 +21,7 @@ import { History, HistoryAttributes, Provider } from '~/database/models';
 import HistoryStats from '~/classes/HistoryStats';
 
 // types
-import type {
+import {
   ContentComplexity,
   CostBreakdown,
   EnhancementMetrics,
@@ -40,6 +40,8 @@ import type {
   TrendDirection,
   UserActivity,
   UserPreferences,
+  CalculateStats,
+  CalculateChartData,
 } from '~/types/history-service';
 
 export { PromptHistory, HistoryStatistics };
@@ -816,16 +818,23 @@ export default class HistoryService {
    * @param {StatsData} statsData - Processed statistics data
    * @returns {Object} Geographic statistics object
    */
-  private calculateGeographicStats(statsData: StatsData): { geographicDistribution: GeographicDistribution } {
+  private calculateGeographicStats(statsData: StatsData): {
+    geographicDistribution: GeographicDistribution;
+  } {
     // Calculate total usage for percentage calculations
-    const totalUsage: number = Object.values(statsData.regions).reduce((a, b) => a + b, 0);
+    const totalUsage: number = Object.values(statsData.regions).reduce(
+      (a, b) => a + b,
+      0,
+    );
 
     // Calculate regions array
-    const regions: RegionUsage[] = Object.entries(statsData.regions).map(([region, usage]) => ({
-      region,
-      usage: usage as number,
-      percentage: totalUsage > 0 ? ((usage as number) / totalUsage) * 100 : 0,
-    }));
+    const regions: RegionUsage[] = Object.entries(statsData.regions).map(
+      ([region, usage]) => ({
+        region,
+        usage: usage as number,
+        percentage: totalUsage > 0 ? ((usage as number) / totalUsage) * 100 : 0,
+      }),
+    );
 
     // Find most and least active regions
     let mostActiveRegion: string = 'N/A';
@@ -1424,10 +1433,10 @@ export default class HistoryService {
           statsData.minEnhancedLength === Number.MAX_SAFE_INTEGER
             ? 0
             : Number(
-              (
-                statsData.minEnhancedLength / statsData.minOriginalLength
-              ).toFixed(2),
-            ),
+                (
+                  statsData.minEnhancedLength / statsData.minOriginalLength
+                ).toFixed(2),
+              ),
       },
       averagePromptLength: {
         original: Math.round(statsData.totalOriginalLength / len),
@@ -1706,7 +1715,7 @@ export default class HistoryService {
         value:
           statsData.processingTimes.length > 0
             ? statsData.processingTimes[
-              Math.floor(Math.random() * statsData.processingTimes.length)
+                Math.floor(Math.random() * statsData.processingTimes.length)
               ]
             : 0,
       });
@@ -1715,7 +1724,7 @@ export default class HistoryService {
         value:
           statsData.tokenUsages.length > 0
             ? statsData.tokenUsages[
-              Math.floor(Math.random() * statsData.tokenUsages.length)
+                Math.floor(Math.random() * statsData.tokenUsages.length)
               ]
             : 0,
       });
@@ -1727,9 +1736,9 @@ export default class HistoryService {
         value:
           statsData.errors.length > 0
             ? (statsData.errors.filter(
-            (e) =>
-              new Date(e.timestamp).toISOString().slice(0, 10) === date,
-          ).length / count || 0) * 100
+                (e) =>
+                  new Date(e.timestamp).toISOString().slice(0, 10) === date,
+              ).length / count || 0) * 100
             : 0,
       });
     }
@@ -1848,7 +1857,7 @@ export default class HistoryService {
     const avgComplexityScore: number =
       statsData.complexityScores.length > 0
         ? statsData.complexityScores.reduce((a, b) => a + b, 0) /
-        statsData.complexityScores.length
+          statsData.complexityScores.length
         : 0;
 
     const complexityDistribution: Record<
@@ -1998,7 +2007,7 @@ export default class HistoryService {
     const avgSystemLoad: number =
       statsData.systemLoads.length > 0
         ? statsData.systemLoads.reduce((a, b) => a + b, 0) /
-        statsData.systemLoads.length
+          statsData.systemLoads.length
         : 0;
 
     const peakSystemLoad: number =
@@ -2010,7 +2019,7 @@ export default class HistoryService {
     const avgResponseTime: number =
       statsData.responseTimes.length > 0
         ? statsData.responseTimes.reduce((a, b) => a + b, 0) /
-        statsData.responseTimes.length
+          statsData.responseTimes.length
         : 0;
 
     return {
@@ -2260,90 +2269,90 @@ export default class HistoryService {
    * // cost would be: 0.002 (1000 tokens * $0.000002 per token)
    * @developerNotes Ensure the `model` parameter matches one of the predefined keys in `costPerToken`. If an unknown model is provided, the default rate will be used. Consider adding error handling or logging for unsupported models.
    */
-   private estimateCost(tokens: number, model: string): number {
-     const costPerToken: Record<string, number> = {
-       // OpenAI Models
-       'gpt-4': 0.00003,
-       'gpt-4-32k': 0.00006,
-       'gpt-4-turbo': 0.00001,
-       'gpt-4-turbo-2024-04-09': 0.00001,
-       'gpt-4o': 0.000005,
-       'gpt-4o-mini': 0.00000015,
-       'gpt-3.5-turbo': 0.000002,
-       'gpt-3.5-turbo-16k': 0.000003,
-       'gpt-3.5-turbo-instruct': 0.000002,
-       'text-ada-001': 0.0000004,
-       'text-babbage-001': 0.0000005,
-       'text-curie-001': 0.000002,
-       'text-davinci-003': 0.00002,
-       'text-davinci-002': 0.00002,
-       'code-davinci-002': 0.00002,
-       'code-cushman-001': 0.000024,
+  private estimateCost(tokens: number, model: string): number {
+    const costPerToken: Record<string, number> = {
+      // OpenAI Models
+      'gpt-4': 0.00003,
+      'gpt-4-32k': 0.00006,
+      'gpt-4-turbo': 0.00001,
+      'gpt-4-turbo-2024-04-09': 0.00001,
+      'gpt-4o': 0.000005,
+      'gpt-4o-mini': 0.00000015,
+      'gpt-3.5-turbo': 0.000002,
+      'gpt-3.5-turbo-16k': 0.000003,
+      'gpt-3.5-turbo-instruct': 0.000002,
+      'text-ada-001': 0.0000004,
+      'text-babbage-001': 0.0000005,
+      'text-curie-001': 0.000002,
+      'text-davinci-003': 0.00002,
+      'text-davinci-002': 0.00002,
+      'code-davinci-002': 0.00002,
+      'code-cushman-001': 0.000024,
 
-       // Anthropic Models
-       'claude-3-opus': 0.000015,
-       'claude-3-sonnet': 0.000003,
-       'claude-3-haiku': 0.00000025,
-       'claude-2.1': 0.000008,
-       'claude-2': 0.000008,
-       'claude-instant-1.2': 0.0000008,
-       'claude-instant-1': 0.0000008,
+      // Anthropic Models
+      'claude-3-opus': 0.000015,
+      'claude-3-sonnet': 0.000003,
+      'claude-3-haiku': 0.00000025,
+      'claude-2.1': 0.000008,
+      'claude-2': 0.000008,
+      'claude-instant-1.2': 0.0000008,
+      'claude-instant-1': 0.0000008,
 
-       // Google Models
-       'gemini-1.5-pro': 0.00000125,
-       'gemini-1.5-flash': 0.000000075,
-       'gemini-pro': 0.0000005,
-       'gemini-pro-vision': 0.00000025,
-       'palm-2': 0.0000004,
-       'palm-2-chat-bison': 0.0000005,
+      // Google Models
+      'gemini-1.5-pro': 0.00000125,
+      'gemini-1.5-flash': 0.000000075,
+      'gemini-pro': 0.0000005,
+      'gemini-pro-vision': 0.00000025,
+      'palm-2': 0.0000004,
+      'palm-2-chat-bison': 0.0000005,
 
-       // Meta Models
-       'llama-3-70b': 0.0000007,
-       'llama-3-8b': 0.00000015,
-       'llama-2-70b': 0.000001,
-       'llama-2-13b': 0.0000003,
-       'llama-2-7b': 0.0000002,
-       'codellama-34b': 0.0000008,
-       'codellama-13b': 0.0000003,
-       'codellama-7b': 0.0000002,
-       'mistral-7b': 0.00000007,
-       'mixtral-8x7b': 0.00000027,
+      // Meta Models
+      'llama-3-70b': 0.0000007,
+      'llama-3-8b': 0.00000015,
+      'llama-2-70b': 0.000001,
+      'llama-2-13b': 0.0000003,
+      'llama-2-7b': 0.0000002,
+      'codellama-34b': 0.0000008,
+      'codellama-13b': 0.0000003,
+      'codellama-7b': 0.0000002,
+      'mistral-7b': 0.00000007,
+      'mixtral-8x7b': 0.00000027,
 
-       // Mistral AI Models
-       'mistral-large': 0.000004,
-       'mistral-medium': 0.0000027,
-       'mistral-small': 0.0000002,
-       'mistral-tiny': 0.0000001,
-       'open-mistral-7b': 0.00000025,
-       'open-mixtral-8x7b': 0.0000007,
+      // Mistral AI Models
+      'mistral-large': 0.000004,
+      'mistral-medium': 0.0000027,
+      'mistral-small': 0.0000002,
+      'mistral-tiny': 0.0000001,
+      'open-mistral-7b': 0.00000025,
+      'open-mixtral-8x7b': 0.0000007,
 
-       // Cohere Models
-       'command-r-plus': 0.000003,
-       'command-r': 0.0000005,
-       'command': 0.0000015,
-       'command-light': 0.0000003,
-       'command-nightly': 0.000001,
+      // Cohere Models
+      'command-r-plus': 0.000003,
+      'command-r': 0.0000005,
+      command: 0.0000015,
+      'command-light': 0.0000003,
+      'command-nightly': 0.000001,
 
-       // AI21 Labs Models
-       'jamba-instruct': 0.00000025,
-       'j2-grande-instruct': 0.0000125,
-       'j2-jumbo-instruct': 0.0000188,
+      // AI21 Labs Models
+      'jamba-instruct': 0.00000025,
+      'j2-grande-instruct': 0.0000125,
+      'j2-jumbo-instruct': 0.0000188,
 
-       // DeepInfra Models
-       'deepseek-coder-33b': 0.00000014,
-       'qwen-72b-chat': 0.0000008,
-       'yi-34b-chat': 0.0000007,
+      // DeepInfra Models
+      'deepseek-coder-33b': 0.00000014,
+      'qwen-72b-chat': 0.0000008,
+      'yi-34b-chat': 0.0000007,
 
-       // Microsoft Azure Models
-       'phi-3-medium-128k': 0.0000001,
-       'phi-3-mini-4k': 0.00000005,
+      // Microsoft Azure Models
+      'phi-3-medium-128k': 0.0000001,
+      'phi-3-mini-4k': 0.00000005,
 
-       default: 0.00001,
-     };
+      default: 0.00001,
+    };
 
-     const rate: number = costPerToken[model] || costPerToken['default'];
-     return tokens * rate;
-   }
+    const rate: number = costPerToken[model] || costPerToken['default'];
+    return tokens * rate;
+  }
 
   /**
    * Calculates a complexity score for the given prompt based on factors like length, token count, or semantic depth.
@@ -2398,5 +2407,191 @@ export default class HistoryService {
     d.setUTCDate(d.getUTCDate() + 4 - dayNum);
     const yearStart: Date = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     return `${d.getUTCFullYear()}-W${Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7)}`;
+  }
+
+  /**
+   * Calculates statistics for the history items using the History model.
+   * @returns An object containing statistics for the history items.
+   */
+  public async calculateStats(): Promise<CalculateStats> {
+    try {
+      const stats: Record<string, any> | null = await History.findOne({
+        attributes: [
+          [
+            History.sequelize!.fn('COUNT', History.sequelize!.col('id')),
+            'totalPrompts',
+          ],
+          [
+            History.sequelize!.fn('SUM', History.sequelize!.col('tokens_used')),
+            'totalTokens',
+          ],
+          [
+            History.sequelize!.fn('AVG', History.sequelize!.col('rating')),
+            'avgRating',
+          ],
+          [
+            History.sequelize!.fn(
+              'AVG',
+              History.sequelize!.col('processing_time'),
+            ),
+            'avgProcessingTime',
+          ],
+        ],
+        raw: true,
+      });
+
+      const topModel: Record<string, any> | null = await History.findOne({
+        attributes: [
+          'model',
+          [
+            History.sequelize!.fn('COUNT', History.sequelize!.col('id')),
+            'count',
+          ],
+        ],
+        group: ['model'],
+        order: [[History.sequelize!.literal('count'), 'DESC']],
+        raw: true,
+      });
+
+      const activeConvos = await History.count({
+        distinct: true,
+        col: 'conversation_id',
+        where: {
+          conversationId: {
+            [Op.ne]: null,
+          },
+        },
+      });
+
+      return {
+        totalPrompts: Number(stats?.totalPrompts || 0),
+        totalTokens: Number(stats?.totalTokens || 0),
+        avgRating: +Number(stats?.avgRating || 0).toFixed(2),
+        avgProcessingTime: +Number(stats?.avgProcessingTime || 0).toFixed(2),
+        topModel: topModel?.model || 'N/A',
+        activeConvos,
+      };
+    } catch (e) {
+      console.error('Error computing stats:', e);
+      return {
+        totalPrompts: 0,
+        totalTokens: 0,
+        avgRating: 0,
+        avgProcessingTime: 0,
+        topModel: 'N/A',
+        activeConvos: 0,
+      };
+    }
+  }
+
+  /**
+   * Calculates data for charts based on the history items using the History model.
+   * @returns An object containing data for charts.
+   */
+  public async calculateChartData(): Promise<CalculateChartData> {
+    try {
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        return d.toISOString().split('T')[0];
+      }).reverse();
+
+      // Initialize trendData with 0s
+      const trendDataMap = new Map(
+        last7Days.map((date) => [date, { date, tokens: 0, count: 0 }]),
+      );
+
+      const trendRows = (await History.findAll({
+        attributes: [
+          [
+            History.sequelize!.fn('DATE', History.sequelize!.col('created_at')),
+            'date',
+          ],
+          [
+            History.sequelize!.fn('SUM', History.sequelize!.col('tokens_used')),
+            'tokens',
+          ],
+          [
+            History.sequelize!.fn('COUNT', History.sequelize!.col('id')),
+            'count',
+          ],
+        ],
+        where: {
+          createdAt: {
+            [Op.gte]: new Date(last7Days[0]),
+          },
+        },
+        group: [
+          History.sequelize!.fn('DATE', History.sequelize!.col('created_at')),
+        ],
+        raw: true,
+      })) as unknown as { date: string; tokens: string; count: string }[];
+
+      trendRows.forEach((row) => {
+        const key = row.date; // YYYY-MM-DD
+        if (trendDataMap.has(key)) {
+          trendDataMap.set(key, {
+            date: key,
+            tokens: Number(row.tokens),
+            count: Number(row.count),
+          });
+        }
+      });
+
+      const trendData = Array.from(trendDataMap.values());
+
+      const modelCounts = (await History.findAll({
+        attributes: [
+          'model',
+          [
+            History.sequelize!.fn('COUNT', History.sequelize!.col('id')),
+            'count',
+          ],
+        ],
+        group: ['model'],
+        raw: true,
+      })) as unknown as Awaited<{ model: string; count: string }[]>;
+
+      const barData = modelCounts.map(({ model, count }) => ({
+        model,
+        count: Number(count),
+      }));
+
+      const ratingCounts = (await History.findAll({
+        attributes: [
+          'rating',
+          [
+            History.sequelize!.fn('COUNT', History.sequelize!.col('id')),
+            'count',
+          ],
+        ],
+        group: ['rating'],
+        raw: true,
+      })) as unknown as Awaited<{ rating: number; count: string }[]>;
+
+      const pieDataMap: Record<string, number> = {
+        '1 Star': 0,
+        '2 Star': 0,
+        '3 Star': 0,
+        '4 Star': 0,
+        '5 Star': 0,
+      };
+
+      ratingCounts.forEach(({ rating, count }) => {
+        if (rating >= 1 && rating <= 5) {
+          pieDataMap[`${rating} Star`] += Number(count);
+        }
+      });
+
+      const pieData = Object.entries(pieDataMap).map(([name, value]) => ({
+        name,
+        value,
+      }));
+
+      return { trendData, barData, pieData };
+    } catch (e) {
+      console.error('Error computing charts:', e);
+      return { trendData: [], barData: [], pieData: [] };
+    }
   }
 }
