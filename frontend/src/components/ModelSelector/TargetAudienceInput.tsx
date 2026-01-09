@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import {UsersRound} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -28,7 +29,7 @@ const TargetAudienceInput: React.FC = () => {
     <div className="space-y-2">
       <label
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
-        <strong>Target Audience</strong>
+        <strong><UsersRound className="inline-flex display-inline" size="16"/> Target Audience</strong>
       </label>
       <SelectAdvanced
         placeholder="Select target audience"
@@ -36,6 +37,10 @@ const TargetAudienceInput: React.FC = () => {
         triggerWidth="w-full"
         value={config.targetAudience as string}
         onChange={value => handleChange(value as string)}
+        formatLabel={option => (
+          <div><UsersRound className="inline-flex" size="16"/> {option.label}
+          </div>
+        )}
         options={[
           {value: 'general', label: 'General'},
           {value: 'technical-experts', label: 'Technical Experts'},

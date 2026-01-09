@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import {AudioLines, User2} from 'lucide-react';
+import {Speech} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -33,7 +33,7 @@ const ToneInput: React.FC = () => {
     <div className="space-y-2">
       <label
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
-        <strong><AudioLines className="inline-flex display-inline" size="16"/> Response Length</strong>
+        <strong><Speech className="inline-flex display-inline" size="16"/> Tone</strong>
       </label>
       <SelectAdvanced
         placeholder="Select tone"
@@ -43,7 +43,7 @@ const ToneInput: React.FC = () => {
         onChange={v => handleChange(v as string)}
         options={toSelectGroupedOptionsPlain(tones.filter(x => !x.hidden))}
         formatLabel={option => (
-          <div><User2 className="inline-flex" size="16"/> {option.label}<p
+          <div><Speech className="inline-flex" size="16"/> {option.label}<p
             className="text-xs pl-5 mt-1">{option.summary}</p>
           </div>
         )}

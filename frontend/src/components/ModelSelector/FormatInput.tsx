@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import {BookOpenCheck} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
@@ -31,7 +32,7 @@ const FormatInput: React.FC = () => {
     <div className="space-y-2">
       <label
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
-        <strong>Output Format</strong>
+        <strong><BookOpenCheck className="inline-flex display-inline" size="16"/> Output Format</strong>
       </label>
       <SelectAdvanced
         searchable
@@ -45,6 +46,10 @@ const FormatInput: React.FC = () => {
           {value: 'json', label: 'JSON'},
           {value: 'text', label: 'Text'},
         ]}
+        formatLabel={option => (
+          <div><BookOpenCheck className="inline-flex" size="16"/> {option.label}
+          </div>
+        )}
       />
     </div>
   );
