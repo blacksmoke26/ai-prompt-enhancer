@@ -1,7 +1,7 @@
 import {create} from 'zustand';
 
 // types
-import type {PromptHistory} from '~/types';
+import {HistoryMinimalStats, PromptHistory} from '~/types';
 import type {HistoryStatistics} from '~/types/history-service';
 
 /**
@@ -15,6 +15,8 @@ export interface HistoryState {
   history: PromptHistory[];
   /** Statistics about the history data */
   stats: HistoryStatistics | null;
+  /** Minimal statistics about the history data */
+  minimalStats: HistoryMinimalStats | null;
   /** Loading state indicator */
   loading: boolean;
   /** Error message if any operation fails */
@@ -39,6 +41,9 @@ export interface HistoryState {
   /** Updates the history statistics */
   setStats(stats: HistoryStatistics): void;
 
+  /** Updates the history statistics */
+  setMinimalStats(data: HistoryMinimalStats): void;
+
   /** Sets the loading state */
   setLoading(loading: boolean): void;
 
@@ -58,6 +63,7 @@ export const useHistoryStore = create<HistoryState>((set) => ({
   stats: null,
   loading: false,
   error: null,
+  minimalStats: null,
 
   setHistory: (history) => set({history}),
 
@@ -78,6 +84,8 @@ export const useHistoryStore = create<HistoryState>((set) => ({
   clearHistory: () => set({history: []}),
 
   setStats: (stats) => set({stats}),
+
+  setMinimalStats: (minimalStats) => set({minimalStats}),
 
   setLoading: (loading) => set({loading}),
 

@@ -9,7 +9,7 @@
 import api from '~/utils/api';
 
 // types
-import type {PromptHistory} from '~/types';
+import type {HistoryMinimalStats, PromptHistory} from '~/types';
 import type {HistoryStatistics} from '~/types/history-service';
 
 /**
@@ -283,6 +283,23 @@ export default abstract class HistoryService {
     } catch (error) {
       console.error('Failed to clear history:', error);
       throw new Error('Unable to clear history. Please try again later.');
+    }
+  }
+
+  /**
+   * Retrieves minimal statistics for history
+   * @returns Minimal statistics for history
+   * @example
+   * const stats = await HistoryService.getMinimalStats();
+   * @developerNote This method is optimized for performance and does not include detailed information
+   */
+  static async getMinimalStats(): Promise<HistoryMinimalStats> {
+    try {
+      const {data} = await api.get<{ data: HistoryMinimalStats }>(`/history/minimal-stats`);
+      return data.data;
+    } catch (error) {
+      console.error('Failed to retrieve minimal history statistics:', error);
+      throw new Error('Unable to fetch minimal history statistics. Please try again later.');
     }
   }
 

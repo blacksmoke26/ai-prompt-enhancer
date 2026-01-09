@@ -31,6 +31,7 @@ export const useHistory = () => {
     setStats,
     updateHistoryItem,
     deleteHistoryItem,
+    setMinimalStats,
     clearHistory: clearLocalHistory,
     stats,
   } = useHistoryStore();
@@ -72,8 +73,11 @@ export const useHistory = () => {
       setLoading(true);
       setError(null);
 
-      const historyData = await HistoryService.getHistory(limit, search);
-      setHistory(historyData);
+      await Promise.all([
+        HistoryService.getHistory(limit, search).then(setHistory),
+        HistoryService.getMinimalStats().then(setMinimalStats),
+      ]);
+
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load history');
     } finally {
