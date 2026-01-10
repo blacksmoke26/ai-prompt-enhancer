@@ -50,11 +50,6 @@ const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({classN
           <div>{option?.label ?? 'N/A'} <Badge variant="outline" className="text-xs">{option?.category ?? 'N/A'}</Badge></div>
         )}
       />
-      {selectedEnhancementData && (
-        <p className="mt-1 text-xs text-muted-foreground">
-          {selectedEnhancementData.description}
-        </p>
-      )}
     </div>
   );
 };

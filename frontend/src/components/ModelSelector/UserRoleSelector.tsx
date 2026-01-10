@@ -49,11 +49,6 @@ const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => 
           <div>{option?.label ?? 'N/A'} <Badge variant="outline" className="text-xs">{option?.category ?? 'N/A'}</Badge></div>
         )}
       />
-      {selectedRoleData && (
-        <p className="mt-1 text-xs text-muted-foreground">
-          {selectedRoleData.description}
-        </p>
-      )}
     </div>
   );
 };
