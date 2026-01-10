@@ -4,272 +4,318 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useState, useMemo} from 'react';
-import {Download, Trash2, RefreshCw} from 'lucide-react';
+import React, {useEffect, useMemo, useState} from 'react';
+import {Cell} from 'recharts';
+import {ChevronDown} from 'lucide-react';
 
-import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
+// hooks
+import {useHistory} from '~/hooks/useHistory';
+import {useHistoryStore} from '~/stores/historyStore';
+
+// utils
+import * as Utils from './utils';
+import {cn} from '~/utils/helpers';
+import {DEFAULT_CONFIG, HistoryPanelConfig, HistoryPanelProps} from './utils';
+
+// ui components
 import {Button} from '~/components/ui/Button';
-import {ConfirmDialog} from '~/components/ui/ConfirmDialog';
 
 // components
-import FilterPanel from './FilterPanel';
-import HistoryItem from './HistoryItem';
+import Modals from './Modals';
+import Toolbar from './Toolbar';
+import HistoryView from './HistoryView';
+import AnalyticsCharts from './AnalyticsCharts';
 
 // types
 import type {PromptHistory} from '~/types';
 
-/**
- * Props for the {@link HistoryPanel} component.
- *
- * @property history   Array of prompt history items to display.
- * @property loading   Optional flag to show a loading indicator while fetching data.
- * @property onDelete  Callback invoked with the ID of an item to delete.
- * @property onUpdate  Callback invoked with the ID of an item and an object containing
- *                     updated fields (rating or notes).  The parent component
- *                     should persist the changes.
- * @property onExport  Callback invoked with the format (`json`, `csv`, or `txt`) to export
- *                     the current history view.
- * @property onClear   Callback invoked to clear the entire history.
- * @property onRefresh Callback invoked to refresh the history data.
- *
- * @developer.notes
- * The component is stateless except for UI‑level filters, expanded item, and notes
- * editing.  All CRUD operations are forwarded to the parent via callbacks.
- */
-export interface HistoryPanelProps {
-  history: PromptHistory[];
-  loading?: boolean;
-  onDelete?: (id: string) => void;
-  onUpdate?: (id: string, updates: { rating?: number; notes?: string }) => void;
-  onExport?: (format: 'json' | 'csv' | 'txt') => void;
-  onClear?: () => void;
-  onRefresh?: () => void;
-}
-
-/**
- * The main HistoryPanel component.
- *
- * It renders a list of {@link HistoryItem} components and provides an
- * advanced filter UI via {@link FilterPanel}.  The panel is fully typed and
- * includes comprehensive developer documentation.
- */
 const HistoryPanel: React.FC<HistoryPanelProps> = (props) => {
   const {
-    history,
+    history = [],
     loading = false,
-    onDelete = () => {
-    },
-    onUpdate = () => {
-    },
-    onExport = () => {
-    },
-    onClear = () => {
-    },
-    onRefresh = () => {
-    },
+    config: userConfig = {},
   } = props;
 
-  /* Filter state */
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedModel, setSelectedModel] = useState<string>('');
-  const [selectedRole, setSelectedRole] = useState<string>('');
-  const [selectedEnhancementType, setSelectedEnhancementType] = useState<string>('');
-  const [selectedProvider, setSelectedProvider] = useState<string>('');
-  const [ratingFilter, setRatingFilter] = useState(0);
-  const [dateRange, setDateRange] = useState<[string | null, string | null]>([
-    null,
-    null,
-  ]);
+  // Merge user panelConfig with defaults
+  const panelConfig: HistoryPanelConfig = useMemo(() => ({
+    ...DEFAULT_CONFIG,
+    ...userConfig,
+    pagination: {
+      ...DEFAULT_CONFIG.pagination,
+      ...userConfig.pagination,
+    },
+  }), [userConfig]);
 
-  /* UI state */
-  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
-  const [editingNotesId, setEditingNotesId] = useState<string | null>(null);
-  const [notesValue, setNotesValue] = useState<string>('');
+  const {minimalStats} = useHistoryStore();
+  const {loadHistory, deleteItem, updateItem, clearHistory} = useHistory();
 
-  /* Derived data */
-  const models = useMemo(
-    () => Array.from(new Set(history.map((h) => h.model))),
-    [history],
-  );
-  const roles = useMemo(
-    () => Array.from(new Set(history.map((h) => h.userRole))),
-    [history],
-  );
-  const enhancementTypes = useMemo(
-    () => Array.from(new Set(history.map((h) => h.enhancementType))),
-    [history],
-  );
-  const providers = useMemo(
-    () => Array.from(new Set(history.map((h) => h.provider))),
-    [history],
-  );
+  // -- State --
+  const [sortConfig, setSortConfig] = useState<Utils.SortConfig>(null);
 
-  const filteredHistory = useMemo(() => {
-    return history.filter((item) => {
-      const matchesSearch =
-        item.originalPrompt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.enhancedPrompt.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.model.toLowerCase().includes(searchQuery.toLowerCase());
+  // Multi-Select & Bulk Actions
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
-      const matchesModel = selectedModel ? item.model === selectedModel : true;
-      const matchesRole = selectedRole ? item.userRole === selectedRole : true;
-      const matchesEnhancement =
-        selectedEnhancementType
-          ? item.enhancementType === selectedEnhancementType
-          : true;
-      const matchesProvider =
-        selectedProvider ? item.provider === selectedProvider : true;
+  // Modal Internal State
+  const [editingNote, setEditingNote] = useState<string>('');
 
-      const matchesRating =
-        ratingFilter ? (item.rating ?? 0) >= ratingFilter : true;
+  const [filters, setFilters] = useState<Utils.InputFilters>({
+    searchQuery: '',
+    model: '',
+    provider: '',
+    type: '',
+    format: '',
+    rating: 0,
+    tone: '',
+    audience: '',
+    dateRange: [null, null],
+  });
 
-      const itemDate = new Date(item.timestamp);
-      const [start, end] = dateRange;
-      const matchesDate =
-        (!start || itemDate >= new Date(start)) &&
-        (!end || itemDate <= new Date(end));
+  const [config, setconfig] = useState<Utils.LocalConfig>({
+    viewMode: panelConfig.defaultViewMode,
+    showFilters: false,
+    showCharts: panelConfig.showChartsByDefault,
+    copied: false,
+    showCompareModal: false,
+    selectAll: false,
+    deleteTargetId: null,
+    showDeleteConfirm: false,
+    currentPage: 1,
+    itemsPerPage: panelConfig.pagination.defaultPageSize,
+    selectedItem: null,
+  });
 
-      return (
-        matchesSearch &&
-        matchesModel &&
-        matchesRole &&
-        matchesEnhancement &&
-        matchesProvider &&
-        matchesRating &&
-        matchesDate
-      );
-    });
-  }, [
-    history,
-    searchQuery,
-    selectedModel,
-    selectedRole,
-    selectedEnhancementType,
-    selectedProvider,
-    ratingFilter,
-    dateRange,
-  ]);
-
-  /* Handlers */
-  const toggleExpand = (id: string) =>
-    setExpandedItemId((prev) => (prev === id ? null : id));
-
-  const startEditingNotes = (id: string, current: string | undefined) => {
-    setEditingNotesId(id);
-    setNotesValue(current ?? '');
+  const updateFilter = (key: keyof Utils.InputFilters, value: any) => {
+    setFilters(prevFilters => ({
+      ...prevFilters,
+      [key]: value,
+    }));
   };
 
-  const saveNotes = (id: string, value: string) => {
-    onUpdate(id, {notes: value});
-    console.log('Triggered', value);
-    setEditingNotesId(null);
-    setNotesValue('');
+  const updateConfig = (key: keyof Utils.LocalConfig, value: Utils.LocalConfig[keyof Utils.LocalConfig] | ((prev: Utils.LocalConfig[keyof Utils.LocalConfig]) => Utils.LocalConfig[keyof Utils.LocalConfig])) => {
+    setconfig(prevConfig => ({
+      ...prevConfig,
+      [key]: value instanceof Function ? value(prevConfig[key]) : value,
+    }));
   };
 
-  const cancelNotes = () => {
-    setEditingNotesId(null);
-    setNotesValue('');
+  const processedHistory = useMemo(
+    () => Utils.processHistoryItems(history, filters, sortConfig),
+    [history, filters, sortConfig],
+  );
+
+  const models = useMemo(() => Array.from(new Set(history.map(h => h.model))), [history]);
+  const providers = useMemo(() => Array.from(new Set(history.map(h => h.provider).filter(Boolean) as string[])), [history]);
+  const formats = useMemo(() => Array.from(new Set(history.map(h => h.format).filter(Boolean) as string[])), [history]);
+  const tones = useMemo(() => Array.from(new Set(history.map(h => h.tone).filter(Boolean) as string[])), [history]);
+
+  const totalPages = panelConfig.pagination.enabled ? Math.ceil(processedHistory.length / config.itemsPerPage) : 1;
+  const paginatedHistory = panelConfig.pagination.enabled
+    ? processedHistory.slice((config.currentPage - 1) * config.itemsPerPage, config.currentPage * config.itemsPerPage)
+    : processedHistory;
+
+  // -- Effects --
+  useEffect(() => {
+    if (config.selectAll) {
+      const allIds = new Set(paginatedHistory.map(h => h.id));
+      setSelectedIds(allIds);
+    }
+  }, [config.selectAll, paginatedHistory]);
+
+  useEffect(() => {
+    const allSelected = paginatedHistory.length > 0 && paginatedHistory.every(h => selectedIds.has(h.id));
+    if (config.selectAll !== allSelected) updateConfig('selectAll', allSelected);
+  }, [selectedIds, paginatedHistory, config.selectAll]);
+
+  useEffect(() => {
+    updateConfig('currentPage', 1);
+    updateConfig('selectAll', false);
+    setSelectedIds(new Set());
+  }, [processedHistory.length, config.itemsPerPage]);
+
+  const confirmDelete = async () => {
+    updateConfig('selectedItem', null);
+
+    try {
+      if (config.deleteTargetId) {
+        await deleteItem(config.deleteTargetId);
+        setToast({message: 'Item deleted', type: 'success'});
+      }
+      updateConfig('showDeleteConfirm', false);
+      updateConfig('deleteTargetId', null);
+    } catch (e) {
+      console.error('Delete failed:', e);
+      setToast({message: 'Failed to delete item', type: 'error'});
+    }
   };
 
-  const handleRefresh = () => {
-    onRefresh();
+  const handleBulkDelete = async () => {
+    const promises: Promise<void>[] = [];
+    selectedIds.forEach(id => promises.push(deleteItem(id)));
+
+    try {
+      await Promise.all(promises);
+      setSelectedIds(new Set());
+      updateConfig('selectAll', false);
+      setToast({message: 'Selected items deleted', type: 'success'});
+    } catch (e) {
+      console.error('Bulk delete failed:', e);
+      setToast({message: 'Failed to delete items', type: 'error'});
+    }
+  };
+
+  const handleRatingChange = (id: string, rating: number) => {
+    updateItem(id, {rating});
+    if (config?.selectedItem?.id === id) {
+      updateConfig('selectedItem', {...config?.selectedItem, rating});
+    }
+  };
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text).then(() => {
+      updateConfig('copied', true);
+      setTimeout(() => updateConfig('copied', false), 2000);
+      setToast({message: 'Copied to clipboard!', type: 'success'});
+      setTimeout(() => setToast(null), 3000);
+    }).catch(() => setToast({message: 'Failed to copy', type: 'error'}));
+  };
+
+  const handleFork = (item: PromptHistory) => {
+    handleCopy(item.originalPrompt ?? '');
+    setToast({message: 'Prompt copied! You can paste it to start a new generation.', type: 'success'});
+  };
+
+  const handleSaveNote = () => {
+    if (config.selectedItem) {
+      updateItem(config.selectedItem.id, {notes: editingNote});
+      updateConfig('selectedItem', {...config.selectedItem, notes: editingNote});
+      setEditingNote('');
+    }
   };
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <div className="flex items-center justify-between mb-4">
-          <CardTitle className="text-lg font-medium">Prompt History</CardTitle>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onExport('json')}
-            >
-              <Download className="h-4 w-4 mr-2"/>
-              Export
-            </Button>
-            <ConfirmDialog
-              title="Remove history"
-              description="Do you want to clear the complete history? This cannot bedone."
-              confirmCaption="Clear"
-              triggerElement={(
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  disabled={history.length === 0}
-                >
-                  <Trash2 className="h-4 w-4 mr-2"/>
-                  Clear
-                </Button>
-              )}
-              onConfirmClick={onClear}/>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={loading}
-              aria-label="Refresh history"
-            >
-              {loading ? (
-                <RefreshCw className="h-4 w-4 animate-spin"/>
-              ) : (
-                <RefreshCw className="h-4 w-4"/>
-              )}
-            </Button>
-          </div>
+    <div className="w-full min-h-screen bg-gray-50/50 dark:bg-gray-950 pb-10 transition-colors duration-200">
+      {/* Toast */}
+      {toast && (
+        <div
+          className={cn('fixed top-4 right-4 z-[100] flex items-center ',
+            'gap-2 px-4 py-3 rounded-lg shadow-lg animate-in slide-in-from-right-5',
+            toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white')}>
+          <span className="font-medium text-sm">{toast.message}</span>
         </div>
-        <FilterPanel
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          models={models}
-          selectedModel={selectedModel}
-          setSelectedModel={setSelectedModel}
-          ratingFilter={ratingFilter}
-          setRatingFilter={setRatingFilter}
-          dateRange={dateRange}
-          setDateRange={setDateRange}
-          roles={roles}
-          selectedRole={selectedRole}
-          setSelectedRole={setSelectedRole}
-          enhancementTypes={enhancementTypes}
-          selectedEnhancementType={selectedEnhancementType}
-          setSelectedEnhancementType={setSelectedEnhancementType}
-          providers={providers}
-          selectedProvider={selectedProvider}
-          setSelectedProvider={setSelectedProvider}
+      )}
+
+      {/* Charts */}
+      {config.showCharts ? (
+        <AnalyticsCharts
+          onHideChartsClick={() => updateConfig('showCharts', false)}
+          chartData={minimalStats?.charts!}
+          element={(_, index) => (
+            <Cell key={`cell-${index}`} fill={Utils.COLORS[index % Utils.COLORS.length]}/>
+          )}
         />
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <div className="flex items-center justify-center h-32">
-            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"/>
-          </div>
-        ) : filteredHistory.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            {searchQuery ? 'No results found' : 'No history yet'}
-          </div>
-        ) : (
-          <div className="space-y-3 max-h-96 overflow-y-auto">
-            {filteredHistory.map((item) => (
-              <HistoryItem
-                key={item.id}
-                item={item}
-                isExpanded={expandedItemId === item.id}
-                onToggleExpand={() => toggleExpand(item.id)}
-                onDelete={() => onDelete(item.id)}
-                onRatingChange={(id, rating) => onUpdate(id, {rating})}
-                isEditingNotes={editingNotesId === item.id}
-                notesValue={notesValue}
-                onNotesSave={value => saveNotes(item.id, value)}
-                onNotesCancel={cancelNotes}
-                onEditNotes={() => startEditingNotes(item.id, item.notes)}
-              />
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      ) : (
+        <div className="mb-6 px-1 text-right">
+          <Button variant="plain" size="sm" onClick={() => updateConfig('showCharts', true)}>
+            Show Analytics Charts <ChevronDown className="h-4 w-4 ml-1"/>
+          </Button>
+        </div>
+      )}
+
+      {/* Main Card */}
+      <div
+        className="rounded-2xl bg-white shadow-sm border border-gray-200 overflow-hidden mx-1 dark:bg-gray-900 dark:border-gray-800">
+
+        {/* Header / Toolbar */}
+        <Toolbar
+          config={panelConfig}
+          stats={minimalStats?.stats!}
+          viewMode={config.viewMode}
+          setViewMode={mode => updateConfig('viewMode', mode)}
+          searchQuery={filters.searchQuery}
+          setSearchQuery={val => updateFilter('searchQuery', val)}
+          showFilters={config.showFilters}
+          setShowFilters={state => updateConfig('showFilters', state)}
+          loading={loading}
+          onRefresh={() => loadHistory()}
+          onClearHistory={() => clearHistory()}
+          processedHistory={processedHistory}
+          selectedIds={selectedIds}
+          onBulkDelete={handleBulkDelete}
+          onCompare={() => updateConfig('showCompareModal', true)}
+          models={models}
+          providers={providers}
+          formats={formats}
+          tones={tones}
+          filterModel={filters.model}
+          setFilterModel={val => updateFilter('model', val)}
+          filterProvider={filters.provider}
+          setFilterProvider={val => updateFilter('provider', val)}
+          filterFormat={filters.format}
+          setFilterFormat={val => updateFilter('format', val)}
+          filterTone={filters.tone}
+          setFilterTone={val => updateFilter('tone', val)}
+          filterRating={filters.rating}
+          setFilterRating={val => updateFilter('rating', val)}
+        />
+
+        {/* Content View */}
+        <div className="p-6 pt-0">
+          <HistoryView
+            config={panelConfig}
+            viewMode={config.viewMode}
+            paginatedHistory={paginatedHistory}
+            selectedIds={selectedIds}
+            selectAll={config.selectAll}
+            toggleSelect={(id: string) => {
+              const newSet = new Set(selectedIds);
+              if (newSet.has(id)) newSet.delete(id); else newSet.add(id);
+              setSelectedIds(newSet);
+            }}
+            onSort={(key: keyof PromptHistory) => {
+              let direction: 'asc' | 'desc' = 'asc';
+              if (sortConfig && sortConfig.key === key && sortConfig.direction === 'asc') direction = 'desc';
+              setSortConfig({key, direction});
+            }}
+            sortConfig={sortConfig}
+            handleRatingChange={handleRatingChange}
+            setSelectedItem={item => updateConfig('selectedItem', item)}
+            handleDelete={(id: string) => {
+              updateConfig('deleteTargetId', id);
+              updateConfig('showDeleteConfirm', true);
+            }}
+            processedHistory={processedHistory}
+            currentPage={config.currentPage}
+            totalPages={totalPages}
+            itemsPerPage={config.itemsPerPage}
+            setItemsPerPage={itemsPerPage => updateConfig('itemsPerPage', itemsPerPage)}
+            onNextPage={() => updateConfig('currentPage', p => Math.min(totalPages, Number(p) + 1))}
+            onPrevPage={() => updateConfig('currentPage', p => Math.max(1, Number(p) - 1))}
+          />
+        </div>
+
+        {/* Modals */}
+        <Modals
+          selectedItem={config.selectedItem}
+          showDeleteConfirm={config.showDeleteConfirm}
+          setShowDeleteConfirm={show => updateConfig('showDeleteConfirm', show)}
+          showCompareModal={config.showCompareModal}
+          setShowCompareModal={state => updateConfig('showCompareModal', state)}
+          copied={config.copied}
+          editingNote={editingNote}
+          selectedIds={selectedIds}
+          history={history}
+          onCopy={handleCopy}
+          onNoteChange={(e) => setEditingNote(e.target.value)}
+          onSaveNote={handleSaveNote}
+          onFork={() => config.selectedItem && handleFork(config.selectedItem)}
+          onDelete={confirmDelete}
+          confirmDelete={confirmDelete}
+          onDetailsModelClose={() => updateConfig('selectedItem', null)}
+          onRatingChange={(r) => config.selectedItem && handleRatingChange(config.selectedItem.id, r)}
+        />
+      </div>
+    </div>
   );
 };
 

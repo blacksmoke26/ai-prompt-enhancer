@@ -5,55 +5,62 @@
  */
 
 import React from 'react';
-import { Star } from 'lucide-react';
+import {Star} from 'lucide-react';
+
+// utils
+import {cn} from '~/utils/helpers';
 
 /**
- * Component for rendering a 5‑star rating widget.
- *
- * @property rating          Current rating (0–5). 0 means unrated.
- * @property id              Identifier of the history item this rating belongs to.
- * @property onRatingChange  Callback invoked with the new rating when a star is clicked.
- * @property disabled        Optional flag to prevent user interaction.
+ * Props interface for the RatingStars component, which renders a star rating system with optional interactivity and sizing.
+ * Used to display or allow users to rate items with visual feedback.
  */
 export interface RatingStarsProps {
+  /**
+   * The current rating value (e.g., 4.2 for a partially filled star).
+   */
   rating: number;
-  id: string;
-  onRatingChange: (id: string, rating: number) => void;
-  disabled?: boolean;
+
+  /**
+   * Whether the stars are read-only (non-interactive).
+   * Defaults to `false` if not provided.
+   */
+  readonly?: boolean;
+
+  /**
+   * Size of the stars: 'sm' for small or 'md' for medium.
+   * Defaults to 'md' if not provided.
+   */
+  size?: 'sm' | 'md';
+
+  /**
+   * Optional handler called when the rating is changed.
+   * @param rating The new rating value selected by the user.
+   */
+  onRatingChange?(rating: number): void;
 }
 
 /**
- * Renders a horizontal star rating that can be clicked to change the rating.
- *
- * The component uses the {@link Star} icon from lucide‑react and applies
- * conditional styling to indicate the current rating and hover state.
- *
- * @param props
+ * A star rating component that allows users to rate items with interactive or read-only stars.
+ * Displays filled and empty stars based on the provided rating value.
+ * @example
+ * <RatingStars rating={4.2} onRatingChange={(r) => console.log('New rating:', r)} />
+ * @developerNotes
+ * - Assumes the use of a star icon component (e.g., `StarIcon`) for rendering stars.
+ * - The `size` prop controls the visual scale of the stars (e.g., for compact or larger UIs).
+ * - The `readonly` prop disables user interaction, useful for display-only scenarios.
+ * - The `onRatingChange` handler is optional; if not provided, the component is non-interactive.
  */
-const RatingStars: React.FC<RatingStarsProps> = ({
-  rating,
-  id,
-  onRatingChange,
-  disabled = false,
-}) => {
-  const handleClick = (newRating: number) => {
-    if (!disabled) {
-      onRatingChange(id, newRating);
-    }
-  };
+const RatingStars: React.FC<RatingStarsProps> = (props) => {
+  const {rating, onRatingChange, readonly = false, size = 'sm'} = props;
 
+  const starSize = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5';
   return (
-    <div className="flex items-center space-x-1">
+    <div className="flex items-center gap-1">
       {[1, 2, 3, 4, 5].map((star) => (
         <Star
           key={star}
-          className={`h-4 w-4 cursor-pointer transition-colors ${
-            star <= rating
-              ? 'text-yellow-400 fill-yellow-400'
-              : 'text-gray-300 hover:text-yellow-200'
-          }`}
-          onClick={() => handleClick(star)}
-        />
+          className={cn(starSize, 'transition-colors', star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300 dark:text-gray-600', !readonly && 'cursor-pointer hover:text-yellow-400')}
+          onClick={() => !readonly && onRatingChange && onRatingChange(star)}/>
       ))}
     </div>
   );
