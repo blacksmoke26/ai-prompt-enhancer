@@ -354,8 +354,8 @@ export const MdxEditor = React.forwardRef<MDXEditorMethods, MdxEditorProps>((pro
     ${className}
   `.replace(/\s+/g, ' ').trim();
 
-  const maxHeight = isZenMode ? 'h-full' : `max-h-[${props?.maxHeight ?? '400px'}`;
-  const minHeight = `min-h-${props?.minHeight ?? '350px'}`;
+  const maxHeight = isZenMode ? 'h-full' : `max-h-[${props?.maxHeight ?? '400px'}]`;
+  const minHeight = isZenMode ? 'h-full' : `min-h-[${props?.minHeight ?? '350px'}]`;
 
   return (
     <>
