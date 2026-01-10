@@ -309,6 +309,13 @@ export interface PromptHistory {
   presencePenalty?: number | null;
   /** Unique conversation identifier */
   conversationId?: string | null;
+  /** Statistics about the history */
+  stats: {
+    /** Text data statistics */
+    textData: { name: string; value: number }[];
+    /** Token data statistics */
+    tokenStats: { name: string; value: number; fill: string }[];
+  };
 }
 
 /**
