@@ -254,3 +254,36 @@ export const toSelectGroupedOptionsPlain = (list: {
 
   return Object.entries(mapped).map(([label, options]) => ({label, options}));
 };
+
+/**
+ * Decodes HTML entities in a string.
+ * @example decodeHtml('&amp;') // Returns '&'
+ * @developer-note Useful for sanitizing user input.
+ * @developer-note Replace with DOMParser for more advanced decoding.
+ * @returns Decoded string
+ */
+export const decodeHtml = (html: string) => {
+  let value = String(html);
+
+  // replaces HTML entities with their corresponding characters
+  const replacements = {
+    '&amp;': '&',
+    '&lt;': '<',
+    '&gt;': '>',
+    '&nbsp;': ' ',
+    '&quot;': '"',
+    '&apos;': "'",
+  };
+
+  for (const entity in replacements) {
+    value = String(value).replace(new RegExp(entity, 'g'), replacements[entity]);
+  }
+
+  value = value.replace(/^```markdown/, '').replace(/```$/, '');
+
+  value = decodeURIComponent(value);
+  value = value.replace(/&#(\d+);/g, (_, code) => String.fromCharCode(code));
+  value = value.replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
+
+  return value
+};
