@@ -44,7 +44,7 @@ export type TabType = 'enhancer' | 'history' | 'stats' | 'settings';
 export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('enhancer');
   const {loading: appLoading, error, refreshData} = useAppData();
-  const {history, loadStats, loadHistory, deleteItem, updateItem, clearHistory, exportHistory} = useHistory();
+  const {history, loadStats, loadHistory} = useHistory();
   const {sidebarOpen} = useAppStore();
   const [historyLoading, setHistoryLoading] = useState(false);
 
@@ -199,12 +199,7 @@ export const Dashboard: React.FC = () => {
                   <HistoryPanel
                     history={history}
                     loading={historyLoading}
-                    onDelete={deleteItem}
                     config={{allowBulkDelete: true, allowCompare: true, allowExport: true}}
-                    onUpdate={updateItem}
-                    onExport={exportHistory}
-                    onClear={clearHistory}
-                    onRefresh={handleRefreshHistory}
                   />
                 </DraggableLayout>
               )}
