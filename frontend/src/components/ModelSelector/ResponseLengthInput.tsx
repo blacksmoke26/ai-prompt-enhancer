@@ -48,7 +48,8 @@ const ResponseLengthInput: React.FC = () => {
           </div>
         )}
         selectedOption={(_, option) => (
-          <div>{option?.name ?? 'N/A'} <Badge variant="outline" className="text-xs">{option?.category ?? 'N/A'}</Badge></div>
+          <div>{option?.name ?? 'Select response length'} {option?.name && <Badge variant="outline"
+                                                                  className="text-xs">{option?.category ?? 'N/A'}</Badge>}</div>
         )}
       />
     </div>
