@@ -147,6 +147,11 @@ export interface PromptRequest {
  */
 export interface PromptResponse {
   /**
+   * The AI prompt used for processing
+   * @example "Explain quantum computing in simple terms..."
+   */
+  aiPrompt?: string;
+  /**
    * The enhanced version of the original prompt
    * @example "Explain quantum computing in simple terms, focusing on basic principles and applications"
    */

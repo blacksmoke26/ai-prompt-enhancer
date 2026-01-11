@@ -4,18 +4,18 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
+import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+import { OutputFormat, OutputFormatName } from '~/constants/output-format';
 
 // types
-import type {AIModel} from '~/types';
-import type {ConfigMeta} from '~/database/models';
-import type {ProviderConfig} from '~/types/providers';
+import type { AIModel } from '~/types';
+import type { ConfigMeta } from '~/database/models';
+import type { ProviderConfig } from '~/types/providers';
 import type {
-  BatchPromptRequest,
-  BatchPromptResponse,
   FunctionCallResult,
   FunctionDefinition,
   HealthStatus,
@@ -189,7 +189,7 @@ export default class OllamaProvider extends BaseAIProvider {
    * @inheritDoc
    */
   public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-// Ollama supports OpenAI standard API but benefits from clear role definitions
+    // Ollama supports OpenAI standard API but benefits from clear role definitions
     formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
     if (capabilities?.supportsJsonMode) {
       formattedPrompt += '\nRespond with valid JSON only.';
@@ -294,30 +294,39 @@ export default class OllamaProvider extends BaseAIProvider {
       const sanitizedText = this.sanitizeInput(request.text);
       const model = request.model || 'llama2';
 
-      const systemPrompt = await this.buildSystemPrompt(request, OllamaProvider);
-      const fullPrompt = await this.formatSystemPrompt(systemPrompt, OllamaProvider)
-        + `\n\n` + await this.formatPrompt({...request, text: sanitizedText}, OllamaProvider);
-
-      const response = await this.client.post<Record<string, any>>('/api/generate', {
-        model,
-        prompt: fullPrompt,
-        stream: false,
-        options: {
-          temperature: Math.max(0, Math.min(1, request.temperature || 0.7)),
-          top_p: request?.topP || 1.0,
-          top_k: request?.topK || 100,
-          num_predict: request.maxTokens || 2000,
-          stop: request?.stopSequences,
-          frequency_penalty: request?.frequencyPenalty || 0.0,
-          presence_penalty: request?.presencePenalty || 0.0,
-        },
+      const promptRequest = await PromptRequestNormalizer.normalize({
+        ...request,
       });
 
+      const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
+      const response = await this.client.post<Record<string, any>>(
+        '/api/generate',
+        {
+          model,
+          prompt: aiPrompt,
+          stream: false,
+          options: {
+            temperature: Math.max(0, Math.min(1, request.temperature || 0.7)),
+            top_p: request?.topP || 1.0,
+            top_k: request?.topK || 100,
+            num_predict: request?.maxTokens || 2000,
+            stop: request?.stopSequences,
+            frequency_penalty: request?.frequencyPenalty || 0.0,
+            presence_penalty: request?.presencePenalty || 0.0,
+          },
+        },
+      );
+
       const enhancedPrompt = await this.toPromptResponse(
-        response?.data?.response?.trim(), sanitizedText, OllamaProvider, request?.format || 'markdown',
+        response?.data?.response?.trim(),
+        sanitizedText,
+        OllamaProvider,
+        request?.format || 'markdown',
       );
 
       return {
+        aiPrompt,
         enhancedPrompt,
         originalPrompt: sanitizedText,
         model,
@@ -414,6 +423,7 @@ export default class OllamaProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt: fullPrompt,
         enhancedPrompt,
         originalPrompt: sanitizedText,
         model,
