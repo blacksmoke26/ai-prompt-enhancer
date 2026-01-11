@@ -7,6 +7,9 @@
 import React from 'react';
 import {Sparkles, Target, Clock, Zap, TrendingUp} from 'lucide-react';
 
+// utils
+import {decodeHtml} from '~/utils/helpers';
+
 // ui components
 import {Badge} from '~/components/ui/Badge';
 import Markdown from '~/components/ui/Markdown';
@@ -95,7 +98,7 @@ const EnhancedPrompt: React.FC<EnhancedPromptProps> = ({response, originalPrompt
         </div>
       </div>
       <div className="rounded-md p-4 max-h-96 overflow-y-auto">
-        <Markdown source={response.enhancedPrompt}/>
+        <Markdown source={decodeHtml(response.enhancedPrompt)}/>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-muted-foreground">
