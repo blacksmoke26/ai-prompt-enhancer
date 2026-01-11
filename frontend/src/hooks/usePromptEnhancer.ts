@@ -8,7 +8,9 @@ import {useCallback, useState} from 'react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
-import {useHistoryStore} from '~/stores/historyStore';
+
+// hooks
+import {useHistory} from '~/hooks/useHistory.ts';
 
 // services
 import PromptService from '~/services/PromptService';
@@ -44,7 +46,7 @@ export const usePromptEnhancer = () => {
 
   const {config} = useAppStore();
 
-  const {addToHistory} = useHistoryStore();
+  const {loadHistory} = useHistory();
 
   /**
    * Generates default request parameters for API calls.
@@ -58,7 +60,7 @@ export const usePromptEnhancer = () => {
     const values = {
       model: config.model!,
       provider: config.provider!,
-      enhancementType: 'refine',
+      enhancementType: config.enhancementType,
       userRole: config.userRole,
       systemPrompt: config.defaultSystemPrompt,
       temperature: config?.temperature ?? 0.7,
@@ -131,18 +133,7 @@ export const usePromptEnhancer = () => {
       };
 
       const response = await PromptService.enhancePrompt(request);
-
-      // Add to history
-      addToHistory({
-        ...response,
-        provider: config?.provider,
-        // @ts-ignore
-        id: response.timestamp, // Use timestamp as ID for now
-        enhancementType: config?.enhancementType!,
-        userRole: config?.userRole!,
-        rating: undefined,
-        notes: undefined,
-      });
+      await loadHistory();
 
       return response;
     } catch (err) {
@@ -178,17 +169,7 @@ export const usePromptEnhancer = () => {
       };
 
       const response = await PromptService.enhancePrompt(request);
-
-      addToHistory({
-        ...response,
-        // @ts-ignore
-        id: response.timestamp,
-        provider: config.provider!,
-        enhancementType: 'refine',
-        userRole: config.userRole!,
-        rating: undefined,
-        notes: undefined,
-      });
+      await loadHistory();
 
       return response;
     } catch (err) {
@@ -225,17 +206,7 @@ export const usePromptEnhancer = () => {
       };
 
       const response = await PromptService.enhancePrompt(request);
-
-      addToHistory({
-        ...response,
-        // @ts-ignore
-        id: response.timestamp,
-        provider: config.provider!,
-        enhancementType: 'combine',
-        userRole: config.userRole!,
-        rating: undefined,
-        notes: undefined,
-      });
+      await loadHistory();
 
       return response;
     } catch (err) {
@@ -254,7 +225,7 @@ export const usePromptEnhancer = () => {
    * @param historyId - The ID of the history entry to revert
    * @returns Original prompt text or null if not found
    */
-  const revertPrompt = useCallback((historyId: number) => {
+  const revertPrompt = useCallback((_historyId: number) => {
     // This would need access to history items - might need to be implemented in historyStore
     setError('Revert functionality not yet implemented');
     return null;
