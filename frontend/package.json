@@ -29,6 +29,7 @@
     "react-hot-toast": "^2.6.0",
     "react-select": "^5.10.2",
     "recharts": "^3.6.0",
+    "streamdown": "^1.6.11",
     "tailwind-merge": "^3.4.0",
     "zustand": "^5.0.9"
   },
