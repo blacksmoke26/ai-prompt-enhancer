@@ -88,3 +88,22 @@ export const detectRtl = (text: string): boolean => {
   if (cleanText.length === 0) return false;
   return (matches.length / cleanText.length) > 0.2;
 };
+
+/**
+ * Converts a value to a string or returns `null` if the value is `undefined` or `null`.
+ * @param value - The value to convert.
+ * @returns The string representation of the value or `null` if the value is `undefined` or `null`.
+ * @example
+ * nullOrString(undefined); // returns null
+ * nullOrString(null); // returns null
+ * nullOrString('Hello'); // returns 'Hello'
+ * @developerNotes
+ * - Handles both `undefined` and `null` values.
+ * - Trims the string if it's a non-null value.
+ * - Returns `null` for `undefined` or `null` values.
+ */
+export const nullOrString = (value: any | undefined | null): any | null => {
+  return !value
+    ? null
+    : (value?.trim?.() ? value.trim() : null);
+};
