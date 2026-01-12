@@ -4,15 +4,15 @@
  * @see https://github.com/blacksmoke26
  */
 
+import axios, { AxiosResponse } from 'axios';
+
 import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
 import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
 import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
-// constants
-import { OutputFormat, OutputFormatName } from '~/constants/output-format';
-
 // types
 import type { AIModel } from '~/types';
+import type { Readable } from 'node:stream';
 import type { ConfigMeta } from '~/database/models';
 import type { ProviderConfig } from '~/types/providers';
 import type {
@@ -21,9 +21,7 @@ import type {
   HealthStatus,
   PromptRequest,
   PromptResponse,
-  ProviderCapabilities,
-  StreamCallback,
-  UsageMetrics,
+  StreamResponse,
 } from '~/types/prompt';
 
 /**
@@ -80,23 +78,6 @@ export interface OllamaModel {
     /** Context window size */
     readonly context_length?: number;
   };
-}
-
-/**
- * Extended interface for Ollama API responses with streaming support
- */
-export interface OllamaStreamResponse {
-  model: string;
-  created_at: string;
-  response: string;
-  done: boolean;
-  context?: number[];
-  total_duration?: number;
-  load_duration?: number;
-  prompt_eval_count?: number;
-  prompt_eval_duration?: number;
-  eval_count?: number;
-  eval_duration?: number;
 }
 
 /**
@@ -161,54 +142,11 @@ export default class OllamaProvider extends BaseAIProvider {
   };
 
   /**
-   * Provider capabilities specific to Ollama
-   */
-  private static readonly PROVIDER_CAPABILITIES: ProviderCapabilities = {
-    supportsStreaming: true,
-    supportsBatchProcessing: true,
-    supportsFunctionCalling: false,
-    supportsConversationHistory: true,
-    supportsJsonMode: true,
-    supportsImageGeneration: false,
-    supportsFineTuning: false,
-    maxContextLength: 8192,
-    supportedFormats: ['text', 'markdown', 'json', 'xml', 'yaml', 'html'],
-    provider: OllamaProvider.ProviderID,
-  };
-
-  /**
    * Constructs a new instance of the OllamaProvider class.
    * @param {ConfigMeta} config - Configuration options for the provider.
    */
   constructor(config: ConfigMeta) {
     super(OllamaProvider.ProviderKey, {...config, baseUrl: config?.baseUrl ?? OllamaProvider.ProviderConfig.baseUrl});
-    this.setProviderCapabilities(OllamaProvider.PROVIDER_CAPABILITIES);
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // Ollama supports OpenAI standard API but benefits from clear role definitions
-    formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
-    if (capabilities?.supportsJsonMode) {
-      formattedPrompt += '\nRespond with valid JSON only.';
-    }
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output must be valid JSON. Do not include explanations or markdown.`,
-      [OutputFormat.MARKDOWN]: `Use Markdown syntax for formatting (headers, lists, code blocks).`,
-      [OutputFormat.TEXT]: `Respond in clear, plain text without formatting.`,
-      [OutputFormat.HTML]: `Return valid HTML with semantic structure.`,
-      [OutputFormat.XML]: `Return well-formed XML with proper tags.`,
-      [OutputFormat.YAML]: `Return valid YAML with correct indentation.`,
-    };
   }
 
   /**
@@ -262,7 +200,7 @@ export default class OllamaProvider extends BaseAIProvider {
   }
 
   /**
-   * Enhances a prompt using the specified Ollama model.
+   * Generate a sync response using the specified model.
    *
    * @param request - The prompt enhancement request containing text and options
    * @returns Promise resolving to the enhanced prompt response
@@ -282,7 +220,7 @@ export default class OllamaProvider extends BaseAIProvider {
    * Builds a system prompt based on enhancement type and user role.
    * Falls back to original text if API call fails or returns empty response.
    */
-  public async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  public async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
     try {
       // Input validation and sanitization
@@ -347,214 +285,68 @@ export default class OllamaProvider extends BaseAIProvider {
   }
 
   /**
-   * Streams prompt responses in real-time for long-running generations.
-   * @param request - Prompt request with streaming enabled
-   * @param callback - Callback function to handle streamed chunks
-   * @returns Promise resolving to final response when stream completes
+   * @inheritDoc
    */
-  public async streamPrompt(request: PromptRequest, callback: StreamCallback): Promise<PromptResponse> {
-    const startTime = Date.now();
-    let accumulatedResponse = '';
-    let context: number[] | undefined;
-    let tokenCount = 0;
+  public async *generateStream(request: PromptRequest): AsyncGenerator<StreamResponse, void, unknown> {
+    const promptRequest = await PromptRequestNormalizer.normalize(request);
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
 
     try {
-      const sanitizedText = this.sanitizeInput(request.text);
-      const model = request.model || 'llama2';
-      const systemPrompt = await this.buildSystemPrompt(request, OllamaProvider);
-      const fullPrompt = await this.formatSystemPrompt(systemPrompt, OllamaProvider)
-        + `\n\n` + await this.formatPrompt({...request, text: sanitizedText}, OllamaProvider);
-
-      const response = await this.client.post('/api/generate', {
-        model,
-        prompt: fullPrompt,
-        stream: true,
-        options: {
-          temperature: Math.max(0, Math.min(1, request.temperature || 0.7)),
-          num_predict: request.maxTokens || 2000,
-          stop: request.stopSequences,
+      const response: AxiosResponse<Readable> = await this.client.post(
+        '/api/chat',
+        {
+          model: request.model,
+          messages: [
+            {role: 'system', content: request.systemPrompt},
+            {role: 'user', content: aiPrompt}
+          ]},
+        {
+          responseType: 'stream',
         },
-      }, {
-        responseType: 'stream',
-        onDownloadProgress: (progressEvent) => {
-          if (progressEvent.event?.data) {
-            try {
-              const chunk: OllamaStreamResponse = JSON.parse(progressEvent.event.data);
-              accumulatedResponse += chunk.response;
-              tokenCount = chunk.eval_count || tokenCount;
-              context = chunk.context;
-
-              // Call callback with chunk data
-              callback({
-                text: chunk.response,
-                isFinal: chunk.done,
-                metadata: {
-                  model,
-                  tokenCount,
-                  contextLength: context?.length || 0,
-                  totalDuration: chunk.total_duration,
-                  evalDuration: chunk.eval_duration,
-                },
-              });
-
-              if (chunk.done) {
-              // Final callback with complete response
-                callback({
-                  text: accumulatedResponse,
-                  isFinal: true,
-                  metadata: {
-                    model,
-                    tokenCount,
-                    contextLength: context?.length || 0,
-                    totalDuration: chunk.total_duration,
-                    evalDuration: chunk.eval_duration,
-                  },
-                });
-              }
-            } catch (parseError) {
-              console.error('Failed to parse stream chunk:', parseError);
-            }
-          }
-        },
-      });
-
-      const enhancedPrompt = await this.toPromptResponse(
-        accumulatedResponse.trim(), sanitizedText, OllamaProvider, request?.format || 'markdown',
       );
 
-      return {
-        aiPrompt: fullPrompt,
-        enhancedPrompt,
-        originalPrompt: sanitizedText,
-        model,
-        timestamp: new Date(),
-        tokensUsed: tokenCount,
-        processingTime: this.calculateProcessingTime(startTime),
-        metadata: {
-          streaming: true,
-          contextLength: context?.length || 0,
-          totalDuration: response.data?.total_duration,
-          evalDuration: response.data?.eval_duration,
-        },
-      };
-    } catch (error) {
-      console.error('Streaming failed:', error);
-      throw new Error(`Streaming failed: ${error instanceof Error ? error.message : String(error)}`);
-    }
-  }
+      const stream = response.data;
+      let buffer = '';
 
-  /**
-   * Manages Ollama models (download, delete, update).
-   * @param action - Action to perform ('download', 'delete', 'update')
-   * @param modelName - Name of the model to manage
-   * @param options - Additional options specific to the action
-   * @returns Promise resolving to management result
-   */
-  public async manageModel(action: 'download' | 'delete' | 'update', modelName: string, options: Record<string, any> = {}): Promise<{
-    success: boolean;
-    message: string
-  }> {
-    try {
-      switch (action) {
-        case 'download':
-          await this.client.post('/api/pull', {
-            name: modelName,
-            stream: false,
-            insecure: options.insecure || false,
-          });
-          return {
-            success: true,
-            message: `Model ${modelName} downloaded successfully`,
-          };
+      for await (const chunk of stream) {
+        buffer += chunk.toString();
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || '';
 
-        case 'delete':
-          await this.client.delete('/api/delete', {
-            data: {name: modelName},
-          });
-          // Clear cache since models changed
-          await this.cache.delete(`${this.name}:models:all`);
-          return {
-            success: true,
-            message: `Model ${modelName} deleted successfully`,
-          };
+        for (const line of lines) {
+          if (line.trim()) {
+            try {
+              const data = JSON.parse(line) as StreamResponse;
+              yield data;
 
-        case 'update':
-          // Ollama doesn't have a direct update API, so we pull again
-          await this.client.post('/api/pull', {
-            name: modelName,
-            stream: false,
-            insecure: options.insecure || false,
-          });
-          return {
-            success: true,
-            message: `Model ${modelName} updated successfully`,
-          };
-
-        default:
-          // noinspection ExceptionCaughtLocallyJS
-          throw new Error(`Unsupported action: ${action}`);
+              if (data.done) {
+                return;
+              }
+            } catch (parseError) {
+              console.warn('Failed to parse streaming response:', line, parseError);
+            }
+          }
+        }
       }
-    } catch (error) {
-      console.error(`Model ${action} failed for ${modelName}:`, error);
-      return {
-        success: false,
-        message: `Failed to ${action} model ${modelName}: ${error instanceof Error ? error.message : String(error)}`,
-      };
-    }
-  }
 
-  /**
-   * Gets usage metrics for Ollama instance.
-   * @param since - Optional timestamp to get metrics since a specific time
-   * @returns Usage metrics object
-   */
-  public async getUsageMetrics(since?: number): Promise<UsageMetrics> {
-    try {
-      // Ollama doesn't provide detailed usage metrics via API
-      // We'll provide basic metrics based on our cache and tracking
-      const models = await this.getModels();
-      const now = Date.now();
-
-      return {
-        provider: 'ollama',
-        timestamp: now,
-        since: since || now - 86400000, // Default to last 24 hours
-        requests: {
-          total: 0, // Ollama doesn't track this centrally
-          successful: 0,
-          failed: 0,
-        },
-        tokens: {
-          prompt: 0,
-          completion: 0,
-          total: 0,
-        },
-        models: models.map(model => ({
-          name: model.name,
-          usageCount: 0, // Not tracked by Ollama API
-          lastUsed: model?.modifiedAt ? new Date(model?.modifiedAt).getTime() : null,
-        })),
-        performance: {
-          averageResponseTime: 0, // Would need to track this internally
-          p95ResponseTime: 0,
-        },
-        storage: {
-          totalSize: models.reduce((sum, model) => sum + Number(model.size), 0),
-          modelCount: models.length,
-        },
-      };
-    } catch (error) {
-      console.error('Failed to get usage metrics:', error);
-      return {
-        provider: 'ollama',
-        timestamp: Date.now(),
-        since: since || Date.now() - 86400000,
-        requests: {total: 0, successful: 0, failed: 0},
-        tokens: {prompt: 0, completion: 0, total: 0},
-        models: [],
-        performance: {averageResponseTime: 0, p95ResponseTime: 0},
-        storage: {totalSize: 0, modelCount: 0},
-      };
+      // Process any remaining buffer
+      if (buffer.trim()) {
+        try {
+          const data = JSON.parse(buffer) as StreamResponse;
+          yield data;
+        } catch (parseError) {
+          console.warn('Failed to parse final buffer:', buffer, parseError);
+        }
+      }
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.error || error.message;
+        console.error(`${OllamaProvider.ProviderName} streaming error:`, errorMessage);
+        throw new Error(`${OllamaProvider.ProviderName} API error: ${errorMessage}`);
+      }
+      console.error('Unexpected streaming error:', error);
+      throw new Error(`Failed to stream response from ${OllamaProvider.ProviderName}`);
     }
   }
 
