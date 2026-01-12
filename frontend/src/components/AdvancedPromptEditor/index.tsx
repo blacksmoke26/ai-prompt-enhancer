@@ -60,18 +60,12 @@ export interface AdvancedPromptEditorProps {
   /** Additional CSS classes */
   className?: string;
 
-  /** Show statistics panel */
-  showStats?: boolean;
-  /** Maximum character limit */
-  maxLength?: number;
   /** Show template selection */
   showTemplates?: boolean;
 
   /** Prompt enhancement callback */
   onEnhance?(prompt: string): void;
 
-  /** Show formatting toolbar */
-  showFormatting?: boolean;
   /** Show preview panel */
   showPreview?: boolean;
   /** Show word cloud visualization */
@@ -140,11 +134,8 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
     showActions = true,
     response,
     className,
-    showStats = true,
-    maxLength = 10000,
     showTemplates = false,
     onEnhance,
-    showFormatting = false,
     showPreview = false,
     autoSave = false,
     onAutoSave,
