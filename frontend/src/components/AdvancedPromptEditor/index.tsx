@@ -10,7 +10,12 @@ import {Brain, NotebookText, WandSparkles} from 'lucide-react';
 // helpers
 import {cn, copyToClipboard, downloadFile} from '~/utils/helpers';
 
+// hooks
+import {useAppStore} from '~/stores/appStore';
+
 // ui components
+import {Button} from '~/components/ui/Button';
+import {TooltipMini} from '~/components/ui/Tooltip';
 import {Card, CardContent, CardHeader} from '~/components/ui/Card';
 
 // components
@@ -23,20 +28,10 @@ import EditorContentWithSmartPanel, {MDXEditorMethods} from './EditorContentWith
 
 // types
 import type {PromptResponse} from '~/types';
-import {Button} from '~/components/ui/Button.tsx';
-import {TooltipMini} from '~/components/ui/Tooltip.tsx';
-import {useAppStore} from '~/stores/appStore.ts';
 
 /**
  * Configuration props for the Advanced Prompt Editor component
- * @example
- * <AdvancedPromptEditor
- *   value={prompt}
- *   onChange={setPrompt}
- *   onEnhance={enhancePrompt}
- *   autoSave
- *   onAutoSave={savePrompt}
- * />
+ * @developerNotes All handlers are provided by parent component to maintain separation of concerns
  */
 export interface AdvancedPromptEditorProps {
   /** Current prompt text value */
@@ -62,9 +57,6 @@ export interface AdvancedPromptEditorProps {
 
   /** Show template selection */
   showTemplates?: boolean;
-
-  /** Prompt enhancement callback */
-  onEnhance?(prompt: string): void;
 
   /** Show preview panel */
   showPreview?: boolean;
@@ -135,7 +127,6 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
     response,
     className,
     showTemplates = false,
-    onEnhance,
     showPreview = false,
     autoSave = false,
     onAutoSave,
@@ -243,7 +234,7 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
     if (navigator.share) {
       try {
         await navigator.share({
-          title: 'AI Prompt',
+          title: 'Synapse',
           text: value,
         });
       } catch (error) {
@@ -251,26 +242,6 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
       }
     } else {
       await copyToClipboard(value);
-    }
-  };
-
-  /**
-   * Clears all text content from the editor
-   */
-  const handleClear = () => {
-    if (textareaRef.current) {
-      textareaRef.current.setMarkdown('');
-    }
-    onChange('');
-  };
-
-  /**
-   * Triggers prompt enhancement via provided callback
-   * @developer Notes: Only available when onEnhance prop is provided.
-   */
-  const handleEnhance = () => {
-    if (onEnhance) {
-      onEnhance(value);
     }
   };
 
@@ -345,9 +316,6 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
           handleCopy={handleCopy}
           handleDownload={handleDownload}
           handleShare={handleShare}
-          handleClear={handleClear}
-          handleEnhance={handleEnhance}
-          onEnhance={onEnhance}
           disabled={disabled}
           showActions={showActions}
         />
