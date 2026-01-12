@@ -55,7 +55,7 @@ const enhance = async (
     }
 
     // Enhance the prompt
-    const response = await provider.enhancePrompt(promptRequest);
+    const response = await provider.generateSync(promptRequest);
 
     if (!(promptRequest?.offTheRecord ?? false)) {
       // Save to history
