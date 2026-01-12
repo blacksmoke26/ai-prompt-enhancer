@@ -644,3 +644,80 @@ export interface HealthStatus {
   /** Error information */
   error?: string;
 }
+
+/**
+ * Represents an error response from a stream.
+ * @interface
+ * @example
+ * { error: 'Invalid request', details: { code: 400 } }
+ * @note Use this interface to handle errors returned during streaming operations. The `details` field can be used to provide additional context or error codes.
+ */
+export interface StreamError {
+  /**
+   * A string describing the error.
+   */
+  error: string;
+  /**
+   * Optional additional details about the error.
+   */
+  details?: any;
+}
+
+/**
+ * Represents a response from a stream, including message content and metadata.
+ * @interface
+ * @example
+ * { model: 'gpt-3.5', created_at: '2023-09-01T12:34:56Z', message: { role: 'assistant', content: 'Hello!' }, done: true }
+ * @note Optional fields may vary depending on the API and stream status. The `done` flag indicates whether the stream has completed.
+ */
+export interface StreamResponse {
+  /**
+   * The name of the model used to generate the response.
+   */
+  model: string;
+  /**
+   * The timestamp when the response was created.
+   */
+  created_at: string;
+  /**
+   * The message content and role.
+   */
+  message: {
+    /**
+     * The role of the message sender (e.g., 'user', 'assistant').
+     */
+    role: string;
+    /**
+     * The content of the message.
+     */
+    content: string;
+  };
+  /**
+   * Indicates whether the stream has completed.
+   */
+  done: boolean;
+  /**
+   * Total duration of the stream in nanoseconds (if available).
+   */
+  total_duration?: number;
+  /**
+   * Duration taken to load the prompt in nanoseconds (if available).
+   */
+  load_duration?: number;
+  /**
+   * Number of tokens evaluated in the prompt (if available).
+   */
+  prompt_eval_count?: number;
+  /**
+   * Duration taken to evaluate the prompt in nanoseconds (if available).
+   */
+  prompt_eval_duration?: number;
+  /**
+   * Number of tokens evaluated in the response (if available).
+   */
+  eval_count?: number;
+  /**
+   * Duration taken to evaluate the response in nanoseconds (if available).
+   */
+  eval_duration?: number;
+}
