@@ -6,44 +6,28 @@
 
 import React from 'react';
 import {Button} from '@radix-ui/themes';
-import {Copy, Download, Share2, Trash2, Zap} from 'lucide-react';
-
+import {Copy, Download, Share2} from 'lucide-react';
 
 /**
  * Props for the ActionButtons component
  * @developer-note All handlers are provided by parent component to maintain separation of concerns
- * @example
- * <ActionButtons
- *   value="sample text"
- *   handleCopy={async () => await navigator.clipboard.writeText(value)}
- *   handleDownload={() => downloadFile(value)}
- *   handleShare={async () => shareContent(value)}
- *   handleClear={() => setValue('')}
- *   handleEnhance={() => onEnhance(value)}
- *   onEnhance={enhanceFunction}
- *   disabled={false}
- *   showActions={true}
- * />
  */
 export interface ActionButtonsProps {
   /** Current text value to perform actions on */
   value: string;
-  /** Async handler for copying content to clipboard */
-  handleCopy?(): Promise<void>;
-  /** Handler for downloading content as file */
-  handleDownload?(): void;
-  /** Async handler for sharing content */
-  handleShare?(): Promise<void>;
-  /** Handler for clearing the content */
-  handleClear?(): void;
-  /** Handler for enhancing the content */
-  handleEnhance?(): void;
-  /** Optional enhance function from parent */
-  onEnhance?: (value: string) => void;
   /** Whether enhance button should be disabled */
   disabled?: boolean;
   /** Whether to show the action buttons at all */
   showActions?: boolean;
+
+  /** Async handler for copying content to clipboard */
+  handleCopy?(): Promise<void>;
+
+  /** Handler for downloading content as file */
+  handleDownload?(): void;
+
+  /** Async handler for sharing content */
+  handleShare?(): Promise<void>;
 }
 
 /**
@@ -63,17 +47,18 @@ export interface ActionButtonsProps {
  *   showActions={true}
  * />
  */
-const ActionButtons: React.FC<ActionButtonsProps> = ({
-  value,
-  handleCopy = () => {},
-  handleDownload = () => {},
-  handleShare = () => {},
-  handleClear = () => {},
-  handleEnhance = () => {},
-  onEnhance = undefined,
-  disabled = false,
-  showActions = true
-}) => {
+const ActionButtons: React.FC<ActionButtonsProps> = (props) => {
+  const {
+    value,
+    handleCopy = () => {
+    },
+    handleDownload = () => {
+    },
+    handleShare = () => {
+    },
+    showActions = true,
+  } = props;
+
   if (!showActions) return null;
 
   return (
@@ -84,8 +69,8 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           color="gray"
           onClick={handleCopy}
           disabled={!value.trim()}
-        >
-          <Copy className="h-4 w-4 mr-1"/>
+          className="text-xs">
+          <Copy className="h-3 w-3"/>
           Copy
         </Button>
         <Button
@@ -93,8 +78,8 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           color="gray"
           onClick={handleDownload}
           disabled={!value.trim()}
-        >
-          <Download className="h-4 w-4 mr-1"/>
+          className="text-xs">
+          <Download className="h-3 w-3"/>
           Download
         </Button>
         <Button
@@ -102,33 +87,10 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
           color="gray"
           onClick={handleShare}
           disabled={!value.trim()}
-        >
-          <Share2 className="h-4 w-4 mr-1"/>
+          className="text-xs">
+          <Share2 className="h-3 w-3"/>
           Share
         </Button>
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Button
-          variant="ghost"
-          color="red"
-          onClick={handleClear}
-          disabled={!value.trim()}
-        >
-          <Trash2 className="h-4 w-4 mr-1"/>
-          Clear
-        </Button>
-
-        {onEnhance && (
-          <Button
-            variant="ghost"
-            onClick={handleEnhance}
-            disabled={!value.trim() || disabled}
-          >
-            <Zap className="h-4 w-4 mr-1"/>
-            Enhance
-          </Button>
-        )}
       </div>
     </div>
   );
