@@ -24,9 +24,6 @@ export interface EnhancementTypeSelectorProps {
 const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({className = ''}) => {
   const {enhancementTypes, config, setConfig} = useAppStore();
 
-  // Get enhancement data for display
-  const selectedEnhancementData = enhancementTypes.find(type => type.id === config.enhancementType);
-
   return (
     <div className={`space-y-2 ${className || ''}`}>
       <label
@@ -35,7 +32,7 @@ const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({classN
       </label>
       <SelectAdvanced
         searchable
-        clearable={false}
+        clearable
         triggerWidth="w-full"
         value={config.enhancementType as string}
         onChange={(e) => setConfig({enhancementType: e as string}, true)}
@@ -47,7 +44,12 @@ const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({classN
           </div>
         )}
         selectedOption={(_, option) => (
-          <div>{option?.label ?? 'N/A'} <Badge variant="outline" className="text-xs">{option?.category ?? 'N/A'}</Badge></div>
+          <div>{option?.label ?? 'Select enhancement'}
+            {option?.label && (
+              <Badge
+                variant="outline"
+                className="text-xs">{option?.category ?? 'N/A'}</Badge>
+            )}</div>
         )}
       />
     </div>

@@ -70,7 +70,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
         disabled={!config.provider}
         selectedOption={(_, option) => (
           <div>
-            {option?.label} <span className="text-xs">({option?.value?.replace?.(option?.label + ':', '')})</span>
+            {option?.label ?? 'Select model'}
+            {option?.label && (
+              <span className="text-xs">({option?.value?.replace?.(option?.label + ':', '')})</span>
+            )}
           </div>
         )}
       />

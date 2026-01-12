@@ -24,9 +24,6 @@ interface UserRoleSelectorProps {
 const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => {
   const {userRoles, setConfig, config} = useAppStore();
 
-  // Get role data for display
-  const selectedRoleData = userRoles.find(role => role.id === config.userRole);
-
   return (
     <div className={`space-y-2 ${className || ''}`}>
       <label
@@ -35,7 +32,7 @@ const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => 
       </label>
       <SelectAdvanced
         searchable
-        clearable={false}
+        clearable
         triggerWidth="w-full"
         value={config.userRole as string}
         onChange={(e) => setConfig({userRole: e as string}, true)}
@@ -46,7 +43,11 @@ const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => 
           </div>
         )}
         selectedOption={(_, option) => (
-          <div>{option?.label ?? 'N/A'} <Badge variant="outline" className="text-xs">{option?.category ?? 'N/A'}</Badge></div>
+          <div>{option?.label ?? 'Select role'}
+            {option?.label && (
+              <Badge variant="outline" className="text-xs">{option?.category ?? 'N/A'}</Badge>
+            )}
+          </div>
         )}
       />
     </div>
