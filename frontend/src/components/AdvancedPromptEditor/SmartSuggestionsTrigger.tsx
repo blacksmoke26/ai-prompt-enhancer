@@ -25,10 +25,7 @@ export interface SmartSuggestionsTriggerProps {
   isVisible: boolean;
 
   /** Callback when panel visibility changes */
-  onTogglePanel: () => void;
-
-  /** Response from prompt enhancement (if available) */
-  response?: any | null;
+  onTogglePanel(): void;
 }
 
 /**
@@ -43,7 +40,7 @@ export interface SmartSuggestionsTriggerProps {
  * ```
  */
 const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = (props) => {
-  const {prompt, isVisible = true, onTogglePanel, response} = props;
+  const {prompt, isVisible = true, onTogglePanel} = props;
 
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [analysis, setAnalysis] = useState<any>(null);
@@ -70,16 +67,17 @@ const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = (props) 
   return (
     <>
       <TooltipMini title="Intelligent Prompt Enhancement Engine">
-        <Button disabled={!prompt.trim()}
+        <Button
+          disabled={!prompt.trim()}
           variant="plain"
           size="icon"
           onClick={onTogglePanel}
         >
-            {isAnalyzing ? (
-              <span className="animate-spin"><BrainCircuit className="w-5 h-5"/></span>
-            ) : (
-              <BrainCircuit className="w-5 h-5"/>
-            )}
+          {isAnalyzing ? (
+            <span className="animate-spin"><BrainCircuit className="w-5 h-5"/></span>
+          ) : (
+            <BrainCircuit className="w-5 h-5"/>
+          )}
           {isAnalyzing && (
             <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></span>
           )}
