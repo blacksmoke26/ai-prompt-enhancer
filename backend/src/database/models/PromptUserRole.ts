@@ -55,11 +55,14 @@ export class PromptUserRole extends Model<
   declare name: string;
 
   /**
-   * A system-specific prompt or instruction associated with the role.
+   * A detailed and comprehensive system-specific prompt or instruction associated with the role
    * This could be used for AI/automation scenarios (e.g., "Grant full access to all systems").
    * This field is optional.
    */
   declare systemPrompt: string;
+
+  /* A minimal system-specific prompt or instruction associated with the role */
+  declare systemPromptShort: string;
 
   /** A concise, one-line summary of the role's primary function */
   declare shortDescription: string;
@@ -116,6 +119,12 @@ PromptUserRole.init(
       type: DataTypes.TEXT,
       allowNull: false,
       comment: `A system-specific prompt or instruction associated with the role`,
+    },
+    systemPromptShort: {
+      field: 'system_prompt_short',
+      type: DataTypes.TEXT,
+      allowNull: false,
+      comment: `A short system-specific prompt or instruction associated with the role`,
     },
     shortDescription: {
       type: DataTypes.TEXT,
