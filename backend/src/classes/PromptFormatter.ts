@@ -6,15 +6,18 @@
  */
 
 // db
-import {EnhancementType, PromptUserRole} from '~/database/models';
+import { EnhancementType, PromptUserRole } from '~/database/models';
 
 // utils
 import { getInstance } from '~/cache';
-import {formatSpecificValidation, sanitizeInput, validatePromptRequest} from '~/utils/validation';
+import {
+  formatSpecificValidation,
+  sanitizeInput,
+  validatePromptRequest,
+} from '~/utils/validation';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
-import {DEFAULT_FORMATTER_CONFIG, FALLBACK_FORMATS, PROMPT_SEPARATOR} from '~/constants/prompt';
+// classes
+import { DEFAULT_FORMATTER_CONFIG, PROMPT_SEPARATOR } from '~/constants/prompt';
 
 // types
 import type {
@@ -24,7 +27,7 @@ import type {
   ProviderCapabilities,
   SystemPromptComponents,
 } from '~/types/prompt';
-import type {IProvider} from '~/types/interfaces/IProvider';
+import type { IProvider } from '~/types/interfaces/IProvider';
 
 /**
  * A robust, extensible base class for formatting prompts with AI models.
@@ -66,47 +69,9 @@ export default abstract class PromptFormatter {
    * Configuration for this formatter instance.
    * Can be overridden by subclasses or modified at runtime.
    */
-  protected static config: PromptFormatterConfig = {...DEFAULT_FORMATTER_CONFIG};
-
-  /**
-   * Returns a formatted string representing the selected output format.
-   * Uses provider-specific templates when available, falls back to generic format.
-   *
-   * @param format - The desired output format (defaults to 'markdown')
-   * @param providerClass - The class reference for static methods
-   * @returns Formatted string indicating the output format with provider context
-   *
-   * @example
-   * // OpenAI with JSON format
-   * getOutputFormat(OutputFormat.JSON, ProviderName.OPENAI);
-   * // Returns: "Output Format: JSON\nContent-Type: application/json\n..."
-   *
-   * @example
-   * // Generic fallback for unsupported format
-   * getOutputFormat('custom' as OutputFormat, ProviderName.OPENAI);
-   * // Returns: "Output Format: Plain Text\n"
-   */
-  protected static getOutputFormat(
-    format: OutputFormatName = OutputFormat.MARKDOWN,
-    providerClass: IProvider,
-  ): string {
-    // Validate and normalize format
-    const normalizedFormat = Object.values(OutputFormat).includes(format)
-      ? format
-      : OutputFormat.TEXT;
-
-    // Get provider-specific template if available
-    const providerTemplates = providerClass.getFormatTemplates();
-
-    if (providerTemplates?.[normalizedFormat]) {
-      return `Output Format: ${providerTemplates[normalizedFormat]}`.concat(PROMPT_SEPARATOR);
-    }
-
-    // Fallback to generic format description
-    const formatDescription: string = FALLBACK_FORMATS[normalizedFormat] || 'Plain Text - unformatted text content';
-
-    return `Output Format: ${formatDescription}`.concat(PROMPT_SEPARATOR);
-  }
+  protected static config: PromptFormatterConfig = {
+    ...DEFAULT_FORMATTER_CONFIG,
+  };
 
   /**
    * Formats metadata fields consistently with validation and sanitization.
@@ -123,7 +88,10 @@ export default abstract class PromptFormatter {
    * formatMetadataField('Tone', '');
    * // Returns: ""
    */
-  protected static formatMetadataField(label: string, value: string | number | undefined | null): string {
+  protected static formatMetadataField(
+    label: string,
+    value: string | number | undefined | null,
+  ): string {
     if (!value && value !== 0) return '';
 
     const sanitizedValue = sanitizeInput(String(value));
@@ -132,7 +100,7 @@ export default abstract class PromptFormatter {
     // Capitalize label properly
     const formattedLabel = label
       .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
       .join(' ');
 
     return `${formattedLabel}: ${sanitizedValue}`.concat(PROMPT_SEPARATOR);
@@ -181,7 +149,7 @@ export default abstract class PromptFormatter {
     config: Partial<PromptFormatterConfig> = {},
   ): Promise<FormattedPromptResult> {
     // Merge configs
-    const effectiveConfig = {...this.config, ...config};
+    const effectiveConfig = { ...this.config, ...config };
     const seperator = effectiveConfig.sectionSeparator || '\n';
 
     // Validate request if strict mode is enabled
@@ -195,30 +163,27 @@ export default abstract class PromptFormatter {
     // Initialize formatted prompt parts
     const parts: string[] = [];
 
-    // Add output format section
-    if (effectiveConfig.includeMetadata) {
-      parts.push(this.getOutputFormat(request.format, providerClass));
-    }
-
     // Add metadata fields conditionally
     if (effectiveConfig.includeMetadata) {
-      if ( !request?.userRole?.trim?.() ) throw new Error ('User role is required');
+      if (!request?.userRole?.trim?.())
+        throw new Error('User role is required');
 
-      const {name = request.userRole} = (await PromptUserRole.findOne({
-        where: {key: request.userRole},
-        attributes: ['name'],
-        raw: true,
-      })) ?? {};
+      const { name = request.userRole } =
+        (await PromptUserRole.findOne({
+          where: { key: request.userRole },
+          attributes: ['name'],
+          raw: true,
+        })) ?? {};
 
       const metadataFields = [
-        {label: 'User Role', value: name},
-        {label: 'Target Audience', value: request.targetAudience},
-        {label: 'Tone', value: request.tone},
-        {label: 'Response Length', value: request.responseLength},
-        {label: 'Temperature', value: request.temperature?.toString()},
+        { label: 'User Role', value: name },
+        { label: 'Target Audience', value: request.targetAudience },
+        { label: 'Tone', value: request.tone },
+        { label: 'Response Length', value: request.responseLength },
+        { label: 'Temperature', value: request.temperature?.toString() },
       ];
 
-      metadataFields.forEach(field => {
+      metadataFields.forEach((field) => {
         if (field.value) {
           const formatted = this.formatMetadataField(field.label, field.value);
           if (formatted) parts.push(formatted);
@@ -228,16 +193,26 @@ export default abstract class PromptFormatter {
       // Handle custom instructions with length limiting
       if (request.customInstructions) {
         let instructions = sanitizeInput(request.customInstructions);
-        if (effectiveConfig.maxCustomInstructionsLength &&
-          instructions.length > effectiveConfig.maxCustomInstructionsLength) {
-          instructions = instructions.substring(0, effectiveConfig.maxCustomInstructionsLength) + '...';
+        if (
+          effectiveConfig.maxCustomInstructionsLength &&
+          instructions.length > effectiveConfig.maxCustomInstructionsLength
+        ) {
+          instructions =
+            instructions.substring(
+              0,
+              effectiveConfig.maxCustomInstructionsLength,
+            ) + '...';
         }
-        parts.push(this.formatMetadataField('Custom Instructions', instructions));
+        parts.push(
+          this.formatMetadataField('Custom Instructions', instructions),
+        );
       }
 
       // Handle system prompt
       if (request.systemPrompt) {
-        parts.push(this.formatMetadataField('System Context', request.systemPrompt));
+        parts.push(
+          this.formatMetadataField('System Context', request.systemPrompt),
+        );
       }
     }
 
@@ -253,7 +228,10 @@ export default abstract class PromptFormatter {
 
     // Add placeholder for enhanced prompt
     if (effectiveConfig.addPlaceholders) {
-      parts.push(seperator + 'Write the enhanced prompt here after\n{{enhanced prompt}}\nBut DO NOT INCLUDE the context in response like: Enhanced Prompt\n');
+      parts.push(
+        seperator +
+          'Write the enhanced prompt here after\n{{enhanced prompt}}\nBut DO NOT INCLUDE the context in response like: Enhanced Prompt\n',
+      );
     }
 
     // Join all parts with the configured separator
@@ -300,7 +278,10 @@ export default abstract class PromptFormatter {
     providerClass: IProvider,
     capabilities?: ProviderCapabilities,
   ): Promise<string> {
-    return providerClass.getProviderSpecificSystemPrompt(systemPrompt, capabilities);
+    return providerClass.getProviderSpecificSystemPrompt(
+      systemPrompt,
+      capabilities,
+    );
   }
 
   /**
@@ -332,7 +313,7 @@ export default abstract class PromptFormatter {
     enhancedResponse: string,
     userPrompt: string,
     providerClass: IProvider,
-    format?: OutputFormatName,
+    format?: string,
   ): Promise<string> {
     try {
       const response = String(enhancedResponse || '').trim();
@@ -344,13 +325,16 @@ export default abstract class PromptFormatter {
 
       // Format-specific validation
       if (format) {
-        const sanitized = formatSpecificValidation(format, response, userPrompt);
+        const sanitized = formatSpecificValidation(
+          format,
+          response,
+          userPrompt,
+        );
         if (sanitized !== null) return sanitized;
       }
 
       // Sanitize the final response
       return sanitizeInput(response);
-
     } catch (error) {
       console.error('Error processing prompt response:', error);
       return sanitizeInput(userPrompt);
@@ -400,13 +384,13 @@ export default abstract class PromptFormatter {
       const [typeRecord, userRecord] = await Promise.all([
         EnhancementType.findOne({
           attributes: ['systemPrompt', 'key'],
-          where: {key: request.enhancementType},
+          where: { key: request.enhancementType },
           raw: true,
         }).catch(() => null),
 
         PromptUserRole.findOne({
           attributes: ['systemPrompt', 'key'],
-          where: {key: request.userRole},
+          where: { key: request.userRole },
           raw: true,
         }).catch(() => null),
       ]);
@@ -418,10 +402,14 @@ export default abstract class PromptFormatter {
       // Process system prompt with parameters if available
       let processedPrompt = systemPrompt;
       if (request.enhancementParameters) {
-        processedPrompt = this.processEnhancementParameters(systemPrompt, request.enhancementParameters);
+        processedPrompt = this.processEnhancementParameters(
+          systemPrompt,
+          request.enhancementParameters,
+        );
       }
 
-      const combinedPrompt = `${rolePrompt.trim()} ${processedPrompt.trim()}`.replace(/\s+/g, ' ');
+      const combinedPrompt =
+        `${rolePrompt.trim()} ${processedPrompt.trim()}`.replace(/\s+/g, ' ');
 
       const result: SystemPromptComponents = {
         fullPrompt: combinedPrompt,
@@ -438,12 +426,12 @@ export default abstract class PromptFormatter {
       await getInstance().set(cacheKey, result, 3600); // Cache for 1 hour
 
       return result;
-
     } catch (error) {
       console.error('Error building system prompt:', error);
 
       // Safe fallback
-      const fallbackPrompt = 'You are a helpful AI assistant. Enhance the user\'s prompt while maintaining its original intent and context.';
+      const fallbackPrompt =
+        "You are a helpful AI assistant. Enhance the user's prompt while maintaining its original intent and context.";
 
       return {
         fullPrompt: fallbackPrompt,
@@ -473,13 +461,19 @@ export default abstract class PromptFormatter {
    * - If a parameter value is not a string, it will be converted to one using `String()`.
    * - Parameters not present in the prompt are ignored.
    */
-  private static processEnhancementParameters(systemPrompt: string, parameters: Record<string, any>): string {
+  private static processEnhancementParameters(
+    systemPrompt: string,
+    parameters: Record<string, any>,
+  ): string {
     let processedPrompt = systemPrompt;
 
     // Replace {{parameterName}} with actual values
     for (const [paramName, paramValue] of Object.entries(parameters)) {
       const placeholder = `{{${paramName}}}`;
-      processedPrompt = processedPrompt.replace(new RegExp(placeholder, 'g'), String(paramValue));
+      processedPrompt = processedPrompt.replace(
+        new RegExp(placeholder, 'g'),
+        String(paramValue),
+      );
     }
 
     return processedPrompt;
@@ -499,6 +493,6 @@ export default abstract class PromptFormatter {
    * });
    */
   public static setConfig(newConfig: Partial<PromptFormatterConfig>): void {
-    this.config = {...this.config, ...newConfig};
+    this.config = { ...this.config, ...newConfig };
   }
 }
