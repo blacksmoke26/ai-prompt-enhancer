@@ -31,6 +31,7 @@ export default {
               key: role.id,
               name: role.name,
               systemPrompt: role.systemPrompt as string,
+              systemPromptShort: role.systemPromptShort as string,
               shortDescription: role.shortDescription,
               longDescription: role.longDescription,
               category: role.category,
@@ -39,7 +40,7 @@ export default {
               capabilities: role.capabilities as string[],
               tags: role.tags as string[],
               temperature: role.temperature as number,
-              hidden: false,
+              hidden: false
             },
             { transaction },
           );

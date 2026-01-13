@@ -48,7 +48,13 @@ export const up = async (queryInterface: QueryInterface) => {
       field: 'system_prompt',
       type: DataTypes.TEXT,
       allowNull: false,
-      comment: `A system-specific prompt or instruction associated with the role`,
+      comment: `A detailed and comprehensive system-specific prompt or instruction associated with the role`,
+    },
+    systemPromptShort: {
+      field: 'system_prompt_short',
+      type: DataTypes.TEXT,
+      allowNull: false,
+      comment: `A concise, one-line summary of the role's primary function`,
     },
     shortDescription: {
       type: DataTypes.TEXT,
