@@ -6,14 +6,15 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
 import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type {PromptRequest, PromptResponse} from '~/types/prompt';
 
 /**
  * Represents a model from the Zhipu API, containing metadata and configuration details.
@@ -107,30 +108,6 @@ export default class ZhipuProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // Zhipu AI (GLM models) benefit from clear role definitions
-    formattedPrompt = `You are an AI assistant developed by Zhipu AI. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nEnsure response is valid JSON with correct escaping.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse Markdown for clear, structured output.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nReturn plain, unformatted text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nGenerate semantic and valid HTML.`,
-      [OutputFormat.XML]: `Output Format: XML\nProduce well-formed XML content.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn valid YAML with consistent indentation.`,
-    };
-  }
-
-  /**
    * Initializes a new Zhipu provider instance.
    * @param config - Configuration object
    */
@@ -178,19 +155,23 @@ export default class ZhipuProvider extends BaseAIProvider {
    * Handles API errors gracefully and provides fallback to original prompt.
    * Processing time is calculated client-side.
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    try {
-      const systemPrompt = await this.buildSystemPrompt(request, ZhipuProvider);
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
 
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
+    try {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, ZhipuProvider)},
+          {role: 'system', content: promptRequest.systemPrompt},
           {
             role: 'user',
-            content: await this.formatPrompt(request, ZhipuProvider),
+            content: aiPrompt,
           },
         ],
         temperature: request.temperature ?? 0.7,
@@ -202,6 +183,7 @@ export default class ZhipuProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt: enhanced,
         originalPrompt: request.text,
         model: request.model,

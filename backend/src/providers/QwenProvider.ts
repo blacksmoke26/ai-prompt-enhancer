@@ -6,14 +6,15 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
 import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type {PromptRequest, PromptResponse} from '~/types/prompt';
 
 /**
  * Qwen AI provider for language model series.
@@ -80,30 +81,6 @@ export default class QwenProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // Qwen (Alibaba) models benefit from clear role definitions and structured prompts
-    formattedPrompt = `You are Qwen, a large language model developed by Alibaba Cloud. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nEnsure output is valid JSON with proper escaping.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse Markdown for clear formatting.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nProvide plain, readable text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nReturn valid and semantic HTML.`,
-      [OutputFormat.XML]: `Output Format: XML\nProduce well-formed XML content.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn valid YAML with correct indentation.`,
-    };
-  }
-
-  /**
    * Initializes a new Qwen provider instance.
    * @param config - Configuration object
    */
@@ -157,22 +134,26 @@ export default class QwenProvider extends BaseAIProvider {
    * Handles API errors gracefully and provides fallback to original prompt.
    * Processing time is calculated client-side.
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    try {
-      const systemPrompt = await this.buildSystemPrompt(request, QwenProvider);
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
 
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
+    try {
       const response = await this.client.post('/chat/completions', {
         model: request.model || 'qwen-plus',
         messages: [
           {
             role: 'system',
-            content: await this.formatSystemPrompt(systemPrompt, QwenProvider),
+            content: promptRequest.systemPrompt,
           },
           {
             role: 'user',
-            content: await this.formatPrompt(request, QwenProvider),
+            content: aiPrompt,
           },
         ],
         temperature: request.temperature ?? 0.7,
@@ -184,6 +165,7 @@ export default class QwenProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt: enhanced,
         originalPrompt: request.text,
         model: request.model,

@@ -6,14 +6,15 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
 import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type {PromptRequest, PromptResponse} from '~/types/prompt';
 
 /**
  * Represents a model from LM Studio, containing metadata such as ID, type, publisher, and configuration details.
@@ -114,30 +115,6 @@ export default class LMStudioProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // LMStudio is a local runner that benefits from standard formatting
-    formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nRespond with valid JSON only. No explanations.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse standard Markdown for formatting.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nProvide clean plain text output.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nReturn valid HTML with semantic structure.`,
-      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML document.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn properly indented YAML.`,
-    };
-  }
-
-  /**
    * Creates a new LM Studio provider instance.
    * @param config - Configuration object
    */
@@ -208,13 +185,18 @@ export default class LMStudioProvider extends BaseAIProvider {
    * Builds a system prompt based on enhancement type and user role.
    * Falls back to original text if API call fails or returns empty response.
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
     try {
-      const systemPrompt = await this.buildSystemPrompt(request, LMStudioProvider);
-      const fullPrompt = `${await this.formatSystemPrompt(systemPrompt, LMStudioProvider)}\n\n`
-        + await this.formatPrompt(request, LMStudioProvider);
+      const fullPrompt = `${promptRequest.systemPrompt}\n\n`
+        + aiPrompt;
 
       const response = await this.client.post('/api/v0/completions', {
         model: request.model,
@@ -229,6 +211,7 @@ export default class LMStudioProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt,
         originalPrompt: request.text,
         model: request.model,

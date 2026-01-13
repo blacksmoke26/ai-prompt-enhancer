@@ -6,14 +6,15 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
 import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type {PromptRequest, PromptResponse} from '~/types/prompt';
 
 /**
  * XAI provider for prompt enhancement using XAI's language models.
@@ -77,30 +78,6 @@ export default class XAIProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // XAI models (Grok) benefit from clear, direct instructions
-    formattedPrompt = `You are an AI assistant developed by xAI. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nReturn valid JSON with proper structure.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse standard Markdown for formatting.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nProvide clean, readable plain text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nGenerate valid and accessible HTML.`,
-      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML with proper syntax.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn properly structured YAML content.`,
-    };
-  }
-
-  /**
    * Creates a new XAI provider instance.
    * @param config - Configuration object
    */
@@ -140,19 +117,23 @@ export default class XAIProvider extends BaseAIProvider {
    * @returns Enhanced prompt response with metadata
    * @throws Error if enhancement fails
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    try {
-      const systemPrompt = await this.buildSystemPrompt(request, XAIProvider);
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
 
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
+    try {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, XAIProvider)},
+          {role: 'system', content: promptRequest.systemPrompt},
           {
             role: 'user',
-            content: await this.formatPrompt(request, XAIProvider),
+            content: aiPrompt,
           },
         ],
         temperature: request.temperature ?? 0.7,
@@ -164,6 +145,7 @@ export default class XAIProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt,
         originalPrompt: request.text,
         model: request.model,

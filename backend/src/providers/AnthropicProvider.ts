@@ -6,8 +6,9 @@
 
 import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
 
-// constants
-import { OutputFormat, OutputFormatName } from '~/constants/output-format';
+// classes
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
 
 // types
 import type { AIModel } from '~/types';
@@ -16,12 +17,8 @@ import type { ProviderConfig } from '~/types/providers';
 import type {
   FunctionCallResult,
   FunctionDefinition,
-  HealthStatus,
   PromptRequest,
   PromptResponse,
-  ProviderCapabilities,
-  StreamCallback,
-  UsageMetrics,
 } from '~/types/prompt';
 
 /**
@@ -87,38 +84,6 @@ export default class AnthropicProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(
-    formattedPrompt: string,
-    capabilities?: ProviderCapabilities,
-  ): string {
-    formattedPrompt = formattedPrompt.replace(
-      /You are/g,
-      'You are Claude, an AI assistant created by Anthropic',
-    );
-    // Claude benefits from emphasizing helpfulness, harmlessness, and honesty
-    formattedPrompt +=
-      '\n\nAlways be helpful, harmless, and honest in your responses.';
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nResponse Format: JSON\nEnsure the response is valid JSON with proper escaping and structure.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nResponse Format: Markdown\nUse Markdown syntax appropriately for readability and structure.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nResponse Format: Text\nProvide clear, concise plain text output.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nResponse Format: HTML\nGenerate semantic, accessible HTML content.`,
-      [OutputFormat.XML]: `Output Format: XML\nResponse Format: XML\nGenerate well-formed XML with proper validation.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nResponse Format: YAML\nGenerate properly formatted YAML with clear structure.`,
-    };
-  }
-
-  /**
    * Creates a new Anthropic provider instance.
    * @param config - Configuration object
    */
@@ -163,27 +128,36 @@ export default class AnthropicProvider extends BaseAIProvider {
    * @returns Enhanced prompt response with metadata
    * @developerNote Sends the original prompt with a system instruction for enhancement
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  public async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    const systemPrompt = await this.buildSystemPrompt(
-      request,
-      AnthropicProvider,
-    );
+    // Input validation and sanitization
+    if (!request.text?.trim()) {
+      // noinspection ExceptionCaughtLocallyJS
+      throw new Error('Empty prompt text provided');
+    }
+
+    const sanitizedText = this.sanitizeInput(request.text);
+
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
 
     try {
       const response = await this.client.post('/messages', {
         model: request.model,
         max_tokens: request.maxTokens ?? 2000,
         temperature: request.temperature ?? 0.7,
-        system: await this.formatSystemPrompt(systemPrompt, AnthropicProvider),
+        system: promptRequest.systemPrompt,
         messages: [
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: await this.formatPrompt(request, AnthropicProvider),
+                text: aiPrompt,
               },
             ],
           },
@@ -192,12 +166,13 @@ export default class AnthropicProvider extends BaseAIProvider {
 
       const enhanced = await this.toPromptResponse(
         response.data.content?.[0]?.text,
-        request.text,
+        sanitizedText,
         AnthropicProvider,
         request?.format || 'markdown',
       );
 
       return {
+        aiPrompt,
         enhancedPrompt: enhanced,
         originalPrompt: request.text,
         model: request.model,
@@ -233,152 +208,29 @@ export default class AnthropicProvider extends BaseAIProvider {
   /**
    * @inheritDoc
    */
-  async streamPrompt(
-    request: PromptRequest,
-    callback: StreamCallback,
-  ): Promise<PromptResponse> {
-    const startTime = Date.now();
-
-    const systemPrompt = await this.buildSystemPrompt(
-      request,
-      AnthropicProvider,
-    );
-
-    let fullText = '';
-
-    try {
-      const response = await this.client.post(
-        '/messages',
-        {
-          model: request.model,
-          max_tokens: request.maxTokens ?? 2000,
-          temperature: request.temperature ?? 0.7,
-          system: await this.formatSystemPrompt(
-            systemPrompt,
-            AnthropicProvider,
-          ),
-          messages: [
-            {
-              role: 'user',
-              content: [
-                {
-                  type: 'text',
-                  text: await this.formatPrompt(request, AnthropicProvider),
-                },
-              ],
-            },
-          ],
-          stream: true,
-        },
-        {
-          responseType: 'stream',
-        },
-      );
-
-      return new Promise((resolve, reject) => {
-        response.data.on('data', (chunk: Buffer) => {
-          const lines = chunk
-            .toString()
-            .split('\n')
-            .filter((line) => line.trim() !== '');
-
-          for (const line of lines) {
-            if (line.startsWith('data: ')) {
-              const data = line.slice(6);
-              if (data === '[DONE]') continue;
-
-              try {
-                const parsed = JSON.parse(data);
-                if (
-                  parsed.type === 'content_block_delta' &&
-                  parsed.delta?.text
-                ) {
-                  fullText += parsed.delta.text;
-                  callback({
-                    text: fullText,
-                    isFinal: false,
-                  });
-                }
-              } catch (e) {
-                console.error('Error parsing stream data:', e);
-              }
-            }
-          }
-        });
-
-        response.data.on('end', async () => {
-          callback({
-            text: fullText,
-            isFinal: true,
-          });
-
-          try {
-            const enhanced = await this.toPromptResponse(
-              fullText,
-              request.text,
-              AnthropicProvider,
-              request?.format || 'markdown',
-            );
-
-            resolve({
-              enhancedPrompt: enhanced,
-              originalPrompt: request.text,
-              model: request.model,
-              timestamp: new Date(),
-              tokensUsed: undefined,
-              processingTime: this.calculateProcessingTime(startTime),
-            });
-          } catch (error) {
-            reject(error);
-          }
-        });
-
-        response.data.on('error', (error: Error) => {
-          reject(new Error(`Anthropic stream failed: ${error.message}`));
-        });
-      });
-    } catch (error: any) {
-      console.error('Anthropic streaming initialization failed:', error);
-      throw new Error(
-        `Failed to stream prompt with Anthropic: ${error.message}`,
-      );
-    }
-  }
-
-  /**
-   * @inheritDoc
-   */
-  async getUsageMetrics(since?: number): Promise<UsageMetrics> {
-    throw new Error(
-      'Usage metrics are not available through the Anthropic API.',
-    );
-  }
-
-  /**
-   * @inheritDoc
-   */
   async callFunction(
     functions: FunctionDefinition[],
     request: PromptRequest,
   ): Promise<FunctionCallResult[] | null> {
-    const systemPrompt = await this.buildSystemPrompt(
-      request,
-      AnthropicProvider,
-    );
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
 
     try {
       const response = await this.client.post('/messages', {
         model: request.model,
         max_tokens: request.maxTokens ?? 2000,
         temperature: request.temperature ?? 0.7,
-        system: await this.formatSystemPrompt(systemPrompt, AnthropicProvider),
+        system: promptRequest.systemPrompt,
         messages: [
           {
             role: 'user',
             content: [
               {
                 type: 'text',
-                text: await this.formatPrompt(request, AnthropicProvider),
+                text: aiPrompt,
               },
             ],
           },

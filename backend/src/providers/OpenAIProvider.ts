@@ -6,8 +6,9 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
@@ -65,33 +66,6 @@ export default class OpenAIProvider extends BaseAIProvider {
     apiKey: '',
     timeout: 30000,
   };
-
-  /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    if (capabilities?.supportsJsonMode) {
-      formattedPrompt += '\n\nRespond with valid JSON only. Do not include any other text.';
-    }
-    // OpenAI models benefit from clear role definitions
-    formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nContent-Type: application/json\nResponse should be valid JSON with proper structure and escaping.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nContent-Type: text/markdown\nUse appropriate Markdown syntax for formatting, including headers, lists, code blocks, and tables where relevant.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nContent-Type: text/plain\nProvide clear, well-structured plain text without any formatting syntax.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nContent-Type: text/html\nGenerate valid HTML with proper structure, semantic tags, and accessibility considerations.`,
-      [OutputFormat.XML]: `Output Format: XML\nContent-Type: application/xml\nGenerate well-formed XML with proper encoding, namespaces, and validation.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nContent-Type: application/yaml\nGenerate valid YAML with proper indentation, structure, and comments where helpful.`,
-    };
-  }
 
   /**
    * Creates a new instance of the OpenAI provider.
@@ -168,17 +142,21 @@ export default class OpenAIProvider extends BaseAIProvider {
    * Tracks processing time and token usage for monitoring purposes.
    * Returns original text unchanged if API call fails, with error thrown.
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    try {
-      const systemPrompt = await this.buildSystemPrompt(request, OpenAIProvider);
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
 
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
+    try {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, OpenAIProvider)},
-          {role: 'user', content: await this.formatPrompt(request, OpenAIProvider)},
+          {role: 'system', content: promptRequest.systemPrompt},
+          {role: 'user', content: aiPrompt},
         ],
         temperature: request.temperature || 0.7,
         max_tokens: request.maxTokens || 2000,
@@ -189,6 +167,7 @@ export default class OpenAIProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt,
         originalPrompt: request.text,
         model: request.model,

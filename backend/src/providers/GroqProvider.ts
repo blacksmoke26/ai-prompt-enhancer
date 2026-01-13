@@ -6,8 +6,9 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
@@ -114,34 +115,6 @@ export default class GroqProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // Groq uses similar formatting to OpenAI but benefits from concise instructions
-    formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
-
-    if (capabilities?.supportsJsonMode) {
-      formattedPrompt += '\n\nRespond with valid JSON only.';
-    }
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nRespond with strictly valid JSON. No extra text.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse standard Markdown formatting rules.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nProvide clear and concise plain text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nReturn valid and semantic HTML.`,
-      [OutputFormat.XML]: `Output Format: XML\nReturn properly structured XML.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn correctly indented YAML.`,
-    };
-  }
-
-  /**
    * Creates an instance of GroqProvider.
    * @param config - Configuration object
    */
@@ -200,18 +173,22 @@ export default class GroqProvider extends BaseAIProvider {
    * @developerNote Uses system prompts based on enhancement type and user role.
    * Falls back to original text if enhancement fails. Measures processing time and token usage.
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    const systemPrompt = await this.buildSystemPrompt(request, GroqProvider);
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
 
     const response = await this.client.post('/openai/v1/chat/completions', {
       model: request.model,
       messages: [
-        {role: 'system', content: await this.formatSystemPrompt(systemPrompt, GroqProvider)},
+        {role: 'system', content: promptRequest.systemPrompt},
         {
           role: 'user',
-          content: await this.formatPrompt(request, GroqProvider),
+          content: aiPrompt,
         },
       ],
       temperature: request.temperature ?? 0.7,
@@ -223,6 +200,7 @@ export default class GroqProvider extends BaseAIProvider {
     );
 
     return {
+      aiPrompt,
       enhancedPrompt,
       originalPrompt: request.text,
       model: request.model,

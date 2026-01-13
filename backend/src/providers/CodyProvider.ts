@@ -6,8 +6,9 @@
 
 import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
 
-// constants
-import { OutputFormat, OutputFormatName } from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type { AIModel } from '~/types';
@@ -18,9 +19,6 @@ import type {
   FunctionDefinition,
   PromptRequest,
   PromptResponse,
-  ProviderCapabilities,
-  StreamCallback,
-  UsageMetrics,
 } from '~/types/prompt';
 
 /**
@@ -92,35 +90,6 @@ export default class CodyProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(
-    formattedPrompt: string,
-    capabilities?: ProviderCapabilities,
-  ): string {
-    // Cody is Sourcegraph's code-focused assistant
-    formattedPrompt = `You are Cody, an AI coding assistant developed by Sourcegraph. ${formattedPrompt}`;
-    formattedPrompt +=
-      '\n\nFocus on providing accurate, helpful code suggestions and explanations.';
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nEnsure response is valid JSON with proper escaping and structure.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse standard Markdown syntax for clear formatting.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nProvide clean, readable plain text without markup.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nReturn valid, semantic HTML with proper structure.`,
-      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML with correct syntax.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn valid YAML with consistent indentation.`,
-    };
-  }
-
-  /**
    * Initializes a new CodyProvider instance.
    * @param config - Configuration object
    * @example
@@ -189,20 +158,26 @@ export default class CodyProvider extends BaseAIProvider {
    * - Falls back to original prompt if API fails
    * - Supports temperature and max tokens customization
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
+
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
     try {
-      const systemPrompt = await this.buildSystemPrompt(request, CodyProvider);
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
           {
             role: 'system',
-            content: await this.formatSystemPrompt(systemPrompt, CodyProvider),
+            content: promptRequest.systemPrompt,
           },
           {
             role: 'user',
-            content: await this.formatPrompt(request, CodyProvider),
+            content: aiPrompt,
           },
         ],
         temperature: request.temperature ?? 0.7,
@@ -217,6 +192,7 @@ export default class CodyProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt: enhanced,
         originalPrompt: request.text,
         model: request.model,
@@ -258,134 +234,27 @@ export default class CodyProvider extends BaseAIProvider {
   /**
    * @inheritDoc
    */
-  async streamPrompt(
-    request: PromptRequest,
-    callback: StreamCallback,
-  ): Promise<PromptResponse> {
-    const startTime = Date.now();
-    let fullContent = '';
-    let totalTokens = 0;
-
-    try {
-      const systemPrompt = await this.buildSystemPrompt(request, CodyProvider);
-
-      const response = await this.client.post(
-        '/chat',
-        {
-          model: request.model,
-          messages: [
-            {
-              role: 'system',
-              content: await this.formatSystemPrompt(
-                systemPrompt,
-                CodyProvider,
-              ),
-            },
-            {
-              role: 'user',
-              content: await this.formatPrompt(request, CodyProvider),
-            },
-          ],
-          temperature: request.temperature ?? 0.7,
-          max_tokens: request.maxTokens ?? 2000,
-          stream: true,
-        },
-        {
-          responseType: 'stream',
-        },
-      );
-
-      return new Promise((resolve, reject) => {
-        response.data.on('data', (chunk: Buffer) => {
-          const lines = chunk
-            .toString()
-            .split('\n')
-            .filter((line) => line.trim() !== '');
-
-          for (const line of lines) {
-            if (line.includes('[DONE]')) continue;
-
-            if (line.startsWith('data: ')) {
-              try {
-                const json = JSON.parse(line.slice(6));
-                const content = json.choices?.[0]?.delta?.content || '';
-
-                if (content) {
-                  fullContent += content;
-                  callback({ text: content, isFinal: false });
-                }
-
-                if (json.usage) {
-                  totalTokens = json.usage.total_tokens;
-                }
-              } catch (e) {
-                // Skip invalid JSON
-              }
-            }
-          }
-        });
-
-        response.data.on('end', async () => {
-          try {
-            const enhanced = await this.toPromptResponse(
-              fullContent,
-              request.text,
-              CodyProvider,
-              request?.format || 'markdown',
-            );
-
-            callback({ text: fullContent, isFinal: true });
-
-            resolve({
-              enhancedPrompt: enhanced,
-              originalPrompt: request.text,
-              model: request.model,
-              timestamp: new Date(),
-              tokensUsed: totalTokens,
-              processingTime: this.calculateProcessingTime(startTime),
-            });
-          } catch (error) {
-            reject(error);
-          }
-        });
-
-        response.data.on('error', (error: Error) => {
-          reject(new Error(`Stream error: ${error.message}`));
-        });
-      });
-    } catch (error: any) {
-      console.error('Cody streaming failed:', error);
-      throw new Error(`Failed to stream prompt with Cody: ${error.message}`);
-    }
-  }
-
-  /**
-   * @inheritDoc
-   */
-  async getUsageMetrics(since?: number): Promise<UsageMetrics> {
-    throw new Error(`No usage metrics`);
-  }
-
-  /**
-   * @inheritDoc
-   */
   async callFunction(
     functions: FunctionDefinition[],
     request: PromptRequest,
   ): Promise<FunctionCallResult[] | null> {
-    try {
-      const systemPrompt = await this.buildSystemPrompt(request, CodyProvider);
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
 
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
+    try {
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
           {
             role: 'system',
-            content: await this.formatSystemPrompt(systemPrompt, CodyProvider),
+            content: promptRequest.systemPrompt,
           },
           {
             role: 'user',
-            content: await this.formatPrompt(request, CodyProvider),
+            content: aiPrompt,
           },
         ],
         temperature: request.temperature ?? 0.7,

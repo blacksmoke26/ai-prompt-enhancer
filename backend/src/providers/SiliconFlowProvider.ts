@@ -6,14 +6,15 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
 import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type {PromptRequest, PromptResponse} from '~/types/prompt';
 
 /**
  * SiliconFlow AI provider for prompt enhancement and model management.
@@ -81,30 +82,6 @@ export default class SiliconFlowProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // SiliconFlow benefits from standard system prompt formatting
-    formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nRespond strictly in valid JSON format.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse Markdown syntax for structured output.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nReturn clear, unformatted plain text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nGenerate valid HTML with semantic tags.`,
-      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML document.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn correctly indented YAML.`,
-    };
-  }
-
-  /**
    * Creates a new SiliconFlow provider instance.
    * @param config - Configuration object
    */
@@ -148,15 +125,21 @@ export default class SiliconFlowProvider extends BaseAIProvider {
    * @throws Error if enhancement fails
    * @developerNote Uses temperature 0.7 and maxTokens 2000 as defaults
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
+
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
     try {
-      const systemPrompt = await this.buildSystemPrompt(request, SiliconFlowProvider);
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, SiliconFlowProvider)},
-          {role: 'user', content: await this.formatPrompt(request, SiliconFlowProvider)},
+          {role: 'system', content: promptRequest.systemPrompt},
+          {role: 'user', content: aiPrompt},
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
@@ -167,6 +150,7 @@ export default class SiliconFlowProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt,
         originalPrompt: request.text,
         model: request.model,

@@ -6,8 +6,9 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
@@ -83,30 +84,6 @@ export default class HuggingFaceProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // HuggingFace models benefit from chat template formatting and clear role separation
-    formattedPrompt = `<|system|>\n${formattedPrompt}\n<|assistant|>`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nReturn valid JSON with correct structure and escaping.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse appropriate Markdown syntax for presentation.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nOutput should be plain, readable text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nGenerate valid HTML with semantic tags.`,
-      [OutputFormat.XML]: `Output Format: XML\nProduce well-formed XML output.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn properly formatted YAML content.`,
-    };
-  }
-
-  /**
    * Creates a new HuggingFace provider instance.
    * @param config - Configuration object
    */
@@ -160,14 +137,19 @@ export default class HuggingFaceProvider extends BaseAIProvider {
    * - Token usage may not be available for all models
    * - Processing time includes network latency
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
     try {
-      const systemPrompt = await this.buildSystemPrompt(request, HuggingFaceProvider);
       const payload = {
-        inputs: await this.formatSystemPrompt(systemPrompt, HuggingFaceProvider)
-          + `\n\n` + await this.formatPrompt(request, HuggingFaceProvider),
+        inputs: promptRequest.systemPrompt
+          + `\n\n` + aiPrompt,
         parameters: {
           max_length: request.maxTokens ?? 2000,
           temperature: request.temperature ?? 0.7,

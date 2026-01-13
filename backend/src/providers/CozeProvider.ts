@@ -6,8 +6,9 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
@@ -83,30 +84,6 @@ export default class CozeProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // Coze benefits from structured system prompts
-    formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nRespond in valid JSON format with correct syntax.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse Markdown for structured, readable output.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nProvide straightforward plain text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nReturn semantic and valid HTML.`,
-      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML document.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn correctly formatted YAML.`,
-    };
-  }
-
-  /**
    * Creates a new Coze provider instance.
    * @param config - Configuration object
    */
@@ -165,16 +142,21 @@ export default class CozeProvider extends BaseAIProvider {
    * The method uses a chat completion approach with system and user messages.
    * Temperature and max tokens have sensible defaults but can be overridden.
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
-    try {
-      const systemPrompt = await this.buildSystemPrompt(request, CozeProvider);
 
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
+    try {
       const response = await this.client.post('/v1/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, CozeProvider)},
-          {role: 'user', content: await this.formatPrompt(request, CozeProvider)},
+          {role: 'system', content: promptRequest.systemPrompt},
+          {role: 'user', content: aiPrompt},
         ],
         temperature: request.temperature ?? 0.7,
         max_tokens: request.maxTokens ?? 2000,
@@ -185,6 +167,7 @@ export default class CozeProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt,
         originalPrompt: request.text,
         model: request.model,

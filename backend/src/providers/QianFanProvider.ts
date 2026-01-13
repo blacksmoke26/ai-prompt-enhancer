@@ -6,8 +6,9 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
@@ -86,30 +87,6 @@ export default class QianFanProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // QianFan (Baidu) benefits from clear role definitions
-    formattedPrompt = `You are an AI assistant developed by Baidu. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nRespond with valid JSON only.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nFormat using Markdown syntax.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nReturn clean, unformatted text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nGenerate valid HTML output.`,
-      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn properly structured YAML.`,
-    };
-  }
-
-  /**
    * Initialize the QianFan provider with authentication credentials.
    * @param config - Configuration object
    */
@@ -153,17 +130,22 @@ export default class QianFanProvider extends BaseAIProvider {
    * @param request - Prompt enhancement configuration including text and model settings
    * @returns Enhanced prompt with metadata including processing time and token usage
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
     try {
-      const systemPrompt = await this.buildSystemPrompt(request, QianFanProvider);
       const response = await this.client.post(
         '/api/v1/services/aigc/text-generation/v1',
         {
           model: request.model,
-          input: `SYSTEM: ${await this.formatSystemPrompt(systemPrompt, QianFanProvider)}`
-            + `\n\nUSER: ${await this.formatPrompt(request, QianFanProvider)}`,
+          input: `SYSTEM: ${promptRequest.systemPrompt}`
+            + `\n\nUSER: ${aiPrompt}`,
           parameters: {
             temperature: request.temperature ?? 0.7,
             top_p: 1.0,
@@ -177,6 +159,7 @@ export default class QianFanProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt: enhanced,
         originalPrompt: request.text,
         model: request.model,

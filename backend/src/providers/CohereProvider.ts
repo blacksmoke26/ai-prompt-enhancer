@@ -6,14 +6,15 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
 import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type {PromptRequest, PromptResponse} from '~/types/prompt';
 
 /**
  * Cohere AI provider for prompt enhancement and text generation.
@@ -85,34 +86,6 @@ export default class CohereProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // Cohere benefits from clear separators and structured instructions
-    formattedPrompt = `## SYSTEM INSTRUCTIONS ##\n${formattedPrompt}\n## END SYSTEM INSTRUCTIONS ##`;
-
-    if (capabilities?.supportsJsonMode) {
-      formattedPrompt += '\n\nRespond in valid JSON format only.';
-    }
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nRespond with valid JSON only. Avoid extra text or explanations.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nFormat response using standard Markdown conventions.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nReturn only plain text without any formatting.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nGenerate clean, valid HTML output.`,
-      [OutputFormat.XML]: `Output Format: XML\nProduce well-formed XML with proper nesting.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn properly indented and valid YAML.`,
-    };
-  }
-
-  /**
    * Creates a new Cohere provider instance.
    * @param config - Configuration object
    */
@@ -172,17 +145,23 @@ export default class CohereProvider extends BaseAIProvider {
    * });
    * ```
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
+
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
     try {
-      const systemPrompt = await this.buildSystemPrompt(request, CohereProvider);
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, CohereProvider)},
+          {role: 'system', content: promptRequest.systemPrompt},
           {
             role: 'user',
-            content: await this.formatPrompt(request, CohereProvider),
+            content: aiPrompt,
           },
         ],
         temperature: request.temperature ?? 0.7,
@@ -194,6 +173,7 @@ export default class CohereProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt,
         originalPrompt: request.text,
         model: request.model,

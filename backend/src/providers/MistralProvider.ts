@@ -6,8 +6,9 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
@@ -86,30 +87,6 @@ export default class MistralProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // Mistral models use instruction tuning and benefit from clear formatting
-    formattedPrompt = `[INST] ${formattedPrompt} [/INST]`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nReturn strictly valid JSON with proper escaping.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse Markdown syntax for structured output.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nProvide clear, unformatted text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nGenerate valid and accessible HTML.`,
-      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML with correct syntax.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn valid YAML with proper indentation.`,
-    };
-  }
-
-  /**
    * Creates a new Mistral provider instance.
    * @param config - Configuration object
    *
@@ -167,19 +144,23 @@ export default class MistralProvider extends BaseAIProvider {
    * - Returns original prompt if enhancement fails
    * - Tracks processing time and token usage
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    const systemPrompt = await this.buildSystemPrompt(request, MistralProvider);
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
 
     try {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, MistralProvider)},
+          {role: 'system', content: promptRequest.systemPrompt},
           {
             role: 'user',
-            content: await this.formatPrompt(request, MistralProvider),
+            content: aiPrompt,
           },
         ],
         temperature: request.temperature ?? 0.7,
@@ -191,6 +172,7 @@ export default class MistralProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt,
         originalPrompt: request.text,
         model: request.model,

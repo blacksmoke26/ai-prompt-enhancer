@@ -6,14 +6,15 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
 import type {ConfigMeta} from '~/database/models';
 import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type {PromptRequest, PromptResponse} from '~/types/prompt';
 
 /**
  * Kimi AI provider for prompt enhancement.
@@ -81,30 +82,6 @@ export default class KimiProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // Kimi (Moonshot AI) benefits from clear instructions
-    formattedPrompt = `You are Kimi, an AI assistant developed by Moonshot AI. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nEnsure the response is valid JSON with proper syntax.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nFormat using standard Markdown conventions.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nReturn only clear, unformatted text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nGenerate valid and semantic HTML.`,
-      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML with correct tags.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn valid YAML with consistent structure.`,
-    };
-  }
-
-  /**
    * Creates a new Kimi AI provider instance.
    * @param config - Configuration object
    */
@@ -148,19 +125,23 @@ export default class KimiProvider extends BaseAIProvider {
    * @throws Error when enhancement fails
    * @developer Note: Uses temperature 0.7 and maxTokens 2000 as defaults
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    try {
-      const systemPrompt = await this.buildSystemPrompt(request, KimiProvider);
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
 
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
+    try {
       const response = await this.client.post('/v1/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, KimiProvider)},
+          {role: 'system', content: promptRequest.systemPrompt},
           {
             role: 'user',
-            content: await this.formatPrompt(request, KimiProvider),
+            content: aiPrompt,
           },
         ],
         temperature: request.temperature ?? 0.7,
@@ -172,6 +153,7 @@ export default class KimiProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt,
         originalPrompt: request.text,
         model: request.model,

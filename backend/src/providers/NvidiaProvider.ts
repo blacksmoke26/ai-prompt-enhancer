@@ -6,8 +6,9 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
@@ -86,30 +87,6 @@ export default class NvidiaProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // NVIDIA NIM endpoints benefit from clear system prompts
-    formattedPrompt = `You are an AI assistant powered by NVIDIA technology. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nRespond with valid JSON. Avoid additional commentary.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse Markdown for clear, structured responses.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nReturn plain, readable text only.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nGenerate semantic and valid HTML.`,
-      [OutputFormat.XML]: `Output Format: XML\nProduce well-formed XML output.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn correctly formatted YAML with indentation.`,
-    };
-  }
-
-  /**
    * Creates an instance of the Nvidia provider.
    * @param config - Configuration object
    */
@@ -149,18 +126,23 @@ export default class NvidiaProvider extends BaseAIProvider {
    * @returns Enhanced prompt response
    * @throws Error when enhancement fails
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
-    try {
-      const systemPrompt = await this.buildSystemPrompt(request, NvidiaProvider);
 
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
+    try {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, NvidiaProvider)},
+          {role: 'system', content: promptRequest.systemPrompt},
           {
             role: 'user',
-            content: await this.formatPrompt(request, NvidiaProvider),
+            content: aiPrompt,
           },
         ],
         temperature: request.temperature ?? 0.7,
@@ -172,6 +154,7 @@ export default class NvidiaProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt: enhanced,
         originalPrompt: request.text,
         model: request.model,

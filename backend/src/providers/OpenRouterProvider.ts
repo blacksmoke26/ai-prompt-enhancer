@@ -6,8 +6,9 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
@@ -77,30 +78,6 @@ export default class OpenRouterProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // OpenRouter is a router, so use generic formatting that works across providers
-    formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nEnsure response is valid JSON with correct syntax.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse standard Markdown formatting.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nProvide clear plain text without markup.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nReturn valid, semantic HTML content.`,
-      [OutputFormat.XML]: `Output Format: XML\nReturn well-formed XML with proper structure.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn valid YAML with consistent indentation.`,
-    };
-  }
-
-  /**
    * Initialize OpenRouter provider with API authentication
    * @param config - Configuration object
    * @developerNote
@@ -167,17 +144,21 @@ export default class OpenRouterProvider extends BaseAIProvider {
    * Builds system prompt based on enhancement type and user role.
    * Measures processing time and includes token usage in response.
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    try {
-      const systemPrompt = await this.buildSystemPrompt(request, OpenRouterProvider);
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
 
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
+    try {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          {role: 'system', content: await this.formatSystemPrompt(systemPrompt, OpenRouterProvider)},
-          {role: 'user', content: await this.formatPrompt(request, OpenRouterProvider)},
+          {role: 'system', content: promptRequest.systemPrompt},
+          {role: 'user', content: aiPrompt},
         ],
         temperature: request.temperature || 0.7,
         max_tokens: request.maxTokens || 2000,
@@ -188,6 +169,7 @@ export default class OpenRouterProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt,
         originalPrompt: request.text,
         model: request.model,

@@ -6,8 +6,9 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
@@ -76,30 +77,6 @@ export default class DeepSeekProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    // DeepSeek models benefit from clear role definitions
-    formattedPrompt = `You are a helpful AI assistant. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nEnsure output is valid JSON with proper escaping.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nUse Markdown syntax for clarity and structure.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nReturn clean, unformatted plain text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nGenerate valid, accessible HTML content.`,
-      [OutputFormat.XML]: `Output Format: XML\nProduce well-formed and valid XML.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nReturn valid YAML with consistent indentation.`,
-    };
-  }
-
-  /**
    * Creates a new DeepSeek provider instance with authentication.
    * @param config - Configuration object
    * @example
@@ -164,17 +141,21 @@ export default class DeepSeekProvider extends BaseAIProvider {
    * ```
    * @developerNote Handles rate limiting and token counting automatically.
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    try {
-      const systemPrompt = await this.buildSystemPrompt(request, DeepSeekProvider);
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
 
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+
+    try {
       const response = await this.client.post('/chat/completions', {
         model: request.model,
         messages: [
-          { role: 'system', content: await this.formatSystemPrompt(systemPrompt, DeepSeekProvider) },
-          { role: 'user', content: await this.formatPrompt(request, DeepSeekProvider) }
+          { role: 'system', content: promptRequest.systemPrompt },
+          { role: 'user', content: aiPrompt }
         ],
         temperature: request.temperature || 0.7,
         max_tokens: request.maxTokens || 2000,
@@ -185,6 +166,7 @@ export default class DeepSeekProvider extends BaseAIProvider {
       );
 
       return {
+        aiPrompt,
         enhancedPrompt,
         originalPrompt: request.text,
         model: request.model,

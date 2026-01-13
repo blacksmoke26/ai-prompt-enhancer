@@ -6,8 +6,9 @@
 
 import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
 
-// constants
-import {OutputFormat, OutputFormatName} from '~/constants/output-format';
+// classes
+import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 
 // types
 import type {AIModel} from '~/types';
@@ -139,33 +140,6 @@ export default class GeminiProvider extends BaseAIProvider {
   };
 
   /**
-   * @inheritDoc
-   */
-  public static getProviderSpecificSystemPrompt(formattedPrompt: string, capabilities?: ProviderCapabilities): string {
-    if (capabilities?.supportsJsonMode) {
-      formattedPrompt += '\n\nOutput should be in JSON format with proper structure.';
-    }
-    // Gemini models work well with clear, concise instructions
-    formattedPrompt = `You are a helpful AI assistant developed by Google. ${formattedPrompt}`;
-
-    return formattedPrompt;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static getFormatTemplates(): Record<OutputFormatName, string> {
-    return {
-      [OutputFormat.JSON]: `Output Format: JSON\nFormat: JSON\nReturn valid JSON with proper structure and escaping.`,
-      [OutputFormat.MARKDOWN]: `Output Format: Markdown\nFormat: Markdown\nUse Markdown for formatting with appropriate syntax.`,
-      [OutputFormat.TEXT]: `Output Format: Plain Text\nFormat: Text\nReturn clean, readable plain text.`,
-      [OutputFormat.HTML]: `Output Format: HTML\nFormat: HTML\nGenerate valid, semantic HTML content.`,
-      [OutputFormat.XML]: `Output Format: XML\nFormat: XML\nGenerate well-formed XML content.`,
-      [OutputFormat.YAML]: `Output Format: YAML\nFormat: YAML\nGenerate properly structured YAML content.`,
-    };
-  }
-
-  /**
    * Creates an instance of GeminiProvider.
    * @param config - Configuration object
    */
@@ -210,15 +184,19 @@ export default class GeminiProvider extends BaseAIProvider {
    * @param request - The prompt enhancement request containing text, model, and options
    * @returns Promise resolving to the enhanced prompt response
    */
-  async enhancePrompt(request: PromptRequest): Promise<PromptResponse> {
+  async generateSync(request: PromptRequest): Promise<PromptResponse> {
     const startTime = Date.now();
 
-    const systemPrompt = await this.buildSystemPrompt(request, GeminiProvider);
+    const promptRequest = await PromptRequestNormalizer.normalize({
+      ...request,
+    });
+
+    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
 
     const body = {
       contents: [
-        {role: 'system', parts: [{text: await this.formatSystemPrompt(systemPrompt, GeminiProvider)}]},
-        {role: 'user', parts: [{text: await this.formatPrompt(request, GeminiProvider)}]},
+        {role: 'system', parts: [{text: promptRequest.systemPrompt}]},
+        {role: 'user', parts: [{text: aiPrompt}]},
       ],
       temperature: request.temperature ?? 0.7,
       topK: 64,
@@ -237,6 +215,7 @@ export default class GeminiProvider extends BaseAIProvider {
     );
 
     return {
+      aiPrompt,
       enhancedPrompt,
       originalPrompt: request.text,
       model: request.model,
