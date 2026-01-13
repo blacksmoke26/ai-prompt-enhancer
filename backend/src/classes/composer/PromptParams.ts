@@ -49,14 +49,14 @@ export interface PromptParams {
    * for how the model should interpret and respond to the input.
    * @example 'data scientist'
    */
-  userRole: string;
+  userRole?: string;
 
   /**
    * The type of enhancement or transformation to apply to the input text.
    * This could include summarization, translation, formatting, etc.
    * @example 'summarize'
    */
-  enhancementType: string;
+  enhancementType?: string;
 
   /**
    * Optional: The AI provider to use (e.g., 'OpenAI', 'Anthropic', 'Google').
