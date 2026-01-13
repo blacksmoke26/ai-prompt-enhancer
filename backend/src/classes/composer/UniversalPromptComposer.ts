@@ -10,6 +10,8 @@ import type {
   PromptGeneratorOptions,
   CustomLabel,
 } from './PromptParams';
+import type { PromptUserRole } from '~/constants/prompt-user-roles';
+import type { TargetAudience } from '~/constants/target-audience';
 
 /**
  * UniversalPromptComposer (Ultimate)
@@ -128,28 +130,72 @@ export default abstract class UniversalPromptComposer {
     this.addSection(buffer, 'identity', opts, () => {
       const parts: string[] = [];
 
+      // Resolve Role System Prompt (Prefer object prompt if present, else top-level prompt)
+      let roleSystemPrompt = params.systemPrompt || '';
+      let roleName = '';
+      const roleTraits: string[] = [];
+
+      if (params.userRole) {
+        // noinspection SuspiciousTypeOfGuard
+        if (typeof params.userRole === 'string') {
+          roleName = params.userRole;
+          if (params.enhancementParameters?.personaTraits) {
+            roleTraits.push(...(params.enhancementParameters.personaTraits as string[]));
+          }
+        } else {
+          // PromptUserRole object
+          const roleObj = params.userRole as PromptUserRole;
+          roleName = roleObj.name;
+          roleSystemPrompt = roleObj.systemPrompt || roleSystemPrompt;
+
+          if (roleObj.expertiseLevel) roleTraits.push(roleObj.expertiseLevel);
+          if (roleObj.tone?.length) roleTraits.push(roleObj.tone.join(', '));
+          if (roleObj.capabilities?.length) roleTraits.push(`Skills: ${roleObj.capabilities.join(', ')}`);
+          if (roleObj.category && opts.verbosity !== 'terse') {
+            roleTraits.push(`Category: ${roleObj.category}`);
+          }
+        }
+      }
+
+      // Resolve Target Audience
+      // noinspection SuspiciousTypeOfGuard
+      if (params.targetAudience && typeof params.targetAudience !== 'string') {
+        const aud = params.targetAudience as TargetAudience;
+        if (opts.verbosity === 'terse') {
+          parts.push(`Audience: ${aud.label}`);
+        } else {
+          parts.push(`**Target Audience:** ${aud.label}`);
+          if (opts.verbosity === 'explanatory') {
+            parts.push(`- **Context:** ${aud.summary}`);
+            if (aud.tags.length) parts.push(`- **Tags:** ${aud.tags.join(', ')}`);
+          }
+        }
+      }
+
       if (opts.verbosity === 'terse') {
-        parts.push(`Role: ${params.userRole}`);
-        parts.push(`Task: ${params.enhancementType.toUpperCase()}`);
-        if (params.systemPrompt) parts.push(`Note: ${params.systemPrompt}`);
+        if (roleName) parts.push(`Role: ${roleName}`);
+        if (params.enhancementType) parts.push(`Task: ${params.enhancementType.toUpperCase()}`);
+        if (roleSystemPrompt) parts.push(`Note: ${roleSystemPrompt}`);
       } else {
-        parts.push(`**Role:** ${params.userRole}`);
-        if (params.enhancementParameters?.personaTraits) {
-          parts.push(
-            `**Traits:** ${(params.enhancementParameters.personaTraits as string[]).join(', ')}`,
-          );
+        if (roleName) parts.push(`**Role:** ${roleName}`);
+        if (roleTraits.length) {
+          parts.push(`**Traits:** ${roleTraits.join(', ')}`);
         }
         if (opts.modality) parts.push(`**Modality:** ${opts.modality}`);
 
-        const dir = params.systemPrompt || 'Execute requested task.';
+        const dir = roleSystemPrompt || 'Execute requested task.';
         if (opts.verbosity === 'explanatory') {
+          // Add explanation text if applicable, keeping existing logic structure
           parts.push(
-            `**Directive:** ${dir} (This persona is chosen to optimize for ${params.enhancementType}).`,
+            `**Directive:** ${dir}${params.enhancementType ? ` (This persona is chosen to optimize for ${params.enhancementType}).` : ''}`,
           );
         } else {
           parts.push(`**Directive:** ${dir}`);
         }
-        parts.push(`**Task:** ${params.enhancementType.toUpperCase()}`);
+
+        if (params.enhancementType) {
+          parts.push(`**Task:** ${params.enhancementType.toUpperCase()}`);
+        }
       }
 
       return parts.join('\n');
@@ -222,8 +268,8 @@ export default abstract class UniversalPromptComposer {
       this.addSection(buffer, 'examples', opts, () => {
         const examples = opts
           .fewShotExamples!.map((ex, i) => {
-            return `[Example ${i + 1}]\nInput: ${ex.input}\nOutput: ${ex.output}`;
-          })
+          return `[Example ${i + 1}]\nInput: ${ex.input}\nOutput: ${ex.output}`;
+        })
           .join('\n\n');
         return `Pattern Matching:\n${examples}`;
       });
@@ -242,6 +288,16 @@ export default abstract class UniversalPromptComposer {
             : '**Negative Constraints (Avoid):**';
         parts.push(label);
         opts.negativeConstraints.forEach((c) => parts.push(`- ${c}`));
+      }
+
+      // Add Role Constraints if userRole is object and has constraints
+      if (typeof params.userRole !== 'string' && (params.userRole as unknown as PromptUserRole)?.constraints?.length) {
+        const label =
+          opts.verbosity === 'terse'
+            ? "Role Rules:"
+            : '**Role Specific Constraints:**';
+        parts.push(label);
+        (params?.userRole as unknown as PromptUserRole)?.constraints?.forEach?.((c) => parts.push(`- ${c}`));
       }
 
       // Logic Cross-Check
