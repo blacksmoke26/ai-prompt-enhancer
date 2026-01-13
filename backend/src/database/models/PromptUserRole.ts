@@ -19,12 +19,14 @@ import { getInstance } from '~/database';
 export type PromptUserRoleAttributes = InferAttributes<PromptUserRole>;
 
 export enum ExpertiseLevel {
+  Associate = 'Associate',
   Junior = 'Junior',
   Mid = 'Mid',
   Senior = 'Senior',
   Expert = 'Expert',
   Principal = 'Principal',
   Fellow = 'Fellow',
+  Doctorate = 'Doctorate',
 }
 
 /**
