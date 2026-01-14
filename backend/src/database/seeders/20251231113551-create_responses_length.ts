@@ -7,7 +7,7 @@
 import { QueryInterface } from 'sequelize';
 
 // db
-import { ResponseLength, ResponseLengthTone, Tone } from '~/database/models';
+import { ResponseLength, ResponseLengthTone } from '~/database/models';
 
 // constants
 import { RESPONSE_LENGTH_GROUPED } from '~/constants/response-length';
@@ -17,7 +17,7 @@ export default {
   async up(queryInterface: QueryInterface) {
     for await (const { category, values } of RESPONSE_LENGTH_GROUPED) {
       for await (const value of values) {
-        const count = await Tone.count({
+        const count = await ResponseLength.count({
           where: { key: value.key },
         });
 
