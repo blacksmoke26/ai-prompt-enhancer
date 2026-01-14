@@ -17,11 +17,9 @@ import {MdxEditor} from '~/components/ui/MdxEditor';
 
 // components
 import TextStats from './widgets/TextStats';
-import EnhancedPrompt, {type EnhancedPromptResponse} from './EnhancedPrompt';
 import DeepTextAnalysis from '~/components/standalone/WordCloud/WordCloudAdvance';
 
 // types
-import type {PromptResponse} from '~/types';
 import type {MDXEditorMethods} from '@mdxeditor/editor';
 
 export type {MDXEditorMethods};
@@ -50,8 +48,6 @@ export interface EditorContentProps {
   showTemplates?: boolean;
   /** Whether preview section is shown */
   showPreview?: boolean;
-  /** Response data from prompt enhancement */
-  response?: PromptResponse | null;
   /** Original prompt text */
   originalPrompt?: string;
   /** Current auto-save status */
@@ -98,8 +94,6 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
     wordFrequency,
     showTemplates,
     showPreview,
-    response,
-    originalPrompt,
     autoSaveStatus,
     lastSaved,
     onBlur,
@@ -170,10 +164,10 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
     >
       <MdxEditor
         value={value}
-        enableFullscreen={isFullscreen}
         onChange={onChange}
-        minHeight="350px"
-        maxHeight="400px"
+        minHeight="150px"
+        maxHeight="100px"
+        height="150"
         readOnly={disabled}
         placeholder={placeholder}
         plugins={{images: false, headings: false}}
@@ -218,13 +212,6 @@ const EditorContent = React.forwardRef<MDXEditorMethods, EditorContentProps>((pr
             Prompt preview would appear here
           </p>
         </div>
-      )}
-
-      {response && (
-        <EnhancedPrompt
-          response={response as EnhancedPromptResponse}
-          originalPrompt={originalPrompt ?? ''}
-        />
       )}
     </div>
   );

@@ -26,9 +26,6 @@ import SmartSuggestionsTrigger from './SmartSuggestionsTrigger';
 import AdvancedWordAnalysisTrigger, {WordAnalysisConfig} from './AdvancedWordAnalysisTrigger';
 import EditorContentWithSmartPanel, {MDXEditorMethods} from './EditorContentWithSmartPanel';
 
-// types
-import type {PromptResponse} from '~/types';
-
 /**
  * Configuration props for the Advanced Prompt Editor component
  * @developerNotes All handlers are provided by parent component to maintain separation of concerns
@@ -36,10 +33,6 @@ import type {PromptResponse} from '~/types';
 export interface AdvancedPromptEditorProps {
   /** Current prompt text value */
   value: string;
-
-  /** Callback for prompt text changes */
-  onChange(value: string): void;
-
   /** Placeholder text for empty textarea */
   placeholder?: string;
   /** Optional label for the editor */
@@ -51,23 +44,17 @@ export interface AdvancedPromptEditorProps {
   /** Show action buttons for copy, download, etc. */
   showActions?: boolean;
   /** Enhanced prompt response data */
-  response?: PromptResponse | null;
+  content: string | null;
   /** Additional CSS classes */
   className?: string;
-
   /** Show template selection */
   showTemplates?: boolean;
-
   /** Show preview panel */
   showPreview?: boolean;
   /** Show word cloud visualization */
   showWordCloud?: boolean;
   /** Enable auto-save functionality */
   autoSave?: boolean;
-
-  /** Auto-save callback function */
-  onAutoSave?(prompt: string): void;
-
   /** Word count to display (overrides auto-calculated) */
   wordCount?: number;
   /** Line count to display (overrides auto-calculated) */
@@ -76,6 +63,12 @@ export interface AdvancedPromptEditorProps {
   displayLineCount?: boolean;
   /** Show/hide line count in stats panel */
   showLineCount?: boolean;
+
+  /** Callback for prompt text changes */
+  onChange(value: string): void;
+
+  /** Auto-save callback function */
+  onAutoSave?(prompt: string): void;
 
   /** Callback function to update the default system prompt */
   onSystemPromptChange?(systemPrompt: string): void;
@@ -124,7 +117,7 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
     error,
     disabled = false,
     showActions = true,
-    response,
+    content,
     className,
     showTemplates = false,
     showPreview = false,
@@ -284,7 +277,6 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
                 prompt={value}
                 isVisible={showSuggestions}
                 onTogglePanel={() => setShowSuggestions(!showSuggestions)}
-                response={response}
               />
             </div>
           </div>
@@ -303,7 +295,6 @@ const AdvancedPromptEditor: React.FC<AdvancedPromptEditorProps> = (props) => {
             wordFrequency={wordFrequency}
             showTemplates={showTemplates}
             showPreview={showPreview}
-            response={response}
             originalPrompt={value}
             autoSaveStatus={state.autoSaveStatus}
             lastSaved={state.lastSaved}

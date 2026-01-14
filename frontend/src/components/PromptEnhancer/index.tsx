@@ -4,22 +4,19 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 
 // store
-import { useAppStore } from '~/stores/appStore';
+import {useAppStore} from '~/stores/appStore';
 
 // hooks
-import { usePromptEnhancer } from '~/hooks/usePromptEnhancer';
+import useGenerateSteam from '~/hooks/useGenerateSteam';
 
 // components
-import AdvancedPromptEditor from '~/components/AdvancedPromptEditor';
 import ErrorAlert from '~/components/PromptEnhancer/ErrorAlert';
+import AdvancedPromptEditor from '~/components/AdvancedPromptEditor';
 import ActionButtons from '~/components/PromptEnhancer/ActionButtons';
-import QuickStats from '~/components/PromptEnhancer/QuickStats';
-
-// types
-import type {PromptResponse} from '~/types';
+import EnhancedPrompt from '~/components/AdvancedPromptEditor/EnhancedPrompt';
 
 /**
  * PromptEnhancer Component
@@ -43,26 +40,7 @@ import type {PromptResponse} from '~/types';
  * - All actions are disabled during loading states to prevent race conditions
  */
 const PromptEnhancer: React.FC = () => {
-  /**
-   * State management for the user's input prompt
-   * @type {string} - The current prompt text being edited
-   * @example
-   * const [prompt, setPrompt] = useState('Initial prompt text');
-   */
   const [prompt, setPrompt] = useState('');
-
-  /**
-   * State management for the API response containing enhanced prompt data
-   * @type {PromptResponse | null} - The response object or null if no response yet
-   * @example
-   * const response = {
-   *   enhancedPrompt: 'Enhanced version of the prompt',
-   *   processingTime: 1234,
-   *   tokensUsed: 150,
-   *   originalPrompt: 'Original prompt text'
-   * };
-   */
-  const [response, setResponse] = useState<PromptResponse | null>(null);
 
   /**
    * Destructured values from the prompt enhancer hook
@@ -71,22 +49,17 @@ const PromptEnhancer: React.FC = () => {
    * error: Error message string or null if no error
    * clearError: Function to clear any existing error state
    */
-  const { enhancePrompt, loading, error, clearError } = usePromptEnhancer();
+  const {startStream, stopStream, isStreaming: loading, error, clearError, content, clearContent} = useGenerateSteam();
 
   /**
    * Currently selected AI model from the global application state
    * Used to ensure a model is selected before allowing enhancement
    */
-  const { config } = useAppStore();
+  const {config} = useAppStore();
 
   /**
    * Handles the prompt enhancement process
    * Validates input, clears existing errors, calls the API, and updates response state
-   *
-   * @async
-   * @returns {Promise<void>}
-   * @example
-   * await handleEnhance(); // Enhances the current prompt
    *
    * @developer_notes
    * - Trims whitespace from prompt before validation
@@ -97,12 +70,14 @@ const PromptEnhancer: React.FC = () => {
     if (!prompt.trim()) return;
 
     clearError();
-    const result = await enhancePrompt(prompt);
-
-    if (result) {
-      setResponse(result);
-    }
+    await startStream(prompt);
   };
+
+  /**
+   * Stops the current enhancement process
+   * @developerNotes Useful for interrupting a long-running enhancement
+   */
+  const handleStop = async () => stopStream();
 
   /**
    * Resets the component to its initial state
@@ -117,34 +92,13 @@ const PromptEnhancer: React.FC = () => {
    */
   const handleReset = () => {
     setPrompt('');
-    setResponse(null);
     clearError();
-  };
-
-  /**
-   * Keyboard event handler for enhancement shortcuts
-   * Detects Ctrl/Cmd + Enter combination to trigger enhancement
-   *
-   * @param {React.KeyboardEvent} e - The keyboard event object
-   * @example
-   * // This would trigger enhancement:
-   * <textarea onKeyPress={handleKeyPress} />
-   *
-   * @developer_notes
-   * - Prevents default browser behavior for the key combination
-   * - Provides power-user functionality for frequent users
-   * - Cross-platform support (Ctrl for Windows/Linux, Cmd for Mac)
-   */
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      handleEnhance();
-    }
+    clearContent();
   };
 
   return (
     <div className="space-y-6">
-      <ErrorAlert error={error} />
+      <ErrorAlert error={error}/>
 
       <AdvancedPromptEditor
         value={prompt}
@@ -153,26 +107,23 @@ const PromptEnhancer: React.FC = () => {
         placeholder="Type your prompt here..."
         error={error || undefined}
         disabled={loading}
-        response={response}
-        showStats={true}
-        maxLength={10000}
+        content={content}
         showTemplates={false}
-        showFormatting={true}
         autoSave={true}
         showWordCloud={true}
         showPreview={false}
-        onEnhance={handleEnhance}
         className="mb-6"
       />
 
       <ActionButtons
-        onEnhance={handleEnhance}
+        onStreamingStart={handleEnhance}
+        onStreamingStop={handleStop}
         onReset={handleReset}
         isLoading={loading}
         isEnhancementAvailable={!!prompt.trim() && !!config.model}
       />
 
-      <QuickStats response={response} />
+      <EnhancedPrompt content={content || ''}/>
     </div>
   );
 };
