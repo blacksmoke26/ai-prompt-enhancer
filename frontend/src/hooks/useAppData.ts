@@ -16,6 +16,7 @@ import ConfigService from '~/services/ConfigService';
 import UserRoleService from '~/services/UserRoleService';
 import ResponseLengthService from '~/services/ResponseLengthService';
 import EnhancementTypeService from '~/services/EnhancementTypeService';
+import TargetAudienceService from '~/services/TargetAudienceService';
 
 /**
  * Custom hook for managing application data loading and state.
@@ -38,11 +39,12 @@ export const useAppData = () => {
   const {
     setModels,
     setProviders,
-    setEnhancementTypes,
     setUserRoles,
     setConfig,
-    setResponseLengths,
     setTones,
+    setTargetAudience,
+    setResponseLengths,
+    setEnhancementTypes,
   } = useAppStore();
 
   useEffect(() => {
@@ -70,6 +72,7 @@ export const useAppData = () => {
         PromptService.getModels().then(setModels),
         UserRoleService.getAll().then(setUserRoles),
         PromptService.getProviders().then(setProviders),
+        TargetAudienceService.getAll().then(setTargetAudience),
         ResponseLengthService.getAll().then(setResponseLengths),
         EnhancementTypeService.getAll().then(setEnhancementTypes),
       ]);

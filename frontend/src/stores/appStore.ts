@@ -9,12 +9,12 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 
 // types
-import type {
+import {
   AIModel,
   AIProvider,
   AppConfig,
   EnhancementType,
-  ResponseLength, Tone,
+  ResponseLength, TargetAudience, Tone,
   UserRole,
   VisibleComponents,
 } from '~/types';
@@ -120,11 +120,17 @@ export interface AppState {
   /** Types of response length available */
   responseLengths: ResponseLength[];
 
+  /** List of target audiences available */
+  targetAudiences: TargetAudience[];
+
   /** Tones for prompt context */
   tones: Tone[];
 
-  /** Sets the response lengts */
+  /** Sets the response lengths */
   setResponseLengths(types: ResponseLength[]): void;
+
+  /** Sets the target audience */
+  setTargetAudience(list: TargetAudience[]): void;
 
   /** Sets the tones */
   setTones(roles: Tone[]): void;
@@ -313,8 +319,10 @@ export const useAppStore = create<AppState>()(
 
       // Response lengths and Tones
       responseLengths: [],
+      targetAudiences: [],
       tones: [],
       setResponseLengths: responseLengths => set({responseLengths}),
+      setTargetAudience: targetAudiences => set({targetAudiences}),
       setTones: tones => set({tones}),
 
       // Theme

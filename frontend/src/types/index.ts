@@ -654,6 +654,22 @@ export interface ResponseLength {
   hidden: boolean;
 }
 
+export interface TargetAudience {
+  key: string;
+  /** The display name or title of this value */
+  label: string;
+  /** A more detailed summary than `shortDescription`, but less than `description` */
+  summary: string;
+  /** A full explanation or detailed description of this value */
+  description: string;
+  /** An array of strings representing relevant tags or keywords for this value */
+  tags: string[];
+  /** The category or group belongs to */
+  category: string;
+  /** Whether the response length is hidden from the user interface or listings */
+  hidden: boolean;
+}
+
 /**
  * Represents a user role with specific capabilities, constraints, and behavior.
  * @example

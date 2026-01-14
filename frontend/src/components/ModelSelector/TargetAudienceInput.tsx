@@ -12,13 +12,15 @@ import {useAppStore} from '~/stores/appStore';
 
 // ui components
 import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
+import {toSelectGroupedOptions, toSelectGroupedOptionsPlain} from '~/utils/helpers.ts';
+import {Badge} from '~/components/ui/Badge.tsx';
 
 /**
  * Target audience input component for AI configuration
  * @component
  */
 const TargetAudienceInput: React.FC = () => {
-  const {config, setConfig} = useAppStore();
+  const {config, setConfig, targetAudiences} = useAppStore();
 
   const handleChange = (value: string) => {
     // Update the config in store
@@ -39,17 +41,21 @@ const TargetAudienceInput: React.FC = () => {
         onChange={value => handleChange(value as string)}
         formatLabel={option => (
           <div><UsersRound className="inline-flex" size="16"/> {option.label}
+            <p className="text-xs pl-5 mt-1">{option.description}</p>
           </div>
         )}
-        options={[
-          {value: 'general', label: 'General'},
-          {value: 'technical-experts', label: 'Technical Experts'},
-          {value: 'developers', label: 'Developers'},
-          {value: 'students', label: 'Students'},
-          {value: 'executives', label: 'Executives'},
-          {value: 'beginners', label: 'Beginners'},
-          {value: 'researchers', label: 'Researchers'},
-        ]}
+        options={toSelectGroupedOptionsPlain(targetAudiences.filter(x => !x.hidden).map(x => ({
+          ...x,
+          name: x.label,
+        })))}
+        selectedOption={(_, option) => (
+          <div>{option?.label ?? 'Select audience'}
+            {option?.label && (
+              <Badge
+                variant="outline"
+                className="text-xs">{option?.category ?? 'N/A'}</Badge>
+            )}</div>
+        )}
       />
     </div>
   );
