@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  *
  * Streamlined MDX Editor Wrapper
- * - Removed stats footer for cleaner UI
+ * - Removed Zen Mode functionality
  * - Fixed Dropdown rendering via Radix Portal
  * - Fixed Typography (H1-H6, P) via Tailwind Typography plugin
  */
@@ -14,10 +14,8 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import * as Tooltip from '@radix-ui/react-tooltip';
 import * as Toast from '@radix-ui/react-toast';
 import {
-  BoxModelIcon,
   CheckIcon,
   CopyIcon,
-  CrossCircledIcon,
   DownloadIcon,
   GearIcon,
   LockClosedIcon,
@@ -51,72 +49,191 @@ import {
   UndoRedo,
 } from '@mdxeditor/editor';
 
+// hooks
+import useDebounce from '~/hooks/useDebounce';
+import {useTheme} from '~/components/ThemeProvider';
+
+// utils
+import {cn} from '~/utils/helpers';
+
 // Styles
 import '@mdxeditor/editor/style.css';
-import useDebounce from '~/hooks/useDebounce.ts';
-import {useTheme} from '~/components/ThemeProvider.tsx';
-import {cn} from '~/utils/helpers.ts';
 
-/* -------------------------------------------------------------------------- */
-/*                                TYPES & INTERFACES                          */
-
-/* -------------------------------------------------------------------------- */
-
+/**
+ * Configuration for enabling or disabling specific plugins within the editor.
+ * @example
+ * const config: PluginConfig = {
+ *   headings: true,
+ *   lists: false,
+ *   tables: true,
+ * };
+ * @developerNotes
+ * By default, all plugins are enabled unless explicitly set to `false`.
+ */
 export interface PluginConfig {
+  /**
+   * Enables or disables the heading plugin.
+   * @default true
+   */
   headings?: boolean;
+
+  /**
+   * Enables or disables the list plugin.
+   * @default true
+   */
   lists?: boolean;
+
+  /**
+   * Enables or disables the table plugin.
+   * @default true
+   */
   tables?: boolean;
+
+  /**
+   * Enables or disables the thematic break plugin.
+   * @default true
+   */
   thematicBreak?: boolean;
+
+  /**
+   * Enables or disables the image plugin.
+   * @default true
+   */
   images?: boolean;
+
+  /**
+   * Enables or disables the code block plugin.
+   * @default true
+   */
   codeBlock?: boolean;
+
+  /**
+   * Enables or disables the quote plugin.
+   * @default true
+   */
   quote?: boolean;
+
+  /**
+   * Enables or disables the diff source plugin.
+   * @default true
+   */
   diffSource?: boolean;
+
+  /**
+   * Enables or disables keyboard shortcuts.
+   * @default true
+   */
   shortcuts?: boolean;
 }
 
+/**
+ * Configuration for customizing the toolbar's appearance and behavior.
+ * @example
+ * const config: ToolbarConfig = {
+ *   position: 'bottom',
+ *   showDiffSourceToggle: false,
+ * };
+ * @developerNotes
+ * If `position` is not specified, it defaults to `'top'`.
+ */
 export interface ToolbarConfig {
+  /**
+   * Disables the toolbar entirely.
+   * @default false
+   */
   disabled?: boolean;
+
+  /**
+   * Shows or hides the diff source toggle in the toolbar.
+   * @default true
+   */
   showDiffSourceToggle?: boolean;
+
+  /**
+   * Custom CSS class for styling the toolbar.
+   */
   className?: string;
+
+  /**
+   * Position of the toolbar relative to the editor.
+   * @default 'top'
+   */
   position?: 'top' | 'bottom';
 }
 
+/**
+ * Configuration for export options such as download and copy.
+ * @developerNotes
+ * Both options are disabled by default unless explicitly set to `true`.
+ */
 export interface ExportConfig {
+  /** Enables the download functionality */
   enableDownload?: boolean;
+  /** Enables the copy to clipboard functionality */
   enableCopy?: boolean;
 }
 
+/**
+ * Props for the MdxEditor component, defining its behavior and appearance.
+ * @developerNotes
+ * This interface extends and modifies the original MDXEditorProps, omitting
+ * `markdown`, `plugins`, and `onChange` to provide custom props.
+ */
 export interface MdxEditorProps extends Omit<MDXEditorProps, 'markdown' | 'plugins' | 'onChange'> {
+  /** Current value of the editor */
   value?: string | null;
 
+  /** Callback function triggered when the editor content changes */
   onChange?(value: string): void;
 
+  /** Debounce time in milliseconds for the `onChange` event */
   debounceMs?: number;
+  /** Plugin configuration to control which features are enabled */
   plugins?: PluginConfig;
+  /** Configuration for the toolbar's appearance and behavior */
   toolbar?: ToolbarConfig;
+  /** Height of the editor container */
   height?: string;
+  /** Theme for the editor, either 'light', 'dark', or 'auto' */
   theme?: 'light' | 'dark' | 'auto';
-  enableFullscreen?: boolean;
+  /** Custom CSS class for styling the editor */
   className?: string;
+  /** Placeholder text displayed when the editor is empty */
   placeholder?: string;
+  /** Makes the editor read-only */
   readOnly?: boolean;
+  /** Configuration for export options */
   export?: ExportConfig;
+  /** Minimum height of the editor container */
   minHeight?: string;
+  /** Maximum height of the editor container */
   maxHeight?: string;
 }
 
-/* -------------------------------------------------------------------------- */
-/*                           SUB-COMPONENTS                                   */
-/* -------------------------------------------------------------------------- */
-
-const EditorActions: React.FC<{
+/**
+ * Props interface for components that handle editor actions such as copy, download, and toggle readonly state.
+ * @developerNotes
+ * This interface is typically used in components that provide export or interaction controls, such as a toolbar or export panel.
+ */
+export interface EditorActionsProps {
+  /** The content to be exported or manipulated */
   content: string;
+  /** Configuration for export features like copy and download */
   config: ExportConfig;
-  onCopy: () => void;
-  onDownload: () => void;
-  onToggleReadonly: () => void;
+  /** Indicates whether the editor is in read-only mode */
   isReadonly: boolean;
-}> = ({content, config, onCopy, onDownload, onToggleReadonly, isReadonly}) => (
+
+  /** Callback function triggered when the user initiates a copy action */
+  onCopy(): void;
+
+  /** Callback function triggered when the user initiates a download action */
+  onDownload(): void;
+
+  /** Callback function triggered when the user toggles the read-only state */
+  onToggleReadonly(): void;
+}
+
+const EditorActions: React.FC<EditorActionsProps> = ({config, onCopy, onDownload, onToggleReadonly, isReadonly}) => (
   <>
     <DropdownMenu.Label className="px-2 py-1 text-xs font-semibold">
       Actions
@@ -171,11 +288,12 @@ export const MdxEditor = React.forwardRef<MDXEditorMethods, MdxEditorProps>((pro
     placeholder = 'Type text here',
     readOnly: readOnlyProp = false,
     export: exportConfig = {enableDownload: true, enableCopy: true},
+    minHeight = '350px',
+    maxHeight = '400px',
     ...rest
   } = props;
 
   // -- State --
-  const [isZenMode, setIsZenMode] = useState(false);
   const [localMarkdown, setLocalMarkdown] = useState(value ?? '');
   const [isReadonly, setIsReadonly] = useState(readOnlyProp);
   const [showToast, setShowToast] = useState(false);
@@ -261,7 +379,7 @@ export const MdxEditor = React.forwardRef<MDXEditorMethods, MdxEditorProps>((pro
           toolbarClassName: toolbarConfig.className || '',
           toolbarContents: () => (
             <div
-              className={`flex items-center gap-2 py-2 px-3 overflow-x-auto transition-opacity ${isReadonly ? 'opacity-50 pointer-events-none' : ''}`}>
+              className={`flex items-center gap-2 overflow-x-auto transition-opacity ${isReadonly ? 'opacity-50 pointer-events-none' : ''}`}>
 
               {/* History */}
               <UndoRedo/>
@@ -291,26 +409,17 @@ export const MdxEditor = React.forwardRef<MDXEditorMethods, MdxEditorProps>((pro
                 </DiffSourceToggleWrapper>
               )}
 
-
               {/* Separator */}
               <div className="w-px h-6 bg-gray-300 dark:bg-gray-700 mx-1 shrink-0"/>
 
               {/* Radix UI Integration with Portal Fix */}
               <Tooltip.Provider delayDuration={0}>
-                <button
-                  title={isZenMode ? 'Exit Zen Mode' : 'Zen Mode'}
-                  onClick={() => setIsZenMode(!isZenMode)}
-                  type="button"
-                  className="p-2 rounded mdx-editor-button text-gray-600 dark:text-gray-300 transition-colors"
-                >
-                  {isZenMode ? <CrossCircledIcon className="w-4 h-4"/> : <BoxModelIcon className="w-4 h-4"/>}
-                </button>
-
                 <DropdownMenu.Root>
                   <DropdownMenu.Trigger asChild>
-                    <button title="Actions"
-                            type="button"
-                            className="p-2 rounded mdx-editor-button text-gray-600 dark:text-gray-300 transition-colors"
+                    <button
+                      title="Actions"
+                      type="button"
+                      className="p-2 rounded mdx-editor-button text-gray-600 dark:text-gray-300 transition-colors"
                     >
                       <GearIcon className="w-4 h-4"/>
                     </button>
@@ -343,25 +452,20 @@ export const MdxEditor = React.forwardRef<MDXEditorMethods, MdxEditorProps>((pro
     }
 
     return pl;
-  }, [pluginConfig, toolbarConfig, isZenMode, isReadonly, exportConfig, localMarkdown, handleCopyToClipboard, handleDownloadMarkdown, toggleReadonly]);
+  }, [pluginConfig, toolbarConfig, isReadonly, exportConfig, localMarkdown, handleCopyToClipboard, handleDownloadMarkdown, toggleReadonly]);
 
-  // -- Styles --
   const containerClasses = `
     relative flex flex-col
     rounded-lg overflow-hidden bg-white dark:bg-gray-950 
     transition-all duration-300 ease-in-out shadow-sm
-    ${isZenMode ? 'fixed inset-0 z-50 rounded-none border-none shadow-2xl' : ''}
     ${className}
   `.replace(/\s+/g, ' ').trim();
-
-  const maxHeight = isZenMode ? 'h-full' : `max-h-[${props?.maxHeight ?? '400px'}]`;
-  const minHeight = isZenMode ? 'h-full' : `min-h-[${props?.minHeight ?? '350px'}]`;
 
   return (
     <>
       <div
         className={containerClasses}
-        style={{height: isZenMode ? '100vh' : height}}
+        style={{height}}
       >
         {/* MDX Editor Instance */}
         <div className="flex-1 overflow-auto relative">
@@ -373,7 +477,12 @@ export const MdxEditor = React.forwardRef<MDXEditorMethods, MdxEditorProps>((pro
             readOnly={isReadonly}
             placeholder={placeholder}
             {...rest}
-            contentEditableClassName={cn(`mdxeditor resize-none text-sm leading-relaxed transition-all duration-200 overflow-y-auto`, maxHeight, minHeight)}
+            contentEditableClassName={cn(
+              'mdxeditor resize-none text-sm leading-relaxed transition-all duration-200 overflow-y-auto',
+              `min-h-[${props?.minHeight ?? '350px'}]`,
+              `max-h-[${props?.maxHeight ?? '400px'}]`,
+            )}
+
           />
         </div>
       </div>
