@@ -60,6 +60,7 @@ const enhance = async (
     if (!(promptRequest?.offTheRecord ?? false)) {
       // Save to history
       await History.create({
+        aiPrompt: response.aiPrompt,
         providerId: providerRecord.id,
         originalPrompt: response.originalPrompt,
         enhancedPrompt: response.enhancedPrompt,

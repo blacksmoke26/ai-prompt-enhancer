@@ -45,6 +45,8 @@ class History extends Model<
   declare readonly id?: CreationOptional<number>;
   /** ID of the associated provider */
   declare providerId: number;
+  /** The AI prompt used to generate the response from model */
+  declare aiPrompt: string | null;
   /** The original prompt sent to the provider */
   declare originalPrompt: string;
   /** The enhanced prompt received from the provider */
@@ -118,6 +120,12 @@ History.init(
       allowNull: false,
       references: { model: 'Provider', key: 'id' },
       onDelete: 'CASCADE',
+    },
+    aiPrompt: {
+      field: 'ai_prompt',
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
     },
     originalPrompt: {
       field: 'original_prompt',
