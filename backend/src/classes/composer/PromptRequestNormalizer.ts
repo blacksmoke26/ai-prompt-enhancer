@@ -7,11 +7,21 @@
 import { Op } from 'sequelize';
 
 // db
-import { EnhancementType, PromptUserRole, ResponseLength, Tone, } from '~/database/models';
+import {
+  EnhancementType,
+  EnhancementTypeAttributes,
+  PromptUserRole,
+  ResponseLength,
+  TargetAudience,
+  Tone,
+} from '~/database/models';
 
 // types
 import type { PromptRequest } from '~/types/prompt';
-import type { PromptParams } from '~/classes/composer/PromptParams';
+import {
+  PromptParams,
+  PromptParamsNormalized,
+} from '~/classes/composer/PromptParams';
 
 /**
  * Class for normalizing prompt requests into standardized `PromptParams`
@@ -38,13 +48,14 @@ export default abstract class PromptRequestNormalizer {
    * - It merges the raw request into the `PromptParams` and enriches it with values from the database.
    * - Requires access to database models like `EnhancementType`, `PromptUserRole`, etc.
    */
-  public static async normalize(request: PromptRequest): Promise<PromptParams> {
-    const param: PromptParams = {
-      systemPrompt: 'You are a helpful AI assistant specialised in enhancing and improving prompts.',
+  public static async normalize(request: PromptRequest): Promise<PromptParamsNormalized> {
+    const param = {
+      systemPrompt:
+        'You are a helpful AI assistant specialised in enhancing and improving prompts.',
       format: request.format ?? 'markdown',
       ...request,
       text: request.text,
-    };
+    } as unknown as PromptParamsNormalized;
 
     await this.loadDbValues(request, param);
 
@@ -62,11 +73,10 @@ export default abstract class PromptRequestNormalizer {
    */
   private static async loadDbValues(
     request: PromptRequest,
-    param: PromptParams,
+    param: PromptParamsNormalized,
   ) {
     if (request.enhancementType) {
-      const record = await EnhancementType.findOne({
-        attributes: ['name'],
+      param.enhancementType = await EnhancementType.findOne({
         where: {
           [Op.or]: {
             key: request.enhancementType,
@@ -75,8 +85,6 @@ export default abstract class PromptRequestNormalizer {
         },
         raw: true,
       });
-
-      param.enhancementType = record?.name ?? 'Correct Grammar & Spelling';
     }
 
     if (request.userRole) {
@@ -91,15 +99,14 @@ export default abstract class PromptRequestNormalizer {
         raw: true,
       });
 
-      param.userRole = record?.name ?? 'General User';
+      param.userRole = record;
       param.systemPrompt =
         record?.systemPrompt ??
-        'You are a high-intelligence generalist assistant. Your primary directive is to maximize the informational density and clarity of the user\'s output.';
+        "You are a high-intelligence generalist assistant. Your primary directive is to maximize the informational density and clarity of the user's output.";
     }
 
     if (request?.responseLength) {
-      const record = await ResponseLength.findOne({
-        attributes: ['name'],
+      param.responseLength = await ResponseLength.findOne({
         where: {
           [Op.or]: {
             id: request.responseLength,
@@ -108,12 +115,22 @@ export default abstract class PromptRequestNormalizer {
         },
         raw: true,
       });
+    }
 
-      param.responseLength = record?.name ?? 'To-the-point';
+    if (request?.targetAudience) {
+      param.targetAudience = await TargetAudience.findOne({
+        where: {
+          [Op.or]: {
+            id: request.targetAudience,
+            key: request.targetAudience,
+          },
+        },
+        raw: true,
+      });
     }
 
     if (request?.tone) {
-      const record = await Tone.findOne({
+      param.tone = await Tone.findOne({
         attributes: ['name'],
         where: {
           [Op.or]: {
@@ -123,8 +140,6 @@ export default abstract class PromptRequestNormalizer {
         },
         raw: true,
       });
-
-      param.tone = record?.name ?? 'Professional';
     }
   }
 }

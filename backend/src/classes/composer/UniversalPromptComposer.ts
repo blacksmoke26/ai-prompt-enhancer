@@ -9,6 +9,7 @@ import type {
   PromptParams,
   PromptGeneratorOptions,
   CustomLabel,
+  PromptParamsNormalized,
 } from './PromptParams';
 import type { PromptUserRole } from '~/constants/prompt-user-roles';
 import type { TargetAudience } from '~/constants/target-audience';
@@ -102,7 +103,7 @@ export default abstract class UniversalPromptComposer {
    * );
    */
   public static generate(
-    params: PromptParams,
+    params: PromptParamsNormalized,
     options?: PromptGeneratorOptions,
   ): string {
     // Merge options with defaults
@@ -144,7 +145,7 @@ export default abstract class UniversalPromptComposer {
           }
         } else {
           // PromptUserRole object
-          const roleObj = params.userRole as PromptUserRole;
+          const roleObj = params.userRole;
           roleName = roleObj.name;
           roleSystemPrompt = roleObj.systemPrompt || roleSystemPrompt;
 
@@ -160,7 +161,7 @@ export default abstract class UniversalPromptComposer {
       // Resolve Target Audience
       // noinspection SuspiciousTypeOfGuard
       if (params.targetAudience && typeof params.targetAudience !== 'string') {
-        const aud = params.targetAudience as TargetAudience;
+        const aud = params.targetAudience;
         if (opts.verbosity === 'terse') {
           parts.push(`Audience: ${aud.label}`);
         } else {
@@ -174,7 +175,7 @@ export default abstract class UniversalPromptComposer {
 
       if (opts.verbosity === 'terse') {
         if (roleName) parts.push(`Role: ${roleName}`);
-        if (params.enhancementType) parts.push(`Task: ${params.enhancementType.toUpperCase()}`);
+        if (params.enhancementType) parts.push(`Task: ${params.enhancementType.name.toUpperCase()}`);
         if (roleSystemPrompt) parts.push(`Note: ${roleSystemPrompt}`);
       } else {
         if (roleName) parts.push(`**Role:** ${roleName}`);
@@ -194,7 +195,7 @@ export default abstract class UniversalPromptComposer {
         }
 
         if (params.enhancementType) {
-          parts.push(`**Task:** ${params.enhancementType.toUpperCase()}`);
+          parts.push(`**Task:** ${params.enhancementType.name.toUpperCase()}`);
         }
       }
 

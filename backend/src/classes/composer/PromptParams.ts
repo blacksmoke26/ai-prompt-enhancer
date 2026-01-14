@@ -9,6 +9,14 @@
  * Required: text, systemPrompt, format, userRole, enhancementType
  * Optional: Everything else
  */
+import {
+  EnhancementTypeAttributes,
+  PromptUserRoleAttributes,
+  ResponseLengthAttributes,
+  TargetAudienceAttributes,
+  ToneAttributes,
+} from '~/database/models';
+
 /**
  * Interface defining the parameters for configuring a prompt in an AI/LLM system.
  * This interface allows fine-grained control over the input text, output format,
@@ -337,6 +345,45 @@ export interface PromptParams {
    */
   encoding?: 'utf-8' | 'ascii';
 }
+
+export type PromptParamsNormalized = Omit<
+  PromptParams,
+  'userRole' | 'enhancementType' | 'targetAudience' | 'tone' | 'responseLength'
+> & {
+  /**
+   * The role the user is playing in the interaction. This defines the context
+   * for how the model should interpret and respond to the input.
+   * @example 'data scientist'
+   */
+  userRole?: PromptUserRoleAttributes | null;
+
+  /**
+   * The type of enhancement or transformation to apply to the input text.
+   * This could include summarization, translation, formatting, etc.
+   * @example 'summarize'
+   */
+  enhancementType?: EnhancementTypeAttributes | null;
+
+  /**
+   * Optional: The target audience for the output content.
+   * This influences tone, complexity, and language choices.
+   * @example 'technical audience'
+   */
+  targetAudience?: TargetAudienceAttributes | null;
+
+  /**
+   * Optional: The tone of the output (e.g., formal, casual, professional).
+   * @example 'professional'
+   */
+  tone?: ToneAttributes | null;
+
+  /**
+   * Optional: The desired length of the output response.
+   * Common values: 'short', 'medium', 'long', 'extensive'.
+   * @example 'medium'
+   */
+  responseLength?: ResponseLengthAttributes | null;
+};
 
 /**
  * Extended prompt parameters that include all standard prompt configurations
