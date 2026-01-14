@@ -4,6 +4,12 @@
  * @see https://github.com/blacksmoke26
  */
 
+// classes
+import StreamEnded from '~/classes/StreamEnded';
+
+// db
+import { History, Provider } from '~/database/models';
+
 // schemas
 import schema from './schemas/stream.schema';
 
@@ -18,7 +24,9 @@ export default (fastify: FastifyInstance) => {
   fastify.post<{
     Body: PromptRequest;
   }>('/stream', { schema }, async function (this, request, reply) {
-    const provider = this.providerService.getProvider(request.body.provider);
+    const promptRequest = request.body;
+
+    const provider = this.providerService.getProvider(promptRequest.provider);
 
     if (!provider) {
       ErrorHelper.throwWithStatus(
@@ -46,12 +54,17 @@ export default (fastify: FastifyInstance) => {
       });
 
       // Variable to store the complete message from the stream for future use
-      // TODO: Utilize this array if you need to access or process the full stream data after streaming is complete
       const fullStreamData: any[] = [];
+      let streamResponse: StreamEnded | undefined = undefined;
 
       // Stream the response
       try {
         for await (const chunk of provider.generateStream(request.body)) {
+          if ( chunk instanceof StreamEnded ) {
+            streamResponse = chunk;
+            break;
+          }
+
           const data = `data: ${JSON.stringify(chunk)}\n\n`;
           reply.raw.write(data);
 
@@ -78,7 +91,47 @@ export default (fastify: FastifyInstance) => {
       // Send final event to indicate stream completion
       reply.raw.write('data: [DONE]\n\n');
       const fullStreamString = fullStreamData.join('');
-      console.log('Stream DONE:', fullStreamString);
+
+      if (!(promptRequest?.offTheRecord ?? false)) {
+        const providerRecord = await Provider.findOne({
+          where: {
+            name: promptRequest.provider,
+          },
+        });
+
+        // Save to history
+        await History.create({
+          aiPrompt: streamResponse?.data?.aiPrompt,
+          providerId: providerRecord?.id ?? 1,
+          originalPrompt: promptRequest.text,
+          enhancedPrompt: fullStreamString,
+          model: promptRequest.model,
+          enhancementType: promptRequest.enhancementType || 'enhance',
+          userRole: promptRequest.userRole || 'general',
+          systemPrompt: promptRequest?.systemPrompt ?? '',
+          tokensUsed: streamResponse?.data?.tokensUsed ?? 0,
+          processingTime: streamResponse?.data?.processingTime ?? 0,
+          temperature: promptRequest?.temperature ?? 0,
+          maxTokens: promptRequest?.maxTokens ?? 0,
+          rating: 0,
+          notes: null,
+          targetAudience: promptRequest.targetAudience ?? null,
+          tone: promptRequest.tone ?? null,
+          responseLength: promptRequest.responseLength ?? null,
+          customInstructions: promptRequest.customInstructions ?? null,
+          enhancementParameters: promptRequest.enhancementParameters ?? null,
+          format: promptRequest.format ?? null,
+          timestamp: promptRequest.timestamp ?? null,
+          metadata: promptRequest.metadata ?? null,
+          topP: promptRequest.topP ?? null,
+          topK: promptRequest.topK ?? null,
+          stopSequences: promptRequest.stopSequences ?? null,
+          frequencyPenalty: promptRequest.frequencyPenalty ?? null,
+          presencePenalty: promptRequest.presencePenalty ?? null,
+          conversationId: promptRequest.conversationId ?? null,
+        });
+      }
+
       reply.raw.end();
     } catch (error) {
       console.error('Chat endpoint error:', error);

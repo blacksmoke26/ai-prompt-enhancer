@@ -9,6 +9,7 @@ import axios, { AxiosResponse } from 'axios';
 import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
 import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
 import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
+import StreamEnded from '~/classes/StreamEnded';
 
 // types
 import type { AIModel } from '~/types';
@@ -119,7 +120,8 @@ export default class OllamaProvider extends BaseAIProvider {
    * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
    */
   public static readonly DefaultPrompts: ProviderDefaultPrompt = {
-    system: 'You are an AI assistant running via Ollama. Optimize prompts to be efficient, clear, and well-suited for local LLM execution.',
+    system:
+      'You are an AI assistant running via Ollama. Optimize prompts to be efficient, clear, and well-suited for local LLM execution.',
     role: 'You are a prompt engineer for local models. Improve prompts to be self-contained, unambiguous, and effective on-device.',
   };
   /**
@@ -146,7 +148,10 @@ export default class OllamaProvider extends BaseAIProvider {
    * @param {ConfigMeta} config - Configuration options for the provider.
    */
   constructor(config: ConfigMeta) {
-    super(OllamaProvider.ProviderKey, {...config, baseUrl: config?.baseUrl ?? OllamaProvider.ProviderConfig.baseUrl});
+    super(OllamaProvider.ProviderKey, {
+      ...config,
+      baseUrl: config?.baseUrl ?? OllamaProvider.ProviderConfig.baseUrl,
+    });
   }
 
   /**
@@ -170,22 +175,27 @@ export default class OllamaProvider extends BaseAIProvider {
       const cached = await this.getCachedResponse(cacheKey);
       if (cached) return cached;
 
-      const response = await this.client.get<{ models: OllamaModel[] }>('/api/tags');
+      const response = await this.client.get<{ models: OllamaModel[] }>(
+        '/api/tags',
+      );
       const models = response.data.models || [];
-      const result = models.map((model) => ({
-        id: model.name,
-        size: model.size,
-        name: model.name.split(':')[0],
-        provider: OllamaProvider.ProviderID,
-        description: `${(model.size / 1024 / 1024 / 1024).toFixed(2)}GB • ${model.details?.family || 'unknown'} • ${model.details?.parameter_size || ''}`,
-        contextLength: model.details?.context_length || 4096,
-        parameters: {
-          family: model.details?.family,
-          parameter_size: model.details?.parameter_size,
-          quantization: model.details?.quantization_level,
-          format: model.details?.format,
-        },
-      } as unknown as AIModel));
+      const result = models.map(
+        (model) =>
+          ({
+            id: model.name,
+            size: model.size,
+            name: model.name.split(':')[0],
+            provider: OllamaProvider.ProviderID,
+            description: `${(model.size / 1024 / 1024 / 1024).toFixed(2)}GB • ${model.details?.family || 'unknown'} • ${model.details?.parameter_size || ''}`,
+            contextLength: model.details?.context_length || 4096,
+            parameters: {
+              family: model.details?.family,
+              parameter_size: model.details?.parameter_size,
+              quantization: model.details?.quantization_level,
+              format: model.details?.format,
+            },
+          }) as unknown as AIModel,
+      );
 
       result.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -280,14 +290,20 @@ export default class OllamaProvider extends BaseAIProvider {
       };
     } catch (error: any) {
       console.error('Ollama enhancement failed:', error);
-      throw new Error(`Failed to enhance prompt with Ollama: ${error.message || error}`);
+      throw new Error(
+        `Failed to enhance prompt with Ollama: ${error.message || error}`,
+      );
     }
   }
 
   /**
    * @inheritDoc
    */
-  public async *generateStream(request: PromptRequest): AsyncGenerator<StreamResponse, void, unknown> {
+  public async *generateStream(
+    request: PromptRequest,
+  ): AsyncGenerator<StreamResponse | StreamEnded, void, unknown> {
+    const startTime = Date.now();
+
     const promptRequest = await PromptRequestNormalizer.normalize(request);
 
     const aiPrompt = UniversalPromptComposer.generate(promptRequest);
@@ -298,9 +314,10 @@ export default class OllamaProvider extends BaseAIProvider {
         {
           model: request.model,
           messages: [
-            {role: 'system', content: request.systemPrompt},
-            {role: 'user', content: aiPrompt}
-          ]},
+            { role: 'system', content: request.systemPrompt },
+            { role: 'user', content: aiPrompt },
+          ],
+        },
         {
           responseType: 'stream',
         },
@@ -321,10 +338,20 @@ export default class OllamaProvider extends BaseAIProvider {
               yield data;
 
               if (data.done) {
+                yield new StreamEnded({
+                  aiPrompt,
+                  model: data.model,
+                  tokensUsed: data?.eval_count ?? 0,
+                  processingTime: this.calculateProcessingTime(startTime),
+                });
                 return;
               }
             } catch (parseError) {
-              console.warn('Failed to parse streaming response:', line, parseError);
+              console.warn(
+                'Failed to parse streaming response:',
+                line,
+                parseError,
+              );
             }
           }
         }
@@ -342,11 +369,18 @@ export default class OllamaProvider extends BaseAIProvider {
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         const errorMessage = error.response?.data?.error || error.message;
-        console.error(`${OllamaProvider.ProviderName} streaming error:`, errorMessage);
-        throw new Error(`${OllamaProvider.ProviderName} API error: ${errorMessage}`);
+        console.error(
+          `${OllamaProvider.ProviderName} streaming error:`,
+          errorMessage,
+        );
+        throw new Error(
+          `${OllamaProvider.ProviderName} API error: ${errorMessage}`,
+        );
       }
       console.error('Unexpected streaming error:', error);
-      throw new Error(`Failed to stream response from ${OllamaProvider.ProviderName}`);
+      throw new Error(
+        `Failed to stream response from ${OllamaProvider.ProviderName}`,
+      );
     }
   }
 
@@ -438,7 +472,11 @@ export default class OllamaProvider extends BaseAIProvider {
    * Gets version information about the Ollama API and service.
    * @returns Version information object
    */
-  public async versionInfo(): Promise<{ apiVersion: string; serviceVersion: string; providerVersion: string }> {
+  public async versionInfo(): Promise<{
+    apiVersion: string;
+    serviceVersion: string;
+    providerVersion: string;
+  }> {
     try {
       const response = await this.client.get('/api/version');
       const versionData = response.data;
@@ -482,7 +520,7 @@ export default class OllamaProvider extends BaseAIProvider {
         return cached as boolean;
       }
 
-      await this.client.get('/api/tags', {timeout: 5000}); // 5 second timeout for availability check
+      await this.client.get('/api/tags', { timeout: 5000 }); // 5 second timeout for availability check
 
       // Cache availability status for 30 seconds
       await this.cacheResponse(cacheKey, true, 30000);
@@ -491,7 +529,7 @@ export default class OllamaProvider extends BaseAIProvider {
     } catch {
       // Try version endpoint as fallback
       try {
-        await this.client.get('/api/version', {timeout: 2000});
+        await this.client.get('/api/version', { timeout: 2000 });
         await this.cacheResponse(`${this.name}:availability`, true, 30000);
         return true;
       } catch {
@@ -505,10 +543,15 @@ export default class OllamaProvider extends BaseAIProvider {
    * Call function - Ollama doesn't natively support function calling
    * This is a placeholder implementation that returns null
    */
-  public async callFunction(functions: FunctionDefinition[], request: PromptRequest): Promise<FunctionCallResult[] | null> {
+  public async callFunction(
+    functions: FunctionDefinition[],
+    request: PromptRequest,
+  ): Promise<FunctionCallResult[] | null> {
     // Ollama doesn't have native function calling support
     // This would need to be implemented via prompt engineering
-    console.warn('Ollama does not support native function calling. This is a placeholder implementation.');
+    console.warn(
+      'Ollama does not support native function calling. This is a placeholder implementation.',
+    );
     return null;
   }
 
@@ -519,7 +562,7 @@ export default class OllamaProvider extends BaseAIProvider {
    */
   public async getMaxContextLength(modelName: string): Promise<number> {
     const models = await this.getModels();
-    const model = models.find(m => m.name === modelName.split(':')[0]);
+    const model = models.find((m) => m.name === modelName.split(':')[0]);
     return model?.contextLength || 8192; // Default to 8K context for Ollama
   }
 
@@ -529,7 +572,10 @@ export default class OllamaProvider extends BaseAIProvider {
    * @param modelName - Model name to use for estimation
    * @returns Estimated token count
    */
-  public async estimateTokenCount(text: string, modelName: string): Promise<number> {
+  public async estimateTokenCount(
+    text: string,
+    modelName: string,
+  ): Promise<number> {
     try {
       const response = await this.client.post('/api/tokenize', {
         model: modelName,
