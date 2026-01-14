@@ -4,22 +4,24 @@
  * @see https://github.com/blacksmoke26
  */
 
+import Tone from './Tone';
 import History from './History';
 import Setting from './Setting';
 import Provider from './Provider';
-import Tone from './Tone';
 import PromptUserRole from './PromptUserRole';
 import ResponseLength from './ResponseLength';
+import TargetAudience from './TargetAudience';
 import EnhancementType from './EnhancementType';
 
 /**
  * Export all models for use elsewhere in the application.
  */
+export * from './Tone';
 export * from './History';
 export * from './Setting';
 export * from './Provider';
-export * from './Tone';
 export * from './PromptUserRole';
+export * from './TargetAudience';
 export * from './ResponseLength';
 export * from './EnhancementType';
 
@@ -31,11 +33,12 @@ if (!isInitialized) {
 }
 
 export {
+  Tone,
   History,
   Setting,
   Provider,
-  Tone,
   PromptUserRole,
   ResponseLength,
+  TargetAudience,
   EnhancementType,
 };
