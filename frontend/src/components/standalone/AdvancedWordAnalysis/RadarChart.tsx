@@ -27,27 +27,44 @@ const RadarChart: React.FC<RadarProps> = ({data}) => {
   return (
     <div className="relative flex items-center justify-center">
       <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+        {/* Background Grid Rings */}
         {[1, 2, 3].map((level) => (
           <polygon key={level}
                    points={Array(5).fill(0).map((_, i) => getCoordinates(level / 3, i, 5).join(',')).join(' ')}
-                   fill="none" stroke="#334155" strokeWidth="1" className="opacity-20"/>
+                   fill="none"
+                   className="stroke-slate-200 dark:stroke-slate-700 stroke-[1] opacity-20"
+          />
         ))}
+        {/* Background Radial Lines */}
         {Array(5).fill(0).map((_, i) => {
           const [x, y] = getCoordinates(1, i, 5);
-          return <line key={i} x1={center} y1={center} x2={x} y2={y} stroke="#334155" className="opacity-20"/>;
+          return <line key={i} x1={center} y1={center} x2={x} y2={y}
+                       className="stroke-slate-200 dark:stroke-slate-700 opacity-20"/>;
         })}
-        <polygon points={polygonPoints} fill="rgba(99, 102, 241, 0.25)" stroke="#818cf8" strokeWidth="2"
-                 className="transition-all duration-700 ease-out drop-shadow-lg"/>
+
+        {/* Data Polygon */}
+        <polygon
+          points={polygonPoints}
+          fill="rgba(99, 102, 241, 0.25)"
+          stroke="#818cf8"
+          strokeWidth="2"
+          className="transition-all duration-700 ease-out drop-shadow-lg"
+        />
+
+        {/* Data Points */}
         {values.map((v, i) => {
           const [x, y] = getCoordinates(v, i, 5);
-          return <circle key={i} cx={x} cy={y} r="3.5" fill="#c7d2fe" className="transition-all duration-700"/>;
+          return <circle key={i} cx={x} cy={y} r="3.5" fill="#c7d2fe"
+                         className="transition-all duration-700"/>;
         })}
       </svg>
+
+      {/* Labels */}
       <div className="absolute inset-0 pointer-events-none">
         {labels.map((label, i) => {
           const [x, y] = getCoordinates(1.25, i, 5);
           return <span key={i}
-                       className="absolute text-[10px] text-gray-500 font-bold uppercase tracking-wider -translate-x-1/2 -translate-y-1/2 bg-[#0f172a] px-1.5 py-0.5 rounded border border-gray-800 shadow-sm"
+                       className="absolute text-[10px] text-gray-600 dark:text-gray-400 font-bold uppercase tracking-wider -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded border border-gray-200 dark:border-gray-800 shadow-sm"
                        style={{left: x, top: y}}>{label}</span>;
         })}
       </div>

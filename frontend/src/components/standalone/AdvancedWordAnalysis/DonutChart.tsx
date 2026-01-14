@@ -58,13 +58,15 @@ const DonutChart: React.FC<DonutProps> = ({data}) => {
           );
         })}
       </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"><span
-        className="text-[10px] text-gray-500">POS</span></div>
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <span className="text-[10px] text-gray-500 dark:text-gray-300">POS</span>
+      </div>
       <div className="absolute -bottom-12 left-0 right-0 flex justify-center gap-2">
         {entries.map((p, i) => (
           <div key={i} className="flex items-center gap-1">
             <div className="w-2 h-2 rounded-full" style={{backgroundColor: p.color}}/>
-            <span className="text-[8px] text-gray-400">{p.label}</span></div>
+            <span className="text-[8px] text-gray-400 dark:text-gray-500">{p.label}</span>
+          </div>
         ))}
       </div>
     </div>
