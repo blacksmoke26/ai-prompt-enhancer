@@ -5,14 +5,15 @@
 
 // controllers
 import mainController from './main.controller';
+import tonesController from './tones.controller';
 import configController from './config.controller';
 import promptController from './prompt.controller';
 import historyController from './history.controller';
 import userRoleController from './user-role.controller';
 import enhancementTypeController from './enhancement-type.controller';
 import advancedEnhancementController from './advanced-enhancement.controller';
-import tonesController from './tones.controller';
 import responseLengthsController from './response-lengths.controller';
+import targetAudiencesController from './target-audiences.controller';
 
 // helpers
 import env from '@junaidatari/env-binder';
@@ -28,14 +29,15 @@ export default async (fastify: FastifyInstance) => {
   // Register routes
   await Promise.all([
     fastify.register(mainController, {prefix: '/'}),
+    fastify.register(tonesController, {prefix: '/api/tones'}),
     fastify.register(configController, {prefix: '/api/config'}),
     fastify.register(promptController, {prefix: '/api/prompts'}),
     fastify.register(historyController, {prefix: '/api/history'}),
     fastify.register(userRoleController, {prefix: '/api/user-roles'}),
     fastify.register(enhancementTypeController, {prefix: '/api/enhancement-types'}),
     fastify.register(advancedEnhancementController, {prefix: '/api/advanced-enhancement-types'}),
-    fastify.register(tonesController, {prefix: '/api/tones'}),
     fastify.register(responseLengthsController, {prefix: '/api/response-lengths'}),
+    fastify.register(targetAudiencesController, {prefix: '/api/target-audiences'}),
   ]);
 
   //<editor-fold desc="Development specific controllers">

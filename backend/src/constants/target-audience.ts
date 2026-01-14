@@ -16,6 +16,68 @@ export interface TargetAudience {
   category: string;
 }
 
+/**
+ * Generates a JSON Schema representation of the `TargetAudience` interface.
+ * @returns The JSON Schema object.
+ */
+export const getTargetAudienceSchema = (): object => ({
+  type: 'array',
+  description: 'An array of value objects, each representing a distinct item within the category',
+  items: {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'string',
+        description: 'The unique identifier',
+        examples: [2],
+      },
+      key: {
+        type: 'string',
+        description: 'The unique identifier for the value',
+        examples: ['web-dev-novice'],
+      },
+      label: {
+        type: 'string',
+        description: 'The display label or title of this value',
+        examples: ['Aspiring Web Developer'],
+      },
+      category: {
+        type: 'string',
+        description: 'The category or group this response belongs to',
+        examples: [
+          'Software Development',
+        ],
+      },
+      summary: {
+        type: 'string',
+        description: 'A minimal detailed summary but less than `description`',
+        examples: [
+          'Individuals just starting their journey in building websites.',
+        ],
+      },
+      description: {
+        type: 'string',
+        description: 'A full explanation or detailed description of this value',
+        examples: [
+          'Users who are learning HTML, CSS, and basic JavaScript. They need clear, jargon-free explanations and step-by-step guides to build their first static pages.',
+        ],
+      },
+      tags: {
+        type: 'array',
+        description: 'An array of strings representing relevant tags or keywords for this value',
+        items: { type: 'string' },
+        examples: [['html', 'css', 'javascript', 'beginner', 'coding']],
+      },
+      hidden: {
+        type: 'boolean',
+        description: 'Indicates whether the tone is hidden from the user',
+        examples: [false],
+      },
+    },
+    required: ['id', 'key', 'label', 'summary', 'description', 'tags', 'hidden'],
+  },
+});
+
 const targetAudiences: TargetAudience[] = [
   {
     key: 'web-dev-novice',
