@@ -34,9 +34,12 @@ import * as Tabs from '@radix-ui/react-tabs';
 import * as Dialog from '@radix-ui/react-dialog';
 import * as Popover from '@radix-ui/react-popover';
 
+// utils
+import {decodeHtml} from '~/utils/helpers';
+
 // ui components
-import {Button} from '~/components/ui/Button';
 import {Label} from '~/components/ui/Label';
+import {Button} from '~/components/ui/Button';
 import MarkdownPreview from '~/components/ui/Markdown';
 
 // components
@@ -45,7 +48,6 @@ import RatingStars from './RatingStars';
 
 // types
 import type {PromptHistory} from '~/types';
-import {decodeHtml} from '~/utils/helpers.ts';
 
 /**
  * Props interface for the HistoryItemDetails component, used to display detailed information about a selected history item.
@@ -223,7 +225,7 @@ const HistoryItemDetails: React.FC<HistoryItemDetailsProps> = (props) => {
                     source={decodeHtml(props.selectedItem.enhancedPrompt ?? '')}
                     data-color-mode={props.dataColorMode}
                     style={{
-                      color: props.dataColorMode === 'dark' ? '#e5e7eb' : '#1f2937',
+                      color: props.dataColorMode === 'dark' ? '' : '#1f2937',
                     }} className="p-4 min-h-[200px]"/></div>
               </div>
             </Tabs.Content>
