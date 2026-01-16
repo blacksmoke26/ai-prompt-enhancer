@@ -53,6 +53,7 @@ export interface PaginationCreateWithRequest<M extends Model> {
    * @example 'desc'
    */
   defaultSortOrder?: 'asc' | 'desc';
+  order?: Order;
 }
 
 /**
@@ -200,7 +201,7 @@ export default class PaginatedList<T> {
       options.model,
       {
         ...(options?.findOptions ?? {}),
-        order,
+        order: options?.order ?? order,
       },
       {
         pageSize: pagination.getPageSize(),
