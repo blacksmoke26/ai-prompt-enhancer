@@ -12,6 +12,7 @@ import exportHistory from '~/fastify/actions/history/export';
 import deleteHistoryItem from '~/fastify/actions/history/delete';
 import updateHistoryItem from '~/fastify/actions/history/update';
 import minimalStats from '~/fastify/actions/history/minimal-stats';
+import listByRole from '~/fastify/actions/history/list-by-role';
 
 // types
 import type {FastifyInstance, FastifyPluginOptions, HookHandlerDoneFunction} from 'fastify';
@@ -25,6 +26,7 @@ export default (app: FastifyInstance, options: FastifyPluginOptions, done: HookH
     minimalStats,
     clear,
     deleteHistoryItem,
+    listByRole,
   ].map((action) => action(app));
   done();
 };
