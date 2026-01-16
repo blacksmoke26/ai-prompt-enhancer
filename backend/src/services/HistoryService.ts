@@ -142,6 +142,7 @@ export interface HistoryFilters {
  */
 export default class HistoryService {
   private history: PromptHistory[] = [];
+  private providers: Map<string, string | null> = new Map();
 
   /**
    * Creates a new HistoryManager instance and initializes the history data.
@@ -154,6 +155,27 @@ export default class HistoryService {
    * const defaultManager = new HistoryManager();
    */
   constructor() {}
+
+  /**
+   * Retrieves the name of a provider by their ID, using a cache to avoid redundant database queries.
+   * @param providerId - The numeric ID of the provider.
+   * @returns A Promise that resolves to the provider's name as a string, or null if not found.
+   * @example
+   * getProviderName(123).then(name => console.log(name));
+   * @developerNotes
+   * - Assumes that Provider.getNameByPk is implemented and returns the correct name.
+   * - Uses a Map to cache results, so subsequent calls with the same providerId are faster.
+   * - The non-null assertion operator (!) is used because the cache is populated before returning.
+   */
+  public async getProviderName(providerId: number): Promise<string | null> {
+    if (this.providers.has(String(providerId))) {
+      return this.providers.get(String(providerId))!;
+    }
+
+    const name = await Provider.getNameByPk(providerId);
+    this.providers.set(String(providerId), name);
+    return name;
+  }
 
   /**
    * Retrieves entries from the prompt history with optional limit.
@@ -262,23 +284,17 @@ export default class HistoryService {
 
     const histories = await History.findAll(findOptions);
 
-    const providers: Record<string, string> = {};
-
     const records: PromptHistory[] = [];
 
     for await (const history of histories) {
-      if (!Object.hasOwn(providers, String(history.providerId))) {
-        const provider = await Provider.findByPk(history.providerId, {
-          raw: true,
-          attributes: ['name'],
-        });
-        providers[String(history.providerId)] = provider?.name ?? '';
-      }
+      const providerName = await this.getProviderName(
+        history.providerId,
+      );
 
       records.push(
         this.mapHistoryToPromptHistory(
           history,
-          providers[String(history.providerId)],
+          providerName,
         ),
       );
     }
