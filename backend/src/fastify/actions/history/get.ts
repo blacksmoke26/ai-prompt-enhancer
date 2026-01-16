@@ -88,24 +88,12 @@ export default (fastify: FastifyInstance) => {
         );
       }
 
-      const globalStats: Record<string, any> = (await History.findOne({
-        attributes: [
-          [
-            History.sequelize!.fn('COUNT', History.sequelize!.col('id')),
-            'totalPrompts',
-          ],
-          [
-            History.sequelize!.fn('SUM', History.sequelize!.col('tokens_used')),
-            'totalTokens',
-          ],
-        ],
-        raw: true,
-      })) || { totalPrompts: 0, totalTokens: 0 };
+      const globalStats = await this.historyService.getGlobalStats();
 
       history = history.map((item) => {
         return {
           ...item,
-          stats: calculateItemStats(item, globalStats),
+          stats: this.historyService.calculateItemStats(item, globalStats),
         } as HistoryItem;
       });
 
@@ -115,48 +103,4 @@ export default (fastify: FastifyInstance) => {
       ErrorHelper.throwWithStatus('Failed to get history');
     }
   });
-
-  const calculateItemStats = (
-    item: PromptHistory,
-    stats: Record<string, any>,
-  ) => {
-    try {
-      const words = (item.originalPrompt ?? '').trim().split(/\s+/).length;
-      const chars = (item.originalPrompt ?? '').length;
-
-      const textData = [
-        { name: 'Words', value: words },
-        { name: 'Characters', value: chars },
-        {
-          name: 'Whitespace',
-          value:
-            (item.originalPrompt ?? '').length -
-            (item.originalPrompt ?? '').trim().length,
-        },
-      ];
-
-      const globalAvg =
-        stats.totalPrompts > 0
-          ? Math.round(stats.totalTokens / stats.totalPrompts)
-          : 0;
-
-      const tokenStats = [
-        {
-          name: 'This Item',
-          value: item.tokensUsed ?? 0,
-          fill: '#8b5cf6',
-        },
-        {
-          name: 'Global Avg',
-          value: globalAvg,
-          fill: '#cbd5e1',
-        },
-      ];
-
-      return { textData, tokenStats };
-    } catch (e) {
-      console.error('Error computing analytics', e);
-      return null;
-    }
-  };
 };

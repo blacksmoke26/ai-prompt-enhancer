@@ -287,6 +287,98 @@ export default class HistoryService {
   }
 
   /**
+   * Calculates and returns statistical data for a given prompt history item, including text-based metrics and token statistics.
+   * Returns null if no valid data can be derived from the input.
+   * @example
+   * const item = { name: "Example Prompt", tokens: 150 };
+   * const stats = { "word_count": 30, "token_usage": 150 };
+   * const result = calculateItemStats(item, stats);
+   * // result.textData: [{ name: "word_count", value: 30 }, ...]
+   * // result.tokenStats: [{ name: "token_usage", value: 150, fill: "#4CAF50" }, ...]
+   */
+  public calculateItemStats(
+    item: PromptHistory,
+    stats: Record<string, any>,
+  ): {
+    textData: {
+      name: string;
+      value: number;
+    }[];
+    tokenStats: {
+      name: string;
+      value: number;
+      fill: string;
+    }[];
+  } | null {
+    try {
+      const words = (item.originalPrompt ?? '').trim().split(/\s+/).length;
+      const chars = (item.originalPrompt ?? '').length;
+
+      const textData = [
+        { name: 'Words', value: words },
+        { name: 'Characters', value: chars },
+        {
+          name: 'Whitespace',
+          value:
+            (item.originalPrompt ?? '').length -
+            (item.originalPrompt ?? '').trim().length,
+        },
+      ];
+
+      const globalAvg =
+        stats.totalPrompts > 0
+          ? Math.round(stats.totalTokens / stats.totalPrompts)
+          : 0;
+
+      const tokenStats = [
+        {
+          name: 'This Item',
+          value: item.tokensUsed ?? 0,
+          fill: '#8b5cf6',
+        },
+        {
+          name: 'Global Avg',
+          value: globalAvg,
+          fill: '#cbd5e1',
+        },
+      ];
+
+      return { textData, tokenStats };
+    } catch (e) {
+      console.error('Error computing analytics', e);
+      return null;
+    }
+  }
+
+  /**
+   * Retrieves and returns global statistics aggregated across all prompts, including total prompts and total tokens used.
+   * Returns a Promise that resolves to an object containing the aggregated statistics.
+   * @example
+   * const stats = await getGlobalStats();
+   * // stats: { totalPrompts: 42, totalTokens: 1500 }
+   * @returns A Promise resolving to an object with totalPrompts and totalTokens.
+   * @note This method should be called after data initialization to ensure accurate results.
+   */
+  public async getGlobalStats(): Promise<{
+    totalPrompts: number;
+    totalTokens: number;
+  }> {
+    return (await History.findOne({
+      attributes: [
+        [
+          History.sequelize!.fn('COUNT', History.sequelize!.col('id')),
+          'totalPrompts',
+        ],
+        [
+          History.sequelize!.fn('SUM', History.sequelize!.col('tokens_used')),
+          'totalTokens',
+        ],
+      ],
+      raw: true,
+    })) as unknown as Awaited<{ totalPrompts: number; totalTokens: number }>;
+  }
+
+  /**
    * Searches through history entries for text matching the query across multiple fields.
    *
    * This method performs a case-insensitive search across the following fields:
