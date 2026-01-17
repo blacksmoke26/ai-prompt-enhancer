@@ -6,6 +6,7 @@
 
 // schemas
 import schema400WithError from '~/fastify/schemas/generic/400.schema';
+import schema404WithError from '~/fastify/schemas/generic/404.schema';
 import schema200WithData from '~/fastify/schemas/generic/200-success-with-data.schema';
 
 // types
@@ -14,7 +15,7 @@ import type { JSONSchema7 } from 'json-schema';
 
 export default {
   summary: 'List By Role',
-  description: 'Retrieves history items based on the user role',
+  description: 'Retrieves history items based on the role',
   tags: ['History'],
   params: {
     type: 'object',
@@ -29,6 +30,7 @@ export default {
   security: [],
   response: {
     400: schema400WithError('Failed to fetch history'),
+    404: schema404WithError('Role not found'),
     200: schema200WithData({
       type: 'array',
       items: {
@@ -121,7 +123,7 @@ export default {
           format: {
             type: 'string',
             description: 'Output format.',
-            examples: ["markdown"],
+            examples: ['markdown'],
           },
           topP: {
             type: 'number',
@@ -161,7 +163,7 @@ export default {
             description: 'Last update timestamp.',
             examples: ['2025-12-24 17:18:10.661 +00:00'],
           },
-        }
+        },
       },
       additionalProperties: true,
     } as JSONSchema7),
