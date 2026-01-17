@@ -12,6 +12,7 @@ import PromptUserRole from './PromptUserRole';
 import ResponseLength from './ResponseLength';
 import TargetAudience from './TargetAudience';
 import EnhancementType from './EnhancementType';
+import HistoryResponse from './HistoryResponse';
 
 /**
  * Export all models for use elsewhere in the application.
@@ -24,12 +25,23 @@ export * from './PromptUserRole';
 export * from './TargetAudience';
 export * from './ResponseLength';
 export * from './EnhancementType';
+export * from './HistoryResponse';
 
 let isInitialized = false;
 
 if (!isInitialized) {
   Provider.hasMany(History, {as: 'provider', foreignKey: 'providerId'});
-  History.belongsTo(PromptUserRole, {as: 'promptUserRole', foreignKey: 'userRole'});
+  History.belongsTo(PromptUserRole, { as: 'promptUserRole', foreignKey: 'userRole' });
+  History.hasOne(HistoryResponse, {
+    as: 'response',
+    foreignKey: 'historyId',
+    sourceKey: 'id',
+  });
+  HistoryResponse.belongsTo(History, {
+    as: 'history',
+    foreignKey: 'historyId',
+    targetKey: 'id',
+  });
   isInitialized = true;
 }
 
@@ -42,4 +54,5 @@ export {
   ResponseLength,
   TargetAudience,
   EnhancementType,
+  HistoryResponse,
 };
