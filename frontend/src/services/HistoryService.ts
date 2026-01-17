@@ -10,7 +10,7 @@ import api from '~/utils/api';
 
 // types
 import type {HistoryMinimalStats, PromptHistory} from '~/types';
-import type {HistoryStatistics} from '~/types/history-service';
+import {HistoryStatistics, ListRoleItem} from '~/types/history-service';
 
 /**
  * History service class for managing prompt history operations
@@ -137,6 +137,50 @@ export default abstract class HistoryService {
     } catch (error) {
       console.error('Failed to retrieve statistics:', error);
       throw new Error('Unable to fetch statistics. Please try again later.');
+    }
+  }
+
+  /**
+   * Fetches a list of all available roles from the server.
+   * This method makes a GET request to the `/history/roles-list` endpoint and returns
+   * an array of `ListRoleItem` objects containing role metadata.
+   *
+   * @returns A promise that resolves to an array of role items.
+   * @throws {Error} If the API request fails, an error is thrown with a generic message.
+   * @note
+   * - Ensure that the `ListRoleItem` interface is properly defined in your project.
+   * - Error messages are generic to avoid exposing internal details to the user.
+   */
+  static async getRolesList(): Promise<ListRoleItem[]> {
+    try {
+      const {data} = await api.get<{ data: ListRoleItem[] }>(`/history/roles-list`);
+      return data.data;
+    } catch (error) {
+      console.error('Failed to retrieve roles list:', error);
+      throw new Error('Unable to fetch roles list. Please try again later.');
+    }
+  }
+
+  /**
+   * Fetches a list of prompt histories associated with a specific role key.
+   * This method makes a GET request to the `/history/role/${roleKey}` endpoint and
+   * returns an array of `PromptHistory` objects representing the history of prompts for that role.
+   *
+   * @param roleKey - The unique key of the role for which to retrieve the prompt history.
+   * @returns A promise that resolves to an array of prompt history items.
+   * @throws {Error} If the API request fails, an error is thrown with a generic message.
+   * @note
+   * - Ensure that the `PromptHistory` interface is properly defined in your project.
+   * - The error message contains a typo ("roles list") that should be corrected to "prompt history" in production.
+   * - Validate the `roleKey` input to ensure it's a valid identifier before making the request.
+   */
+  static async getListByRole(roleKey: string): Promise<PromptHistory[]> {
+    try {
+      const {data} = await api.get<{ data: PromptHistory[] }>(`/history/role/${roleKey}`);
+      return data.data;
+    } catch (error) {
+      console.error('Failed to retrieve roles list:', error);
+      throw new Error('Unable to fetch roles list. Please try again later.');
     }
   }
 
