@@ -76,10 +76,10 @@ const enhance = async (
         originalPrompt: response.originalPrompt,
         enhancedPrompt: response.enhancedPrompt,
         model: response.model,
-        enhancementType: EnhancementType.getIdByKey(
+        enhancementType: await EnhancementType.getIdByKey(
           promptRequest.enhancementType,
         ),
-        userRole: PromptUserRole.getIdByKey(
+        userRole: await PromptUserRole.getIdByKey(
           promptRequest.userRole || 'general',
         ),
         systemPrompt: promptRequest?.systemPrompt ?? '',

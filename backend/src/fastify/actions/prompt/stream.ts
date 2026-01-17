@@ -111,10 +111,10 @@ export default (fastify: FastifyInstance) => {
           originalPrompt: promptRequest.text,
           enhancedPrompt: fullStreamString,
           model: promptRequest.model,
-          enhancementType: EnhancementType.getIdByKey(
+          enhancementType: await EnhancementType.getIdByKey(
             promptRequest.enhancementType,
           ),
-          userRole: PromptUserRole.getIdByKey(
+          userRole: await PromptUserRole.getIdByKey(
             promptRequest.userRole || 'general',
           ),
           systemPrompt: promptRequest?.systemPrompt ?? '',
