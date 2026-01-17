@@ -54,7 +54,7 @@ class History extends Model<
   /** The model used for the response */
   declare model: string;
   /** The type of enhancement applied to the prompt */
-  declare enhancementType: string;
+  declare enhancementType: string | null;
   /** The role of the user */
   declare userRole: string;
   /** The response received from the provider */
@@ -144,13 +144,14 @@ History.init(
     },
     enhancementType: {
       field: 'enhancement_type',
-      type: DataTypes.TEXT,
-      allowNull: false,
+      type: DataTypes.INTEGER,
+      allowNull: true,
     },
     userRole: {
       field: 'user_role',
-      type: DataTypes.TEXT,
+      type: DataTypes.INTEGER,
       allowNull: false,
+      defaultValue: 1,
     },
     systemPrompt: {
       field: 'system_prompt',

@@ -42,13 +42,14 @@ module.exports = {
       },
       enhancementType: {
         field: 'enhancement_type',
-        type: DataTypes.TEXT,
-        allowNull: false,
+        type: DataTypes.INTEGER,
+        allowNull: true,
       },
       userRole: {
         field: 'user_role',
-        type: DataTypes.TEXT,
+        type: DataTypes.INTEGER,
         allowNull: false,
+        defaultValue: 1,
       },
       systemPrompt: {
         field: 'system_prompt',
