@@ -29,6 +29,7 @@ let isInitialized = false;
 
 if (!isInitialized) {
   Provider.hasMany(History, {as: 'provider', foreignKey: 'providerId'});
+  History.belongsTo(PromptUserRole, {as: 'promptUserRole', foreignKey: 'userRole'});
   isInitialized = true;
 }
 
