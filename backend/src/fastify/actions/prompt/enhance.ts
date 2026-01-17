@@ -15,15 +15,20 @@ import ErrorHelper from '~/helpers/ErrorHelper';
 import ResponseHelper from '~/helpers/ResponseHelper';
 
 // db
-import {History, Provider} from '~/database/models';
+import {
+  EnhancementType,
+  History,
+  PromptUserRole,
+  Provider,
+} from '~/database/models';
 
 // utils
-import {toProviderName} from '~/utils/provider';
+import { toProviderName } from '~/utils/provider';
 
 // types
-import type {FastifyInstance} from 'fastify';
-import type {SuccessResponse} from '~/types/response';
-import type {PromptRequest, PromptResponse} from '~/types/prompt';
+import type { FastifyInstance } from 'fastify';
+import type { SuccessResponse } from '~/types/response';
+import type { PromptRequest, PromptResponse } from '~/types/prompt';
 
 /**
  * Enhances a prompt using the specified AI provider
@@ -40,18 +45,24 @@ const enhance = async (
     const provider = providerManager.getProvider(promptRequest.provider);
 
     const providerRecord = await Provider.findOne({
-      where: {name: toProviderName(promptRequest.provider), enabled: true},
+      where: { name: toProviderName(promptRequest.provider), enabled: true },
       attributes: ['id'],
       raw: true,
     });
 
     if (!provider || !providerRecord) {
-      ErrorHelper.throwWithStatus(`Provider ${promptRequest.provider} not found`, 404);
+      ErrorHelper.throwWithStatus(
+        `Provider ${promptRequest.provider} not found`,
+        404,
+      );
     }
 
     // Check if provider is available
     if (!(await provider.isAvailable())) {
-      ErrorHelper.throwWithStatus(`Provider ${promptRequest.provider} is not available`, 503);
+      ErrorHelper.throwWithStatus(
+        `Provider ${promptRequest.provider} is not available`,
+        503,
+      );
     }
 
     // Enhance the prompt
@@ -65,8 +76,12 @@ const enhance = async (
         originalPrompt: response.originalPrompt,
         enhancedPrompt: response.enhancedPrompt,
         model: response.model,
-        enhancementType: promptRequest.enhancementType || 'enhance',
-        userRole: promptRequest.userRole || 'general',
+        enhancementType: EnhancementType.getIdByKey(
+          promptRequest.enhancementType,
+        ),
+        userRole: PromptUserRole.getIdByKey(
+          promptRequest.userRole || 'general',
+        ),
         systemPrompt: promptRequest?.systemPrompt ?? '',
         tokensUsed: response?.tokensUsed ?? 0,
         processingTime: response.processingTime,
@@ -93,7 +108,10 @@ const enhance = async (
 
     return response;
   } catch (error: any) {
-    ErrorHelper.throwWithStatus(`Prompt enhancement failed: ${error.message}`, error?.statusCode || 500);
+    ErrorHelper.throwWithStatus(
+      `Prompt enhancement failed: ${error.message}`,
+      error?.statusCode || 500,
+    );
   }
 };
 
@@ -107,9 +125,9 @@ export default (fastify: FastifyInstance) => {
    */
   fastify.post<{
     Body: PromptRequest;
-    Reply: SuccessResponse<PromptResponse>
-  }>('/enhance', {schema}, async function (this, request) {
+    Reply: SuccessResponse<PromptResponse>;
+  }>('/enhance', { schema }, async function (this, request) {
     const response = await enhance(this.providerService, request.body);
     return ResponseHelper.successWithData(response);
   });
-}
+};

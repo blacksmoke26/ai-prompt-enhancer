@@ -95,6 +95,50 @@ export class PromptUserRole extends Model<
 
   /** A flag indicating whether the user role` is hidden from the user interface. */
   declare hidden?: boolean;
+
+  /**
+   * Retrieves the ID associated with a given key from the database.
+   * If no record is found, returns a default value of `1`.
+   *
+   * This method queries the database using the provided `key` to fetch the corresponding record's ID.
+   * It uses Sequelize's `findOne` method with raw SQL query execution to ensure direct access to the database row.
+   * If the record is not found, it gracefully defaults to returning `1` to avoid undefined behavior.
+   *
+   * @param key - The unique identifier used to search for the record in the database.
+   *               This should correspond to a column (e.g., `key`) in the database table.
+   * @returns A Promise that resolves to the ID of the record (number), or `1` if no record is found.
+   * @async Indicates that this method performs asynchronous database operations.
+   *
+   * @example
+   * // Example 1: Record exists
+   * const id = await PromptUserRole.getIdByKey('user123');
+   * console.log(id); // Output: 42 (assuming the record with key 'user123' has ID 42)
+   *
+   * @example
+   * // Example 2: Record does not exist
+   * const id = await PromptUserRole.getIdByKey('nonexistent_key');
+   * console.log(id); // Output: 1 (fallback value)
+   *
+   * @example
+   * // Example 3: Usage in a service method
+   * async function getUserData(key: string) {
+   *   const userId = await PromptUserRole.getIdByKey(key);
+   *   return await User.findByPk(userId);
+   * }
+   */
+  public static async getIdByKey(key: string): Promise<string> {
+    if (Number.isInteger(key)) return key;
+
+    const record = await this.findOne({
+      attributes: ['id'],
+      where: {
+        key,
+      },
+      raw: true,
+    });
+
+    return String(record?.id ?? 1);
+  }
 }
 
 PromptUserRole.init(

@@ -18,7 +18,6 @@ import { getInstance } from '~/database';
 // public types
 export type EnhancementTypeAttributes = InferAttributes<EnhancementType>;
 
-
 /**
  * Interface for defining advanced enhancement parameters with complex configurations.
  * Used to manage customizable features with detailed metadata and optional settings.
@@ -177,6 +176,51 @@ export class EnhancementType extends Model<
     tokenUsage: number;
     complexityScore: number;
   }>;
+
+  /**
+   * Retrieves the ID associated with a given key from the database.
+   * If no record is found, returns `null` to indicate absence.
+   *
+   * This method queries the database using the provided `key` to fetch the corresponding record's ID.
+   * It uses Sequelize's `findOne` method with raw SQL query execution to ensure direct access to the database row.
+   * The result is returned as a string if the ID is stored as a string in the database, or `null` if no record is found.
+   *
+   * @param key - The unique identifier used to search for the record in the database.
+   *              This should correspond to a column (e.g., `key`) in the database table.
+   * @returns A Promise that resolves to the ID of the record (as a string), or `null` if no record is found.
+   * @async Indicates that this method performs asynchronous database operations.
+   *
+   * @example
+   * // Example 1: Record exists and ID is stored as a string
+   * const id = await EnhancementType.getIdByKey('user123');
+   * console.log(id); // Output: '42' (assuming the record with key 'user123' has ID '42')
+   *
+   * @example
+   * // Example 2: Record does not exist
+   * const id = await EnhancementType.getId
+   * console.log(id); // Output: null (fallback value)
+   *
+   * @example
+   * // Example 3: Fallback behavior with null
+   * const id = await EnhancementType.getIdByKey('invalid_key');
+   * console.log(id === null); // Output: true
+   */
+  public static async getIdByKey(
+    key: string | undefined | null,
+  ): Promise<string | null> {
+    if (!key) return null;
+    if (Number.isInteger(key)) return key;
+
+    const record = await this.findOne({
+      attributes: ['id'],
+      where: {
+        key,
+      },
+      raw: true,
+    });
+
+    return record?.id ?? null;
+  }
 }
 
 EnhancementType.init(

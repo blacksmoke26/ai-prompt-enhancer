@@ -8,7 +8,12 @@
 import StreamEnded from '~/classes/StreamEnded';
 
 // db
-import { History, Provider } from '~/database/models';
+import {
+  EnhancementType,
+  History,
+  PromptUserRole,
+  Provider,
+} from '~/database/models';
 
 // schemas
 import schema from './schemas/stream.schema';
@@ -106,8 +111,12 @@ export default (fastify: FastifyInstance) => {
           originalPrompt: promptRequest.text,
           enhancedPrompt: fullStreamString,
           model: promptRequest.model,
-          enhancementType: promptRequest.enhancementType || 'enhance',
-          userRole: promptRequest.userRole || 'general',
+          enhancementType: EnhancementType.getIdByKey(
+            promptRequest.enhancementType,
+          ),
+          userRole: PromptUserRole.getIdByKey(
+            promptRequest.userRole || 'general',
+          ),
           systemPrompt: promptRequest?.systemPrompt ?? '',
           tokensUsed: streamResponse?.data?.tokensUsed ?? 0,
           processingTime: streamResponse?.data?.processingTime ?? 0,
