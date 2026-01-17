@@ -107,8 +107,13 @@ export const getPromptUserRolesJsonSchema = (): JSONSchema7 => ({
     properties: {
       id: {
         type: 'string',
+        description: 'A unique identifier for the role',
+        examples: ['51'],
+      },
+      key: {
+        type: 'string',
         description:
-          'A unique identifier for the user role. This is used for referencing the role in systems, APIs, or databases. It should be immutable and globally unique across all role definitions.',
+          'This is used for referencing the role in systems, APIs, or databases. It should be immutable and globally unique across all role definitions.',
         examples: ['general', 'developer'],
       },
       name: {

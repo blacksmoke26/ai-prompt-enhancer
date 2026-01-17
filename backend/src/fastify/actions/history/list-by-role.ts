@@ -5,7 +5,7 @@
  */
 
 // db
-import { History, HistoryAttributes } from '~/database/models';
+import { History, HistoryAttributes, PromptUserRole } from '~/database/models';
 
 // helpers
 import ErrorHelper from '~/helpers/ErrorHelper';
@@ -34,6 +34,16 @@ export default (fastify: FastifyInstance) => {
     };
     Reply: SuccessResponse<HistoryAttributes[]>;
   }>('/role/:role', { schema }, async function (this, request, reply) {
+    const role = await PromptUserRole.findOne({
+      attributes: ['id'],
+      where: { key: request.params.role },
+      raw: true,
+    });
+
+    if (!role) {
+      ErrorHelper.throwWithStatus('Role not found', 404);
+    }
+
     try {
       const records = await History.findAll({
         attributes: {
@@ -48,7 +58,7 @@ export default (fastify: FastifyInstance) => {
           ],
         },
         where: {
-          userRole: request.params.role,
+          userRole: role.id,
         },
         order: [['createdAt', 'DESC']],
         raw: true,
