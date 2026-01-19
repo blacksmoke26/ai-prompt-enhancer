@@ -45,6 +45,11 @@ export default {
             description: 'Associated provider ID.',
             examples: [1],
           },
+          aiPrompt: {
+            type: 'string',
+            description: 'The ai prompt used to generate the response',
+            examples: ['....'],
+          },
           originalPrompt: {
             type: 'string',
             description: 'Original user-provided prompt.',

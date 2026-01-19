@@ -48,7 +48,6 @@ export default (fastify: FastifyInstance) => {
       const records = await History.findAll({
         attributes: {
           exclude: [
-            'aiPrompt',
             'conversationId',
             'userRole',
             'metadata',
