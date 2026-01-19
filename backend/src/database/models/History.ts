@@ -5,6 +5,8 @@
  */
 
 import {
+  Association,
+  BelongsTo,
   CreationOptional,
   DataTypes,
   InferAttributes,
@@ -14,6 +16,7 @@ import {
 
 // db
 import { getInstance } from '~/database';
+import Provider from '~/database/models/Provider';
 
 // public types
 export type HistoryAttributes = InferAttributes<History>;
@@ -42,7 +45,7 @@ class History extends Model<
   InferCreationAttributes<History>
 > {
   /** Unique identifier for the history record */
-  declare readonly id?: CreationOptional<number>;
+  declare readonly id: CreationOptional<number>;
   /** ID of the associated provider */
   declare providerId: number;
   /** The AI prompt used to generate the response from model */
@@ -60,13 +63,13 @@ class History extends Model<
   /** The response received from the provider */
   declare systemPrompt: string;
   /** The number of tokens used for the response */
-  declare tokensUsed?: CreationOptional<number>;
+  declare tokensUsed?: number;
   /** The time taken to process the request */
-  declare processingTime: CreationOptional<number>;
+  declare processingTime: number;
   /** The temperature used for the response */
-  declare temperature: CreationOptional<number>;
+  declare temperature: number;
   /** The maximum number of tokens allowed for the response */
-  declare maxTokens: CreationOptional<number>;
+  declare maxTokens: number;
   /** The rating given to the response */
   declare rating?: number;
   /** Any additional notes about the response */
@@ -105,6 +108,11 @@ class History extends Model<
   declare readonly createdAt?: CreationOptional<Date>;
   /** Timestamp when the record was last updated */
   declare readonly updatedAt?: CreationOptional<Date>;
+
+  /** Static associations defined for the HistoryResponse model */
+  declare public static associations: {
+    provider: BelongsTo<Provider, History>;
+  };
 }
 
 History.init(

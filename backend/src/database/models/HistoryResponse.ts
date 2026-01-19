@@ -34,7 +34,7 @@ class HistoryResponse extends Model<
   /** ID of the associated history record */
   declare historyId: number;
   /** The response content */
-  declare response: CreationOptional<string>;
+  declare response: string;
   /** Timestamp when the record was created */
   declare readonly createdAt?: CreationOptional<Date>;
   /** Timestamp when the record was last updated */

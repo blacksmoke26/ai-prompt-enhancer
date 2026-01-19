@@ -30,7 +30,14 @@ export * from './HistoryResponse';
 let isInitialized = false;
 
 if (!isInitialized) {
-  Provider.hasMany(History, {as: 'provider', foreignKey: 'providerId'});
+  Provider.hasMany(History, {
+    as: 'history',
+    foreignKey: 'providerId',
+  });
+  History.belongsTo(Provider, {
+    as: 'provider',
+    foreignKey: 'providerId',
+  });
   History.belongsTo(PromptUserRole, { as: 'promptUserRole', foreignKey: 'userRole' });
   History.hasOne(HistoryResponse, {
     as: 'response',
