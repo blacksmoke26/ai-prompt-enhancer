@@ -35,8 +35,9 @@ export interface StreamChunk {
  * Asynchronously streams chat responses based on the provided prompt configuration.
  * @async
  * @generator
- * @param {PromptRequest} request - Configuration object containing the prompt and other settings for the chat.
- * @param {AbortSignal} [signal] - Optional signal to abort the stream if needed.
+ * @param [request] - Configuration object containing the prompt and other settings for the chat.
+ * @param [conversationId] - Optional conversation id
+ * @param [signal] - Optional signal to abort the stream if needed.
  * @yields {StreamChunk} - Yields chunks of data as they become available during the stream.
  * @example
  * for await (const chunk of await chatStream(promptConfig)) {
@@ -45,8 +46,9 @@ export interface StreamChunk {
  * }
  * @note This function is designed for use with `for await...of` loops. Always handle potential errors using try/catch or check the `error` field in chunks. The `signal` parameter allows for graceful cancellation of the stream.
  */
-const chatStream = async function* (request: PromptRequest, signal?: AbortSignal) {
-  const response = await fetch('/api/prompts/stream', {
+const chatStream = async function* (request?: PromptRequest, conversationId?: string, signal?: AbortSignal) {
+  const baseUrl = conversationId ? `regenerate/${conversationId}` : 'stream';
+  const response = await fetch(`/api/prompts/${baseUrl}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -196,10 +198,11 @@ const useGenerateSteam = () => {
 
   /**
    * Initiates a stream with the provided prompt request, updating state with message content and handling errors.
-   * @param text - The prompt text to generate a response for.
+   * @param [text] - The prompt text to generate a response for.
+   * @param [conversationId] - Convesation ID to regenerate the response from
    * @note This function uses `for await...of` to process stream chunks. It automatically aborts the stream if cancelled and resets state on completion or error.
    */
-  const startStream = async (text: string) => {
+  const startStream = async (text?: string, conversationId?: string) => {
     // Reset state
     setIsStreaming(true);
     setContent('');
@@ -209,13 +212,19 @@ const useGenerateSteam = () => {
     const controller = new AbortController();
     controllerRef.current = controller;
 
-    const request: PromptRequest = {
-      ...requestParams(),
-      text: text.trim(),
-    };
+    let request: PromptRequest;
+
+    if ( text ) {
+      request = {
+        ...requestParams(),
+        text: text.trim(),
+      };
+    } else {
+      request = {} as PromptRequest;
+    }
 
     try {
-      for await (const chunk of chatStream(request, controller.signal)) {
+      for await (const chunk of chatStream(request, conversationId, controller.signal)) {
         // Check if request was aborted between chunks
         if (controller.signal.aborted) {
           break;

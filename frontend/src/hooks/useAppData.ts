@@ -8,6 +8,7 @@ import {useEffect, useState} from 'react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // services
 import ToneService from '~/services/ToneService';
@@ -17,6 +18,7 @@ import UserRoleService from '~/services/UserRoleService';
 import ResponseLengthService from '~/services/ResponseLengthService';
 import EnhancementTypeService from '~/services/EnhancementTypeService';
 import TargetAudienceService from '~/services/TargetAudienceService';
+import HistoryService from '~/services/HistoryService';
 
 /**
  * Custom hook for managing application data loading and state.
@@ -40,12 +42,14 @@ export const useAppData = () => {
     setModels,
     setProviders,
     setUserRoles,
-    setConfig,
     setTones,
     setTargetAudience,
     setResponseLengths,
     setEnhancementTypes,
-  } = useAppStore();
+    setListRoles,
+  } = useDataStore();
+
+  const {setConfig} = useAppStore();
 
   useEffect(() => {
     loadInitialData();
@@ -68,6 +72,7 @@ export const useAppData = () => {
       // Load all data in parallel
       await Promise.all([
         ToneService.getAll().then(setTones),
+        HistoryService.getRolesList().then(setListRoles),
         ConfigService.getConfig().then(setConfig),
         PromptService.getModels().then(setModels),
         UserRoleService.getAll().then(setUserRoles),
