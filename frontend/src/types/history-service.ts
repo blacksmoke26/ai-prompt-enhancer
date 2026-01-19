@@ -4,6 +4,18 @@
  * @see https://github.com/blacksmoke26
  */
 
+export interface ListRoleItem {
+  /** Total count associated with the role */
+  total: number;
+  /** Name of the role */
+  name: string;
+  /** Unique key identifier for the role */
+  key: string;
+  /** Unique ID for the role item */
+  id: string;
+}
+
+
 /**
  * Represents comprehensive statistical data summarizing historical usage, performance, and behavior across operations, models, and user interactions.
  * @example

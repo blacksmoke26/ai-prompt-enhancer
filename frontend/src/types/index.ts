@@ -253,6 +253,8 @@ export type OutputFormatName =
 export interface PromptHistory {
   /** Unique identifier for the history entry, auto-generated */
   id: string;
+  /** The AI prompt used to generate the response */
+  aiPrompt: string;
   /** The original, unmodified prompt text provided by the user */
   originalPrompt: string;
   /** The AI-enhanced or processed version of the prompt */
@@ -476,6 +478,8 @@ export interface AppConfig {
   glm?: AIProviderConfig;
   /** Configuration for the LM Studio AI provider */
   lmstudio?: AIProviderConfig;
+  /** Sidebar is expanded or not */
+  sidebarOpen?: boolean;
 }
 
 /**
@@ -695,6 +699,7 @@ export interface TargetAudience {
 export interface UserRole {
   /** Unique string identifier for the user role */
   id: string;
+  key: string;
   /** Display name for the user role */
   name: string;
   /** A brief description of the role's purpose or responsibilities */
