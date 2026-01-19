@@ -4,17 +4,11 @@
  * @see https://github.com/blacksmoke26
  */
 
-// constants
-import { TONES } from '~/constants/tones';
-import { RESPONSE_LENGTH } from '~/constants/response-length';
-import { OUTPUT_FORMAT_NAMES } from '~/constants/output-format';
-
 // schemas
 import schema500WithError from '~/fastify/schemas/generic/500.schema';
 import schema404WithError from '~/fastify/schemas/generic/404.schema';
 import schema422WithError from '~/fastify/schemas/generic/422.schema';
 import schema503WithError from '~/fastify/schemas/generic/503.schema';
-import schema200WithData from '~/fastify/schemas/generic/200-success-with-data.schema';
 
 // types
 import type { FastifySchema } from 'fastify';
