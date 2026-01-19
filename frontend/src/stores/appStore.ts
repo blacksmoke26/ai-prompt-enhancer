@@ -13,13 +13,14 @@ import {
   AIModel,
   AIProvider,
   AppConfig,
-  EnhancementType,
+  EnhancementType, PromptHistory,
   ResponseLength, TargetAudience, Tone,
   UserRole,
   VisibleComponents,
 } from '~/types';
 import ToneService from '~/services/ToneService.ts';
 import ResponseLengthService from '~/services/ResponseLengthService.ts';
+import {ListRoleItem} from '~/types/history-service.ts';
 
 /**
  * Represents a single item in a dashboard layout, defining its position, size, and behavior.
@@ -73,6 +74,8 @@ export interface DashboardLayout {
   gridSize: number;
 }
 
+export type CurrentTab = 'enhancer' | 'history' | 'stats' | 'settings' | string;
+
 /**
  * Application state interface for managing app configuration and UI state
  * @example
@@ -90,50 +93,6 @@ export interface AppState {
 
   /** Saves the current configuration to the backend */
   saveConfig(config: Partial<AppConfig>): Promise<void>;
-
-  // Models and Providers
-  /** Available AI models in the system */
-  models: AIModel[];
-  /** Available AI providers */
-  providers: AIProvider[];
-
-  /** Sets the list of available models */
-  setModels(models: AIModel[]): void;
-
-  /** Sets the list of available providers */
-  setProviders(providers: AIProvider[]): void;
-
-  // Enhancement Types and User Roles
-  /** Types of prompt enhancements available */
-  enhancementTypes: EnhancementType[];
-
-  /** User roles for prompt context */
-  userRoles: UserRole[];
-
-  /** Sets the enhancement types */
-  setEnhancementTypes(types: EnhancementType[]): void;
-
-  /** Sets the user roles */
-  setUserRoles(roles: UserRole[]): void;
-
-  // Response Lengths and Tones
-  /** Types of response length available */
-  responseLengths: ResponseLength[];
-
-  /** List of target audiences available */
-  targetAudiences: TargetAudience[];
-
-  /** Tones for prompt context */
-  tones: Tone[];
-
-  /** Sets the response lengths */
-  setResponseLengths(types: ResponseLength[]): void;
-
-  /** Sets the target audience */
-  setTargetAudience(list: TargetAudience[]): void;
-
-  /** Sets the tones */
-  setTones(roles: Tone[]): void;
 
   // Theme
   /** Current theme preference */
@@ -162,17 +121,12 @@ export interface AppState {
   /** Auto-arranges dashboard layout */
   autoArrangeLayout(): void;
 
-  /** Toggles a user role */
-  toggleUserRole(key: string, hidden: boolean): Promise<void>;
+  currentTab: CurrentTab;
+  setCurrentTab(tab: CurrentTab): void;
 
-  /** Toggles the response length */
-  toggleEnhancementType(key: string, hidden: boolean): Promise<void>;
+  selectedRole: string;
 
-  /** Toggles a user role */
-  toggleResponseLength(key: string, hidden: boolean): Promise<void>;
-
-  /** Toggles the tone */
-  toggleTone(key: string, hidden: boolean): Promise<void>;
+  setSelectedRole(role: string): void;
 
   // Model Selector Settings
   /** Component order for the model selector */
@@ -243,91 +197,17 @@ export const useAppStore = create<AppState>()(
         }
       },
 
-      async toggleUserRole(key: string, hidden: boolean) {
-        set((state) => ({
-          userRoles: state.userRoles.map((role) =>
-            role.id === key ? {...role, hidden} : role,
-          ),
-        }));
-
-        try {
-          await axios.put(`/api/user-roles/${key}`, {hidden}, {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-        } catch (error) {
-          console.error('Failed to save configuration:', error);
-        }
-      },
-
-      async toggleEnhancementType(key: string, hidden: boolean) {
-        set((state) => ({
-          enhancementTypes: state.enhancementTypes.map((type) =>
-            type.id === key ? {...type, hidden} : type,
-          ),
-        }));
-
-        try {
-          await axios.put(`/api/enhancement-types/${key}`, {hidden}, {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-        } catch (error) {
-          console.error('Failed to save configuration:', error);
-        }
-      },
-
-      async toggleResponseLength(key: string, hidden: boolean) {
-        try {
-          await ResponseLengthService.update(key, hidden);
-          set(state => ({
-            responseLengths: state.responseLengths.map((length) =>
-              length.key === key ? {...length, hidden} : length,
-            ),
-          }));
-        } catch (error) {
-          console.error('Failed to save configuration:', error);
-        }
-      },
-
-      async toggleTone(key: string, hidden: boolean) {
-        try {
-          await ToneService.update(key, hidden);
-          set(state => ({
-            tones: state.tones.map((tone) =>
-              tone.key === key ? {...tone, hidden} : tone,
-            ),
-          }));
-        } catch (error) {
-          console.error('Failed to save configuration:', error);
-        }
-      },
-
-      // Models and Providers
-      models: [],
-      providers: [],
-      setModels: models => set({models}),
-      setProviders: providers => set({providers}),
-
-      // Enhancement Types and User Roles
-      enhancementTypes: [],
-      userRoles: [],
-      setEnhancementTypes: types => set({enhancementTypes: types}),
-      setUserRoles: roles => set({userRoles: roles}),
-
-      // Response lengths and Tones
-      responseLengths: [],
-      targetAudiences: [],
-      tones: [],
-      setResponseLengths: responseLengths => set({responseLengths}),
-      setTargetAudience: targetAudiences => set({targetAudiences}),
-      setTones: tones => set({tones}),
-
       // Theme
       theme: 'system',
       setTheme: theme => set({theme}),
+
+      // Role
+      selectedRole: '',
+      setSelectedRole: selectedRole => set({selectedRole}),
+
+      // Role
+      currentTab: 'enhancer',
+      setCurrentTab: currentTab => set({currentTab}),
 
       // Sidebar
       sidebarOpen: true,
