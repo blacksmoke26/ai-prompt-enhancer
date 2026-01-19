@@ -14,7 +14,7 @@ import StreamEnded from '~/classes/StreamEnded';
 // types
 import type { AIModel } from '~/types';
 import type { Readable } from 'node:stream';
-import type { ConfigMeta } from '~/database/models';
+import type { ConfigMeta, History, HistoryAttributes } from '~/database/models';
 import type { ProviderConfig } from '~/types/providers';
 import type {
   FunctionCallResult,
@@ -300,21 +300,32 @@ export default class OllamaProvider extends BaseAIProvider {
    * @inheritDoc
    */
   public async *generateStream(
-    request: PromptRequest,
+    request?: PromptRequest,
+    history?: History | HistoryAttributes,
   ): AsyncGenerator<StreamResponse | StreamEnded, void, unknown> {
     const startTime = Date.now();
 
-    const promptRequest = await PromptRequestNormalizer.normalize(request);
+    let aiPrompt: string = '';
 
-    const aiPrompt = UniversalPromptComposer.generate(promptRequest);
+    if (request) {
+      const promptRequest = await PromptRequestNormalizer.normalize(request);
+      aiPrompt = UniversalPromptComposer.generate(promptRequest);
+    } else if (history) {
+      aiPrompt = history.aiPrompt || '';
+    } else {
+      throw new Error('One of the request or history param is required');
+    }
 
     try {
       const response: AxiosResponse<Readable> = await this.client.post(
         '/api/chat',
         {
-          model: request.model,
+          model: history?.model ?? request?.model ?? '',
           messages: [
-            { role: 'system', content: request.systemPrompt },
+            {
+              role: 'system',
+              content: history?.systemPrompt ?? request?.systemPrompt,
+            },
             { role: 'user', content: aiPrompt },
           ],
         },
