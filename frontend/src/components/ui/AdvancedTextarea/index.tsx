@@ -168,6 +168,12 @@ export interface AdvancedTextareaProps
    */
   wrapperClassName?: string;
 
+  /** customize the appearance of the input area (e.g., for styling, accessibility, or theming) */
+  textareaClassName?: string;
+
+  /** style the control panel or buttons that may be associated with the textarea (e.g., formatting options, icons, or actions) */
+  toolbarClassName?: string;
+
   /**
    * Array of suggestions for autocomplete functionality.
    */
@@ -750,8 +756,7 @@ export const AdvancedTextarea = forwardRef<HTMLTextAreaElement, AdvancedTextarea
             onFocus={onFocus}
             onBlur={onBlur}
             className={cn(
-              'flex w-full ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200',
-              'border focus-visible:ring-2',
+              props?.textareaClassName ?? 'flex w-full ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 border',
               sizes[size],
               variants[variant],
               radiuses[radius],
@@ -767,7 +772,7 @@ export const AdvancedTextarea = forwardRef<HTMLTextAreaElement, AdvancedTextarea
 
           {/* Default Toolbar (Footer) */}
           {!renderToolbar && (showCount || isLoading || currentValue || showFormatButton) && (
-            <div className="absolute bottom-2 right-2 flex items-center gap-2 pointer-events-none z-10">
+            <div className={cn('absolute bottom-2 right-2 flex items-center gap-2 pointer-events-none z-10', props.toolbarClassName)}>
               {isLoading && <Loader2 className="w-4 h-4 text-muted-foreground animate-spin"/>}
 
               {showClearButton && currentValue && !isLoading && !props.disabled && (
@@ -797,7 +802,7 @@ export const AdvancedTextarea = forwardRef<HTMLTextAreaElement, AdvancedTextarea
               {showCount && (
                 <span
                   className={cn('text-[10px] tabular-nums font-medium', isAtLimit ? 'text-destructive' : 'text-muted-foreground')}>
-                  {charCount}/{maxLength}
+                  {charCount}/{maxLength || '∞'}
                 </span>
               )}
             </div>
