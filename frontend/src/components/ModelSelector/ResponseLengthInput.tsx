@@ -5,10 +5,11 @@
  */
 
 import React from 'react';
-import {AudioLines, User2} from 'lucide-react';
+import {AudioLines} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // utils
 import {toSelectGroupedOptionsPlain} from '~/utils/helpers';
@@ -22,7 +23,8 @@ import {Badge} from '~/components/ui/Badge.tsx';
  * @component
  */
 const ResponseLengthInput: React.FC = () => {
-  const {config, setConfig, responseLengths} = useAppStore();
+  const {responseLengths} = useDataStore();
+  const {config, setConfig} = useAppStore();
 
   const handleChange = (value: string) => {
     // Update the config in store

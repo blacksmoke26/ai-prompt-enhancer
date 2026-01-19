@@ -8,7 +8,8 @@ import React from 'react';
 import {User2} from 'lucide-react';
 
 // store
-import {useAppStore} from '~/stores/appStore.ts';
+import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // components
 import AdvancedConfigPanel, {GenericConfigItem} from '~/components/standalone/AdvancedConfigPanel';
@@ -30,7 +31,8 @@ export interface UserRoleSettingsPanelProps {
  * ```
  */
 const UserRoleSettingsPanel: React.FC<UserRoleSettingsPanelProps> = () => {
-  const {config, setConfig, userRoles, toggleUserRole} = useAppStore();
+  const {config, setConfig} = useAppStore();
+  const {userRoles, toggleUserRole} = useDataStore();
 
   const handleSelect = (roleId: string) => {
     setConfig({userRole: roleId}, true);

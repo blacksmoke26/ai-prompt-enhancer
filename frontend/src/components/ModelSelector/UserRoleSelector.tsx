@@ -9,6 +9,7 @@ import {User2} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // ui components
 import {Badge} from '~/components/ui/Badge';
@@ -22,7 +23,8 @@ interface UserRoleSelectorProps {
 }
 
 const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => {
-  const {userRoles, setConfig, config} = useAppStore();
+  const {userRoles} = useDataStore();
+  const {setConfig, config} = useAppStore();
 
   return (
     <div className={`space-y-2 ${className || ''}`}>

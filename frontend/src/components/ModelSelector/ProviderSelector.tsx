@@ -9,6 +9,7 @@ import {Cloud} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // ui components
 import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
@@ -22,7 +23,8 @@ export interface ProviderSelectorProps {
  * The ProviderSelector component
  */
 const ProviderSelector: React.FC<ProviderSelectorProps> = ({className = ''}) => {
-  const {models, providers, config, setConfig} = useAppStore();
+  const {models, providers} = useDataStore();
+  const {config, setConfig} = useAppStore();
 
   // Get provider options for the provider dropdown
   const providerOptions = useMemo(() => {

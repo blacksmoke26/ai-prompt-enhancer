@@ -7,7 +7,7 @@
 import React from 'react';
 
 // hooks
-import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore.ts';
 
 // ui components
 import {Badge} from '~/components/ui/Badge';
@@ -18,7 +18,7 @@ export interface ProviderStatusProps {
 }
 
 const ProviderStatus: React.FC<ProviderStatusProps> = ({className = ''}) => {
-  const {providers} = useAppStore();
+  const {providers} = useDataStore();
 
   return (
     <Card className={className}>

@@ -5,10 +5,11 @@
  */
 
 import React, {useMemo} from 'react';
-import {Brain, Cloud} from 'lucide-react';
+import {Brain} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // ui components
 import {Badge} from '~/components/ui/Badge';
@@ -32,7 +33,8 @@ export interface ModelSelectorProps {
  * @developerNotes This component is a React.FC with TypeScript support. The className prop allows for flexible styling.
  */
 const ModelSelector: React.FC<ModelSelectorProps> = ({className = ''}) => {
-  const {models, config, setConfig} = useAppStore();
+  const {models} = useDataStore();
+  const {config, setConfig} = useAppStore();
 
   // Filter models by selected provider
   const filteredModels = useMemo(() => {

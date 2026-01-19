@@ -8,7 +8,8 @@ import React from 'react';
 import {Type} from 'lucide-react';
 
 // store
-import {useAppStore} from '~/stores/appStore.ts';
+import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // components
 import AdvancedConfigPanel, {GenericConfigItem} from '~/components/standalone/AdvancedConfigPanel';
@@ -30,7 +31,9 @@ export interface EnhancementSettingsPanelProps {
  * ```
  */
 const EnhancementSettingsPanel: React.FC<EnhancementSettingsPanelProps> = () => {
-  const {config, setConfig, enhancementTypes, toggleEnhancementType} = useAppStore();
+  const {config, setConfig} = useAppStore();
+  const {enhancementTypes, toggleEnhancementType} = useDataStore();
+
   const handleSelect = (id: string) => {
     setConfig({enhancementType: id}, true);
   };

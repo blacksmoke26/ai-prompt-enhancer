@@ -10,6 +10,7 @@ import {RefreshCw, Save} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // services
 import ConfigService from '~/services/ConfigService';
@@ -28,12 +29,13 @@ import DataSettingsPanel from './DataSettingsPanel';
 import AdvancedSettingsPanel from './AdvancedSettingsPanel';
 import UserRoleSettingsPanel from './UserRoleSettingsPanel';
 import LayoutSettingsPanel from './LayoutSettingsPanel';
+import TonesSettingsPanel from './TonesSettingsPanel';
+import ResponseLengthSettingsPanel from './ResponseLengthSettingsPanel';
 
 // types
 import {AppConfig} from '~/types';
 import {ProviderConfig} from '~/types';
-import TonesSettingsPanel from '~/components/SettingsPanel/TonesSettingsPanel.tsx';
-import ResponseLengthSettingsPanel from '~/components/SettingsPanel/ResponseLengthSettingsPanel.tsx';
+
 
 /**
  * Type definition for available settings tabs
@@ -64,9 +66,8 @@ const SettingsPanel: React.FC = () => {
     setConfig,
     theme,
     setTheme,
-    models,
-    providers,
   } = useAppStore();
+  const {models} = useDataStore();
 
   const [activeTab, setActiveTab] = useState<SettingsTab>('general');
   const [localConfig, setLocalConfig] = useState<AppConfig>(config);

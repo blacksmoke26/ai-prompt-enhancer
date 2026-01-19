@@ -9,6 +9,7 @@ import {AudioLines} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // ui components
 import GenericSettingsPanel, {SettingsItemBase} from '~/components/standalone/GenericSettingsPanel';
@@ -20,7 +21,8 @@ type ResponseLengthItem = SettingsItemBase & {
 };
 
 const ResponseLengthSettingsPanel = () => {
-  const {config, setConfig, responseLengths, toggleResponseLength} = useAppStore();
+  const {config, setConfig} = useAppStore();
+  const {responseLengths, toggleResponseLength} = useDataStore();
 
   // Map store data to the generic interface
   const mappedItems: ResponseLengthItem[] = responseLengths.map(t => ({

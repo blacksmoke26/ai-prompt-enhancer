@@ -9,6 +9,7 @@ import {Speech} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // ui components
 import GenericSettingsPanel, {SettingsItemBase} from '~/components/standalone/GenericSettingsPanel';
@@ -20,7 +21,8 @@ type ToneItem = SettingsItemBase & {
 };
 
 const TonesSettingsPanel = () => {
-  const {config, setConfig, tones, toggleTone} = useAppStore();
+  const {config, setConfig} = useAppStore();
+  const {tones, toggleTone} = useDataStore();
 
   // Map store data to the generic interface
   const mappedItems: ToneItem[] = tones.map(t => ({

@@ -5,10 +5,11 @@
  */
 
 import React from 'react';
-import {Cloud, Type} from 'lucide-react';
+import {Type} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // ui components
 import {Badge} from '~/components/ui/Badge';
@@ -22,7 +23,8 @@ export interface EnhancementTypeSelectorProps {
 }
 
 const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({className = ''}) => {
-  const {enhancementTypes, config, setConfig} = useAppStore();
+  const {enhancementTypes} = useDataStore();
+  const {config, setConfig} = useAppStore();
 
   return (
     <div className={`space-y-2 ${className || ''}`}>
