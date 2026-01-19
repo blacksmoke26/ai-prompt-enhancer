@@ -10,6 +10,7 @@ import modelsAction from '~/fastify/actions/prompt/models';
 import providersAction from '~/fastify/actions/prompt/providers';
 import streamAction from '~/fastify/actions/prompt/stream';
 import testAction from '~/fastify/actions/prompt/test';
+import regenerateAction from '~/fastify/actions/prompt/regenerate';
 
 // types
 import type {FastifyInstance, FastifyPluginOptions, HookHandlerDoneFunction} from 'fastify';
@@ -21,6 +22,7 @@ export default (app: FastifyInstance, options: FastifyPluginOptions, done: HookH
     providersAction,
     streamAction,
     testAction,
+    regenerateAction,
   ].map((action) => action(app));
   done();
 };

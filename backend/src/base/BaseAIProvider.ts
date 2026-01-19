@@ -15,7 +15,7 @@ import { getInstance } from '~/cache';
 
 // types
 import type { AIModel } from '~/types';
-import type { ConfigMeta } from '~/database/models';
+import type { ConfigMeta, History, HistoryAttributes } from '~/database/models';
 import type { ProviderConfig } from '~/types/providers';
 import type { IProvider } from '~/types/interfaces/IProvider';
 import type { OutputFormatName } from '~/constants/output-format';
@@ -25,11 +25,9 @@ import type {
   ProviderCapabilities,
   BatchPromptRequest,
   BatchPromptResponse,
-  StreamCallback,
   ConversationContext,
   FunctionDefinition,
   FunctionCallResult,
-  UsageMetrics,
   HealthStatus,
 } from '~/types/prompt';
 import type { RateLimitInfo } from '~/types/rate-limit';
@@ -210,12 +208,14 @@ export default abstract class BaseAIProvider {
 
   /**
    * Streams chat responses in real-time for long-running conversations.
-   * @param request - Chat request with streaming enabled
+   * @param [request] - Chat request with streaming enabled
+   * @param [history] - The current history conversation
    * @returns AsyncGenerator of chat stream chunks
    * @developerNotes This method should be implemented by subclasses to provide real-time chat streaming functionality.
    */
   public async *generateStream(
-    request: PromptRequest,
+    request?: PromptRequest,
+    history?: History | HistoryAttributes,
   ): AsyncGenerator<Record<string, any>, void, unknown> {
     yield new Error('Not implemented');
   }
