@@ -4,13 +4,12 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {useState, useEffect} from 'react';
-import {History, BarChart3, Settings, Sparkles} from 'lucide-react';
+import React, {useEffect, useState} from 'react';
+import {BarChart3, History, Settings, Sparkles} from 'lucide-react';
 
 // hooks
 import {useAppData} from '~/hooks/useAppData';
 import {useHistory} from '~/hooks/useHistory';
-import {useHistoryStore} from '~/stores/historyStore';
 import {useAppStore} from '~/stores/appStore';
 
 // helpers
@@ -21,20 +20,20 @@ import {Button} from '~/components/ui/Button';
 import {Card, CardContent} from '~/components/ui/Card';
 
 // components
+import Header from '~/layout/Header';
 import Sidebar from '~/components/Sidebar';
 import StatsPanel from '~/components/StatsPanel';
 import HistoryPanel from '~/components/HistoryPanel';
 import SettingsPanel from '~/components/SettingsPanel';
 import ModelSelector from '~/components/ModelSelector';
 import PromptEnhancer from '~/components/PromptEnhancer';
-import DraggableLayout from '~/components/DraggableLayout';
 
 /**
  * Represents the available dashboard tabs
- * @example 'enhancer' - Main prompt enhancement interface
+ * @example 'assistant' - Main prompt enhancement interface
  * @developer notes: Use these exact values when referencing tab states
  */
-export type TabType = 'enhancer' | 'history' | 'stats' | 'settings';
+export type TabType = 'assistant' | 'history' | 'stats' | 'settings';
 
 /**
  * Main dashboard component managing tab navigation and layout
@@ -42,11 +41,10 @@ export type TabType = 'enhancer' | 'history' | 'stats' | 'settings';
  * @developer notes: Handles global state management and responsive layout
  */
 export const Dashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('enhancer');
+  const [activeTab, setActiveTab] = useState<TabType>('assistant');
   const {loading: appLoading, error, refreshData} = useAppData();
   const {history, loadStats, loadHistory} = useHistory();
   const {sidebarOpen} = useAppStore();
-  const [historyLoading, setHistoryLoading] = useState(false);
 
   /**
    * Loads user history on component mount
@@ -54,33 +52,24 @@ export const Dashboard: React.FC = () => {
    * @developer notes: Consider adding error handling for failed loads
    */
   useEffect(() => {
-    Promise.all([loadStats(), loadHistory()]);
+    Promise.all([loadStats(), loadHistory()]).then();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
-   * Handles refreshing history data
-   */
-  const handleRefreshHistory = async () => {
-    try {
-      setHistoryLoading(true);
-      await loadHistory();
-    } finally {
-      setHistoryLoading(false);
-    }
-  };
-
-  /**
    * Navigation tab configuration with icons
-   * @example { id: 'enhancer', label: 'Enhancer', icon: Sparkles }
+   * @example { id: 'assistant', label: 'Enhancer', icon: Sparkles }
    * @developer notes: Icons should be from lucide-react library
    */
   const tabs = [
-    {id: 'enhancer' as TabType, label: 'Enhancer', icon: Sparkles},
+    {id: 'assistant' as TabType, label: 'Assistant', icon: Sparkles},
     {id: 'history' as TabType, label: 'History', icon: History},
     {id: 'stats' as TabType, label: 'Statistics', icon: BarChart3},
     {id: 'settings' as TabType, label: 'Settings', icon: Settings},
   ];
+
+  const currentTab = tabs.find(x => activeTab === x.id)!;
+  const TabIcon = currentTab.icon;
 
   /**
    * Loading state display with spinner animation
@@ -149,70 +138,46 @@ export const Dashboard: React.FC = () => {
         'flex-1 flex flex-col transition-all duration-300',
         sidebarOpen ? 'lg:ml-0' : 'lg:ml-0',
       )}>
-        {/* Mobile Tab Bar */}
-        <div className="lg:hidden flex items-center justify-between p-4 border-b border-border bg-background">
-          <h1 className="text-lg font-semibold">Synapse</h1>
-          <div className="flex space-x-2">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <Button
-                  key={tab.id}
-                  variant={activeTab === tab.id ? 'default' : 'ghost'}
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setActiveTab(tab.id)}
-                >
-                  <Icon className="h-4 w-4"/>
-                </Button>
-              );
-            })}
-          </div>
-        </div>
+        {/* Header Area */}
+        <Header
+          currentTab={currentTab as unknown as string}
+          heading={currentTab.label}
+          icon={<TabIcon size={20}/>}/>
 
         {/* Content Area */}
         <div className="flex-1 overflow-auto">
           <div className="container mx-auto px-4 py-6 lg:py-8">
             <div className="mx-auto">
-              {activeTab === 'enhancer' && (
-                <DraggableLayout activeTab={activeTab}>
-                  <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                    {/* Main Editor Area */}
-                    <div className="xl:col-span-8">
-                      <PromptEnhancer/>
-                    </div>
+              {activeTab === 'assistant' && (
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                  {/* Main Editor Area */}
+                  <div className="xl:col-span-8">
+                    <PromptEnhancer/>
+                  </div>
 
-                    {/* Sidebar Content */}
-                    <div className="xl:col-span-4">
-                      <div className="sticky top-6 space-y-6">
-                        <div className="hidden xl:block">
-                          <ModelSelector/>
-                        </div>
+                  {/* Sidebar Content */}
+                  <div className="xl:col-span-4">
+                    <div className="sticky top-6 space-y-6">
+                      <div className="hidden xl:block">
+                        <ModelSelector/>
                       </div>
                     </div>
                   </div>
-                </DraggableLayout>
+                </div>
               )}
 
               {activeTab === 'history' && (
-                <DraggableLayout activeTab={activeTab}>
-                  <HistoryPanel
-                    history={history}
-                    loading={historyLoading}
-                    config={{allowBulkDelete: true, allowCompare: true, allowExport: true}}
-                  />
-                </DraggableLayout>
+                <HistoryPanel
+                  history={history}
+                  config={{allowBulkDelete: true, allowCompare: true, allowExport: true}}
+                />
               )}
 
               {activeTab === 'stats' && (
-                <DraggableLayout activeTab={activeTab}>
-                  <StatsPanel/>
-                </DraggableLayout>
+                <StatsPanel/>
               )}
               {activeTab === 'settings' && (
-                <DraggableLayout activeTab={activeTab}>
-                  <SettingsPanel/>
-                </DraggableLayout>
+                <SettingsPanel/>
               )}
             </div>
           </div>
