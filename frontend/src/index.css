@@ -4,6 +4,22 @@
 
 @source "./node_modules/streamdown/dist/*.js";
 
+body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.cursor-blink {
+    display: inline-block;
+    width: 4px;
+    height: 1.2em;
+    background-color: currentColor;
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+    margin-left: 2px;
+}
+
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
 .display-inline {
     display: inline-block;
     position: relative;
@@ -95,6 +111,7 @@ button.rt-reset.rt-SelectTrigger {
 
 @layer base {
   :root {
+    --shiki-dark: #d2e2f1;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
