@@ -28,14 +28,12 @@ import EnhancementSettingsPanel from './EnhancementSettingsPanel';
 import DataSettingsPanel from './DataSettingsPanel';
 import AdvancedSettingsPanel from './AdvancedSettingsPanel';
 import UserRoleSettingsPanel from './UserRoleSettingsPanel';
-import LayoutSettingsPanel from './LayoutSettingsPanel';
 import TonesSettingsPanel from './TonesSettingsPanel';
 import ResponseLengthSettingsPanel from './ResponseLengthSettingsPanel';
 
 // types
 import {AppConfig} from '~/types';
 import {ProviderConfig} from '~/types';
-
 
 /**
  * Type definition for available settings tabs
@@ -51,7 +49,6 @@ export type SettingsTab =
   | 'tones'
   | 'response-lengths'
   | 'data'
-  | 'layout'
   | 'advanced';
 
 /**
@@ -238,8 +235,6 @@ const SettingsPanel: React.FC = () => {
             setLocalConfig={setLocalConfig}
           />
         );
-      case 'layout':
-        return <LayoutSettingsPanel/>;
       case 'advanced':
         return (
           <AdvancedSettingsPanel
@@ -264,7 +259,7 @@ const SettingsPanel: React.FC = () => {
           <p className="text-muted-foreground">Configure your Synapse</p>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center">
           {saveMessage && (
             <Alert className={
               saveMessage.includes('success') ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'

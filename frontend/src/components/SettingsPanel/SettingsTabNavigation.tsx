@@ -43,7 +43,6 @@ const SettingsTabNavigation: React.FC<SettingsTabNavigationProps> = ({activeTab,
     {id: 'tones', label: 'Tones', icon: Speech},
     {id: 'response-lengths', label: 'Response Lengths', icon: AudioLines},
     {id: 'data', label: 'Data Management', icon: SettingsIcon},
-    {id: 'layout', label: 'Layout', icon: SettingsIcon},
     {id: 'advanced', label: 'Advanced', icon: SettingsIcon},
   ];
 
