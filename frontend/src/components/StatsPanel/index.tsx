@@ -234,41 +234,42 @@ const StatsPanel: React.FC<StatsPanelProps> = () => {
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <CardTitle className="text-lg flex items-center justify-between">
-          <span>Statistics Dashboard</span>
-          <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className="text-xs">
-              {totalItems} prompts
-            </Badge>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRefresh}
-              disabled={loading}
-              aria-label="Refresh stats"
-              title="Refresh stats"
-            >
-              {loading ? (
-                <RefreshCw className="h-4 w-4 animate-spin"/>
-              ) : (
-                <RefreshCw className="h-4 w-4"/>
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              title="Export data as JSON"
-              onClick={() => handleExport('json')}
-              aria-label="Export data"
-            >
-              <Download className="h-4 w-4"/>
-            </Button>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-2xl font-bold">Statistics</h1>
+          <p className="text-muted-foreground">Configure your Synapse</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Badge variant="secondary" className="text-xs">
+            {totalItems} prompts
+          </Badge>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefresh}
+            disabled={loading}
+            aria-label="Refresh stats"
+            title="Refresh stats"
+          >
+            {loading ? (
+              <RefreshCw className="h-4 w-4 animate-spin"/>
+            ) : (
+              <RefreshCw className="h-4 w-4"/>
+            )}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            title="Export data as JSON"
+            onClick={() => handleExport('json')}
+            aria-label="Export data"
+          >
+            <Download className="h-4 w-4"/>
+          </Button>
+        </div>
+      </div>
+      <>
         {/* Tabs for different views */}
         <RadixTabs.Root
           value={activeTab}
@@ -490,8 +491,8 @@ const StatsPanel: React.FC<StatsPanelProps> = () => {
             />
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </>
+    </>
   );
 };
 
