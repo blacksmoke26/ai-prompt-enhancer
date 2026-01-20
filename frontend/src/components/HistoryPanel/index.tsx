@@ -260,7 +260,7 @@ const HistoryPanel: React.FC<HistoryPanelProps> = (props) => {
         />
 
         {/* Content View */}
-        <div className="p-6 pt-0">
+        <div>
           <HistoryView
             config={panelConfig}
             viewMode={config.viewMode}
