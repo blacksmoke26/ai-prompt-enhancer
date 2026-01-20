@@ -299,10 +299,10 @@ export interface AdvancedTextareaProps
  * @developerNotes These classes control the font size, padding, and minimum height of the textarea.
  */
 const sizes: Record<TextareaSize, string> = {
-  sm: 'text-xs px-2 py-1.5 min-h-[60px]',
-  md: 'text-sm px-3 py-2 min-h-[120px]',
-  lg: 'text-base px-4 py-3 min-h-[150px]',
-  xl: 'text-lg px-5 py-4 min-h-[180px]',
+  sm: 'text-xs px-2 py-1.5',
+  md: 'text-sm px-3 py-2',
+  lg: 'text-base px-4 py-3',
+  xl: 'text-lg px-5 py-4',
 };
 
 /**
