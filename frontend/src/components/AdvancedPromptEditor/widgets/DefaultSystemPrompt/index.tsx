@@ -56,7 +56,7 @@ export const DefaultSystemPrompt: React.FC<DefaultSystemPromptProps> = () => {
       <Popover.Content
         side="bottom"
         align="end"
-        className="w-96 p-4 rounded bg-background shadow-lg z-50 outline-2 outline-blue-500 outline-solid"
+        className="w-96 p-4 rounded bg-background border border-border shadow-lg z-50 outline-2 outline-blue-500 outline-solid"
       >
         <div className="space-y-2">
           <h3 className="font-medium">Default System Prompt</h3>
@@ -67,7 +67,7 @@ export const DefaultSystemPrompt: React.FC<DefaultSystemPromptProps> = () => {
             placeholder="Enter default system prompt..."
             rows={3}
           />
-          <div className="flex justify-end space-x-2">
+          <div className="flex justify-end space-x-2 pt-2">
             <Button
               variant="outline"
               size="sm"
