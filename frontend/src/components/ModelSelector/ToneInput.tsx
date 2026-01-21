@@ -9,20 +9,22 @@ import {Speech} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
 
 // utils
 import {toSelectGroupedOptionsPlain} from '~/utils/helpers';
 
 // ui components
+import {Badge} from '~/components/ui/Badge';
 import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
-import {Badge} from '~/components/ui/Badge.tsx';
 
 /**
  * Tone input component for AI configuration
  * @component
  */
 const ToneInput: React.FC = () => {
-  const {config, setConfig, tones} = useAppStore();
+  const {config, setConfig} = useAppStore();
+  const {tones} = useDataStore();
 
   const handleChange = (value: string) => {
     // Update the config in store
@@ -48,8 +50,11 @@ const ToneInput: React.FC = () => {
           </div>
         )}
         selectedOption={(_, option) => (
-          <div>{option?.name ?? 'Select tone'} {option?.name && <Badge variant="outline"
-                                                  className="text-xs">{option?.category ?? 'N/A'}</Badge>}</div>
+          <div>{option?.name ?? 'Select tone'}
+            {' '}
+            {option?.name &&
+              <Badge variant="outline"
+                     className="text-xs">{option?.category ?? 'N/A'}</Badge>}</div>
         )}
       />
     </div>

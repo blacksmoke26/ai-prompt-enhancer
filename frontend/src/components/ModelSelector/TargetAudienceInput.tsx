@@ -9,18 +9,22 @@ import {UsersRound} from 'lucide-react';
 
 // store
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore.ts';
+
+// utils
+import {toSelectGroupedOptionsPlain} from '~/utils/helpers';
 
 // ui components
+import {Badge} from '~/components/ui/Badge';
 import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
-import {toSelectGroupedOptions, toSelectGroupedOptionsPlain} from '~/utils/helpers.ts';
-import {Badge} from '~/components/ui/Badge.tsx';
 
 /**
  * Target audience input component for AI configuration
  * @component
  */
 const TargetAudienceInput: React.FC = () => {
-  const {config, setConfig, targetAudiences} = useAppStore();
+  const {config, setConfig} = useAppStore();
+  const {targetAudiences} = useDataStore();
 
   const handleChange = (value: string) => {
     // Update the config in store
