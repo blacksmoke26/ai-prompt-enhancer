@@ -52,7 +52,7 @@ const AdvancedWordAnalysisTrigger: React.FC<AdvancedWordAnalysisTriggerProps> = 
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <Button variant="plain" size="icon">
+        <Button disabled={!text.trim()} variant="plain" size="icon">
           <TooltipMini title="Deep Linguistic Analysis">
             <BookAlert className="w-5 h-5"/>
           </TooltipMini>
