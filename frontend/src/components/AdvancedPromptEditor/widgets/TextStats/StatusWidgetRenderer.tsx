@@ -5,10 +5,8 @@
  */
 
 import React from 'react';
-import {CheckCircle, RefreshCw, Save} from 'lucide-react';
 
 // utils
-import {DEFAULT_CONFIG} from './utils';
 import {safeLocaleFormat} from '~/utils/strings';
 
 // types
@@ -46,58 +44,12 @@ export interface StatusWidgetRendererProps {
  * - The `props` field is a subset of `TextStatsProps` to avoid unnecessary prop drilling.
  */
 const StatusWidgetRenderer: React.FC<StatusWidgetRendererProps> = (props) => {
-  const {autoSaveStatus = 'idle', lastSaved} = props.props || {};
   const currentStats = props?.stats || {tokenEstimate: 0};
-  const currentConfig = props.config || DEFAULT_CONFIG;
-  const locale = currentConfig.locale;
-
-  let formattedLastSaved: string | null = null;
-  if (lastSaved) {
-    try {
-      const dateObj = lastSaved instanceof Date ? lastSaved : new Date(lastSaved);
-      if (!isNaN(dateObj.getTime())) {
-        formattedLastSaved = dateObj.toLocaleTimeString(locale || [], {hour: '2-digit', minute: '2-digit'});
-      }
-    } catch (e) {
-      // nothing to do
-    }
-  }
-
-  // Dynamic Status Colors
-  let StatusIcon = Save;
-  let statusColorClass = 'text-slate-500';
-  let statusBgClass = 'bg-slate-100 dark:bg-slate-900/30';
-  let statusLabel = 'Auto-save';
-
-  if (autoSaveStatus === 'saving') {
-    StatusIcon = RefreshCw;
-    statusColorClass = 'text-blue-500';
-    statusBgClass = 'bg-blue-100 dark:bg-blue-900/30';
-    statusLabel = 'Saving...';
-  } else if (autoSaveStatus === 'saved') {
-    StatusIcon = CheckCircle;
-    statusColorClass = 'text-emerald-500';
-    statusBgClass = 'bg-emerald-100 dark:bg-emerald-900/30';
-    statusLabel = 'Saved';
-  }
 
   return (
     <div
-      className="col-span-1 sm:col-span-2 lg:col-span-1 xl:col-span-2 flex items-center justify-between p-4 rounded-xl border bg-muted/30">
-      <div className="flex items-center gap-3">
-        <div className="relative">
-          <div className={`p-1.5 rounded-full ${statusBgClass} ${statusColorClass}`}>
-            <StatusIcon className="h-4 w-4"/>
-          </div>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold text-foreground">{statusLabel}</span>
-          {formattedLastSaved && (
-            <span className="text-[10px] text-muted-foreground font-mono">Last edit: {formattedLastSaved}</span>
-          )}
-        </div>
-      </div>
-      <div className="hidden md:flex flex-col items-end">
+      className="col-span-1 sm:col-span-2 lg:col-span-1 xl:col-span-1 flex items-center justify-start p-4 rounded-xl border bg-muted/30">
+      <div className="hidden md:flex flex-col ">
         <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-wider">Tokens</span>
         <span
           className="text-sm font-mono font-medium text-violet-600">{safeLocaleFormat(currentStats.tokenEstimate || 0)}</span>

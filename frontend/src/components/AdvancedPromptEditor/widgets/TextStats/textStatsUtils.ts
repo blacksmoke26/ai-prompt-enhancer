@@ -9,7 +9,8 @@ import {DEFAULT_CONFIG} from './utils'; // Assuming default config is available
 import {safeLocaleFormat, countSyllables, detectRtl, safeString} from '~/utils/strings';
 
 // types
-import {CalculatedStats, TextStatsConfig, WidgetConfig, WidgetType} from './types';
+import type {WidgetConfig, WidgetType} from './utils';
+import type {CalculatedStats, TextStatsConfig} from './CharWidgetRenderer';
 
 /**
  * Formats a numeric value to a fixed decimal string.
