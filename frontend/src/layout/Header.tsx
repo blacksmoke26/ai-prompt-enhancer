@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({heading, icon, currentTab = 'assistant'}
       className="flex items-center justify-between px-6 py-4 pb-3 border-b border-border bg-background/80 backdrop-blur-md sticky top-0 z-30">
       <div className="flex items-center gap-3">
         {icon && (
-          <div className="bg-primary/10 py-2 rounded-lg text-primary">
+          <div className="py-2 rounded-lg text-primary">
             {icon}
           </div>
         )}
