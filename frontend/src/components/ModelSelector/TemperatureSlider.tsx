@@ -12,7 +12,7 @@ import {useAppStore} from '~/stores/appStore';
 import useDebounce from '~/hooks/useDebounce';
 
 // ui components
-import {Slider} from '@radix-ui/themes';
+import Slider from '~/components/ui/Slider';
 
 /**
  * Props for the TemperatureSlider component.
@@ -44,7 +44,7 @@ const TemperatureSlider: React.FC<TemperatureSliderProps> = ({className = ''}) =
   const {config, setConfig} = useAppStore();
 
   const [localTemperature, setLocalTemperature] = useState(config.temperature ?? 0.7);
-  const debouncedTemperature = useDebounce(localTemperature, 700);
+  const debouncedTemperature = useDebounce(localTemperature, 300);
 
   useEffect(() => {
     if (debouncedTemperature !== config.temperature) {
@@ -55,12 +55,12 @@ const TemperatureSlider: React.FC<TemperatureSliderProps> = ({className = ''}) =
   return (
     <div className={className}>
       <label className="text-sm font-medium"><Thermometer size="16" className="display-inline"/> Temperature</label>
-      <div className="flex items-center space-x-3 pt-1">
+      <div className="flex items-center justify-between space-x-3 pt-1">
         <Slider
           min={0}
           max={1}
           step={0.01}
-          defaultValue={[config.temperature ?? 0.7]}
+          value={[config.temperature ?? 0.7]}
           onValueChange={([value]) => setLocalTemperature(value)}
           aria-label="Temperature slider"
           className="w-full"

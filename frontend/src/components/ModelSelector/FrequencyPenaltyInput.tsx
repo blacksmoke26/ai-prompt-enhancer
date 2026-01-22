@@ -10,7 +10,7 @@ import React, {useState, useEffect, useCallback} from 'react';
 import {useAppStore} from '~/stores/appStore';
 
 // ui components
-import {Slider} from '@radix-ui/themes';
+import Slider from '~/components/ui/Slider';
 
 /**
  * Frequency penalty input component for AI configuration

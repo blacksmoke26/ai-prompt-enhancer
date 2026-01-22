@@ -30,15 +30,12 @@ const OffTheRecordToggle: React.FC = () => {
       <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
         <SaveOff className="inline-flex display-inline" size="16"/> Off-the-Record
       </label>
-      <div className="flex items-center space-x-2">
-        <Switch
+      <div className="flex items-center space-x-2 pt-2">
+        <Switch label="Do not store in history"
           checked={config.offTheRecord}
           onCheckedChange={handleChange}
           id="off-the-record"
         />
-        <label htmlFor="off-the-record" className="text-sm">
-          Do not store in history
-        </label>
       </div>
     </div>
   );

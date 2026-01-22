@@ -10,7 +10,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAppStore } from '~/stores/appStore';
 
 // ui components
-import { Slider } from '@radix-ui/themes';
+import Slider from '~/components/ui/Slider';
 
 /**
  * Presence penalty input component for AI configuration
