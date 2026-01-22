@@ -72,16 +72,15 @@ const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = (props) 
 
   return (
     <>
-      <TooltipMini title="Intelligent Prompt Enhancement Engine">
-        <Button
-          disabled={!prompt.trim()}
-          className={cn('text-muted-foreground', !prompt.trim() ? 'opacity-30 cursor-not-allowed' : '')}
-          variant="plain"
-          size="xs"
-          onClick={onTogglePanel}
-        >
-          <TooltipMini title="Intelligent Prompt Enhancement Engine">
-          <>
+      <Button
+        disabled={!prompt.trim()}
+        className={cn('text-muted-foreground', !prompt.trim() ? 'opacity-30 cursor-not-allowed' : '')}
+        variant="plain"
+        size="xs"
+        onClick={onTogglePanel}
+      >
+        <TooltipMini title="Intelligent Prompt Enhancement Engine">
+          <span>
             {isAnalyzing ? (
               <span className="animate-spin"><BrainCircuit size={props?.triggerIconSize ?? 16}/></span>
             ) : (
@@ -90,10 +89,9 @@ const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = (props) 
             {isAnalyzing && (
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></span>
             )}
-          </>
-          </TooltipMini>
-        </Button>
-      </TooltipMini>
+          </span>
+        </TooltipMini>
+      </Button>
 
       {isVisible && (
         <SmartSuggestionsPanel
