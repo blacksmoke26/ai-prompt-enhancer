@@ -176,12 +176,13 @@ const HistoryItemDetails: React.FC<HistoryItemDetailsProps> = (props) => {
         <div className="flex gap-2">
           <Button
             variant="outline" size="sm" onClick={props.onEnhancedPromptCopyClick}
-            className="gap-2"><Copy className="h-4 w-4"/>{props.copied ? 'Copied!' : 'Copy'}</Button>
+            className="gap-2" leftIcon={<Copy className="h-4 w-4"/>}>{props.copied ? 'Copied!' : 'Copy'}</Button>
           <Button
             variant="outline" size="sm"
             onClick={props.onJsonCopyClick}
-            className="gap-2"><FileCode className="h-4 w-4"/> JSON</Button>
-          <Button onClick={props?.onDialogClose || (() => {})} variant="ghost" size="icon"><X
+            className="gap-2" leftIcon={<FileCode className="h-4 w-4"/>}> JSON</Button>
+          <Button onClick={props?.onDialogClose || (() => {
+          })} variant="ghost" size="icon"><X
             className="h-4 w-4"/></Button>
         </div>
       </div>
@@ -329,24 +330,26 @@ const HistoryItemDetails: React.FC<HistoryItemDetailsProps> = (props) => {
 
             <Tabs.Content value="actions" className="space-y-4 mt-2">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Button variant="outline"
-                        className="h-20 flex-col gap-2 justify-center border-dashed border-2 hover:bg-gray-50 dark:hover:bg-gray-800"
-                        onClick={props.onForkClick}><GitFork
-                  className="h-6 w-6"/><span>Fork / Reuse Prompt</span></Button>
+                <Button
+                  leftIcon={<GitFork className="h-6 w-6"/>}
+                  variant="outline"
+                  className="h-20 flex-col gap-2 justify-center border-dashed border-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  onClick={props.onForkClick}><span>Fork / Reuse Prompt</span></Button>
               </div>
               <div
                 className="p-4 bg-red-50 rounded-lg border border-red-100 dark:bg-red-900/10 dark:border-red-900/20">
                 <Label className="text-red-700 dark:text-red-400">Danger Zone</Label>
-              <p><Button
-                variant="destructive" size="sm" className="mt-2" onClick={props.onDeleteClick}><Trash2
-                className="h-4 w-4 mr-2"/> Delete Entry</Button></p></div>
+                <p><Button
+                  leftIcon={<Trash2 className="h-4 w-4 mr-2"/>}
+                  variant="destructive" size="sm" className="mt-2" onClick={props.onDeleteClick}> Delete Entry</Button></p></div>
             </Tabs.Content>
           </div>
         </Tabs.Root>
       </div>
       <div
         className="flex items-center justify-end gap-3 p-6 border-t bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700">
-        <Button onClick={props?.onDialogClose || (() => {})} variant="plain">Close</Button>
+        <Button onClick={props?.onDialogClose || (() => {
+        })} variant="plain">Close</Button>
       </div>
     </>
   );

@@ -216,8 +216,10 @@ const HistoryPanel: React.FC<HistoryPanelProps> = (props) => {
         />
       ) : (
         <div className="mb-6 px-1 text-right">
-          <Button variant="plain" size="sm" onClick={() => updateConfig('showCharts', true)}>
-            Show Analytics Charts <ChevronDown className="h-4 w-4 ml-1"/>
+          <Button
+            rightIcon={<ChevronDown className="h-4 w-4 ml-1"/>}
+            variant="plain" size="sm" onClick={() => updateConfig('showCharts', true)}>
+            Show Analytics Charts
           </Button>
         </div>
       )}

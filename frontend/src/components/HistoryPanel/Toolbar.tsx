@@ -204,11 +204,10 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                   <SquareCheck className="h-4 w-4"/> {selectedIds.size} Selected
                 </div>
                 {config.allowCompare && selectedIds.size === 2 && (
-                  <Button variant="default" onClick={onCompare} className="gap-2"><Columns className="h-4 w-4"/> Compare</Button>
+                  <Button variant="default" onClick={onCompare} className="gap-2" leftIcon={<Columns className="h-4 w-4"/>}> Compare</Button>
                 )}
                 {config.allowBulkDelete && (
-                  <Button variant="destructive" onClick={onBulkDelete} className="gap-2"><Trash2
-                    className="h-4 w-4"/> Delete</Button>
+                  <Button variant="destructive" onClick={onBulkDelete} className="gap-2" leftIcon={<Trash2 className="h-4 w-4"/>}> Delete</Button>
                 )}
               </div>
             ) : (
@@ -216,7 +215,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                 {config.allowExport && (
                   <DropdownMenu.Root>
                     <DropdownMenu.Trigger asChild>
-                      <Button variant="outline" className="gap-2"><Download className="h-4 w-4"/> Export</Button>
+                      <Button variant="outline" className="gap-2" leftIcon={<Download className="h-4 w-4"/>}>Export</Button>
                     </DropdownMenu.Trigger>
                     <DropdownMenu.Portal>
                       <DropdownMenu.Content
@@ -238,14 +237,14 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                   onConfirmClick={onClearHistory}
                   confirmCaption="Clear"
                   triggerElement={
-                    <Button
+                    <Button leftIcon={<Trash2 className="h-4 w-4"/>}
                       variant="outline"
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-red-400 gap-2"><Trash2
-                      className="h-4 w-4"/> Clear</Button>
+                      className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 dark:text-red-400 gap-2">
+                      Clear</Button>
                   }
                   />
-                <Button variant="ghost" onClick={onRefresh} className="gap-2"><RefreshCw
-                  className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}/> Refresh</Button>
+                <Button variant="ghost" onClick={onRefresh} className="gap-2" leftIcon={<RefreshCw
+                  className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`}/>}> Refresh</Button>
               </>
             )}
           </div>
@@ -270,9 +269,11 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
                 className="h-8 px-3"><LayoutGrid className="h-4 w-4"/></Button>
             </div>
             <Button
+              leftIcon={<Filter className="h-4 w-4"/>}
+              rightIcon={showFilters ?
+                <X className="h-4 w-4"/> : ''}
               variant={showFilters ? 'default' : 'outline'} size="sm" onClick={() => setShowFilters(!showFilters)}
-              className="gap-2"><Filter className="h-4 w-4"/> Filters {showFilters ?
-              <X className="h-4 w-4"/> : ''}</Button>
+              className="gap-2"> Filters </Button>
           </div>
         </div>
 
