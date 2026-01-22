@@ -22,6 +22,9 @@ export interface DeepTextAnalysisTriggerProps extends Omit<WordCloudAdvanceProps
   /** The current prompt text that triggers the advanced word analysis */
   prompt: string;
   disabled: boolean;
+
+  /** Trigger SVG icon size */
+  triggerIconSize?: number;
 }
 
 const DeepTextAnalysisTrigger: React.FC<DeepTextAnalysisTriggerProps> = (props) => {
@@ -38,7 +41,7 @@ const DeepTextAnalysisTrigger: React.FC<DeepTextAnalysisTriggerProps> = (props) 
       <Dialog.Trigger>
         <Button disabled={disabled} variant="plain" size="icon">
           <TooltipMini title="Show Deep Text Analysis">
-            <Brain className="w-5 h-5"/>
+            <Brain size={props.triggerIconSize ?? 16}/>
           </TooltipMini>
         </Button>
       </Dialog.Trigger>

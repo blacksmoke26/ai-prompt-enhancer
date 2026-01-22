@@ -24,6 +24,9 @@ export interface TextStatsTriggerProps extends Omit<TextStatsProps, 'text'> {
   /** The current prompt text that triggers the advanced word analysis */
   prompt: string;
   disabled?: boolean;
+
+  /** Trigger SVG icon size */
+  triggerIconSize?: number;
 }
 
 /**
@@ -51,7 +54,7 @@ const TextStatsTrigger: React.FC<TextStatsTriggerProps> = (props) => {
       <Dialog.Trigger>
         <Button disabled={disabled} variant="plain" size="icon">
           <TooltipMini title="Show Deep Text Analysis">
-            <NotebookText className="w-5 h-5"/>
+            <NotebookText size={props.triggerIconSize ?? 16}/>
           </TooltipMini>
         </Button>
       </Dialog.Trigger>

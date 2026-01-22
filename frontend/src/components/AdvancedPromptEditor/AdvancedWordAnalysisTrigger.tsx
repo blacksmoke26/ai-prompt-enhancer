@@ -27,6 +27,9 @@ export type {WordAnalysisConfig};
 export interface AdvancedWordAnalysisTriggerProps extends Omit<AdvancedWordAnalysisProps, 'text'> {
   /** The current prompt text that triggers the advanced word analysis */
   prompt: string;
+
+  /** Trigger SVG icon size */
+  triggerIconSize?: number;
 }
 
 /**
@@ -54,7 +57,7 @@ const AdvancedWordAnalysisTrigger: React.FC<AdvancedWordAnalysisTriggerProps> = 
       <Dialog.Trigger>
         <Button disabled={!text.trim()} variant="plain" size="icon">
           <TooltipMini title="Deep Linguistic Analysis">
-            <BookAlert className="w-5 h-5"/>
+            <BookAlert size={props.triggerIconSize ?? 16}/>
           </TooltipMini>
         </Button>
       </Dialog.Trigger>

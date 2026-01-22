@@ -21,7 +21,8 @@ import {AdvancedTextarea} from '~/components/ui/AdvancedTextarea';
  * Currently, this interface is intentionally empty as no props are required.
  */
 export interface DefaultSystemPromptProps {
-  // intentionally empty
+  /** Trigger SVG icon size */
+  triggerIconSize?: number;
 }
 
 /**
@@ -38,7 +39,7 @@ export interface DefaultSystemPromptProps {
  * @remarks
  * Developers can extend this component by adding props to `DefaultSystemPromptProps` and using them within the component body.
  */
-export const DefaultSystemPrompt: React.FC<DefaultSystemPromptProps> = () => {
+export const DefaultSystemPrompt: React.FC<DefaultSystemPromptProps> = (props) => {
   const {config, setConfig} = useAppStore();
 
   const [localSystemPrompt, setLocalSystemPrompt] = useState<string>(config.defaultSystemPrompt);
@@ -49,7 +50,7 @@ export const DefaultSystemPrompt: React.FC<DefaultSystemPromptProps> = () => {
       <Popover.Trigger asChild ref={popoverRef}>
         <Button variant="plain" className="px-0 text-sm" size="icon">
           <TooltipMini title="Change the system's default prompt">
-            <ScrollText className="h-10"/>
+            <ScrollText size={props.triggerIconSize ?? 16}/>
           </TooltipMini>
         </Button>
       </Popover.Trigger>

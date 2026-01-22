@@ -26,6 +26,9 @@ export interface SmartSuggestionsTriggerProps {
 
   /** Callback when panel visibility changes */
   onTogglePanel(): void;
+
+  /** Trigger SVG icon size */
+  triggerIconSize?: number;
 }
 
 /**
@@ -73,14 +76,18 @@ const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = (props) 
           size="icon"
           onClick={onTogglePanel}
         >
-          {isAnalyzing ? (
-            <span className="animate-spin"><BrainCircuit className="w-5 h-5"/></span>
-          ) : (
-            <BrainCircuit className="w-5 h-5"/>
-          )}
-          {isAnalyzing && (
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></span>
-          )}
+          <TooltipMini title="Intelligent Prompt Enhancement Engine">
+          <>
+            {isAnalyzing ? (
+              <span className="animate-spin"><BrainCircuit size={props?.triggerIconSize ?? 16}/></span>
+            ) : (
+              <BrainCircuit size={16}/>
+            )}
+            {isAnalyzing && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-green-500 rounded-full"></span>
+            )}
+          </>
+          </TooltipMini>
         </Button>
       </TooltipMini>
 
