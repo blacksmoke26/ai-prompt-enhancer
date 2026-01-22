@@ -8,6 +8,9 @@ import React, {useEffect, useState} from 'react';
 import {Brain} from 'lucide-react';
 import {Dialog, Flex} from '@radix-ui/themes';
 
+// utils
+import {cn} from '~/utils/helpers';
+
 // ui components
 import {Button} from '~/components/ui/Button';
 import {TooltipMini} from '~/components/ui/Tooltip';
@@ -39,7 +42,8 @@ const DeepTextAnalysisTrigger: React.FC<DeepTextAnalysisTriggerProps> = (props) 
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <Button disabled={disabled} variant="plain" size="icon">
+        <Button disabled={disabled} variant="plain" size="icon"
+                className={cn('text-muted-foreground', disabled ? 'opacity-30 cursor-not-allowed' : '')}>
           <TooltipMini title="Show Deep Text Analysis">
             <Brain size={props.triggerIconSize ?? 16}/>
           </TooltipMini>

@@ -8,6 +8,9 @@ import React, {useEffect, useState} from 'react';
 import {BookAlert} from 'lucide-react';
 import {Dialog, Flex} from '@radix-ui/themes';
 
+// utils
+import {cn} from '~/utils/helpers';
+
 // ui components
 import {Button} from '~/components/ui/Button';
 import {TooltipMini} from '~/components/ui/Tooltip';
@@ -55,7 +58,8 @@ const AdvancedWordAnalysisTrigger: React.FC<AdvancedWordAnalysisTriggerProps> = 
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <Button disabled={!text.trim()} variant="plain" size="icon">
+        <Button disabled={!text.trim()} variant="plain" size="icon"
+                className={cn('text-muted-foreground', !text.trim() ? 'opacity-30 cursor-not-allowed' : '')}>
           <TooltipMini title="Deep Linguistic Analysis">
             <BookAlert size={props.triggerIconSize ?? 16}/>
           </TooltipMini>

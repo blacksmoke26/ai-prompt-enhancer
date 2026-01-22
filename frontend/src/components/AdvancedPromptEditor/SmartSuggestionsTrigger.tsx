@@ -10,6 +10,9 @@ import {BrainCircuit} from 'lucide-react';
 // AI brain module
 import {EnhancedAIBrainV3} from '~/lib/ai-brain-enhanced';
 
+// utils
+import {cn} from '~/utils/helpers';
+
 // ui components
 import {Button} from '~/components/ui/Button';
 import {TooltipMini} from '~/components/ui/Tooltip';
@@ -72,6 +75,7 @@ const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = (props) 
       <TooltipMini title="Intelligent Prompt Enhancement Engine">
         <Button
           disabled={!prompt.trim()}
+          className={cn('text-muted-foreground', !prompt.trim() ? 'opacity-30 cursor-not-allowed' : '')}
           variant="plain"
           size="icon"
           onClick={onTogglePanel}
