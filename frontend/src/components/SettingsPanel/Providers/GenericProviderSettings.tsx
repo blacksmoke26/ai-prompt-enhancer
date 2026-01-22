@@ -184,15 +184,15 @@ const GenericProviderSettings: React.FC<GenericProviderSettingsProps> = (props) 
 
       <div className="flex items-center space-x-2">
         <Button
-          onClick={handleTest}
-          disabled={isTesting || !providerConfig.enabled}
-          variant="secondary"
-        >
-          {isTesting ? (
+          leftIcon={isTesting ? (
             <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
           ) : (
             <TestTube className="h-4 w-4 mr-2"/>
           )}
+          onClick={handleTest}
+          disabled={isTesting || !providerConfig.enabled}
+          variant="secondary"
+        >
           Test Connection
         </Button>
 

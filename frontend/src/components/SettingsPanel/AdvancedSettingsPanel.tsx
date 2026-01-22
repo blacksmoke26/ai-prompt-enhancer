@@ -37,14 +37,10 @@ export interface AdvancedSettingsPanelProps {
  * Renders advanced settings including configuration management and debug info
  * @description This component provides a UI for managing application configuration,
  * exporting/importing settings, and viewing system/debug information for troubleshooting.
- * @param localConfig - Current configuration state
- * @param setLocalConfig - Function to update configuration state
- * @param handleExport - Function to export current configuration
- * @param handleImport - Function to import configuration from file
- * @param handleReset - Function to reset configuration to default values
  * @example
  * <AdvancedSettingsPanel localConfig={config} setLocalConfig={setConfig} />
  * @developer Note: System information helps with troubleshooting
+ * @param props
  */
 const AdvancedSettingsPanel: React.FC<AdvancedSettingsPanelProps> = (props) => {
   const {localConfig, setLocalConfig, handleExport, handleImport, handleReset} = props;
@@ -54,17 +50,23 @@ const AdvancedSettingsPanel: React.FC<AdvancedSettingsPanelProps> = (props) => {
       <div>
         <h3 className="text-lg font-semibold mb-4">Configuration</h3>
         <div className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={handleExport}>
-              <Download className="h-4 w-4 mr-2"/>
+          <div
+            className="flex flex-wrap gap-2">
+            <Button
+              leftIcon={<Download className="h-4 w-4 mr-2"/>}
+              variant="outline" onClick={handleExport}>
               Export Config
-            </Button>
-            <Button variant="outline" onClick={handleImport}>
-              <Upload className="h-4 w-4 mr-2"/>
+            </
+            Button>
+            <Button
+              leftIcon={<Upload className="h-4 w-4 mr-2"/>}
+              variant="outline" onClick={handleImport}>
               Import Config
-            </Button>
-            <Button variant="outline" onClick={handleReset}>
-              <RotateCcw className="h-4 w-4 mr-2"/>
+            </
+            Button>
+            <Button
+              leftIcon={<RotateCcw className="h-4 w-4 mr-2"/>}
+              variant="outline" onClick={handleReset}>
               Reset to Defaults
             </Button>
           </div>

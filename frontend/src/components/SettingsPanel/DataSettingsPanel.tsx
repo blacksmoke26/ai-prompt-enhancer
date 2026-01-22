@@ -53,16 +53,22 @@ const DataSettingsPanel: React.FC<DataSettingsPanelProps> = ({localConfig, setLo
           </Alert>
 
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={() => window.open('/api/history/export?format=json')}>
-              <Download className="h-4 w-4 mr-2"/>
+            <Button
+              variant="outline"
+              leftIcon={<Download className="h-4 w-4 mr-2"/>}
+                    onClick={() => window.open('/api/history/export?format=json')}>
               Export as JSON
             </Button>
-            <Button variant="outline" onClick={() => window.open('/api/history/export?format=csv')}>
-              <Download className="h-4 w-4 mr-2"/>
+            <Button
+              variant="outline"
+              leftIcon={<Download className="h-4 w-4 mr-2"/>}
+                    onClick={() => window.open('/api/history/export?format=csv')}>
               Export as CSV
             </Button>
-            <Button variant="outline" onClick={() => window.open('/api/history/export?format=txt')}>
-              <Download className="h-4 w-4 mr-2"/>
+            <Button
+              variant="outline"
+              leftIcon={<Download className="h-4 w-4 mr-2"/>}
+                    onClick={() => window.open('/api/history/export?format=txt')}>
               Export as TXT
             </Button>
           </div>
@@ -82,6 +88,7 @@ const DataSettingsPanel: React.FC<DataSettingsPanelProps> = ({localConfig, setLo
 
           <Button
             variant="destructive"
+            leftIcon={<Trash2 className="h-4 w-4 mr-2"/>}
             onClick={() => {
               if (confirm('Are you sure you want to clear all local data? This action cannot be undone.')) {
                 localStorage.clear();
@@ -89,7 +96,6 @@ const DataSettingsPanel: React.FC<DataSettingsPanelProps> = ({localConfig, setLo
               }
             }}
           >
-            <Trash2 className="h-4 w-4 mr-2"/>
             Clear All Local Data
           </Button>
         </div>

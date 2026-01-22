@@ -268,12 +268,11 @@ const SettingsPanel: React.FC = () => {
             </Alert>
           )}
 
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
-            ) : (
-              <Save className="h-4 w-4 mr-2"/>
-            )}
+          <Button onClick={handleSave} disabled={saving} leftIcon={saving ? (
+            <RefreshCw className="h-4 w-4 mr-2 animate-spin"/>
+          ) : (
+            <Save className="h-4 w-4 mr-2"/>
+          )}>
             {saving ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>
