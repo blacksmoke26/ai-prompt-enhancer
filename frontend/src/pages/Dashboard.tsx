@@ -27,6 +27,7 @@ import HistoryPanel from '~/components/HistoryPanel';
 import SettingsPanel from '~/components/SettingsPanel';
 import ModelSelector from '~/components/ModelSelector';
 import PromptEnhancer from '~/components/PromptEnhancer';
+import Assistant from '~/layout/Assistant.tsx';
 
 /**
  * Represents the available dashboard tabs
@@ -44,7 +45,18 @@ export const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('assistant');
   const {loading: appLoading, error, refreshData} = useAppData();
   const {history, loadStats, loadHistory} = useHistory();
-  const {sidebarOpen} = useAppStore();
+  const {sidebarOpen, theme} = useAppStore();
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    } else {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    }
+  }, [theme]);
 
   /**
    * Loads user history on component mount
@@ -116,6 +128,7 @@ export const Dashboard: React.FC = () => {
               const Icon = tab.icon;
               return (
                 <Button
+                  leftIcon={<Icon className="h-4 w-4"/>}
                   key={tab.id}
                   variant={activeTab === tab.id ? 'default' : 'ghost'}
                   className={cn(
@@ -124,7 +137,6 @@ export const Dashboard: React.FC = () => {
                   )}
                   onClick={() => setActiveTab(tab.id)}
                 >
-                  <Icon className="h-4 w-4 mr-2"/>
                   {tab.label}
                 </Button>
               );
@@ -143,27 +155,13 @@ export const Dashboard: React.FC = () => {
           currentTab={currentTab as unknown as string}
           heading={currentTab.label}
           icon={<TabIcon size={20}/>}/>
-
+        {/*<ModelSelector/>*/}
         {/* Content Area */}
-        <div className="flex-1 overflow-auto">
-          <div className="container mx-auto px-4 py-6 lg:py-8">
+        <div className={cn('flex-1 overflow-auto', {'overflow-hidden': activeTab === 'assistant'})}>
+          <div className={cn({'container mx-auto px-4 py-6 lg:py-8': activeTab !== 'assistant'})}>
             <div className="mx-auto">
               {activeTab === 'assistant' && (
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                  {/* Main Editor Area */}
-                  <div className="xl:col-span-8">
-                    <PromptEnhancer/>
-                  </div>
-
-                  {/* Sidebar Content */}
-                  <div className="xl:col-span-4">
-                    <div className="sticky top-6 space-y-6">
-                      <div className="hidden xl:block">
-                        <ModelSelector/>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <Assistant/>
               )}
 
               {activeTab === 'history' && (
