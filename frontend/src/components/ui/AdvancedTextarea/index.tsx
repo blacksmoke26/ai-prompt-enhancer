@@ -437,6 +437,7 @@ export const AdvancedTextarea = forwardRef<HTMLTextAreaElement, AdvancedTextarea
       size = 'md',
       variant = 'classic',
       radius = 'md',
+      textareaClassName = null,
       ...props
     },
     ref,
@@ -718,7 +719,7 @@ export const AdvancedTextarea = forwardRef<HTMLTextAreaElement, AdvancedTextarea
         <div
           ref={containerRef}
           className={cn(
-            'relative group transition-all duration-200',
+            'relative group transition-all h-full duration-200',
             isDragging && 'ring-2 ring-ring ring-offset-2',
           )}
         >
@@ -756,7 +757,7 @@ export const AdvancedTextarea = forwardRef<HTMLTextAreaElement, AdvancedTextarea
             onFocus={onFocus}
             onBlur={onBlur}
             className={cn(
-              props?.textareaClassName ?? 'flex w-full ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 border',
+              textareaClassName ?? 'flex w-full ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200 border',
               sizes[size],
               variants[variant],
               radiuses[radius],
