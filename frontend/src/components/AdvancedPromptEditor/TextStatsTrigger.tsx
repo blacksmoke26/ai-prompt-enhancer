@@ -55,7 +55,7 @@ const TextStatsTrigger: React.FC<TextStatsTriggerProps> = (props) => {
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <Button disabled={disabled} variant="plain" size="icon" className={cn('text-muted-foreground', disabled ? 'opacity-30 cursor-not-allowed' : '')}>
+        <Button disabled={disabled} variant="plain" size="xs" className={cn('text-muted-foreground', disabled ? 'opacity-30 cursor-not-allowed' : '')}>
           <TooltipMini title="Show Deep Text Analysis">
             <NotebookText size={props.triggerIconSize ?? 16}/>
           </TooltipMini>
