@@ -77,7 +77,7 @@ const SmartSuggestionsTrigger: React.FC<SmartSuggestionsTriggerProps> = (props) 
           disabled={!prompt.trim()}
           className={cn('text-muted-foreground', !prompt.trim() ? 'opacity-30 cursor-not-allowed' : '')}
           variant="plain"
-          size="icon"
+          size="xs"
           onClick={onTogglePanel}
         >
           <TooltipMini title="Intelligent Prompt Enhancement Engine">

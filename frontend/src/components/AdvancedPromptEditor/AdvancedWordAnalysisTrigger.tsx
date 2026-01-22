@@ -58,7 +58,7 @@ const AdvancedWordAnalysisTrigger: React.FC<AdvancedWordAnalysisTriggerProps> = 
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <Button disabled={!text.trim()} variant="plain" size="icon"
+        <Button disabled={!text.trim()} variant="plain" size="xs"
                 className={cn('text-muted-foreground', !text.trim() ? 'opacity-30 cursor-not-allowed' : '')}>
           <TooltipMini title="Deep Linguistic Analysis">
             <BookAlert size={props.triggerIconSize ?? 16}/>

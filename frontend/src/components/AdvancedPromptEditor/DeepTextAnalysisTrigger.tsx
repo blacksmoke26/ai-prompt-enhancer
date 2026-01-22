@@ -42,7 +42,7 @@ const DeepTextAnalysisTrigger: React.FC<DeepTextAnalysisTriggerProps> = (props) 
   return (
     <Dialog.Root>
       <Dialog.Trigger>
-        <Button disabled={disabled} variant="plain" size="icon"
+        <Button disabled={disabled} variant="plain" size="xs"
                 className={cn('text-muted-foreground', disabled ? 'opacity-30 cursor-not-allowed' : '')}>
           <TooltipMini title="Show Deep Text Analysis">
             <Brain size={props.triggerIconSize ?? 16}/>
