@@ -38,6 +38,9 @@ export interface PopoverProps {
   /** Default open state for uncontrolled usage */
   defaultOpen?: boolean;
 
+  /** Whether the popover should be the only focusable element (traps focus) */
+  modal?: boolean;
+
   // --- Trigger ---
   /** Custom trigger element */
   trigger?: React.ReactNode;
@@ -54,20 +57,45 @@ export interface PopoverProps {
   triggerVariant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link' | 'plain';
 
   // --- Content & Positioning ---
-  /** Side where the popover appears */
+  /** Side where the popover appears. 'auto' picks the best fit. */
   side?: 'top' | 'right' | 'bottom' | 'left';
+
   /** Alignment of the popover */
   align?: 'start' | 'center' | 'end';
+
   /** Distance from the trigger (px) */
   sideOffset?: number;
+
   /** Alignment offset (px) */
   alignOffset?: number;
+
   /** Width of the popover */
   width?: string | number;
+
   /** Max height of the popover content (enables scroll) */
   maxHeight?: string | number;
+
   /** If true, popover matches trigger width */
   alignTriggerWidth?: boolean;
+
+  // --- Collision & Boundary Control (New) ---
+  /** When true, overrides the side and align props to prevent collisions */
+  avoidCollisions?: boolean;
+
+  /** The amount in pixels away from the boundary edges where collision detection should apply. */
+  collisionPadding?: number | Partial<Record<'top' | 'right' | 'bottom' | 'left', number>>;
+
+  /** The element or boundary elements to check for collisions against. */
+  collisionBoundary?: Element | null | Array<Element | null>;
+
+  /** Behavior when the popover content overflows. 'partial' keeps it in view as much as possible. */
+  sticky?: 'partial' | 'always';
+
+  /** Whether to hide the popover when it's detached from its trigger (e.g., due to scrolling) */
+  hideWhenDetached?: boolean;
+
+  /** Element to mount the portal children into. Defaults to body. */
+  container?: HTMLElement | null;
 
   // --- Styling ---
   /** Variant theme */
@@ -76,6 +104,8 @@ export interface PopoverProps {
   contentClassName?: string;
   /** Whether to show the arrow */
   showArrow?: boolean;
+  /** Custom offset for the arrow in px */
+  arrowOffset?: number;
   /** Border radius: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full' */
   radius?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
   /** Shadow intensity: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' */
@@ -92,6 +122,14 @@ export interface PopoverProps {
   closeOnOutsideClick?: boolean;
   /** Allow closing via Escape key */
   closeOnEscape?: boolean;
+
+  // --- Event Overrides (Advanced) ---
+  /** Override focus capture when opening */
+  onOpenAutoFocus?(event: Event): void;
+  /** Override focus capture when closing */
+  onCloseAutoFocus?(event: Event): void;
+  /** Override pointer down outside event */
+  onPointerDownOutside?(event: CustomEvent<{originalEvent: PointerEvent}>): void;
 
   // --- Header ---
   /** Show the header section */
@@ -168,13 +206,14 @@ const shadowMap: Record<NonNullable<PopoverProps['shadow']>, string> = {
 };
 
 /**
- * Advanced Popover Component with animations, async handling, and full customization.
+ * Advanced Popover Component with animations, async handling, collision detection, and full customization.
  */
 export const Popover: React.FC<PopoverProps> = (props) => {
   const {
     open: controlledOpen,
     onOpenChange,
     defaultOpen = false,
+    modal = false,
     trigger,
     triggerClassName,
     hideTrigger = false,
@@ -190,9 +229,18 @@ export const Popover: React.FC<PopoverProps> = (props) => {
     maxHeight,
     alignTriggerWidth = false,
 
+    // New Collision & Positioning props
+    avoidCollisions = true,
+    collisionPadding = 8,
+    collisionBoundary,
+    sticky = 'partial',
+    hideWhenDetached = false,
+    container,
+
     variant = 'default',
     contentClassName,
     showArrow = true,
+    arrowOffset = 0,
     radius = 'lg',
     shadow = 'xl',
     backdrop = false,
@@ -201,6 +249,11 @@ export const Popover: React.FC<PopoverProps> = (props) => {
     closeOnConfirm = false,
     closeOnOutsideClick = true,
     closeOnEscape = true,
+
+    // Advanced Event Handlers
+    onOpenAutoFocus,
+    onCloseAutoFocus,
+    onPointerDownOutside: onPointerDownOutsideProp,
 
     showHeader = true,
     title = 'Details',
@@ -237,7 +290,13 @@ export const Popover: React.FC<PopoverProps> = (props) => {
 
   const popoverRef = useRef<HTMLButtonElement>(null);
 
-  const close = () => popoverRef.current?.click();
+  const close = () => {
+    // Force closing via Radix's controlled state or trigger click if needed
+    // Ideally we rely on onOpenChange(false)
+    if (!controlledOpen) {
+      popoverRef.current?.click(); // Only works if uncontrolled
+    }
+  };
 
   const handleConfirm = async () => {
     if (isSaving || confirmDisabled) return;
@@ -251,8 +310,10 @@ export const Popover: React.FC<PopoverProps> = (props) => {
           await result;
           if (closeOnConfirm) {
             onOpenChange?.(false);
+          } else if (!controlledOpen) {
+            // Fallback for uncontrolled
+            close();
           }
-          close();
         } finally {
           setIsInternalLoading(false);
         }
@@ -260,8 +321,9 @@ export const Popover: React.FC<PopoverProps> = (props) => {
         // Synchronous action
         if (closeOnConfirm) {
           onOpenChange?.(false);
+        } else if (!controlledOpen) {
+          close();
         }
-        close();
       }
     }
   };
@@ -269,7 +331,17 @@ export const Popover: React.FC<PopoverProps> = (props) => {
   const handleCancel = () => {
     onCancel?.();
     onOpenChange?.(false);
-    close();
+    if (!controlledOpen) close();
+  };
+
+  const handleOutsideInteraction = (event: CustomEvent) => {
+    // Call custom handler if provided
+    onPointerDownOutsideProp?.(event);
+
+    // Prevent default closing if saving or disabled
+    if (!closeOnOutsideClick || isSaving) {
+      event.preventDefault();
+    }
   };
 
   // Determine icons based on variant or explicit props
@@ -294,7 +366,7 @@ export const Popover: React.FC<PopoverProps> = (props) => {
   const buttonVariantMap = {
     default: 'default',
     destructive: 'destructive',
-    warning: 'secondary', // Secondary or custom
+    warning: 'secondary',
     ghost: 'ghost',
   };
 
@@ -303,6 +375,7 @@ export const Popover: React.FC<PopoverProps> = (props) => {
       open={controlledOpen}
       onOpenChange={onOpenChange}
       defaultOpen={defaultOpen}
+      modal={modal}
     >
       {!hideTrigger && (
         <RadPopover.Trigger ref={popoverRef} asChild className={cn('outline-none', triggerClassName)}>
@@ -322,12 +395,25 @@ export const Popover: React.FC<PopoverProps> = (props) => {
         </RadPopover.Trigger>
       )}
 
-      <RadPopover.Portal>
+      <RadPopover.Portal container={container}>
         <RadPopover.Content
           side={side}
           align={align}
           sideOffset={sideOffset}
           alignOffset={alignOffset}
+          avoidCollisions={avoidCollisions}
+          collisionPadding={collisionPadding}
+          collisionBoundary={collisionBoundary}
+          sticky={sticky}
+          hideWhenDetached={hideWhenDetached}
+
+          onOpenAutoFocus={onOpenAutoFocus}
+          onCloseAutoFocus={onCloseAutoFocus}
+          onPointerDownOutside={handleOutsideInteraction}
+          onEscapeKeyDown={(event) => {
+            if (!closeOnEscape || isSaving) event.preventDefault();
+          }}
+
           className={cn(
             // Base layout & z-index
             'z-50 p-0 text-foreground',
@@ -342,7 +428,7 @@ export const Popover: React.FC<PopoverProps> = (props) => {
             maxHeight && `max-h-[${maxHeight}]`,
 
             // Variant borders
-            variantColors[variant].split(' ')[1], // Extract border class if needed, simplified here
+            variantColors[variant].split(' ')[1],
 
             // Animation Classes
             'data-[state=open]:animate-in data-[state=closed]:animate-out',
@@ -357,12 +443,6 @@ export const Popover: React.FC<PopoverProps> = (props) => {
             variant === 'warning' && 'border-warning/50',
             contentClassName,
           )}
-          onPointerDownOutside={(event) => {
-            if (!closeOnOutsideClick || isSaving) event.preventDefault();
-          }}
-          onEscapeKeyDown={(event) => {
-            if (!closeOnEscape || isSaving) event.preventDefault();
-          }}
         >
           <div className={cn(
             'flex flex-col gap-0',
@@ -485,12 +565,16 @@ export const Popover: React.FC<PopoverProps> = (props) => {
           {showArrow && (
             <RadPopover.Arrow
               className={cn(
-                'fill-popover stroke-border',
-                backdrop && 'fill-background/80',
-                variant === 'destructive' && 'fill-destructive/10 stroke-destructive/20',
+                // Fill matches the background of the content
+                backdrop ? 'fill-background/80' : 'fill-background',
+                // Stroke matches the border of the content
+                'stroke-border',
+                variant === 'destructive' && 'stroke-destructive/50',
+                variant === 'warning' && 'stroke-warning/50',
               )}
-              width={10}
-              height={5}
+              width={12}
+              height={6}
+              offset={arrowOffset}
             />
           )}
         </RadPopover.Content>
