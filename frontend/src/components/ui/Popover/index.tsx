@@ -466,7 +466,7 @@ export const Popover: React.FC<PopoverProps> = (props) => {
                   </div>}
                   <div className="flex flex-col min-w-0">
                     <h4
-                      className={cn('text-sm font-semibold leading-none truncate', variant === 'destructive' ? 'text-destructive' : '')}>
+                      className={cn('text-sm font-semibold truncate', variant === 'destructive' ? 'text-destructive' : '')}>
                       {title}
                     </h4>
                     {description && (
