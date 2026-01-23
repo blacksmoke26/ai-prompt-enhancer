@@ -6,10 +6,10 @@
 
 import React from 'react';
 import * as RSwitch from '@radix-ui/react-switch';
-import { Loader2, Check} from 'lucide-react'; // Optional: Icon library for visual feedback
+import {Loader2, Check} from 'lucide-react'; // Optional: Icon library for visual feedback
 
 // utils
-import { cn } from '~/utils/helpers'; // Assuming you have a utility for class merging. If not, use `clsx` or `tailwind-merge`.
+import {cn} from '~/utils/helpers'; // Assuming you have a utility for class merging. If not, use `clsx` or `tailwind-merge`.
 
 // Types for component configuration
 export type SwitchSize = 'sm' | 'md' | 'lg';
@@ -34,6 +34,8 @@ export interface SwitchProps extends RSwitch.SwitchProps {
   uncheckedIcon?: React.ReactNode;
   /** Position of the label relative to the switch */
   labelPosition?: 'left' | 'right' | 'top' | 'bottom';
+  /** Custom classes for the label */
+  labelClassname?: string;
   /** Custom classes for the root container */
   containerClassName?: string;
 }
@@ -96,13 +98,14 @@ export const Switch: React.FC<SwitchProps> = (props) => {
     label,
     description,
     isLoading = false,
-    checkedIcon = <Check className="size-3 text-white" strokeWidth={3} />,
+    checkedIcon = <Check className="size-3 text-white" strokeWidth={3}/>,
     uncheckedIcon = null, // Optional: <X className="size-3 text-gray-400" />
     labelPosition = 'right',
     disabled,
     className,
     containerClassName,
     onCheckedChange,
+    labelClassname,
     ...rest
   } = props;
 
@@ -122,7 +125,7 @@ export const Switch: React.FC<SwitchProps> = (props) => {
       'flex-col items-start gap-2': labelPosition === 'bottom',
     },
     labelPosition === 'left' && 'flex-row-reverse',
-    containerClassName
+    containerClassName,
   );
 
   return (
@@ -130,7 +133,7 @@ export const Switch: React.FC<SwitchProps> = (props) => {
       <label
         className={cn(
           'inline-flex relative items-center cursor-pointer select-none',
-          isDisabled && 'cursor-not-allowed opacity-70'
+          isDisabled && 'cursor-not-allowed opacity-70',
         )}
       >
         <RSwitch.Root
@@ -151,7 +154,7 @@ export const Switch: React.FC<SwitchProps> = (props) => {
             colorClasses[color].ring,
 
             'disabled:cursor-not-allowed disabled:opacity-50',
-            className
+            className,
           )}
           disabled={isDisabled}
           onCheckedChange={(val) => {
@@ -171,13 +174,13 @@ export const Switch: React.FC<SwitchProps> = (props) => {
               thumbSizeClasses[size],
 
               // Loading State adjustment
-              isLoading && 'translate-x-0'
+              isLoading && 'translate-x-0',
             )}
           >
             {/* Content inside the thumb (Icons / Loader) */}
             <div className="flex items-center justify-center w-full h-full">
               {isLoading ? (
-                <Loader2 className="animate-spin text-gray-400" size={size === 'sm' ? 12 : 16} />
+                <Loader2 className="animate-spin text-gray-400" size={size === 'sm' ? 12 : 16}/>
               ) : (
                 <>
                   {/* Use Radix data-state to toggle visibility instead of react state to avoid DOM thrashing */}
@@ -201,9 +204,10 @@ export const Switch: React.FC<SwitchProps> = (props) => {
             <label
               htmlFor={finalId}
               className={cn(
-                'font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70',
+                'font-normal leading-none peer-disabled:cursor-not-allowed pt-[2px] peer-disabled:opacity-70',
                 // Text colors based on theme
-                'text-gray-900 dark:text-gray-100'
+                'text-gray-900 dark:text-gray-100',
+                labelClassname,
               )}
             >
               {label}
@@ -214,7 +218,7 @@ export const Switch: React.FC<SwitchProps> = (props) => {
               id={descriptionId}
               className={cn(
                 'text-xs mt-1',
-                'text-gray-500 dark:text-gray-400'
+                'text-gray-500 dark:text-gray-400',
               )}
             >
               {description}
