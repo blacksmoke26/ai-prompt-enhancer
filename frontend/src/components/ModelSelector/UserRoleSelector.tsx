@@ -34,7 +34,7 @@ const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => 
       </label>
       <SelectAdvanced
         searchable
-        clearable
+        clearable={false}
         triggerWidth="w-full"
         value={config.userRole as string}
         onChange={(e) => setConfig({userRole: e as string}, true)}
