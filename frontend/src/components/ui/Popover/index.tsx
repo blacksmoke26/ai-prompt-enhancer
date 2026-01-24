@@ -43,7 +43,7 @@ export interface PopoverProps {
 
   // --- Trigger ---
   /** Custom trigger element */
-  trigger?: React.ReactNode;
+  trigger?(opener: (() => {})): React.ReactNode;
   /** Class name for the trigger wrapper */
   triggerClassName?: string;
   /** Hide the trigger entirely (useful for programmatic control) */
@@ -380,7 +380,7 @@ export const Popover: React.FC<PopoverProps> = (props) => {
       {!hideTrigger && (
         <RadPopover.Trigger ref={popoverRef} asChild className={cn('outline-none', triggerClassName)}>
           {trigger ? (
-            trigger
+            trigger?.(() => popoverRef?.current?.click ?? (() => {}))
           ) : (
             <Button
               variant={variant === 'destructive' ? 'destructive' : triggerVariant}
