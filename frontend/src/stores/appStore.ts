@@ -9,18 +9,7 @@ import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 
 // types
-import {
-  AIModel,
-  AIProvider,
-  AppConfig,
-  EnhancementType, PromptHistory,
-  ResponseLength, TargetAudience, Tone,
-  UserRole,
-  VisibleComponents,
-} from '~/types';
-import ToneService from '~/services/ToneService.ts';
-import ResponseLengthService from '~/services/ResponseLengthService.ts';
-import {ListRoleItem} from '~/types/history-service.ts';
+import type {AppConfig, VisibleComponents} from '~/types';
 
 /**
  * Represents a single item in a dashboard layout, defining its position, size, and behavior.
@@ -35,44 +24,6 @@ import {ListRoleItem} from '~/types/history-service.ts';
  * }
  * @developerNotes Ensure `type` is one of the allowed enums and `width` is between 1-12.
  */
-export interface DashboardLayoutItem {
-  /** Unique identifier for the dashboard item */
-  id: string;
-  /** The type of dashboard item, which determines its functionality and appearance */
-  type: 'enhancer' | 'history' | 'stats' | 'settings';
-  /** Display title for the dashboard item */
-  title: string;
-  /** Grid column width (1-12) defining the item's horizontal size */
-  width: number;
-  /** Optional row height if additional vertical space is needed */
-  height?: number;
-  /** Controls whether the item is visible on the dashboard */
-  visible: boolean;
-  /** Indicates if the item can be dragged and sorted within the layout */
-  sortable: boolean;
-}
-
-/**
- * Defines the overall configuration for a dashboard layout, including items and grid behavior.
- * @example
- * {
- *   items: [/* Array of DashboardLayoutItem *!/],
- *   dragEnabled: true,
- *   snapToGrid: true,
- *   gridSize: 12
- * }
- * @developerNotes Set `gridSize` based on the desired grid column count and ensure `dragEnabled` aligns with user permissions.
- */
-export interface DashboardLayout {
-  /** Array of dashboard layout items composing the dashboard */
-  items: DashboardLayoutItem[];
-  /** Enables or disables drag-and-drop functionality for rearranging items */
-  dragEnabled: boolean;
-  /** Enables snapping items to the grid for alignment purposes */
-  snapToGrid: boolean;
-  /** Defines the grid size in columns, affecting how items align and snap during rearrangement */
-  gridSize: number;
-}
 
 export type CurrentTab = 'enhancer' | 'history' | 'stats' | 'settings' | string;
 
@@ -107,19 +58,6 @@ export interface AppState {
 
   /** Updates sidebar visibility */
   setSidebarOpen(open: boolean): void;
-
-  // Dashboard Layout
-  /** Dashboard layout configuration */
-  dashboardLayout: DashboardLayout;
-
-  /** Updates dashboard layout */
-  setDashboardLayout(layout: Partial<DashboardLayout>): void;
-
-  /** Resets dashboard layout to default */
-  resetDashboardLayout(): void;
-
-  /** Auto-arranges dashboard layout */
-  autoArrangeLayout(): void;
 
   currentTab: CurrentTab;
   setCurrentTab(tab: CurrentTab): void;
@@ -213,53 +151,9 @@ export const useAppStore = create<AppState>()(
       sidebarOpen: true,
       setSidebarOpen: open => set({sidebarOpen: open}),
 
-      // Dashboard Layout
-      dashboardLayout: {
-        items: [
-          {id: 'enhancer', type: 'enhancer', title: 'Prompt Enhancer', width: 8, visible: true, sortable: true},
-          {id: 'history', type: 'history', title: 'History', width: 8, visible: true, sortable: true},
-          {id: 'stats', type: 'stats', title: 'Statistics', width: 4, visible: true, sortable: true},
-          {id: 'settings', type: 'settings', title: 'Settings', width: 8, visible: true, sortable: true},
-        ],
-        dragEnabled: true,
-        snapToGrid: true,
-        gridSize: 12,
-      },
-      setDashboardLayout: (layout) => set((state) => ({
-        dashboardLayout: {...state.dashboardLayout, ...layout},
-      })),
-      resetDashboardLayout: () => set({
-        dashboardLayout: {
-          items: [
-            {id: 'enhancer', type: 'enhancer', title: 'Prompt Enhancer', width: 8, visible: true, sortable: true},
-            {id: 'history', type: 'history', title: 'History', width: 8, visible: true, sortable: true},
-            {id: 'stats', type: 'stats', title: 'Statistics', width: 4, visible: true, sortable: true},
-            {id: 'settings', type: 'settings', title: 'Settings', width: 8, visible: true, sortable: true},
-          ],
-          dragEnabled: true,
-          snapToGrid: true,
-          gridSize: 12,
-        },
-      }),
-      autoArrangeLayout: () => set((state) => {
-        const visibleItems = state.dashboardLayout.items.filter(item => item.visible);
-        const autoItems = visibleItems.map((item) => {
-          const width = Math.floor(12 / visibleItems.length);
-
-          return {...item, width: width};
-        });
-
-        return {
-          dashboardLayout: {...state.dashboardLayout, items: autoItems},
-        };
-      }),
-
       // Model Selector Settings
       componentOrder: [
-        'provider',
-        'model',
         'enhancement',
-        'role',
         'temperature',
         'maxTokens',
         'targetAudience',
@@ -277,10 +171,7 @@ export const useAppStore = create<AppState>()(
         'status',
       ],
       visibleComponents: {
-        provider: true,
-        model: true,
         enhancement: true,
-        role: true,
         temperature: true,
         maxTokens: true,
         targetAudience: false,
@@ -321,7 +212,6 @@ export const useAppStore = create<AppState>()(
         },
         theme: state.theme,
         sidebarOpen: state.sidebarOpen,
-        dashboardLayout: state.dashboardLayout,
         componentOrder: state.componentOrder,
         visibleComponents: state.visibleComponents,
       }),
