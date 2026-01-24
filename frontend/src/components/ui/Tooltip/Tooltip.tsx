@@ -63,21 +63,7 @@ const TooltipContent = React.forwardRef<
     {...props}
   />
 ));
-TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-export const TooltipMini: React.FC<React.PropsWithChildren<{title: string | React.ReactNode}>> = (props) => {
-  return (
-    <TooltipProvider>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          {props?.children}
-        </TooltipTrigger>
-        <TooltipContent>
-          <p className="font-normal">{props?.title}</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
-}
+TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
 export { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger };
