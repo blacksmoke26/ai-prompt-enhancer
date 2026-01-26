@@ -5,7 +5,12 @@
  */
 
 // db
-import { History, HistoryAttributes, PromptUserRole } from '~/database/models';
+import {
+  History,
+  HistoryAttributes,
+  HistoryResponse,
+  PromptUserRole,
+} from '~/database/models';
 
 // helpers
 import ErrorHelper from '~/helpers/ErrorHelper';
@@ -17,6 +22,10 @@ import schema from './schemas/list-by-role.schema';
 // types
 import type { FastifyInstance } from 'fastify';
 import type { SuccessResponse } from '~/types/response';
+
+interface HistoryItem extends HistoryAttributes {
+  variants: string[];
+}
 
 export default (fastify: FastifyInstance) => {
   /**
@@ -32,7 +41,7 @@ export default (fastify: FastifyInstance) => {
     Params: {
       role: string;
     };
-    Reply: SuccessResponse<HistoryAttributes[]>;
+    Reply: SuccessResponse<HistoryItem[]>;
   }>('/role/:role', { schema }, async function (this, request, reply) {
     const role = await PromptUserRole.findOne({
       attributes: ['id'],
@@ -45,7 +54,7 @@ export default (fastify: FastifyInstance) => {
     }
 
     try {
-      const records = await History.findAll({
+      const records: Awaited<Record<string, any>[]> = await History.findAll({
         attributes: {
           exclude: [
             'conversationId',
@@ -63,7 +72,18 @@ export default (fastify: FastifyInstance) => {
         raw: true,
       });
 
-      return ResponseHelper.successWithData(records);
+      for await (const record of records) {
+        const records = await HistoryResponse.findAll({
+          attributes: ['response'],
+          where: { historyId: record.id },
+          order: [['createdAt', 'DESC']],
+          raw: true,
+        });
+
+        record.variants = records.map(x => x.response)
+      }
+
+      return ResponseHelper.successWithData(records as HistoryItem[]);
     } catch (error: any) {
       console.error('Failed to fetch history:', error);
       ErrorHelper.throwWithStatus('Failed to fetch history');

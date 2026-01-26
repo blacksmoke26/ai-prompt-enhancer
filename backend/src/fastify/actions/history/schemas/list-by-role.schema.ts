@@ -156,6 +156,20 @@ export default {
             description: 'Presence penalty applied.',
             examples: [0.5],
           },
+          pinned: {
+            type: 'boolean',
+            description:
+              'Indicates whether this history entry is pinned for quick access',
+            examples: [true],
+          },
+          variants: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            description: 'The responses related to the prompt',
+            examples: [['this is a sample ai response']],
+          },
           createdAt: {
             type: 'string',
             format: 'date-time',

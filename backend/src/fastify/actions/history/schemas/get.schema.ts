@@ -160,6 +160,11 @@ export default {
             description: 'Additional notes or comments about the item',
             examples: ['Additional context here'],
           },
+          pinned: {
+            type: 'boolean',
+            description: 'Indicates whether this history entry is pinned for quick access',
+            examples: [true],
+          },
           stats: {
             type: 'object',
             description: 'Statistical breakdown of text and token usage.',
