@@ -57,6 +57,8 @@ import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
 import {Card, CardContent, CardHeader, CardTitle} from '~/components/ui/Card';
 import {Tooltip, TooltipContent, TooltipTrigger} from '~/components/ui/Tooltip';
 
+export type {WordCloudAdvanceProps};
+
 /**
  * A React component for rendering an advanced word cloud with customizable configuration and external word frequency data.
  * @example
