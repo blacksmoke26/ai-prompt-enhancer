@@ -145,6 +145,7 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   showCharCount?: boolean;
   containerClassName?: string;
   showFooter?: boolean;
+  noVisibleRing?: boolean;
 
   // --- ADVANCED FEATURES ---
   suggestions?: string[];
@@ -189,6 +190,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       onChange,
       onKeyDown,
       onBlur,
+      noVisibleRing = false,
 
       // Advanced Props
       suggestions = [],
@@ -365,7 +367,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       'ring-offset-background focus-visible:outline-none',
       sizeClasses,
       variantConfig.base,
-      variantConfig.input,
+      noVisibleRing ? '' : variantConfig.input,
       colorStyles.ring,
       error ? 'border-destructive text-destructive' : colorStyles.border,
       leftIcon && (size === 'plain' ? '' : 'pl-9'),
