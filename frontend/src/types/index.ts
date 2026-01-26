@@ -754,14 +754,8 @@ export interface ProviderConfig {
  * @interface VisibleComponents
  */
 export interface VisibleComponents {
-  /** Whether the AI provider selection component is visible */
-  provider: boolean;
-  /** Whether the model selection component is visible */
-  model: boolean;
   /** Whether the enhancement options component is visible */
   enhancement: boolean;
-  /** Whether the role definition component is visible */
-  role: boolean;
   /** Whether the temperature parameter component is visible */
   temperature: boolean;
   /** Whether the maximum tokens parameter component is visible */
