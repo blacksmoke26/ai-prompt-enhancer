@@ -139,7 +139,6 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
   error?: string;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  onRightIconClick?: () => void;
   isLoading?: boolean;
   enablePasswordToggle?: boolean;
   maxLength?: number;
@@ -149,13 +148,17 @@ export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElem
 
   // --- ADVANCED FEATURES ---
   suggestions?: string[];
-  onSuggestionSelect?: (value: string) => void;
   mask?: MaskPattern;
   maskChar?: string;
   maskPlaceholder?: string;
   autoClosingPairs?: boolean;
   allowCopy?: boolean;
-  onCopy?: () => void;
+
+  onCopy?(): void;
+
+  onRightIconClick?(): void;
+
+  onSuggestionSelect?(value: string): void;
 }
 
 /**
@@ -258,8 +261,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       if (autoClosingPairs && !e.shiftKey && PAIRS[e.key]) {
         const input = inputRef.current;
         if (input) {
-          const start = input.selectionStart;
-          const end = input.selectionEnd;
+          const start = input?.selectionStart || 0;
+          const end = input?.selectionEnd || 0;
           const currentValue = (value ?? defaultValue) as string;
           const newValue = currentValue.substring(0, start) + e.key + PAIRS[e.key] + currentValue.substring(end);
 
@@ -375,7 +378,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className={cn('relative w-full', size === 'plain' ? '' : 'space-y-1.5', containerClassName)}>
 
         {/* Standard Label (Non-Floating) */}
-        {label && variant !== 'floating' && variant !== 'plain' && (
+        {label && variant !== 'floating' && variant !== 'default' && (
           <LabelPrimitive.Root
             htmlFor={props.id}
             className={cn(
@@ -460,13 +463,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             'absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5',
             (size === 'lg' || size === 'xl') && 'right-2',
           )}>
-            {suggestions.length > 0 && !isLoading && !error && !rightIcon && !enablePasswordToggle && variant !== 'plain' && (
+            {suggestions.length > 0 && !isLoading && !error && !rightIcon && !enablePasswordToggle && variant !== 'default' && (
               <div className="pointer-events-none text-muted-foreground pr-1">
                 <ChevronDown className={cn(iconSizeClass, 'opacity-50')}/>
               </div>
             )}
 
-            {(renderRightIcon || allowCopy) && variant !== 'plain' && (
+            {(renderRightIcon || allowCopy) && variant !== 'default' && (
               <button
                 type="button"
                 onClick={() => {
@@ -492,7 +495,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           </div>
 
           {/* Autocomplete Dropdown */}
-          {showSuggestions && filteredSuggestions.length > 0 && variant !== 'plain' && (
+          {showSuggestions && filteredSuggestions.length > 0 && variant !== 'default' && (
             <ul
               ref={suggestionListRef}
               className={cn(
@@ -519,7 +522,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
 
         {/* Footer */}
         {showFooter && (
-          (variant !== 'plain') && (
+          (variant !== 'default') && (
             <div className="flex items-center justify-between gap-2 px-1">
               <div className="min-h-[1rem]">
                 {error ? (
@@ -540,7 +543,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                 <p className={cn(
                   'tabular-nums text-muted-foreground',
                   LABEL_SIZES[size],
-                  hasValue >= maxLength && 'text-destructive',
+                  hasValue && maxLength && String(internalValue ?? '').length >= maxLength && 'text-destructive',
                 )}>
                   {String(internalValue ?? '').length}/{maxLength}
                 </p>
