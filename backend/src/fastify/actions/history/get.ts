@@ -4,9 +4,6 @@
  * @see https://github.com/blacksmoke26
  */
 
-// db
-import { History } from '~/database/models';
-
 // helpers
 import ErrorHelper from '~/helpers/ErrorHelper';
 import ResponseHelper from '~/helpers/ResponseHelper';
@@ -50,7 +47,7 @@ export default (fastify: FastifyInstance) => {
       maxRating?: string;
     };
     Reply: SuccessResponse<HistoryItem[]>;
-  }>('/', { schema }, async function (this, request, reply) {
+  }>('/', { schema }, async function (this, request) {
     try {
       const {
         limit,
