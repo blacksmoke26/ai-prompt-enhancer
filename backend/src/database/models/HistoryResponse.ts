@@ -34,6 +34,8 @@ class HistoryResponse extends Model<
   /** ID of the associated history record */
   declare historyId: number;
   /** The response content */
+  declare prompt?: string | null;
+  /** The response content */
   declare response: string;
   /** Timestamp when the record was created */
   declare readonly createdAt?: CreationOptional<Date>;
@@ -68,6 +70,12 @@ HistoryResponse.init(
       },
       onDelete: 'cascade',
       onUpdate: 'cascade',
+    },
+    prompt: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      defaultValue: null,
+      comment: 'Original prompt text associated with this history response',
     },
     response: {
       field: 'response',

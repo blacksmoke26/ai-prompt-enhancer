@@ -104,6 +104,8 @@ class History extends Model<
   declare presencePenalty?: number | null;
   /** Conversation ID for context */
   declare conversationId?: string | null;
+  /** Indicates whether this history entry is pinned for quick access */
+  declare pinned?: boolean;
   /** Timestamp when the record was created */
   declare readonly createdAt?: CreationOptional<Date>;
   /** Timestamp when the record was last updated */
@@ -303,6 +305,13 @@ History.init(
       type: DataTypes.DATE,
       comment: 'Updated at',
       allowNull: true,
+    },
+    pinned: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+      comment:
+        'Indicates whether this history entry is pinned for quick access',
     },
   },
   {
