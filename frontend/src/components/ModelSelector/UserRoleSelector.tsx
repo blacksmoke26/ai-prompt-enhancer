@@ -40,8 +40,12 @@ const UserRoleSelector: React.FC<UserRoleSelectorProps> = ({className = ''}) => 
         onChange={(e) => setConfig({userRole: e as string}, true)}
         options={toSelectGroupedOptions(userRoles.filter(x => !x.hidden))}
         formatLabel={option => (
-          <div><User2 className="inline-flex" size="16"/> {option.label}<p
-            className="text-xs pl-5 mt-1">{option.shortDescription}</p>
+          <div>
+            <User2 className="inline-flex" size="16"/> <span className="font-medium">{option.label}</span>
+            <p className="text-xs pl-5 mt-1 text-muted-foreground">{option.shortDescription}</p>
+            <p className="pl-5 mt-2">
+              {option.capabilities.map(x => <Badge key={x} variant="secondary" className="mr-1 mb-1 text-muted-foreground">{x}</Badge>)}
+            </p>
           </div>
         )}
         selectedOption={(_, option) => (
