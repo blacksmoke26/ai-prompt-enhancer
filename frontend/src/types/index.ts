@@ -311,6 +311,8 @@ export interface PromptHistory {
   presencePenalty?: number | null;
   /** Unique conversation identifier */
   conversationId?: string | null;
+  /** Indicates whether this history entry is pinned for quick access */
+  pinned?: boolean;
   /** Statistics about the history */
   stats: {
     /** Text data statistics */
@@ -318,6 +320,11 @@ export interface PromptHistory {
     /** Token data statistics */
     tokenStats: { name: string; value: number; fill: string }[];
   };
+}
+
+export interface PromptHistoryByRole extends PromptHistory {
+  /** The responses related to the prompt */
+  variants?: string[];
 }
 
 /**
