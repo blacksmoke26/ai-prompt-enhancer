@@ -10,7 +10,10 @@ import React, {createContext, useContext, useEffect, useState} from 'react';
 import {useAppStore} from '~/stores/appStore';
 
 /** Available theme options for the application */
-export type Theme = 'light' | 'dark' | 'system';
+export type ResolveTheme = 'light' | 'dark';
+
+/** Available theme options for the application */
+export type Theme = ResolveTheme | 'system';
 
 /** Theme context interface providing theme state and controls */
 export interface ThemeContextType {
@@ -22,6 +25,10 @@ export interface ThemeContextType {
 
   /** Resolved theme after considering system preference */
   resolvedTheme: 'light' | 'dark';
+
+  isDarkTheme: boolean;
+
+  isLightTheme: boolean;
 }
 
 /** Context for sharing theme state throughout the application */
@@ -79,6 +86,8 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({children
 
   const value = {
     theme,
+    isDarkTheme: resolvedTheme === 'dark',
+    isLightTheme: resolvedTheme === 'light',
     setTheme,
     resolvedTheme,
   };
