@@ -335,17 +335,10 @@ const GenericSettingsPanel = <T extends SettingsItemBase>(props: GenericSettings
               variant="ghost"
               size="sm"
               onClick={toggleAllCategories}
+              leftIcon={expandedAll ? <Minus className="h-3.5 w-3.5 mr-1"/> : <Plus className="h-3.5 w-3.5 mr-1"/>}
               className="h-9 text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
             >
-              {expandedAll ? (
-                <>
-                  <Minus className="h-3.5 w-3.5 mr-1"/> Collapse
-                </>
-              ) : (
-                <>
-                  <Plus className="h-3.5 w-3.5 mr-1"/> Expand
-                </>
-              )}
+              {expandedAll ? 'Collapse' : 'Expand'}
             </Button>
           </div>
         </div>

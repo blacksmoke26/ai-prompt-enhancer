@@ -795,8 +795,9 @@ const AdvancedConfigPanel = <T extends GenericConfigItem>(props: AdvancedConfigP
                   ...acc,
                   [k]: true,
                 }), {}));
-              }} className="text-xs text-muted-foreground hover:text-primary gap-1"><Plus
-              className="w-3 h-3"/> Expand</Button>
+              }}
+              leftIcon={<Plus className="w-3 h-3"/>}
+              className="text-xs text-muted-foreground hover:text-primary gap-1">Expand</Button>
             <Button
               variant="ghost"
               size="sm"
@@ -806,8 +807,8 @@ const AdvancedConfigPanel = <T extends GenericConfigItem>(props: AdvancedConfigP
                   [k]: false,
                 }), {}));
               }}
-              className="text-xs text-muted-foreground hover:text-primary gap-1"><Minus
-              className="w-3 h-3"/> Collapse</Button>
+              leftIcon={<Minus className="w-3 h-3"/>}
+              className="text-xs text-muted-foreground hover:text-primary gap-1">Collapse</Button>
           </div>
         </div>
       </div>
