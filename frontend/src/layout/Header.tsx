@@ -4,11 +4,22 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React from 'react';
-import {Moon, Sun} from 'lucide-react';
+import React, {useState} from 'react';
+import {Brain, ChevronsUpDown, Moon, Sun} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
+import {useDataStore} from '~/stores/dataStore';
+import {useTheme} from '~/components/ThemeProvider';
+
+// ui components
+import {Button} from '~/components/ui/Button';
+
+// components
+import ModelProvider from '~/components/ModelSelector/ModelProvider';
+
+// types
+import type {AIModel} from '~/types';
 
 /**
  * Props for the `Header` component, which includes optional `heading` and `icon`, and a required `currentTab` to indicate the active tab.
@@ -28,9 +39,50 @@ export interface HeaderProps {
    */
   currentTab: string;
 }
+
+const ModelSelector: React.FC = () => {
+  const {models, providers} = useDataStore();
+  const {config, setConfig} = useAppStore();
+
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const provider = providers.find(x => x.name === config.provider)!;
+  const model = models.find(x => x.id === config.model)!;
+  const isSelected = model !== undefined;
+
+  const handleSelectModel = (model: AIModel) => {
+    setConfig({
+      model: model.name,
+      provider: model.provider,
+    });
+    setIsModalOpen(false);
+  };
+
+  return <>
+    {/* Display Selected Model */}
+    <div className="ml-4">
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="text-sm"
+      >
+        {isSelected ? <><Brain className="display-inline mr-1" size="18"/> {model.name} | {provider.caption} <span
+          className="relative top-[1px]"><ChevronsUpDown className="display-inline"
+                                                         size="14"/></span></> : 'Choose Provider'}
+      </button>
+    </div>
+
+    {/* Modal Component */}
+    <ModelProvider
+      onClose={() => setIsModalOpen(false)}
+      isOpen={isModalOpen}
+      onSelect={handleSelectModel}
+      models={models}
+    />
+  </>;
+};
+
 const Header: React.FC<HeaderProps> = ({heading, icon, currentTab = 'assistant'}) => {
-  const {theme, setTheme} = useAppStore();
-  const isDark = theme === 'dark';
+  const {isDarkTheme, setTheme} = useTheme();
 
   return (
     <header
@@ -45,19 +97,26 @@ const Header: React.FC<HeaderProps> = ({heading, icon, currentTab = 'assistant'}
         {heading && (
           <h1 className="text-lg font-semibold tracking-tight text-foreground">{heading}</h1>
         )}
+
+        {currentTab === 'assistant' && (
+          <ModelSelector/>
+        )}
       </div>
       <div className="flex items-center gap-4">
+
         <div className="hidden md:flex text-xs text-muted-foreground gap-4">
           <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-green-500"></span> System Ready</span>
         </div>
-        <button
-          onClick={() => setTheme(isDark ? 'light' : 'dark')}
+        <Button
+          variant="plain"
+          size="sm"
+          onClick={() => setTheme(isDarkTheme ? 'light' : 'dark')}
           className="p-2 rounded-full transition-colors duration-200
                    hover:bg-muted text-muted-foreground hover:text-foreground"
           aria-label="Toggle Theme"
         >
-          {isDark ? <Sun size={20}/> : <Moon size={20}/>}
-        </button>
+          {isDarkTheme ? <Sun size={20}/> : <Moon size={20}/>}
+        </Button>
       </div>
     </header>
   );
