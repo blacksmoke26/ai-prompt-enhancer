@@ -26,11 +26,12 @@ export interface AIModel {
   /** Name of the AI service provider */
   provider: string;
   /** Brief description of the model's capabilities */
-  description?: string;
+  description: string;
   /** Maximum context window size in tokens */
-  contextLength?: number;
+  contextLength: number;
   /** Maximum number of tokens for output */
-  maxTokens?: number;
+  maxTokens: number;
+  size: string;
 }
 
 /**
