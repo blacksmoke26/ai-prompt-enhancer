@@ -29,6 +29,8 @@ export interface ThemeContextType {
   isDarkTheme: boolean;
 
   isLightTheme: boolean;
+
+  toggleTheme(): void;
 }
 
 /** Context for sharing theme state throughout the application */
@@ -85,6 +87,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({children
   }, [theme]);
 
   const value = {
+    toggleTheme: () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark'),
     theme,
     isDarkTheme: resolvedTheme === 'dark',
     isLightTheme: resolvedTheme === 'light',
