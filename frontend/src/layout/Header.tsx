@@ -52,7 +52,7 @@ const ModelSelector: React.FC = () => {
 
   const handleSelectModel = (model: AIModel) => {
     setConfig({
-      model: model.name,
+      model: model.id,
       provider: model.provider,
     });
     setIsModalOpen(false);
