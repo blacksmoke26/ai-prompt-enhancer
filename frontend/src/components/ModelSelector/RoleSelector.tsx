@@ -23,23 +23,34 @@ import {
   User,
   X,
 } from 'lucide-react';
+
+// ui components
 import {Badge} from '~/components/ui/Badge';
-import {UserRole} from '~/types';
 import {Button} from '~/components/ui/Button';
 
-/**
- * TYPES & INTERFACES
- */
+// types
+import type { UserRole } from '~/types';
 
+/**
+ * Configuration options for the RoleSelector modal component. Allows customization of titles, placeholders, text labels,
+ * and responsive grid column settings.
+ */
 export interface RoleSelectorConfig {
+  /** Optional title for the modal header. Defaults to "User Role". */
   modalTitle?: string;
+  /** Placeholder text for the search input field. */
   searchPlaceholder?: string;
+  /** Title text displayed when no roles match the filter criteria. */
   emptyStateTitle?: string;
+  /** Description text shown alongside the empty state title. */
   emptyStateDescription?: string;
+  /** Text label for the button to clear active search or category filters. */
   clearFiltersText?: string;
+  /** Text label for the close button in the modal footer. */
   closeText?: string;
+  /** Default category to filter by when the component loads. Defaults to "All". */
   defaultCategory?: string;
-  // Grid configuration for different breakpoints
+  /** CSS utility classes for grid column layout across different screen breakpoints. */
   gridCols?: {
     sm?: string;
     md?: string;
@@ -49,23 +60,29 @@ export interface RoleSelectorConfig {
   };
 }
 
+/**
+ * Props definition for the RoleSelector component, handling data display, user selection events, and configuration.
+ */
 export interface RoleSelectorProps {
+  /** Array of role objects to display in the selector. */
   data?: UserRole[];
+  /** Callback function triggered when a role is selected. Receives the selected role object. */
   onSelect(role: UserRole): void;
+  /** Optional initial selected role. */
   initialValue?: UserRole | null;
+  /** Component configuration object for customization. */
   config?: RoleSelectorConfig;
 }
 
-
 /**
- * UI PRIMITIVES
+ * Generic wrapper for Lucide icons to handle size and className props consistently.
  */
 const Icon = ({Icon: LucideIcon, size = 16, className = ''}) => (
   <LucideIcon size={size} className={className}/>
 );
 
 /**
- * DENSE ROLE CARD
+ * Displays a compact card representing a single role including name, description, capabilities, and temperature.
  */
 const RoleCard = ({role, isSelected, onSelect, getCategoryIcon}) => {
   return (
@@ -142,7 +159,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = (props) => {
     data = [],
     onSelect,
     initialValue = null,
-    config = {}
+    config = {},
   } = props;
 
   // Merge user config with defaults
@@ -160,8 +177,8 @@ const RoleSelector: React.FC<RoleSelectorProps> = (props) => {
       md: 'grid-cols-2',
       lg: 'grid-cols-2',
       xl: 'grid-cols-2',
-      '2xl': 'grid-cols-2'
-    }
+      '2xl': 'grid-cols-2',
+    },
   } = config;
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -258,9 +275,12 @@ const RoleSelector: React.FC<RoleSelectorProps> = (props) => {
       >
         <div className="flex items-center gap-3 relative z-10">
           <div className="overflow-hidden">
-            <p className="text-sm text-foreground truncate group-hover:text-primary transition-colors">
-              {selectedRole ? <span><span className="font-light text-base">{selectedRole.name}</span> <Badge variant="secondary" className="text-xs font-normal">{selectedRole.category}</Badge></span> : 'Choose Role'}
-            </p>
+            <div className="text-sm text-foreground truncate group-hover:text-primary transition-colors">
+              {selectedRole ?
+                <span><span className="font-light text-base">{selectedRole.name}</span>
+                  <Badge variant="secondary" className="text-xs font-normal">{selectedRole.category}</Badge>
+                </span> : 'Choose Role'}
+            </div>
           </div>
         </div>
       </button>
@@ -400,7 +420,8 @@ const RoleSelector: React.FC<RoleSelectorProps> = (props) => {
                       </div>
 
                       {/* Grid for this category */}
-                      <div className={`grid gap-3 ${gridCols.sm} ${gridCols.md} ${gridCols.lg} ${gridCols.xl} ${gridCols['2xl']}`}>
+                      <div
+                        className={`grid gap-3 ${gridCols.sm} ${gridCols.md} ${gridCols.lg} ${gridCols.xl} ${gridCols['2xl']}`}>
                         {roles.map(role => (
                           <RoleCard
                             key={role.id}
@@ -425,7 +446,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = (props) => {
             </div>
           </div>
         </div>,
-        document.body
+        document.body,
       )}
     </div>
   );
