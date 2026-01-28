@@ -53,111 +53,534 @@ export type ResponseOutputFormat = 'json' | 'markdown' | 'text' | 'html' | 'xml'
  */
 export interface PromptRequest {
   /**
-   * The text prompt to be processed
-   * @example "Explain quantum computing in simple terms"
+   * The main input text to be processed or enhanced.
+   * This is the core content that the model will work with.
+   * @example "Analyze the dataset and generate a summary"
    */
   text: string;
+
   /**
-   * Identifier of the AI model provider (e.g., "Openai", "Ollama")
-   * @example "Openai"
+   * The system message that sets the context or rules for the model's behavior.
+   * This is typically used to define the model's role or constraints.
+   * @example "You are a data analyst specializing in financial trends."
    */
-  provider: string;
+  systemPrompt: string;
+
   /**
-   * Identifier of the AI model to use for processing
-   * @example "gpt-4-turbo"
-   */
-  model: string;
-  /**
-   * System prompt to guide the AI's behavior
-   * @example "You are a helpful assistant that explains complex topics simply"
-   */
-  systemPrompt?: string;
-  /**
-   * Controls randomness of the output (0.0 to 1.0)
-   * @example 0.7
-   */
-  temperature?: number;
-  /**
-   * Maximum number of tokens to generate
-   * @example 500
-   */
-  maxTokens?: number;
-  /**
-   * Type of enhancement to apply to the prompt
-   * @example "enhance"
-   */
-  enhancementType?: string;
-  /**
-   * User role that determines the context for the AI response
-   * @developerNotes Sets the professional context for the AI's response based on user's background
-   * @example "developer"
-   */
-  userRole?: string;
-  /**
-   * Target audience for the response
-   * @developerNotes Helps the AI tailor the content for specific audience understanding
-   * @example "technical-experts"
-   */
-  targetAudience?: string;
-  /**
-   * Desired tone for the AI response
-   * @developerNotes Controls the emotional and stylistic approach of the response
-   * @example "professional"
-   */
-  tone?: string;
-  /**
-   * Preferred length of the response
-   * @developerNotes Determines how detailed or concise the response should be
-   * @example "medium"
-   */
-  responseLength?: string;
-  /**
-   * Additional user instructions for the AI
-   * @developerNotes Allows for specific formatting or content requirements beyond standard options
-   * @example "Include code examples"
-   */
-  customInstructions?: string;
-  /**
-   * Parameters for the enhancement type
-   * @example { "complexity": 5, "focus": "performance" }
-   */
-  enhancementParameters?: Record<string, string>;
-  /**
-   * Output format for the enhanced response
+   * The desired format of the output. Supported formats include JSON, Markdown,
+   * plain text, HTML, XML, YAML, and CSV.
    * @example 'markdown'
    */
-  format?: ResponseOutputFormat;
+  format:
+    | 'json'
+    | 'markdown'
+    | 'text'
+    | 'html'
+    | 'xml'
+    | 'yaml'
+    | 'csv'
+    | string;
+
   /**
-   * Timestamp when the request was made
-   * @example "2023-05-15T10:30:00Z"
+   * The role the user is playing in the interaction. This defines the context
+   * for how the model should interpret and respond to the input.
+   * @example 'data scientist'
+   */
+  userRole?: string;
+
+  /**
+   * The type of enhancement or transformation to apply to the input text.
+   * This could include summarization, translation, formatting, etc.
+   * @example 'summarize'
+   */
+  enhancementType?: string;
+
+  /**
+   * Optional: The AI provider to use (e.g., 'OpenAI', 'Anthropic', 'Google').
+   * @example 'Anthropic'
+   */
+  provider?: string;
+
+  /**
+   * Optional: The specific model name or identifier to use.
+   * @example 'claude-3-5-sonnet'
+   */
+  model?: string;
+
+  /**
+   * Optional: The target audience for the output content.
+   * This influences tone, complexity, and language choices.
+   * @example 'technical audience'
+   */
+  targetAudience?: string;
+
+  /**
+   * Optional: The tone of the output (e.g., formal, casual, professional).
+   * @example 'professional'
+   */
+  tone?: string;
+
+  /**
+   * Optional: The desired length of the output response.
+   * Common values: 'short', 'medium', 'long', 'extensive'.
+   * @example 'medium'
+   */
+  responseLength?: string;
+
+  /**
+   * Optional: Custom instructions to supplement the main prompt.
+   * These are additional guidelines for the model to follow.
+   * @example 'Include a table of key findings'
+   */
+  customInstructions?: string;
+
+  /**
+   * Optional: Controls the randomness of the output.
+   * Lower values make the output more deterministic.
+   * @default 0.7
+   * @example 0.5
+   */
+  temperature?: number;
+
+  /**
+   * Optional: Maximum number of tokens (words) to generate in the output.
+   * @example 1024
+   */
+  maxTokens?: number;
+
+  /**
+   * Optional: Controls the diversity of the generated text.
+   * Higher values allow for more diverse outputs.
+   * @example 0.95
+   */
+  topP?: number;
+
+  /**
+   * Optional: Controls the diversity of the generated text based on token probabilities.
+   * @example 50
+   */
+  topK?: number;
+
+  /**
+   * Optional: Penalizes frequent token usage to reduce repetition.
+   * @example 0.2
+   */
+  frequencyPenalty?: number;
+
+  /**
+   * Optional: Penalizes new topic introduction to keep the response focused.
+   * @example 0.1
+   */
+  presencePenalty?: number;
+
+  /**
+   * Optional: Sequences to stop token generation at.
+   * @example ['<END>', '<STOP>']
+   */
+  stopSequences?: string[];
+
+  /**
+   * Optional: Timestamp for tracking when the prompt was created.
+   * @example '2023-10-05T14:30:00Z'
    */
   timestamp?: string;
+
   /**
-   * Additional metadata for the request
-   * @example { requestId: "req_123", userId: "user_abc" }
+   * Optional: Unique identifier for the conversation or session.
+   * @example 'chat_12345'
    */
-  metadata?: {
-    requestId?: string;
-    userId?: string;
-    timestamp?: string;
-  };
+  conversationId?: string;
+
   /**
-   * Whether the request is off-the-record (not stored in the history)
-   * @example false
+   * Optional: If true, the response will not be tied to previous interactions.
+   * @example true
    */
   offTheRecord?: boolean;
-  /** Top-p sampling parameter */
-  topP?: number;
-  /** Top-k sampling parameter */
-  topK?: number;
-  /** Stop sequences for generation */
-  stopSequences?: string[];
-  /** Frequency penalty parameter */
-  frequencyPenalty?: number;
-  /** Presence penalty parameter */
-  presencePenalty?: number;
-  /** Conversation ID for context */
-  conversationId?: string;
+
+  /**
+   * Optional: Custom parameters for the enhancement process.
+   * This allows passing arbitrary metadata or configuration.
+   * @example { 'theme': 'dark', 'version': '2.1' }
+   */
+  enhancementParameters?: Record<string, any>;
+
+  /**
+   * --- ADVANCED OPTIONAL PARAMETERS ---
+   * These parameters allow fine-grained control over the model's output structure,
+   * semantic processing, and contextual behavior.
+   */
+
+  /**
+   * Cognitive & Semantic Control
+   * Parameters that influence how the model processes and structures information.
+   */
+
+  /**
+   * The cognitive load required to understand the content.
+   * Options: 'low' (simple concepts), 'medium', 'high' (complex analysis).
+   * @example 'medium'
+   */
+  cognitiveLoad?: 'low' | 'medium' | 'high';
+
+  /**
+   * The density of information per concept in the output.
+   * Options: 'sparse' (brief), 'balanced', 'dense' (detailed).
+   * @example 'balanced'
+   */
+  informationDensity?: 'sparse' | 'balanced' | 'dense';
+
+  /**
+   * The level of abstraction in the content.
+   * Options: 'concrete' (specific examples), 'abstract', 'mixed'.
+   * @example 'mixed'
+   */
+  abstractionLevel?: 'concrete' | 'abstract' | 'mixed';
+
+  /**
+   * The use of metaphors in the output.
+   * Options: 'none', 'light' (occasional), 'heavy' (figurative language).
+   * @example 'light'
+   */
+  metaphorUsage?: 'none' | 'light' | 'heavy';
+
+  /**
+   * The tolerance for ambiguity in the content.
+   * Options: 'low' (precise), 'medium', 'high' (open-ended).
+   * @example 'medium'
+   */
+  ambiguityTolerance?: 'low' | 'medium' | 'high';
+
+  /**
+   * Structural & Syntactic Control
+   * Parameters that define the output's structure and language patterns.
+   */
+
+  /**
+   * The complexity of sentence structures in the output.
+   * Options: 'simple', 'compound', 'complex', 'varied'.
+   * @example 'varied'
+   */
+  sentenceStructure?: 'simple' | 'compound' | 'complex' | 'varied';
+
+  /**
+   * The flow pattern of paragraphs in the output.
+   * Options: 'linear' (sequential), 'circular' (repetitive), 'pyramidal'.
+   * @example 'linear'
+   */
+  paragraphFlow?: 'linear' | 'circular' | 'pyramidal';
+
+  /**
+   * The style of lists used in the output.
+   * Options: 'bulleted', 'numbered', 'inline', 'none'.
+   * @example 'bulleted'
+   */
+  listStyle?: 'bulleted' | 'numbered' | 'inline' | 'none';
+
+  /**
+   * Whether to include a hierarchical structure of headings in the output.
+   * @example true
+   */
+  headingHierarchy?: boolean;
+
+  /**
+   * Domain & Context Control
+   * Parameters that define the cultural, technical, and regulatory context.
+   */
+
+  /**
+   * The cultural context to consider when generating the content.
+   * @example 'US-West'
+   */
+  culturalContext?: string;
+
+  /**
+   * The specific domain or subject area of the content.
+   * @example 'Quantum Physics'
+   */
+  domainSpecificity?: string;
+
+  /**
+   * The level of technical jargon to use.
+   * Options: 'none', 'layman', 'professional', 'academic'.
+   * @example 'professional'
+   */
+  technicalJargonLevel?: 'none' | 'layman' | 'professional' | 'academic';
+
+  /**
+   * Regulatory compliance requirements for the output.
+   * @example ['GDPR', 'HIPAA']
+   */
+  regulatoryCompliance?: string[];
+
+  /**
+   * Emotional & Persuasive Control
+   * Parameters that influence the emotional tone and persuasive techniques.
+   */
+
+  /**
+   * The intensity of emotional expression in the output.
+   * Range: 1 (flat) to 10 (passionate).
+   * @example 7
+   */
+  emotionalIntensity?: number;
+
+  /**
+   * The persuasion technique to use.
+   * Options: 'ethos' (credibility), 'pathos' (emotion), 'logos' (logic), 'kairos' (timing).
+   * @example 'logos'
+   */
+  persuasionTechnique?: 'ethos' | 'pathos' | 'logos' | 'kairos';
+
+  /**
+   * The level of empathy to express in the output.
+   * Range: 1 (neutral) to 10 (deep empathy).
+   * @example 5
+   */
+  empathyLevel?: number;
+
+  /**
+   * Output Constraint Control
+   * Parameters that define output formatting and metadata preferences.
+   */
+
+  /**
+   * The strictness of output formatting constraints.
+   * Range: 1 (loose) to 10 (rigid).
+   * @example 6
+   */
+  strictness?: number;
+
+  /**
+   * If true, removes all conversational filler and focuses on core content.
+   * @example true
+   */
+  minimalOutput?: boolean;
+
+  /**
+   * If true, appends metadata about the reasoning process to the output.
+   * @example false
+   */
+  includeMetadata?: boolean;
+
+  /**
+   * The language code for the output (ISO 639-1 standard).
+   * @example 'en'
+   */
+  language?: string;
+
+  /**
+   * The character encoding to use for the output.
+   * @example 'utf-8'
+   */
+  encoding?: 'utf-8' | 'ascii';
+
+  /**
+   * --- EXPERIENCE PARAMETERS ---
+   * Advanced temporal and skill-based parameters that influence the model's
+   * reasoning depth, knowledge application, and contextual relevance.
+   */
+
+  /**
+   * The amount of practical experience the persona should demonstrate.
+   * Options: '1 day', '1 week', '1 month', '3 months', '6 months', '1 year', '3 years', '5 years', '10 years', '30 years', '50 years', '100 years', 'expert', 'master', 'nexus'.
+   * @example '1 year'
+   */
+  experience?: '1 day' | '1 week' | '1 month' | '3 months' | '6 months' | '1 year' | '3 years' | '5 years' | '10 years' | '30 years' | '50 years' | '100 years' | 'expert' | 'master' | 'nexus';
+
+  /**
+   * The current experience level as a number (for more granular control).
+   * Combined with experience, this determines the depth of knowledge and reasoning patterns.
+   * @example 5.7
+   */
+  experienceLevel?: number;
+
+  /**
+   * The time horizon for considering long-term consequences and future implications.
+   * @example 'short-term'
+   */
+  timeHorizon?: 'short-term' | 'medium-term' | 'long-term' | 'enterprise' | 'centennial';
+
+  /**
+   * The type of domain expertise to focus on.
+   * @example 'quantum_computing'
+   */
+  domainExpertise?: string;
+
+  /**
+   * Specific skills or capabilities that define the persona's expertise.
+   * @example ['data_analysis', 'machine_learning', 'statistics']
+   */
+  skills?: string[];
+
+  /**
+   * The proficiency level for each skill (0-10 scale).
+   * @example { 'data_analysis': 9, 'machine_learning': 8.5 }
+   */
+  skillProficiency?: Record<string, number>;
+
+  /**
+   * The learning curve adjustment (0.0-1.0).
+   * Higher values mean the model learns new concepts faster.
+   * @example 0.7
+   */
+  learningCurve?: number;
+
+  /**
+   * The retention rate for knowledge (0.0-1.0).
+   * Higher values mean information sticks better.
+   * @example 0.85
+   */
+  retentionRate?: number;
+
+  /**
+   * The speed of knowledge acquisition (1-100).
+   * @example 45
+   */
+  acquisitionSpeed?: number;
+
+  /**
+   * The depth of knowledge (1-10).
+   * Determines how thoroughly the model understands concepts.
+   * @example 8
+   */
+  knowledgeDepth?: number;
+
+  /**
+   * The breadth of knowledge (1-10).
+   * Determines how many related topics the model is familiar with.
+   * @example 7
+   */
+  knowledgeBreadth?: number;
+
+  /**
+   * The experience-based reasoning depth (1-10).
+   * Higher values indicate more sophisticated reasoning patterns.
+   * @example 6
+   */
+  reasoningDepth?: number;
+
+  /**
+   * The type of thinking patterns the persona employs.
+   * @example 'synthetic'
+   */
+  thinkingPattern?: 'linear' | 'synthetic' | 'hierarchical' | 'network' | 'holistic' | 'combinatorial' | 'differential' | 'evolutionary';
+
+  /**
+   * The problem-solving approach preference.
+   * @example 'analytical'
+   */
+  problemSolvingApproach?: 'analytical' | 'intuitive' | 'empirical' | 'theoretical' | 'heuristic' | 'algorithmic' | 'adaptive';
+
+  /**
+   * The pattern recognition sensitivity (0.0-1.0).
+   * Higher values mean the model recognizes patterns more quickly.
+   * @example 0.8
+   */
+  patternRecognitionSensitivity?: number;
+
+  /**
+   * The experience-based context sensitivity (0.0-1.0).
+   * Higher values mean the model adapts better to context.
+   * @example 0.75
+   */
+  contextSensitivity?: number;
+
+  /**
+   * The adaptability to new information (0.0-1.0).
+   * Higher values mean the model updates knowledge better.
+   * @example 0.9
+   */
+  adaptability?: number;
+
+  /**
+   * The cross-domain knowledge transfer capability (0.0-1.0).
+   * Higher values mean the model can apply knowledge across domains.
+   * @example 0.65
+   */
+  crossDomainTransfer?: number;
+
+  /**
+   * The focus of expertise (specific domain vs generalist).
+   * @example 'specialist'
+   */
+  expertiseFocus?: 'generalist' | 'specialist' | 'expertise_dominant' | 'comprehensive';
+
+  /**
+   * The level of domain specialization (0-10).
+   * Higher values mean deeper specialization.
+   * @example 9
+   */
+  domainSpecialization?: number;
+
+  /**
+   * The level of lateral thinking capability (0.0-1.0).
+   * Higher values mean the model can think outside conventional patterns.
+   * @example 0.85
+   */
+  lateralThinking?: number;
+
+  /**
+   * The level of systems thinking capability (0.0-1.0).
+   * Higher values mean the model can see interconnected systems.
+   * @example 0.8
+   */
+  systemsThinking?: number;
+
+  /**
+   * The level of critical thinking capability (0.0-1.0).
+   * Higher values mean the model can critically evaluate information.
+   * @example 0.9
+   */
+  criticalThinking?: number;
+
+  /**
+   * The level of creative thinking capability (0.0-1.0).
+   * Higher values mean the model can generate novel ideas.
+   * @example 0.75
+   */
+  creativeThinking?: number;
+
+  /**
+   * The level of analytical thinking capability (0.0-1.0).
+   * Higher values mean the model can break down complex problems.
+   * @example 0.85
+   */
+  analyticalThinking?: number;
+
+  /**
+   * The level of experiential learning capability (0.0-1.0).
+   * Higher values mean the model learns from experience effectively.
+   * @example 0.9
+   */
+  experientialLearning?: number;
+
+  /**
+   * The level of theoretical understanding (0.0-1.0).
+   * Higher values mean the model has deeper theoretical knowledge.
+   * @example 0.8
+   */
+  theoreticalUnderstanding?: number;
+
+  /**
+   * The level of practical application skill (0.0-1.0).
+   * Higher values mean the model applies knowledge effectively.
+   * @example 0.85
+   */
+  practicalApplication?: number;
+
+  /**
+   * The level of synthesis capability (0.0-1.0).
+   * Higher values mean the model can combine ideas effectively.
+   * @example 0.8
+   */
+  synthesisCapability?: number;
+
+  /**
+   * The level of evaluation capability (0.0-1.0).
+   * Higher values mean the model can assess information effectively.
+   * @example 0.85
+   */
+  evaluationCapability?: number;
 }
 
 /**
