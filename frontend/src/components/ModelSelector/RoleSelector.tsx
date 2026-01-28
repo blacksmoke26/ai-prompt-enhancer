@@ -164,7 +164,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = (props) => {
 
   // Merge user config with defaults
   const {
-    modalTitle = 'User Role',
+    modalTitle = 'Choose Assistant',
     searchPlaceholder,
     emptyStateTitle = 'No results found',
     emptyStateDescription = 'Try adjusting your search or category filter.',
@@ -277,7 +277,7 @@ const RoleSelector: React.FC<RoleSelectorProps> = (props) => {
           <div className="overflow-hidden">
             <div className="text-sm text-foreground truncate group-hover:text-primary transition-colors">
               {selectedRole ?
-                <span><span className="font-light text-base">{selectedRole.name}</span>
+                <span><span className="font-light text-base mr-1">{selectedRole.name}</span>
                   <Badge variant="secondary" className="text-xs font-normal">{selectedRole.category}</Badge>
                 </span> : 'Choose Role'}
             </div>
