@@ -170,6 +170,80 @@ export default {
             description: 'The responses related to the prompt',
             examples: [['this is a sample ai response']],
           },
+          stats: {
+            type: 'object',
+            description: 'Statistical breakdown of text and token usage.',
+            properties: {
+              textData: {
+                type: 'array',
+                description:
+                  'Basic text statistics such as word count, character count, and whitespace count.',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: {
+                      type: 'string',
+                      description:
+                        'Label for the text statistic (e.g., Words, Characters, Whitespace).',
+                      examples: ['Words'],
+                    },
+                    value: {
+                      type: 'integer',
+                      description: 'Numeric value representing the statistic.',
+                      examples: [8],
+                      minimum: 0,
+                    },
+                  },
+                  required: ['name', 'value'],
+                },
+                examples: [
+                  [
+                    { name: 'Words', value: 8 },
+                    { name: 'Characters', value: 46 },
+                    { name: 'Whitespace', value: 0 },
+                  ],
+                ],
+              },
+              tokenStats: {
+                type: 'array',
+                description:
+                  'Token-related statistics comparing current item with global averages.',
+                items: {
+                  type: 'object',
+                  properties: {
+                    name: {
+                      type: 'string',
+                      description:
+                        'Label for the token statistic (e.g., This Item, Global Avg).',
+                      examples: ['This Item'],
+                    },
+                    value: {
+                      type: 'integer',
+                      description:
+                        'Numeric value representing the token count.',
+                      examples: [666],
+                      minimum: 0,
+                    },
+                    fill: {
+                      type: 'string',
+                      description:
+                        'Hex color code used for chart visualization.',
+                      pattern: '^#([A-Fa-f0-9]{6})$',
+                      examples: ['#8b5cf6'],
+                    },
+                  },
+                  required: ['name', 'value', 'fill'],
+                },
+                examples: [
+                  [
+                    { name: 'This Item', value: 666, fill: '#8b5cf6' },
+                    { name: 'Global Avg', value: 687, fill: '#cbd5e1' },
+                  ],
+                ],
+              },
+            },
+            required: ['textData', 'tokenStats'],
+          },
           createdAt: {
             type: 'string',
             format: 'date-time',

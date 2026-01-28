@@ -22,6 +22,7 @@ import schema from './schemas/list-by-role.schema';
 // types
 import type { FastifyInstance } from 'fastify';
 import type { SuccessResponse } from '~/types/response';
+import { PromptHistory } from '~/types/history-service';
 
 interface HistoryItem extends HistoryAttributes {
   variants: string[];
@@ -72,6 +73,8 @@ export default (fastify: FastifyInstance) => {
         raw: true,
       });
 
+      const globalStats = await this.historyService.getGlobalStats();
+
       for await (const record of records) {
         const records = await HistoryResponse.findAll({
           attributes: ['response'],
@@ -80,7 +83,8 @@ export default (fastify: FastifyInstance) => {
           raw: true,
         });
 
-        record.variants = records.map(x => x.response)
+        record.variants = records.map(x => x.response);
+        record.stats = this.historyService.calculateItemStats(record as PromptHistory, globalStats);
       }
 
       return ResponseHelper.successWithData(records as HistoryItem[]);
