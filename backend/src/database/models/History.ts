@@ -57,7 +57,7 @@ class History extends Model<
   /** The model used for the response */
   declare model: string;
   /** The type of enhancement applied to the prompt */
-  declare enhancementType: string | null;
+  declare enhancementType?: string | null;
   /** The role of the user */
   declare userRole: string;
   /** The response received from the provider */

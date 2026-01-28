@@ -33,7 +33,8 @@ module.exports = {
       enhancedPrompt: {
         field: 'enhanced_prompt',
         type: DataTypes.TEXT,
-        allowNull: false,
+        allowNull: true,
+        defaultValue: null,
       },
       model: {
         field: 'model',
