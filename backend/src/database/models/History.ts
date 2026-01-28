@@ -59,7 +59,7 @@ class History extends Model<
   /** The type of enhancement applied to the prompt */
   declare enhancementType?: string | null;
   /** The role of the user */
-  declare userRole: string;
+  declare userRole: number;
   /** The response received from the provider */
   declare systemPrompt: string;
   /** The number of tokens used for the response */

@@ -114,9 +114,7 @@ export default (fastify: FastifyInstance) => {
           enhancementType: await EnhancementType.getIdByKey(
             promptRequest.enhancementType,
           ),
-          userRole: await PromptUserRole.getIdByKey(
-            promptRequest.userRole || 'general',
-          ),
+          userRole: Number(promptRequest.userRole),
           systemPrompt: promptRequest?.systemPrompt ?? '',
           tokensUsed: streamResponse?.data?.tokensUsed ?? 0,
           processingTime: streamResponse?.data?.processingTime ?? 0,
