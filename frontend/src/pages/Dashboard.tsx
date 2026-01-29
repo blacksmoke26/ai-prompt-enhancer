@@ -22,12 +22,10 @@ import {Card, CardContent} from '~/components/ui/Card';
 // components
 import Header from '~/layout/Header';
 import Sidebar from '~/components/Sidebar';
+import Assistant from '~/layout/Assistant';
 import StatsPanel from '~/components/StatsPanel';
 import HistoryPanel from '~/components/HistoryPanel';
 import SettingsPanel from '~/components/SettingsPanel';
-import ModelSelector from '~/components/ModelSelector';
-import PromptEnhancer from '~/components/PromptEnhancer';
-import Assistant from '~/layout/Assistant.tsx';
 
 /**
  * Represents the available dashboard tabs
@@ -152,7 +150,7 @@ export const Dashboard: React.FC = () => {
       )}>
         {/* Header Area */}
         <Header
-          currentTab={currentTab as unknown as string}
+          currentTab={currentTab.id}
           heading={currentTab.label}
           icon={<TabIcon size={20}/>}/>
         {/*<ModelSelector/>*/}
