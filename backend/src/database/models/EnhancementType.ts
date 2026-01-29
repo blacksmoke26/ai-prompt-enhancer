@@ -219,7 +219,7 @@ export class EnhancementType extends Model<
       raw: true,
     });
 
-    return record?.id ?? null;
+    return record ? String(record?.id) : null;
   }
 }
 
