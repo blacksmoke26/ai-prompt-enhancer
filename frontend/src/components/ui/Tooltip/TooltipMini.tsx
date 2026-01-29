@@ -107,7 +107,7 @@ export const TooltipMini = React.forwardRef<
 
     // Changed font-medium to font-normal as requested
     return typeof tooltipContent === "string" ? (
-      <p className="font-normal leading-none">{tooltipContent}</p>
+      <p className="font-normal leading-snug text-xs">{tooltipContent}</p>
     ) : (
       tooltipContent
     );
