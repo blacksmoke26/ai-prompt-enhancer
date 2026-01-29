@@ -90,6 +90,12 @@ export class PromptUserRole extends Model<
   /** Tags or labels associated with the model's output or purpose */
   declare tags: string[];
 
+  /** Strict negative constraints or rules the persona must obey */
+  declare constraints: string[];
+
+  /** Specific external tools or APIs the persona is assumed to have access to */
+  declare tools: string[];
+
   /** The temperature parameter controlling the model's randomness and creativity. */
   declare temperature: number;
 
@@ -213,6 +219,18 @@ PromptUserRole.init(
       allowNull: false,
       defaultValue: [],
       comment: `Tags or labels associated with the model's output or purpose`,
+    },
+    constraints: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
+      comment: `Strict negative constraints or rules the persona must obey`,
+    },
+    tools: {
+      type: DataTypes.JSON,
+      allowNull: false,
+      defaultValue: [],
+      comment: `Specific external tools or APIs the persona is assumed to have access to`,
     },
     temperature: {
       type: DataTypes.NUMBER,

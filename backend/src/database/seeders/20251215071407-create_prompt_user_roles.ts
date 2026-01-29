@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { QueryInterface, QueryTypes } from 'sequelize';
+import { QueryInterface } from 'sequelize';
 
 // db
 import { ExpertiseLevel, PromptUserRole } from '~/database/models';
@@ -15,17 +15,11 @@ import promptUserRoles from '~/constants/prompt-user-roles';
 /** @type {import('sequelize-cli').Migration} */
 export default {
   async up(queryInterface: QueryInterface) {
-    await queryInterface.sequelize.transaction(async (transaction) => {
+    await queryInterface.sequelize.transaction(async () => {
       for await (const role of promptUserRoles) {
-        const [result] = (await queryInterface.sequelize.query(
-          `SELECT COUNT(*) as total FROM prompt_user_roles WHERE key = '${role.id}'`,
-          {
-            type: QueryTypes.SELECT,
-            raw: true,
-          },
-        )) as Awaited<[{ total: number }]>;
+        const exists = await PromptUserRole.count({where: {key: role.id}});
 
-        if (!result.total) {
+        if (!exists) {
           await PromptUserRole.create(
             {
               key: role.id,
@@ -40,9 +34,10 @@ export default {
               capabilities: role.capabilities as string[],
               tags: role.tags as string[],
               temperature: role.temperature as number,
+              constraints: role.constraints as string[],
+              tools: role.tools as string[],
               hidden: false
             },
-            { transaction },
           );
         }
       }

@@ -36,6 +36,8 @@ export default (fastify: FastifyInstance) => {
         tone: record?.tone ? JSON.parse(record?.tone as unknown as string) : [],
         capabilities: record?.capabilities ? JSON.parse(record?.capabilities as unknown as string) : [],
         tags: record?.tags ? JSON.parse(record?.tags as unknown as string) : [],
+        constraints: record?.constraints ? JSON.parse(record?.constraints as unknown as string) : [],
+        tools: record?.tools ? JSON.parse(record?.tools as unknown as string) : [],
         hidden: Boolean(record.hidden),
       }));
 
