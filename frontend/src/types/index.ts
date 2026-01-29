@@ -866,6 +866,61 @@ export interface AppConfig {
   frequencyPenalty?: number;
   /** The presence penalty parameter to influence token selection */
   presencePenalty?: number;
+  /** The duration of experience */
+  experience?: string;
+  /** The level of economic detail. */
+  economicDetail?: string;
+  language?: string;
+  encoding?: string;
+  strictness?: number;
+  minimalOutput?: boolean;
+  includeMetadata?: boolean;
+  cognitiveLoad?: string;
+  informationDensity?: string;
+  abstractionLevel?: string;
+  metaphorUsage?: string;
+  sentenceStructure?: string;
+  paragraphFlow?: string;
+  listStyle?: string;
+  headingHierarchy?: boolean;
+  emotionalIntensity?: number;
+  persuasionTechnique?: string;
+  empathyLevel?: number;
+  culturalContext?: string;
+  domainSpecificity?: string;
+  technicalJargonLevel?: string;
+  regulatoryCompliance?: string[];
+  knowledgeDepth?: number;
+  knowledgeBreadth?: number;
+  reasoningDepth?: number;
+  thinkingPattern?: string;
+  problemSolvingApproach?: string;
+  systemsThinking?: number;
+  criticalThinking?: number;
+  crossDomainTransfer?: number;
+  lateralThinking?: number;
+  experienceLevel?: number;
+  timeHorizon?: string;
+  domainExpertise?: string;
+  skills?: string[];
+  skillProficiency?: Record<string, number>;
+  expertiseFocus?: string;
+  domainSpecialization?: number;
+  learningCurve?: number;
+  retentionRate?: number;
+  acquisitionSpeed?: number;
+  patternRecognitionSensitivity?: number;
+  contextSensitivity?: number;
+  adaptability?: number;
+  ambiguityTolerance?: string;
+  creativeThinking?: number;
+  analyticalThinking?: number;
+  experientialLearning?: number;
+  theoreticalUnderstanding?: number;
+  practicalApplication?: number;
+  synthesisCapability?: number;
+  evaluationCapability?: number;
+
   /** Whether to show deep text analysis in the UI */
   showDeepTextAnalysis: boolean;
   /** Whether to show prompt statistics in the UI */
@@ -1185,38 +1240,73 @@ export interface ProviderConfig {
  * @interface VisibleComponents
  */
 export interface VisibleComponents {
-  /** Whether the enhancement options component is visible */
-  enhancement: boolean;
-  /** Whether the temperature parameter component is visible */
   temperature: boolean;
-  /** Whether the maximum tokens parameter component is visible */
   maxTokens: boolean;
-  /** Whether the target audience selection component is visible */
   targetAudience: boolean;
-  /** Whether the tone selection component is visible */
   tone: boolean;
-  /** Whether the response length parameter component is visible */
   responseLength: boolean;
-  /** Whether the custom instructions input component is visible */
   customInstructions: boolean;
-  /** Whether the enhancement parameters component is visible */
   enhancementParameters: boolean;
-  /** Whether the output format selection component is visible */
   format: boolean;
-  /** Whether the 'off-the-record' privacy toggle is visible */
   offTheRecord: boolean;
-  /** Whether the top-p parameter component is visible */
   topP: boolean;
-  /** Whether the top-k parameter component is visible */
   topK: boolean;
-  /** Whether the stop sequences input component is visible */
   stopSequences: boolean;
-  /** Whether the frequency penalty parameter component is visible */
   frequencyPenalty: boolean;
-  /** Whether the presence penalty parameter component is visible */
   presencePenalty: boolean;
-  /** Whether the status indicator component is visible */
   status: boolean;
+  experience: boolean;
+  enhancementType: boolean;
+  language: boolean;
+  encoding: boolean;
+  strictness: boolean;
+  minimalOutput: boolean;
+  includeMetadata: boolean;
+  cognitiveLoad: boolean;
+  informationDensity: boolean;
+  abstractionLevel: boolean;
+  metaphorUsage: boolean;
+  sentenceStructure: boolean;
+  paragraphFlow: boolean;
+  listStyle: boolean;
+  headingHierarchy: boolean;
+  emotionalIntensity: boolean;
+  persuasionTechnique: boolean;
+  empathyLevel: boolean;
+  culturalContext: boolean;
+  domainSpecificity: boolean;
+  technicalJargonLevel: boolean;
+  regulatoryCompliance: boolean;
+  knowledgeDepth: boolean;
+  knowledgeBreadth: boolean;
+  reasoningDepth: boolean;
+  thinkingPattern: boolean;
+  problemSolvingApproach: boolean;
+  systemsThinking: boolean;
+  criticalThinking: boolean;
+  crossDomainTransfer: boolean;
+  lateralThinking: boolean;
+  experienceLevel: boolean;
+  timeHorizon: boolean;
+  domainExpertise: boolean;
+  skills: boolean;
+  skillProficiency: boolean;
+  expertiseFocus: boolean;
+  domainSpecialization: boolean;
+  learningCurve: boolean;
+  retentionRate: boolean;
+  acquisitionSpeed: boolean;
+  patternRecognitionSensitivity: boolean;
+  contextSensitivity: boolean;
+  adaptability: boolean;
+  ambiguityTolerance: boolean;
+  creativeThinking: boolean;
+  analyticalThinking: boolean;
+  experientialLearning: boolean;
+  theoreticalUnderstanding: boolean;
+  practicalApplication: boolean;
+  synthesisCapability: boolean;
+  evaluationCapability: boolean;
 }
 
 /**
