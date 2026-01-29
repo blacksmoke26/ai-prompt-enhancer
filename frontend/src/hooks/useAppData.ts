@@ -47,6 +47,8 @@ export const useAppData = () => {
     setResponseLengths,
     setEnhancementTypes,
     setListRoles,
+    setListByRoles,
+
   } = useDataStore();
 
   const {setConfig} = useAppStore();
@@ -69,18 +71,31 @@ export const useAppData = () => {
       setLoading(true);
       setError(null);
 
+      const [config, userRoles] = await Promise.all([
+        ConfigService.getConfig(),
+        UserRoleService.getAll(),
+      ]);
+
+      setConfig(config);
+      setUserRoles(userRoles);
+
       // Load all data in parallel
       await Promise.all([
+        //UserRoleService.getAll().then(setUserRoles),
         ToneService.getAll().then(setTones),
         HistoryService.getRolesList().then(setListRoles),
-        ConfigService.getConfig().then(setConfig),
         PromptService.getModels().then(setModels),
-        UserRoleService.getAll().then(setUserRoles),
         PromptService.getProviders().then(setProviders),
         TargetAudienceService.getAll().then(setTargetAudience),
         ResponseLengthService.getAll().then(setResponseLengths),
         EnhancementTypeService.getAll().then(setEnhancementTypes),
       ]);
+
+      const roleKey = userRoles?.find(x => Number(x.id) === Number(config?.userRole))?.key ?? '';
+
+      if (roleKey.length) {
+        setListByRoles(roleKey, await HistoryService.getListByRole(roleKey));
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data');
     } finally {
