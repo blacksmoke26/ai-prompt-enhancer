@@ -47,11 +47,6 @@ export type SmartSelectorIconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 export type SmartSelectorIconGap = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 /**
- * Theme Mode (Light or Dark).
- */
-export type SmartSelectorThemeMode = 'light' | 'dark';
-
-/**
  * Type for Lucide (or similar) React icons.
  * @example
  * import { Search } from 'lucide-react';
@@ -118,6 +113,8 @@ export interface SmartSelectorProps<TValue extends string> {
   /** Text alignment (default: 'left') */
   alignment?: SmartSelectorAlignment;
 
+  showEndingMargin?: boolean;
+
   /** --- Icons --- */
   /** Where to place the icon (default: 'left') */
   iconPosition?: SmartSelectorIconPosition;
@@ -129,8 +126,6 @@ export interface SmartSelectorProps<TValue extends string> {
   /** --- Appearance --- */
   /** Color theme (default: 'blue') */
   theme?: SmartSelectorTheme;
-  /** Theme mode (light/dark) - defaults to 'dark' */
-  themeMode?: SmartSelectorThemeMode;
   /** Whether to show the search input (default: true) */
   showSearch?: boolean;
   /** Whether to show borders on items (default: true) */
@@ -266,7 +261,6 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
     theme = 'blue',
     iconSize = 'md',
     iconGap = 'md',
-    themeMode = 'dark', // Default to dark
     disabled = false,
     showSearch = true,
     showBorder = true,
@@ -275,6 +269,7 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
     renderOption,
     classNames = {},
     className = '',
+    showEndingMargin = false,
   } = props;
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -368,7 +363,7 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
           <div
             className={`
               flex items-center justify-center rounded-md shrink-0
-              ${isSelected ? `${themeConfig.bgHover} ${themeConfig.main}` : `${variantConfig.iconContainer} text-zinc-500 dark:text-muted group-hover:text-zinc-900 dark:group-hover:text-text`}
+              ${isSelected ? `${themeConfig.bgHover} ${themeConfig.main}` : `${variantConfig.iconContainer} text-zinc-500 dark:text-muted-foreground group-hover:text-zinc-900 dark:group-hover:text-white`}
               ${iconClass}
               ${iconMarginClass}
             `}
@@ -504,7 +499,7 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
             </RadioGroup.Root>
 
             {/* Margin after last item */}
-            <div className={`h-${size === 'xs' ? '2' : '4'}`} aria-hidden="true"></div>
+            {showEndingMargin && <div className={`h-${size === 'xs' ? '2' : '4'}`} aria-hidden="true"></div>}
           </div>
         )}
       </div>
