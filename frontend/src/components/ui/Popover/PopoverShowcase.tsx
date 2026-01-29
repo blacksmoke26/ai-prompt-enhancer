@@ -212,7 +212,7 @@ const DestructiveExample = () => {
         variant="destructive"
         title="Delete Project"
         description="This action cannot be undone."
-        trigger={<Button variant="destructive" size="sm">Delete Project</Button>}
+        trigger={() => <Button variant="destructive" size="sm">Delete Project</Button>}
         confirmText="Yes, Delete"
         confirmIcon={Trash2}
         cancelText="Cancel"
@@ -285,14 +285,14 @@ const ProfileMenuExample = () => {
         width="w-56"
         align="end"
         variant="ghost"
-        trigger={
+        trigger={() => (
           <Button variant="ghost" size="sm" className="h-9 gap-2 px-2">
             <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
               JD
             </div>
             <span className="hidden md:inline">John Doe</span>
           </Button>
-        }
+        )}
       >
         <div className="p-1">
           <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Account</div>
@@ -319,7 +319,9 @@ const GlassmorphismExample = () => {
       <h4 className="text-sm font-medium">Glassmorphism</h4>
       <Popover
         title="Notifications"
-        trigger={<Button variant="outline"><MoreVertical className="h-4 w-4"/></Button>}
+        trigger={() => (
+          <Button variant="outline"><MoreVertical className="h-4 w-4"/></Button>
+        )}
         backdrop={true}
         variant="warning"
         headerIcon={AlertTriangle}
