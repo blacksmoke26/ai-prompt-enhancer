@@ -54,7 +54,7 @@ const ModelSelector: React.FC = () => {
     setConfig({
       model: model.id,
       provider: model.provider,
-    });
+    }, true);
     setIsModalOpen(false);
   };
 
