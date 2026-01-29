@@ -29,7 +29,8 @@ import {Badge} from '~/components/ui/Badge';
 import {Button} from '~/components/ui/Button';
 
 // types
-import type { UserRole } from '~/types';
+import type {UserRole} from '~/types';
+import TooltipMini from '~/components/ui/Tooltip/TooltipMini.tsx';
 
 /**
  * Configuration options for the RoleSelector modal component. Allows customization of titles, placeholders, text labels,
@@ -66,8 +67,10 @@ export interface RoleSelectorConfig {
 export interface RoleSelectorProps {
   /** Array of role objects to display in the selector. */
   data?: UserRole[];
+
   /** Callback function triggered when a role is selected. Receives the selected role object. */
   onSelect(role: UserRole): void;
+
   /** Optional initial selected role. */
   initialValue?: UserRole | null;
   /** Component configuration object for customization. */
@@ -92,8 +95,7 @@ const RoleCard = ({role, isSelected, onSelect, getCategoryIcon}) => {
         ${isSelected
         ? 'border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20'
         : 'border-border bg-card hover:border-primary/40 hover:bg-accent/30'
-      }
-                    `}
+      }`}
     >
       {/* Selection Check */}
       {isSelected && (
@@ -105,22 +107,24 @@ const RoleCard = ({role, isSelected, onSelect, getCategoryIcon}) => {
       {/* Header */}
       <div className="flex items-start justify-between mb-2 pr-6">
         <div className="flex items-center gap-2.5">
-          <div className={`
-                                p-1.5 rounded flex-shrink-0
-                                ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground'}
-                            `}>
+          <div className={`p-1.5 rounded flex-shrink-0
+                                ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground'}`}>
             <Icon Icon={getCategoryIcon(role.category)} size={14}/>
           </div>
-          <h3 className={`font-semibold text-sm truncate ${isSelected ? 'text-primary' : 'text-foreground'}`}>
-            {role.name}
-          </h3>
+          <TooltipMini className="max-w-96" title={role.longDescription}>
+            <h3 className={`font-semibold text-sm truncate ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+              {role.name}
+            </h3>
+          </TooltipMini>
         </div>
       </div>
 
       {/* Description */}
-      <p className="text-[11px] text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
-        {role.shortDescription}
-      </p>
+      <TooltipMini className="max-w-96" title={role.longDescription}>
+        <p className="text-[11px] text-muted-foreground line-clamp-2 mb-3 leading-relaxed">
+          {role.shortDescription}
+        </p>
+      </TooltipMini>
 
       {/* Footer */}
       <div className="mt-auto flex flex-col gap-2">
@@ -210,7 +214,8 @@ const RoleSelector: React.FC<RoleSelectorProps> = (props) => {
         role.name.toLowerCase().includes(searchLower) ||
         role.shortDescription.toLowerCase().includes(searchLower) ||
         role.key.toLowerCase().includes(searchLower) ||
-        role.capabilities.some(cap => cap.toLowerCase().includes(searchLower));
+        role.capabilities.some(cap => cap.toLowerCase().includes(searchLower))
+        role.tools.some(cap => cap.toLowerCase().includes(searchLower));
       return matchesCategory && matchesSearch;
     });
   }, [data, searchQuery, activeCategory, defaultCategory]);
