@@ -265,7 +265,7 @@ export const useDataStore = create<DataState>()(
       setListRoles: listRoles => set({listRoles}),
       setListByRoles(role: string, rows: PromptHistory[]) {
         set(state => {
-          state.listByRoles = {...state.listByRoles, [role]: rows};
+          state.listByRoles[role] = rows;
           return state;
         });
       },
