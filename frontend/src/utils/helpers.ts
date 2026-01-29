@@ -281,7 +281,6 @@ export const decodeHtml = (html: string) => {
 
   value = value.replace(/^```markdown/, '').replace(/```$/, '');
 
-  value = decodeURIComponent(value);
   value = value.replace(/&#(\d+);/g, (_, code) => String.fromCharCode(code));
   value = value.replace(/&#x([0-9a-fA-F]+);/g, (_, code) => String.fromCharCode(parseInt(code, 16)));
 
