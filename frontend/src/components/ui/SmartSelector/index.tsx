@@ -106,7 +106,7 @@ export interface SmartSelectorProps<TValue extends string> {
   /** Array of options to display */
   options: SmartSelectorOption<TValue>[];
   /** Currently selected value */
-  value: TValue;
+  value?: TValue;
   /** Callback when selection changes */
   onChange: (value: TValue) => void;
 
@@ -257,7 +257,7 @@ const THEME_MAP: Record<SmartSelectorTheme, { main: string; bg: string; bgHover:
 const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>) => {
   const {
     options,
-    value,
+    value = undefined,
     onChange,
     size = 'sm',
     variant = 'compact',
@@ -381,7 +381,7 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
         <div className="flex flex-col min-w-0 w-full">
           <span
             className={`
-              font-medium truncate leading-tight block
+              truncate leading-tight block
               ${isSelected ? activeText : inactiveText}
               ${sizeConfig.text}
               ${alignmentClass}
@@ -445,7 +445,7 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
   const ItemRenderer = renderOption || DefaultItemRenderer;
 
   return (
-    <div className={cn('flex flex-col bg-white dark:bg-zinc-950', disabled ? 'opacity-50 pointer-events-none grayscale' : '', className)}>
+    <div className={cn('flex flex-col', disabled ? 'opacity-50 pointer-events-none grayscale' : '', className)}>
       {/* Search Header */}
       {showSearch && (
         <div className="pb-3 mb-2 border-b border-zinc-200 dark:border-zinc-800">
@@ -464,7 +464,7 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               className={cn(
                 `
-                w-full bg-zinc-50 dark:bg-background border border-zinc-200 dark:border-border rounded-md text-zinc-900 dark:text-text placeholder-zinc-500 dark:placeholder-muted focus:outline-none focus:border-blue-500 dark:focus:border-primary transition-colors
+                w-full bg-zinc-50 dark:bg-background border border-zinc-200 dark:border-border rounded-md text-zinc-900 dark:text-gray-100 placeholder-zinc-500 dark:placeholder-muted focus:outline-none focus:border-blue-500 dark:focus:border-primary transition-colors
                 ${sizeConfig.text}
                 ${sizeConfig.input}
               `,
