@@ -900,6 +900,11 @@ export interface AppConfig {
   crossDomainTransfer?: number;
   lateralThinking?: number;
   experienceLevel?: number;
+  argumentationStyle?: string;
+  artisticDetail?: string;
+  mathematicalDetail?: string;
+  narrativePerspective?: string;
+  technicalDepth?: string;
   timeHorizon?: string;
   domainExpertise?: string;
   skills?: string[];

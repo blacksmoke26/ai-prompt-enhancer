@@ -36,7 +36,7 @@ const ExperienceInput: React.FC = () => {
         variant="tiny"
         value={config.experience}
         options={[
-          {label: 'None', value: '', icon: OctagonX, description: 'No specific experience level'},
+          {label: '(unset)', value: '', icon: OctagonX, description: 'No specific experience level'},
           {label: '1 day', value: '1 day', icon: Hourglass, description: 'Less than a week of experience'},
           {label: '1 week', value: '1 week', icon: Hourglass, description: 'A few days to a week of experience'},
           {label: '1 month', value: '1 month', icon: Hourglass, description: 'Up to a month of hands-on experience'},

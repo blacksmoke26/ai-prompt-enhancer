@@ -111,7 +111,20 @@ const RoleCard = ({role, isSelected, onSelect, getCategoryIcon}) => {
                                 ${isSelected ? 'bg-primary text-primary-foreground' : 'bg-accent text-accent-foreground'}`}>
             <Icon Icon={getCategoryIcon(role.category)} size={14}/>
           </div>
-          <TooltipMini className="max-w-96" title={role.longDescription}>
+          <TooltipMini className="max-w-96" title={(
+            <>
+              <span className="text-xs">{role.longDescription}</span>
+
+              <div className="flex flex-wrap mt-2">
+                {role.tags.map(cap => (
+                  <span
+                    key={cap}
+                    className="text-[10px] px-1 mb-1 mr-1 rounded text-muted-foreground border border-border">{cap}
+                  </span>
+                ))}
+              </div>
+            </>
+          )}>
             <h3 className={`font-semibold text-sm truncate ${isSelected ? 'text-primary' : 'text-foreground'}`}>
               {role.name}
             </h3>

@@ -37,7 +37,7 @@ const EconomicDetailInput: React.FC = () => {
         variant="tiny"
         value={config?.economicDetail}
         options={[
-          {label: 'Choose', value: '', description: 'Select an economic detail level'},
+          {label: '(unset)', value: '', description: 'Select an economic detail level'},
           {label: 'None', value: 'none', icon: Icon, description: 'No economic detail included'},
           {label: 'Conceptual', value: 'conceptual', icon: Icon, description: 'High-level economic concepts'},
           {label: 'Simplified', value: 'simplified', icon: Icon, description: 'Basic economic overview'},

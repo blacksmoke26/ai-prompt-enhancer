@@ -120,9 +120,22 @@ import PresencePenaltyInput from './PromptActions/controls/PresencePenaltyInput'
 import StopSequencesInput from './PromptActions/controls/StopSequencesInput';
 import TargetAudienceInput from './PromptActions/controls/TargetAudienceInput';
 import ToneInput from './PromptActions/controls/ToneInput';
+import AmbiguityTolerance from './PromptActions/controls/AmbiguityTolerance';
+import ArgumentationStyle from './PromptActions/controls/ArgumentationStyle';
+import ArtisticDetail from './PromptActions/controls/ArtisticDetail';
+import AbstractionLevel from './PromptActions/controls/AbstractionLevel';
+import AcquisitionSpeed from './PromptActions/controls/AcquisitionSpeed';
+import Adaptability from './PromptActions/controls/Adaptability';
+import AnalyticalThinking from './PromptActions/controls/AnalyticalThinking';
+import LateralThinking from './PromptActions/controls/LateralThinking';
+import LearningCurve from './PromptActions/controls/LearningCurve';
+import MathematicalDetail from './PromptActions/controls/MathematicalDetail';
+import NarrativePerspective from './PromptActions/controls/NarrativePerspective';
+import ParagraphFlow from './PromptActions/controls/ParagraphFlow';
 
 // types
 import type {VisibleComponents} from '~/types';
+import TechnicalDepth from '~/components/assistant/PromptActions/controls/TechnicalDepth.tsx';
 
 export const providerIcons: Record<string, LucideIcon> = {
   // ==========================================
@@ -300,10 +313,10 @@ export const componentsMaps: Record<string, { title: string; component: Function
   includeMetadata: {title: '', component: null},
   cognitiveLoad: {title: '', component: null},
   informationDensity: {title: '', component: null},
-  abstractionLevel: {title: '', component: null},
+  abstractionLevel: {title: 'Abstraction Level', component: AbstractionLevel},
   metaphorUsage: {title: '', component: null},
   sentenceStructure: {title: '', component: null},
-  paragraphFlow: {title: '', component: null},
+  paragraphFlow: {title: 'Paragraph Flow', component: ParagraphFlow},
   listStyle: {title: '', component: null},
   headingHierarchy: {title: '', component: null},
   tone: {title: 'Tone', component: ToneInput},
@@ -323,7 +336,7 @@ export const componentsMaps: Record<string, { title: string; component: Function
   systemsThinking: {title: '', component: null},
   criticalThinking: {title: '', component: null},
   crossDomainTransfer: {title: '', component: null},
-  lateralThinking: {title: '', component: null},
+  lateralThinking: {title: 'Lateral Thinking', component: LateralThinking},
   experience: {title: 'Experience', component: ExperienceInput},
   experienceLevel: {title: '', component: null},
   timeHorizon: {title: '', component: null},
@@ -332,15 +345,15 @@ export const componentsMaps: Record<string, { title: string; component: Function
   skillProficiency: {title: '', component: null},
   expertiseFocus: {title: '', component: null},
   domainSpecialization: {title: '', component: null},
-  learningCurve: {title: '', component: null},
+  learningCurve: {title: 'Learning Curve', component: LearningCurve},
   retentionRate: {title: '', component: null},
-  acquisitionSpeed: {title: '', component: null},
+  acquisitionSpeed: {title: 'Acquisition Speed', component: AcquisitionSpeed},
   patternRecognitionSensitivity: {title: '', component: null},
   contextSensitivity: {title: '', component: null},
-  adaptability: {title: '', component: null},
-  ambiguityTolerance: {title: '', component: null},
+  adaptability: {title: 'Adaptability', component: Adaptability},
+  ambiguityTolerance: {title: 'Ambiguity Tolerance', component: AmbiguityTolerance},
   creativeThinking: {title: '', component: null},
-  analyticalThinking: {title: '', component: null},
+  analyticalThinking: {title: 'Analytical Thinking', component: AnalyticalThinking},
   experientialLearning: {title: '', component: null},
   theoreticalUnderstanding: {title: '', component: null},
   practicalApplication: {title: '', component: null},
@@ -362,22 +375,22 @@ export const componentsMaps: Record<string, { title: string; component: Function
   // Scientific & Mathematical Details
   biologicalDetail: {title: '', component: null},
   chemicalDetail: {title: '', component: null},
-  mathematicalDetail: {title: '', component: null},
+  mathematicalDetail: {title: 'Mathematical Detail', component: MathematicalDetail},
   physicsDetail: {title: '', component: null},
 
   // Humanities & Social Details
-  artisticDetail: {title: '', component: null},
+  artisticDetail: {title: 'Artistic Detail', component: ArtisticDetail},
   philosophicalDetail: {title: '', component: null},
   historicalDepth: {title: '', component: null},
   psychologicalDetail: {title: '', component: null},
   socialDetail: {title: '', component: null},
-  narrativePerspective: {title: '', component: null},
+  narrativePerspective: {title: 'Narrative Perspective', component: NarrativePerspective},
 
   // Business, Tech & Data Details
   economicDetail: {title: 'Economic Detail', component: EconomicDetailInput},
   technologicalDetail: {title: '', component: null},
   dataGranularity: {title: '', component: null},
-  technicalDepth: {title: '', component: null},
+  technicalDepth: {title: 'Technical Depth', component: TechnicalDepth},
 
   // Environmental & Spatial Details
   environmentalDetail: {title: '', component: null},
@@ -388,7 +401,7 @@ export const componentsMaps: Record<string, { title: string; component: Function
   exampleSpecificity: {title: '', component: null},
   temporalScope: {title: '', component: null},
   visualComplexity: {title: '', component: null},
-  argumentationStyle: {title: '', component: null},
+  argumentationStyle: {title: 'Argumentation Style', component: ArgumentationStyle},
   writingStyle: {title: '', component: null},
 };
 
@@ -446,6 +459,11 @@ const PROFILE_ALL_FALSE = {
   skillProficiency: false,
   expertiseFocus: false,
   domainSpecialization: false,
+  argumentationStyle: false,
+  artisticDetail: false,
+  mathematicalDetail: false,
+  narrativePerspective: false,
+  technicalDepth: false,
   learningCurve: false,
   retentionRate: false,
   acquisitionSpeed: false,
@@ -462,13 +480,13 @@ const PROFILE_ALL_FALSE = {
   evaluationCapability: false,
 };
 
-
 export const VISIBILITY_PROFILES: Record<string, { label: string; desc: string; config: VisibleComponents }> = {
   minimalist: {
     label: 'Minimalist',
-    desc: 'Only essential controls (Temp, Length)',
+    desc: 'Only essential (Temp, Length and Enhancement)',
     config: {
       ...PROFILE_ALL_FALSE,
+      enhancementType: true,
       temperature: true,
       responseLength: true,
     } as VisibleComponents,
@@ -725,6 +743,11 @@ export const VISIBILITY_PROFILES: Record<string, { label: string; desc: string; 
       practicalApplication: true,
       synthesisCapability: true,
       evaluationCapability: true,
+      narrativePerspective: true,
+      technicalDepth: true,
+      argumentationStyle: false,
+      artisticDetail: false,
+      mathematicalDetail: false,
     } as VisibleComponents,
   },
 };
@@ -754,6 +777,9 @@ export const CATEGORIZED_COMPONENTS: Record<string, string[]> = {
   style: [
     'tone',
     'targetAudience',
+    'artisticDetail',
+    'argumentationStyle',
+    'technicalDepth',
     'cognitiveLoad',
     'informationDensity',
     'abstractionLevel',
@@ -783,6 +809,8 @@ export const CATEGORIZED_COMPONENTS: Record<string, string[]> = {
   ],
   advanced: [
     'knowledgeDepth',
+    'mathematicalDetail',
+    'narrativePerspective',
     'economicDetail',
     'knowledgeBreadth',
     'reasoningDepth',
