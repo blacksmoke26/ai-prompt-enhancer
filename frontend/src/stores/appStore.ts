@@ -67,14 +67,9 @@ export interface AppState {
   setSelectedRole(role: string): void;
 
   // Model Selector Settings
-  /** Component order for the model selector */
-  componentOrder: string[];
 
   /** Component visibility settings for the model selector */
   visibleComponents: VisibleComponents;
-
-  /** Sets the component order */
-  setComponentOrder(order: string[]): void;
 
   /** Sets the component visibility */
   setVisibleComponents(components: VisibleComponents): void;
@@ -152,26 +147,7 @@ export const useAppStore = create<AppState>()(
       setSidebarOpen: open => set({sidebarOpen: open}),
 
       // Model Selector Settings
-      componentOrder: [
-        'enhancement',
-        'temperature',
-        'maxTokens',
-        'targetAudience',
-        'tone',
-        'responseLength',
-        'customInstructions',
-        'enhancementParameters',
-        'format',
-        'offTheRecord',
-        'topP',
-        'topK',
-        'stopSequences',
-        'frequencyPenalty',
-        'presencePenalty',
-        'status',
-      ],
       visibleComponents: {
-        enhancement: true,
         temperature: true,
         maxTokens: true,
         targetAudience: false,
@@ -187,8 +163,59 @@ export const useAppStore = create<AppState>()(
         frequencyPenalty: false,
         presencePenalty: false,
         status: true,
+        experience: true,
+        enhancementType: false,
+        language: false,
+        encoding: false,
+        strictness: false,
+        minimalOutput: false,
+        includeMetadata: false,
+        cognitiveLoad: false,
+        informationDensity: false,
+        abstractionLevel: false,
+        metaphorUsage: false,
+        sentenceStructure: false,
+        paragraphFlow: false,
+        listStyle: false,
+        headingHierarchy: false,
+        emotionalIntensity: false,
+        persuasionTechnique: false,
+        empathyLevel: false,
+        culturalContext: false,
+        domainSpecificity: false,
+        technicalJargonLevel: false,
+        regulatoryCompliance: false,
+        knowledgeDepth: false,
+        knowledgeBreadth: false,
+        reasoningDepth: false,
+        thinkingPattern: false,
+        problemSolvingApproach: false,
+        systemsThinking: false,
+        criticalThinking: false,
+        crossDomainTransfer: false,
+        lateralThinking: false,
+        experienceLevel: false,
+        timeHorizon: false,
+        domainExpertise: false,
+        skills: false,
+        skillProficiency: false,
+        expertiseFocus: false,
+        domainSpecialization: false,
+        learningCurve: false,
+        retentionRate: false,
+        acquisitionSpeed: false,
+        patternRecognitionSensitivity: false,
+        contextSensitivity: false,
+        adaptability: false,
+        ambiguityTolerance: false,
+        creativeThinking: false,
+        analyticalThinking: false,
+        experientialLearning: false,
+        theoreticalUnderstanding: false,
+        practicalApplication: false,
+        synthesisCapability: false,
+        evaluationCapability: false,
       },
-      setComponentOrder: (order) => set({componentOrder: order}),
       setVisibleComponents: (components) => set({visibleComponents: components}),
     }),
     {
@@ -209,10 +236,10 @@ export const useAppStore = create<AppState>()(
           stopSequences: state.config.stopSequences,
           frequencyPenalty: state.config.frequencyPenalty,
           presencePenalty: state.config.presencePenalty,
+          experience: state.config.experience,
         },
         theme: state.theme,
         sidebarOpen: state.sidebarOpen,
-        componentOrder: state.componentOrder,
         visibleComponents: state.visibleComponents,
       }),
     },
