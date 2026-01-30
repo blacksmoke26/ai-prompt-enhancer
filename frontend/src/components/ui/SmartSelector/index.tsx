@@ -4,9 +4,9 @@
  * @see https://github.com/blacksmoke26
  */
 
-import React, {ComponentType, SVGAttributes, useEffect, useRef, useState} from 'react';
+import React, {ComponentType, SVGAttributes, useEffect, useMemo, useRef, useState} from 'react';
 import * as RadioGroup from '@radix-ui/react-radio-group';
-import {Search, Check} from 'lucide-react'; // Lucide Icons
+import {Search, Check, ChevronDown, ChevronRight} from 'lucide-react'; // Added Chevron icons
 
 // utils
 import {cn} from '~/utils/helpers';
@@ -48,118 +48,114 @@ export type SmartSelectorIconGap = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 /**
  * Type for Lucide (or similar) React icons.
- * @example
- * import { Search } from 'lucide-react';
- * // Search satisfies IconType
  */
 export type IconType = ComponentType<SVGAttributes<SVGSVGElement>>;
 
 /**
+ * Configuration for a specific Group/Category.
+ */
+export interface SmartSelectorGroupConfig {
+  /** Display label for the group header. Defaults to the group key if not provided. */
+  label?: string;
+  /** Whether the group is collapsible. Defaults to true if groups are present. */
+  collapsible?: boolean;
+  /** Initial state of the group (open/closed). Defaults to true (open). */
+  defaultOpen?: boolean;
+  /** Whether to show the count of items in the group. Defaults to true. */
+  showCount?: boolean;
+  /** Custom icon for the group header (optional). */
+  icon?: IconType;
+}
+
+/**
  * Generic Option Interface.
- * Extends this interface to add custom metadata if needed, though the generic `TMeta` supports this.
- *
- * @template TValue - The type of value (usually string or number).
- * @template TMeta - Additional metadata attached to the option (optional).
  */
 export interface SmartSelectorOption<TValue extends string = string, TMeta = Record<string, unknown>> {
   /** Unique identifier for the option */
   value: TValue;
   /** Display label */
   label: string;
-  /** Optional icon component (e.g., from lucide-react) */
+  /** Optional icon component */
   icon?: IconType;
   /** Optional secondary description text */
   description?: string;
   /** Disables individual item interaction */
   disabled?: boolean;
-  /** Custom metadata passed to the renderOption prop */
+  /** Custom metadata */
   meta?: TMeta;
+  /** The group/category key this option belongs to. Options without this are rendered at the top. */
+  group?: string;
 }
 
 /**
  * Props passed to the custom `renderOption` function.
  */
 export interface RenderOptionProps<TValue extends string> {
-  /** The option data object */
   option: SmartSelectorOption<TValue>;
-  /** Is this item currently selected */
   isSelected: boolean;
-  /** The pre-rendered icon node (or null) */
   iconNode: React.ReactNode;
-  /** The pre-rendered checkmark node */
   checkNode: React.ReactNode;
-  /** Callback to trigger selection */
   onSelect: (value: TValue) => void;
 }
 
 /**
  * Main Props for SmartSelector.
- *
- * @template TValue - The value type of the options.
  */
 export interface SmartSelectorProps<TValue extends string> {
-  /** Array of options to display */
   options: SmartSelectorOption<TValue>[];
-  /** Currently selected value */
   value?: TValue;
-  /** Callback when selection changes */
   onChange: (value: TValue) => void;
 
-  /** --- Sizing & Layout --- */
-  /** Size of text and inputs (default: 'sm') */
-  size?: SmartSelectorSize;
-  /** Padding density (default: 'compact') */
-  variant?: SmartSelectorVariant;
-  /** Text alignment (default: 'left') */
-  alignment?: SmartSelectorAlignment;
+  /** --- Grouping Configuration --- */
+  /** Configuration object for groups. Keys match the `group` property in options. */
+  groups?: Record<string, SmartSelectorGroupConfig>;
+  /** Global setting to enable/disable group collapsing. */
+  collapsibleGroups?: boolean;
 
+  /** --- Sizing & Layout --- */
+  size?: SmartSelectorSize;
+  variant?: SmartSelectorVariant;
+  alignment?: SmartSelectorAlignment;
   showEndingMargin?: boolean;
 
   /** --- Icons --- */
-  /** Where to place the icon (default: 'left') */
   iconPosition?: SmartSelectorIconPosition;
-  /** Specific size for icons independent of text (default: 'md') */
   iconSize?: SmartSelectorIconSize;
-  /** Space between icon and text (default: 'md') */
   iconGap?: SmartSelectorIconGap;
 
   /** --- Appearance --- */
-  /** Color theme (default: 'blue') */
   theme?: SmartSelectorTheme;
-  /** Whether to show the search input (default: true) */
   showSearch?: boolean;
-  /** Whether to show borders on items (default: true) */
   showBorder?: boolean;
-  /** Placeholder text for the search input (default: "Search...") */
   searchPlaceholder?: string;
 
   /** --- Functionality --- */
-  /** Disables the entire component */
   disabled?: boolean;
-  /** Limits the vertical height of the list (default: undefined) */
   visibleItems?: number;
-  /** Completely overrides the default item renderer */
   renderOption?: (props: RenderOptionProps<TValue>) => React.ReactNode;
 
   /** --- Customization --- */
-  /** Granular CSS class overrides */
   classNames?: {
     root?: string;
     searchInput?: string;
     list?: string;
     empty?: string;
     itemsWrapper?: string;
+    groupHeader?: string;
+    groupLabel?: string;
+    groupCount?: string;
   };
-  /** General wrapper class name */
   className?: string;
 }
 
-const SIZE_MAP: Record<SmartSelectorSize, { text: string; desc: string; input: string; container: string }> = {
-  xs: {text: 'text-[10px]', desc: 'text-[9px]', input: 'py-1 px-2 pl-7', container: 'gap-1'},
-  sm: {text: 'text-xs', desc: 'text-[10px]', input: 'py-1.5 px-2.5 pl-8', container: 'gap-1.5'},
-  md: {text: 'text-sm', desc: 'text-xs', input: 'py-2 px-3 pl-9', container: 'gap-2'},
-  lg: {text: 'text-base', desc: 'text-sm', input: 'py-2.5 px-3.5 pl-10', container: 'gap-2.5'},
-  xl: {text: 'text-lg', desc: 'text-sm', input: 'py-3 px-4 pl-11', container: 'gap-3'},
+// --- Constants & Maps ---
+
+const SIZE_MAP: Record<SmartSelectorSize, { text: string; desc: string; input: string; container: string; groupHeader: string }> = {
+  xs: {text: 'text-[10px]', desc: 'text-[9px]', input: 'py-1 px-2 pl-7', container: 'gap-1', groupHeader: 'text-[10px] py-1 px-2'},
+  sm: {text: 'text-xs', desc: 'text-[10px]', input: 'py-1.5 px-2.5 pl-8', container: 'gap-1.5', groupHeader: 'text-xs py-1.5 px-2.5'},
+  md: {text: 'text-sm', desc: 'text-xs', input: 'py-2 px-3 pl-9', container: 'gap-2', groupHeader: 'text-sm py-2 px-3'},
+  lg: {text: 'text-base', desc: 'text-sm', input: 'py-2.5 px-3.5 pl-10', container: 'gap-2.5', groupHeader: 'text-base py-2.5 px-3.5'},
+  xl: {text: 'text-lg', desc: 'text-sm', input: 'py-3 px-4 pl-11', container: 'gap-3', groupHeader: 'text-lg py-3 px-4'},
 };
 
 const ICON_SIZE_MAP: Record<SmartSelectorIconSize, string> = {
@@ -180,7 +176,6 @@ const ICON_GAP_MAP: Record<SmartSelectorIconGap, string> = {
   xl: 'mr-8',
 };
 
-// Updated with Dark/Light support
 const VARIANT_MAP: Record<SmartSelectorVariant, {
   item: string;
   iconContainer: string;
@@ -189,14 +184,12 @@ const VARIANT_MAP: Record<SmartSelectorVariant, {
 }> = {
   tiny: {
     item: 'py-1 px-2',
-    // Tiny usually has no background for icon
     iconContainer: 'bg-transparent dark:bg-transparent',
     check: 'w-3 h-3',
     desc: 'mt-0'
   },
   compact: {
     item: 'py-2 px-3',
-    // Light: Gray-100, Dark: Gray-800
     iconContainer: 'bg-zinc-100 dark:bg-zinc-800',
     check: 'w-4 h-4',
     desc: 'mt-0.5'
@@ -230,24 +223,7 @@ const THEME_MAP: Record<SmartSelectorTheme, { main: string; bg: string; bgHover:
 };
 
 /**
- * SmartSelector
- *
- * A highly customizable, accessible list selector component with Dark/Light mode support.
- * Features include search, auto-focus on selection, multiple variants/sizes, and optional Lucide icon rendering.
- *
- * @template TValue - The string type for option values.
- *
- * @example
- * ```tsx
- * <SmartSelector
- *   options={[{ value: '1', label: 'Option 1', icon: Star }]}
- *   value="1"
- *   onChange={setVal}
- *   themeMode="light"
- *   size="md"
- *   theme="blue"
- * />
- * ```
+ * SmartSelector Component
  */
 const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>) => {
   const {
@@ -267,14 +243,16 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
     searchPlaceholder = 'Search...',
     visibleItems,
     renderOption,
+    groups: groupsConfig = {},
+    collapsibleGroups = true,
     classNames = {},
     className = '',
     showEndingMargin = false,
   } = props;
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
-  // Refs for programmatic scrolling to selected item
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   // Auto-scroll to selected item
@@ -290,7 +268,71 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
   const alignmentClass = ALIGNMENT_MAP[alignment];
   const iconClass = ICON_SIZE_MAP[iconSize];
 
-  // Calculate height for the list container
+  // --- Advanced Grouping Logic ---
+
+  const groupedData = useMemo(() => {
+    // 1. Filter options first based on search query
+    const filtered = options.filter((option) => {
+      if (option.disabled) return false; // Or keep them but disable? Usually filter out disabled in search or keep. Let's keep but allow disabled selection to fail later, or filter. Standard is to filter out from interaction but keep visible? The previous code filtered them out: `if (option.disabled) return false;`. I will stick to that.
+      const query = searchQuery.toLowerCase();
+      return (
+        option.label.toLowerCase().includes(query) ||
+        option.value.toLowerCase().includes(query) ||
+        (option.description && option.description.toLowerCase().includes(query))
+      );
+    });
+
+    // 2. Separate into groups
+    const map: Record<string, SmartSelectorOption<TValue>[]> = {};
+    const ungrouped: SmartSelectorOption<TValue>[] = [];
+
+    filtered.forEach(opt => {
+      if (opt.group) {
+        if (!map[opt.group]) map[opt.group] = [];
+        map[opt.group].push(opt);
+      } else {
+        ungrouped.push(opt);
+      }
+    });
+
+    return { map, ungrouped, hasGroups: Object.keys(map).length > 0 };
+  }, [options, searchQuery]);
+
+  // Initialize collapsed state based on config
+  useEffect(() => {
+    const initialCollapsed = new Set<string>();
+    Object.keys(groupedData.map).forEach(groupKey => {
+      const config = groupsConfig[groupKey];
+      const isOpen = config?.defaultOpen !== false; // Default to open
+      if (!isOpen) {
+        initialCollapsed.add(groupKey);
+      }
+    });
+    setCollapsedGroups(initialCollapsed);
+  }, [JSON.stringify(groupsConfig)]); // Simple dependency check
+
+  // When searching, expand all groups automatically
+  const isSearching = searchQuery.length > 0;
+  const isGroupCollapsed = (groupKey: string) => {
+    if (isSearching) return false; // Always expand on search
+    const config = groupsConfig[groupKey];
+    const isCollapsible = config?.collapsible !== false && collapsibleGroups;
+    return isCollapsible && collapsedGroups.has(groupKey);
+  };
+
+  const toggleGroup = (groupKey: string) => {
+    setCollapsedGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(groupKey)) {
+        next.delete(groupKey);
+      } else {
+        next.add(groupKey);
+      }
+      return next;
+    });
+  };
+
+  // --- Height Calculation ---
   const getHeightMultiplier = (): number => {
     const baseMultipliers: Record<SmartSelectorSize, number> = {xs: 28, sm: 32, md: 36, lg: 42, xl: 52};
     const variantMultipliers: Record<SmartSelectorVariant, number> = {tiny: 0.8, compact: 1.0, padded: 1.2, huge: 1.5};
@@ -304,39 +346,17 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
     ? ({maxHeight: `${visibleItems * getHeightMultiplier()}px`} as React.CSSProperties)
     : {};
 
-  // Filter Logic
-  const filteredOptions = options.filter((option) => {
-    if (option.disabled) return false;
-    const query = searchQuery.toLowerCase();
-    return (
-      option.label.toLowerCase().includes(query) ||
-      option.value.toLowerCase().includes(query) ||
-      (option.description && option.description.toLowerCase().includes(query))
-    );
-  });
-
-  // Icon Gap Logic (Swap mr/ml based on position)
+  // Icon Gap Logic
   const rawGapClass = ICON_GAP_MAP[iconGap];
-  const iconMarginClass = iconPosition === 'left'
-    ? rawGapClass
-    : rawGapClass.replace('mr-', 'ml-');
+  const iconMarginClass = iconPosition === 'left' ? rawGapClass : rawGapClass.replace('mr-', 'ml-');
 
   /**
    * Default Item Renderer
-   * Handles layout, alignment, icon positioning, and selection state.
    */
   const DefaultItemRenderer: React.FC<RenderOptionProps<TValue>> = (renderProps) => {
-    const {
-      option,
-      isSelected,
-      iconNode,
-      checkNode, // We use our own Check icon, but accept prop
-      onSelect,
-    } = renderProps;
-
+    const { option, isSelected, iconNode, onSelect } = renderProps;
     const isDisabled = disabled || option.disabled;
 
-    // Colors based on mode
     const selectedBg = 'bg-zinc-100 dark:bg-zinc-900';
     const hoverBg = 'hover:bg-zinc-50 dark:hover:bg-zinc-800';
     const activeText = 'text-zinc-900 dark:text-zinc-200';
@@ -344,9 +364,7 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
 
     return (
       <div
-        ref={(el) => {
-          itemRefs.current[option.value] = el;
-        }}
+        ref={(el) => { itemRefs.current[option.value] = el; }}
         onClick={() => !isDisabled && onSelect(option.value)}
         className={`
           group relative flex items-center justify-between rounded-lg transition-all duration-150
@@ -358,7 +376,7 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
           ${variantConfig.item}
         `}
       >
-        {/* --- LEFT ICON --- */}
+        {/* LEFT ICON */}
         {iconPosition === 'left' && iconNode && (
           <div
             className={`
@@ -372,7 +390,7 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
           </div>
         )}
 
-        {/* --- TEXT CONTENT --- */}
+        {/* TEXT CONTENT */}
         <div className="flex flex-col min-w-0 w-full">
           <span
             className={`
@@ -399,25 +417,14 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
           )}
         </div>
 
-        {/* --- RIGHT SIDE (Check + Optional Icon) --- */}
+        {/* RIGHT SIDE */}
         <div className={`flex items-center shrink-0 ${iconPosition === 'left' ? 'pl-2' : ''} gap-2`}>
           {isSelected ? (
-            <div
-              className={`
-                text-white rounded-full flex items-center justify-center shadow-sm shrink-0
-                ${variantConfig.check} ${themeConfig.bg}
-              `}
-            >
-              {/* Lucide Check Icon */}
+            <div className={`text-white rounded-full flex items-center justify-center shadow-sm shrink-0 ${variantConfig.check} ${themeConfig.bg}`}>
               <Check className="w-[60%] h-[60%]"/>
             </div>
           ) : (
-            <div
-              className={`
-                rounded-full border-2 border-zinc-300 dark:border-zinc-700 group-hover:border-zinc-400 dark:group-hover:border-zinc-600 transition-colors shrink-0
-                ${variantConfig.check}
-              `}
-            />
+            <div className={`rounded-full border-2 border-zinc-300 dark:border-zinc-700 group-hover:border-zinc-400 dark:group-hover:border-zinc-600 transition-colors shrink-0 ${variantConfig.check}`} />
           )}
 
           {iconPosition === 'right' && iconNode && (
@@ -439,13 +446,56 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
 
   const ItemRenderer = renderOption || DefaultItemRenderer;
 
+  /**
+   * Renders a Group Header
+   */
+  const renderGroupHeader = (groupKey: string, count: number) => {
+    const config = groupsConfig[groupKey] || {};
+    const label = config.label || groupKey;
+    const isCollapsed = isGroupCollapsed(groupKey);
+    const canCollapse = config.collapsible !== false && collapsibleGroups;
+    const showCount = config.showCount !== false;
+
+    const IconComponent = config.icon;
+
+    return (
+      <div
+        className={cn(
+          'sticky top-0 z-10 flex items-center justify-between w-full select-none transition-colors',
+          'bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm', // Sticky background
+          'border-b border-zinc-100 dark:border-zinc-800',
+          canCollapse ? 'cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-800/50' : 'cursor-default',
+          sizeConfig.groupHeader,
+          classNames.groupHeader
+        )}
+        onClick={() => canCollapse && toggleGroup(groupKey)}
+      >
+        <div className="flex items-center gap-2">
+          {canCollapse && (
+            <div className="text-zinc-400">
+              {isCollapsed ? <ChevronRight className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
+            </div>
+          )}
+          {IconComponent && <IconComponent className={cn('w-4 h-4', themeConfig.main)} />}
+          <span className={cn('font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400', classNames.groupLabel)}>
+            {label}
+          </span>
+        </div>
+        {showCount && (
+          <span className={cn('text-xs font-medium px-2 py-0.5 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400', classNames.groupCount)}>
+            {count}
+          </span>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className={cn('flex flex-col', disabled ? 'opacity-50 pointer-events-none grayscale' : '', className)}>
       {/* Search Header */}
       {showSearch && (
         <div className="pb-3 mb-2 border-b border-zinc-200 dark:border-zinc-800">
           <div className="relative w-full">
-            {/* Lucide Search Icon */}
             <Search
               className={`
                 absolute top-1/2 -translate-y-1/2 text-zinc-500 dark:text-muted pointer-events-none
@@ -458,11 +508,7 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
               value={searchQuery}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               className={cn(
-                `
-                w-full bg-zinc-50 dark:bg-background border border-zinc-200 dark:border-border rounded-md text-zinc-900 dark:text-gray-100 placeholder-zinc-500 dark:placeholder-muted focus:outline-none focus:border-blue-500 dark:focus:border-primary transition-colors
-                ${sizeConfig.text}
-                ${sizeConfig.input}
-              `,
+                `w-full bg-zinc-50 dark:bg-background border border-zinc-200 dark:border-border rounded-md text-zinc-900 dark:text-gray-100 placeholder-zinc-500 dark:placeholder-muted focus:outline-none focus:border-blue-500 dark:focus:border-primary transition-colors ${sizeConfig.text} ${sizeConfig.input}`,
                 classNames.searchInput
               )}
             />
@@ -472,14 +518,16 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
 
       {/* List Area */}
       <div className={cn('overflow-y-auto custom-scrollbar pr-1', classNames.list)} style={listStyle}>
-        {filteredOptions.length === 0 ? (
+        {groupedData.ungrouped.length === 0 && Object.keys(groupedData.map).length === 0 ? (
           <div className={cn('flex flex-col items-center justify-center text-zinc-500 dark:text-muted py-6', classNames.empty)}>
             <span className={sizeConfig.text}>No results found</span>
           </div>
         ) : (
           <div className={cn('flex flex-col', sizeConfig.container, classNames.itemsWrapper)}>
             <RadioGroup.Root className="contents" value={value} onValueChange={(val) => onChange(val as TValue)}>
-              {filteredOptions.map((option) => {
+
+              {/* --- UNGROUPED ITEMS --- */}
+              {groupedData.ungrouped.map((option) => {
                 const isSelected = value === option.value;
                 const IconComponent = option.icon;
                 const iconNode = IconComponent ? <IconComponent className="w-full h-full"/> : null;
@@ -496,9 +544,44 @@ const SmartSelector = <TValue extends string>(props: SmartSelectorProps<TValue>)
                   </RadioGroup.Item>
                 );
               })}
-            </RadioGroup.Root>
 
-            {/* Margin after last item */}
+              {/* --- GROUPED ITEMS --- */}
+              {Object.entries(groupedData.map).map(([groupKey, groupOptions]) => {
+                const isCollapsed = isGroupCollapsed(groupKey);
+
+                // Don't render empty groups (e.g., if search filtered everything out of it)
+                if (groupOptions.length === 0) return null;
+
+                return (
+                  <div key={groupKey} className="flex flex-col w-full">
+                    {renderGroupHeader(groupKey, groupOptions.length)}
+
+                    {!isCollapsed && (
+                      <div className="flex flex-col w-full">
+                        {groupOptions.map((option) => {
+                          const isSelected = value === option.value;
+                          const IconComponent = option.icon;
+                          const iconNode = IconComponent ? <IconComponent className="w-full h-full"/> : null;
+
+                          return (
+                            <RadioGroup.Item key={option.value} value={option.value} className="outline-none">
+                              <ItemRenderer
+                                option={option}
+                                isSelected={isSelected}
+                                iconNode={iconNode}
+                                checkNode={null}
+                                onSelect={onChange}
+                              />
+                            </RadioGroup.Item>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+
+            </RadioGroup.Root>
             {showEndingMargin && <div className={`h-${size === 'xs' ? '2' : '4'}`} aria-hidden="true"></div>}
           </div>
         )}
