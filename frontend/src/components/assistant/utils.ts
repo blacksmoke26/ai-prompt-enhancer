@@ -148,20 +148,20 @@ import TemporalScope from './PromptActions/controls/TemporalScope';
 import ThinkingPattern from './PromptActions/controls/ThinkingPattern';
 import TimeHorizon from './PromptActions/controls/TimeHorizon';
 import VisualComplexity from './PromptActions/controls/VisualComplexity';
+import TechnicalJargonLevel from './PromptActions/controls/TechnicalJargonLevel';
+import TechnologicalDetail from './PromptActions/controls/TechnologicalDetail';
+import MinimalOutput from './PromptActions/controls/MinimalOutput';
+import CognitiveLoad from './PromptActions/controls/CognitiveLoad';
+import ChemicalDetail from './PromptActions/controls/ChemicalDetail';
+import BiologicalDetail from './PromptActions/controls/BiologicalDetail';
+import PhysicsDetail from './PromptActions/controls/PhysicsDetail';
+import WritingStyle from './PromptActions/controls/WritingStyle';
+import SocialDetail from './PromptActions/controls/SocialDetail';
+import ListStyle from './PromptActions/controls/ListStyle';
+import Skills from './PromptActions/controls/Skills';
 
 // types
 import type {VisibleComponents} from '~/types';
-import TechnicalJargonLevel from '~/components/assistant/PromptActions/controls/TechnicalJargonLevel.tsx';
-import TechnologicalDetail from '~/components/assistant/PromptActions/controls/TechnologicalDetail.tsx';
-import MinimalOutput from '~/components/assistant/PromptActions/controls/MinimalOutput.tsx';
-import CognitiveLoad from '~/components/assistant/PromptActions/controls/CognitiveLoad.tsx';
-import ChemicalDetail from '~/components/assistant/PromptActions/controls/ChemicalDetail.tsx';
-import BiologicalDetail from '~/components/assistant/PromptActions/controls/BiologicalDetail.tsx';
-import PhysicsDetail from '~/components/assistant/PromptActions/controls/PhysicsDetail.tsx';
-import WritingStyle from '~/components/assistant/PromptActions/controls/WritingStyle.tsx';
-import SocialDetail from '~/components/assistant/PromptActions/controls/SocialDetail.tsx';
-import ListStyle from '~/components/assistant/PromptActions/controls/ListStyle.tsx';
-import Skills from '~/components/assistant/PromptActions/controls/Skills.tsx';
 
 export const providerIcons: Record<string, LucideIcon> = {
   // ==========================================
