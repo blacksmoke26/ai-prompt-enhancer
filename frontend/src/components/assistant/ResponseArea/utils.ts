@@ -7,18 +7,35 @@
 // types
 import type {ResolveTheme} from '~/components/ThemeProvider';
 
+/**
+ * Defines the color properties for a specific theme.
+ * @description Contains hex codes and RGB values for both text and background elements.
+ */
 export interface ThemeColors {
+  /** Background color of the theme */
   background: string;
+  /** Foreground color (text) of the theme */
   foreground: string;
+  /** Muted or secondary text color */
   muted: string;
+  /** Border color for elements */
   border: string;
+  /** Primary action color (e.g., buttons, highlights) */
   primary: string;
+  /** Accent or secondary color for emphasis */
   accent: string;
+  /** Card or component background color */
   card: string;
+  /** Background color in RGB format */
   backgroundRgb: string;
+  /** Foreground color in RGB format */
   foregroundRgb: string;
 }
 
+/**
+ * Provides predefined color configurations for different themes.
+ * @description Maps theme keys to their corresponding color palettes.
+ */
 export const THEME_COLORS: Record<ResolveTheme, ThemeColors> = {
   dark: {
     background: '#0f172a',
@@ -44,9 +61,14 @@ export const THEME_COLORS: Record<ResolveTheme, ThemeColors> = {
   },
 };
 
+/**
+ * Provides common CSS animations and utility styles.
+ * @description Includes keyframes for blink, shimmer, slide-in, fade-in, scale-in, and pulse-glow effects.
+ * Also defines custom scrollbar and glass-panel styles for consistent UI components.
+ */
 export const styles = `
   @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-  .animate-blink { animation: blink 1s step-end infinite; }  
+  .animate-blink { animation: blink 1s step-end infinite; }
   @keyframes shimmer {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
@@ -76,19 +98,19 @@ export const styles = `
     50% { box-shadow: 0 0 15px 0 rgba(59, 130, 246, 0.3); }
   }
   .animate-pulse-glow { animation: pulseGlow 2s infinite; }
-  
+
   .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background-color: hsl(240 5% 25%); border-radius: 4px; border: 2px solid transparent; }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover { background-color: hsl(240 5% 35%); }
   .custom-scrollbar { scrollbar-width: thin; scrollbar-color: hsl(240 5% 25%) transparent; }
-  
+
   .glass-panel {
     background: rgba(var(--bg-rgb), 0.95);
     backdrop-filter: blur(16px);
     border: 1px solid rgba(var(--fg-rgb), 0.1);
   }
-  
+
   .glass-header {
     background: rgba(var(--bg-rgb), 0.85);
     backdrop-filter: blur(12px);

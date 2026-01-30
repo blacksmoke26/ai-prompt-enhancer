@@ -925,6 +925,22 @@ export interface AppConfig {
   practicalApplication?: number;
   synthesisCapability?: number;
   evaluationCapability?: number;
+  dataGranularity?: string;
+  detailLevel?: string;
+  environmentalDetail?: string;
+  exampleSpecificity?: string;
+  geographicScope?: string;
+  historicalDepth?: string;
+  temporalScope?: string;
+  visualComplexity?: string;
+  technologicalDetail?: string;
+  biologicalDetail?: string;
+  chemicalDetail?: string;
+  physicsDetail?: string;
+  writingStyle?: string;
+  philosophicalDetail: string;
+  psychologicalDetail: string;
+  socialDetail: string;
 
   /** Whether to show deep text analysis in the UI */
   showDeepTextAnalysis: boolean;
