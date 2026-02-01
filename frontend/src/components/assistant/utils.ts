@@ -4,7 +4,6 @@
  * @see https://github.com/blacksmoke26
  */
 
-// types
 import {
   Activity,
   ArrowRightLeft,
@@ -17,6 +16,7 @@ import {
   Braces,
   Brain,
   BrainCircuit,
+  Briefcase,
   CalendarClock,
   CalendarDays,
   Camera,
@@ -51,6 +51,7 @@ import {
   Infinity as InfinityIcon,
   Info,
   Languages,
+  Layers,
   Layout,
   LayoutTemplate,
   Leaf,
@@ -62,7 +63,6 @@ import {
   MessageSquare,
   MessageSquareQuote,
   MessagesSquare,
-  Microscope,
   Minimize,
   Minimize2,
   Monitor,
@@ -78,6 +78,7 @@ import {
   Scale,
   Scroll,
   SearchCheck,
+  Server,
   Shapes,
   ShieldCheck,
   Shuffle,
@@ -159,6 +160,39 @@ import WritingStyle from './PromptActions/controls/WritingStyle';
 import SocialDetail from './PromptActions/controls/SocialDetail';
 import ListStyle from './PromptActions/controls/ListStyle';
 import Skills from './PromptActions/controls/Skills';
+import Language from './PromptActions/controls/Language';
+import Encoding from './PromptActions/controls/Encoding';
+import Strictness from './PromptActions/controls/Strictness';
+import IncludeMetadata from './PromptActions/controls/IncludeMetadata';
+import MetaphorUsage from './PromptActions/controls/MetaphorUsage';
+import HeadingHierarchy from './PromptActions/controls/HeadingHierarchy';
+import EmotionalIntensity from './PromptActions/controls/EmotionalIntensity';
+import PersuasionTechnique from './PromptActions/controls/PersuasionTechnique';
+import EmpathyLevel from './PromptActions/controls/EmpathyLevel';
+import CulturalContext from './PromptActions/controls/CulturalContext';
+import DomainSpecificity from './PromptActions/controls/DomainSpecificity';
+import RegulatoryCompliance from './PromptActions/controls/RegulatoryCompliance';
+import KnowledgeDepth from './PromptActions/controls/KnowledgeDepth';
+import KnowledgeBreadth from './PromptActions/controls/KnowledgeBreadth';
+import ReasoningDepth from './PromptActions/controls/ReasoningDepth';
+import SystemsThinking from './PromptActions/controls/SystemsThinking';
+import CriticalThinking from './PromptActions/controls/CriticalThinking';
+import CrossDomainTransfer from './PromptActions/controls/CrossDomainTransfer';
+import ExperienceLevel from './PromptActions/controls/ExperienceLevel';
+import DomainExpertise from './PromptActions/controls/DomainExpertise';
+import ProblemSolvingApproach from './PromptActions/controls/ProblemSolvingApproach';
+import SkillProficiency from './PromptActions/controls/SkillProficiency';
+import ExpertiseFocus from './PromptActions/controls/ExpertiseFocus';
+import DomainSpecialization from './PromptActions/controls/DomainSpecialization';
+import RetentionRate from './PromptActions/controls/RetentionRate';
+import PatternRecognitionSensitivity from './PromptActions/controls/PatternRecognitionSensitivity';
+import ContextSensitivity from './PromptActions/controls/ContextSensitivity';
+import CreativeThinking from './PromptActions/controls/CreativeThinking';
+import ExperientialLearning from './PromptActions/controls/ExperientialLearning';
+import TheoreticalUnderstanding from './PromptActions/controls/TheoreticalUnderstanding';
+import PracticalApplication from './PromptActions/controls/PracticalApplication';
+import SynthesisCapability from './PromptActions/controls/SynthesisCapability';
+import EvaluationCapability from './PromptActions/controls/EvaluationCapability';
 
 // types
 import type {VisibleComponents} from '~/types';
@@ -332,59 +366,59 @@ export const componentsMaps: Record<string, { title: string; component: Function
   presencePenalty: {title: 'Presence Penalty', component: PresencePenaltyInput},
   format: {title: 'Output Format', component: FormatInput},
   responseLength: {title: 'Response Length', component: ResponseLengthInput},
-  language: {title: '', component: null},
-  encoding: {title: '', component: null},
-  strictness: {title: '', component: null},
+  language: {title: 'Language', component: Language},
+  encoding: {title: 'Encoding', component: Encoding},
+  strictness: {title: 'Strictness', component: Strictness},
   minimalOutput: {title: 'Minimal Output', component: MinimalOutput},
-  includeMetadata: {title: '', component: null},
+  includeMetadata: {title: 'Include Metadata', component: IncludeMetadata},
   cognitiveLoad: {title: 'Cognitive Load', component: CognitiveLoad},
   informationDensity: {title: 'Information Density', component: InformationDensity},
   abstractionLevel: {title: 'Abstraction Level', component: AbstractionLevel},
-  metaphorUsage: {title: '', component: null},
+  metaphorUsage: {title: 'Metaphor Usage', component: MetaphorUsage},
   sentenceStructure: {title: 'Sentence Structure', component: SentenceStructure},
   paragraphFlow: {title: 'Paragraph Flow', component: ParagraphFlow},
   listStyle: {title: 'List Style', component: ListStyle},
-  headingHierarchy: {title: '', component: null},
+  headingHierarchy: {title: 'Heading Hierarchy', component: HeadingHierarchy},
   tone: {title: 'Tone', component: ToneInput},
-  emotionalIntensity: {title: '', component: null},
-  persuasionTechnique: {title: '', component: null},
-  empathyLevel: {title: '', component: null},
+  emotionalIntensity: {title: 'Emotional Intensity', component: EmotionalIntensity},
+  persuasionTechnique: {title: 'Persuasion Technique', component: PersuasionTechnique},
+  empathyLevel: {title: 'Empathy Level', component: EmpathyLevel},
   targetAudience: {title: 'Target Audience', component: TargetAudienceInput},
-  culturalContext: {title: '', component: null},
-  domainSpecificity: {title: '', component: null},
+  culturalContext: {title: 'Cultural Context', component: CulturalContext},
+  domainSpecificity: {title: 'Domain Specificity', component: DomainSpecificity},
   technicalJargonLevel: {title: 'Technical Jargon Level', component: TechnicalJargonLevel},
-  regulatoryCompliance: {title: '', component: null},
-  knowledgeDepth: {title: '', component: null},
-  knowledgeBreadth: {title: '', component: null},
-  reasoningDepth: {title: '', component: null},
+  regulatoryCompliance: {title: 'Regulatory Compliance', component: RegulatoryCompliance},
+  knowledgeDepth: {title: 'Knowledge Depth', component: KnowledgeDepth},
+  knowledgeBreadth: {title: 'Knowledge Breadth', component: KnowledgeBreadth},
+  reasoningDepth: {title: 'Reasoning Depth', component: ReasoningDepth},
   thinkingPattern: {title: 'Thinking Pattern', component: ThinkingPattern},
-  problemSolvingApproach: {title: '', component: null},
-  systemsThinking: {title: '', component: null},
-  criticalThinking: {title: '', component: null},
-  crossDomainTransfer: {title: '', component: null},
+  problemSolvingApproach: {title: 'Problem Solving Approach', component: ProblemSolvingApproach},
+  systemsThinking: {title: 'Systems Thinking', component: SystemsThinking},
+  criticalThinking: {title: 'Critical Thinking', component: CriticalThinking},
+  crossDomainTransfer: {title: 'Cross Domain Transfer', component: CrossDomainTransfer},
   lateralThinking: {title: 'Lateral Thinking', component: LateralThinking},
   experience: {title: 'Experience', component: ExperienceInput},
-  experienceLevel: {title: '', component: null},
+  experienceLevel: {title: 'Experience Level', component: ExperienceLevel},
   timeHorizon: {title: 'Time Horizon', component: TimeHorizon},
-  domainExpertise: {title: '', component: null},
+  domainExpertise: {title: 'Domain Expertise', component: DomainExpertise},
   skills: {title: 'Skills', component: Skills},
-  skillProficiency: {title: '', component: null},
-  expertiseFocus: {title: '', component: null},
-  domainSpecialization: {title: '', component: null},
+  skillProficiency: {title: 'Skill Proficiency', component: SkillProficiency},
+  expertiseFocus: {title: 'Expertise Focus', component: ExpertiseFocus},
+  domainSpecialization: {title: 'Domain Specialization', component: DomainSpecialization},
   learningCurve: {title: 'Learning Curve', component: LearningCurve},
-  retentionRate: {title: '', component: null},
+  retentionRate: {title: 'Retention Rate', component: RetentionRate},
   acquisitionSpeed: {title: 'Acquisition Speed', component: AcquisitionSpeed},
-  patternRecognitionSensitivity: {title: '', component: null},
-  contextSensitivity: {title: '', component: null},
+  patternRecognitionSensitivity: {title: 'Pattern Recognition Sensitivity', component: PatternRecognitionSensitivity},
+  contextSensitivity: {title: 'Context Sensitivity', component: ContextSensitivity},
   adaptability: {title: 'Adaptability', component: Adaptability},
   ambiguityTolerance: {title: 'Ambiguity Tolerance', component: AmbiguityTolerance},
-  creativeThinking: {title: '', component: null},
+  creativeThinking: {title: 'Creative Thinking', component: CreativeThinking},
   analyticalThinking: {title: 'Analytical Thinking', component: AnalyticalThinking},
-  experientialLearning: {title: '', component: null},
-  theoreticalUnderstanding: {title: '', component: null},
-  practicalApplication: {title: '', component: null},
-  synthesisCapability: {title: '', component: null},
-  evaluationCapability: {title: '', component: null},
+  experientialLearning: {title: 'Experiential Learning', component: ExperientialLearning},
+  theoreticalUnderstanding: {title: 'Theoretical Understanding', component: TheoreticalUnderstanding},
+  practicalApplication: {title: 'Practical Application', component: PracticalApplication},
+  synthesisCapability: {title: 'Synthesis Capability', component: SynthesisCapability},
+  evaluationCapability: {title: 'Evaluation Capability', component: EvaluationCapability},
 
   // ==========================================
   // 11. Session & Metadata
@@ -827,33 +861,50 @@ export const VISIBILITY_PROFILES: Record<string, { label: string; desc: string; 
     } as VisibleComponents,
   },
 };
+// Assuming icons are imported from 'lucide-react'
+// import {
+//   Sliders, Cpu, Layout, PenTool, Globe, User, Brain,
+//   Layers, FlaskConical, Scroll, Briefcase, Server
+// } from 'lucide-react';
+
 export const COMPONENT_CATEGORIES: Record<string, { label: string; icon: any }> = {
-  core: { label: 'Core Settings', icon: Sliders },
-  model: { label: 'Model Parameters', icon: Cpu },
-  format: { label: 'Structure & Format', icon: Layout }, // Output constraints
-  voice: { label: 'Voice & Tone', icon: PenTool }, // Linguistic style
-  context: { label: 'Audience & Context', icon: Globe }, // Who and where
-  details: { label: 'Domain Details', icon: Microscope }, // Specific data/subject depth
-  persona: { label: 'Persona & Expertise', icon: User }, // Identity and skills
-  cognition: { label: 'Thinking & Logic', icon: Brain }, // How it processes
+  // --- Core Configuration ---
+  core: {label: 'Core Settings', icon: Sliders},
+  model: {label: 'Model Parameters', icon: Cpu},
+  format: {label: 'Structure & Format', icon: Layout},
+  voice: {label: 'Voice & Tone', icon: PenTool},
+  context: {label: 'Audience & Context', icon: Globe},
+  persona: {label: 'Persona & Expertise', icon: User},
+  cognition: {label: 'Thinking & Logic', icon: Brain},
+
+  // --- Specialized Domains (Refactored from 'details') ---
+  granularity: {label: 'Resolution & Depth', icon: Layers},
+  sciences: {label: 'STEM & Sciences', icon: FlaskConical},
+  humanities: {label: 'Humanities & Arts', icon: Scroll},
+  business: {label: 'Business & Strategy', icon: Briefcase},
+  technology: {label: 'Technology & Systems', icon: Server},
 };
 
 export const CATEGORIZED_COMPONENTS: Record<string, string[]> = {
+  // --- Core ---
   core: [
     'customInstructions',
     'enhancementType',
     'enhancementParameters',
     'offTheRecord',
   ],
+
   model: [
     'temperature',
     'maxTokens',
     'topP',
     'topK',
+    'stopSequences',
     'frequencyPenalty',
     'presencePenalty',
-    'stopSequences',
+    'status',
   ],
+
   format: [
     'encoding',
     'format',
@@ -864,6 +915,7 @@ export const CATEGORIZED_COMPONENTS: Record<string, string[]> = {
     'responseLength',
     'strictness',
   ],
+
   voice: [
     'argumentationStyle',
     'emotionalIntensity',
@@ -875,52 +927,34 @@ export const CATEGORIZED_COMPONENTS: Record<string, string[]> = {
     'tone',
     'writingStyle',
   ],
+
   context: [
     'culturalContext',
     'domainSpecificity',
+    'knowledgeBreadth',
+    'knowledgeDepth',
     'language',
     'narrativePerspective',
     'regulatoryCompliance',
     'targetAudience',
+    'technicalDepth',
     'technicalJargonLevel',
   ],
-  details: [
-    'abstractionLevel',
-    'artisticDetail',
-    'biologicalDetail',
-    'chemicalDetail',
-    'cognitiveLoad',
-    'dataGranularity',
-    'detailLevel',
-    'economicDetail',
-    'environmentalDetail',
-    'exampleSpecificity',
-    'geographicScope',
-    'historicalDepth',
-    'informationDensity',
-    'mathematicalDetail',
-    'philosophicalDetail',
-    'physicsDetail',
-    'psychologicalDetail',
-    'socialDetail',
-    'technologicalDetail',
-    'temporalScope',
-    'visualComplexity',
-  ],
+
   persona: [
     'domainExpertise',
     'domainSpecialization',
     'experience',
     'experienceLevel',
-    'expertiseFocus',
     'experientialLearning',
+    'expertiseFocus',
     'practicalApplication',
     'skills',
     'skillProficiency',
-    'status',
     'theoreticalUnderstanding',
     'timeHorizon',
   ],
+
   cognition: [
     'acquisitionSpeed',
     'adaptability',
@@ -940,5 +974,43 @@ export const CATEGORIZED_COMPONENTS: Record<string, string[]> = {
     'synthesisCapability',
     'systemsThinking',
     'thinkingPattern',
+  ],
+
+  // --- Specialized Domains ---
+
+  granularity: [
+    'abstractionLevel',
+    'cognitiveLoad',
+    'dataGranularity',
+    'detailLevel',
+    'exampleSpecificity',
+    'informationDensity',
+  ],
+
+  sciences: [
+    'biologicalDetail',
+    'chemicalDetail',
+    'mathematicalDetail',
+    'physicsDetail',
+  ],
+
+  humanities: [
+    'artisticDetail',
+    'historicalDepth',
+    'philosophicalDetail',
+    'psychologicalDetail',
+    'socialDetail',
+  ],
+
+  business: [
+    'economicDetail',
+    'environmentalDetail',
+    'geographicScope',
+    'temporalScope',
+  ],
+
+  technology: [
+    'technologicalDetail',
+    'visualComplexity',
   ],
 };

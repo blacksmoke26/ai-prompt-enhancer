@@ -27,6 +27,7 @@ import PromptActions from './PromptActions';
 
 // types
 import type {WordAnalysisConfig} from '~/utils/advanced-word-analysis';
+import ItemsNavigator from '~/components/ui/ItemsNavigator.tsx';
 
 export interface PromptEditorProps {
   /** Callback function when the user sends a prompt */
@@ -128,7 +129,13 @@ const PromptEditor: React.FC<PromptEditorProps> = (props) => {
 
           {/* Toolbar */}
           <div className="flex items-center justify-between border-b border-border px-3 bg-card">
-            <div className="flex items-center gap-1 text-muted-foreground">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Button size="sm" className="px-1" variant="plain" onClick={toggleFullScreen}>
+                <TooltipMini title={isFullScreen ? 'Exit Full Screen (Esc)' : 'Full Screen Editor'}>
+                  {isFullScreen ? <Minimize2 size={16}/> : <Maximize2 size={16}/>}
+                </TooltipMini>
+              </Button>
+
               <TextStatsTrigger disabled={isLoading || !prompt.trim()} prompt={prompt}/>
 
               <DeepTextAnalysisTrigger disabled={isLoading || !prompt.trim()} prompt={prompt}/>
@@ -169,11 +176,6 @@ const PromptEditor: React.FC<PromptEditorProps> = (props) => {
           {/* Footer Actions */}
           <div className="flex items-center justify-between px-4 bg-card border-t border-border">
             <div className="flex gap-2 text-muted-foreground items-center justify-between">
-              <Button size="sm" className="px-1" variant="plain" onClick={toggleFullScreen}>
-                <TooltipMini title={isFullScreen ? 'Exit Full Screen (Esc)' : 'Full Screen Editor'}>
-                  {isFullScreen ? <Minimize2 size={16}/> : <Maximize2 size={16}/>}
-                </TooltipMini>
-              </Button>
               <PromptActions/>
             </div>
 
