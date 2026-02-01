@@ -9,6 +9,9 @@ import React, { useState, useEffect, useRef } from 'react';
 // store
 import { useAppStore } from '~/stores/appStore';
 
+// utils
+import {providerIcons} from '~/components/assistant/utils';
+
 // ui components
 import Slider from '~/components/ui/Slider';
 
@@ -20,6 +23,7 @@ const PresencePenaltyInput: React.FC = () => {
   const { config } = useAppStore();
   const [presencePenalty, setPresencePenalty] = useState<number>(config?.presencePenalty || 0.0);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const Icon = providerIcons['presencePenalty'];
 
   useEffect(() => {
     setPresencePenalty(config?.presencePenalty || 0.0);
@@ -45,8 +49,12 @@ const PresencePenaltyInput: React.FC = () => {
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Presence Penalty
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <div className="flex items-center justify-between">
+          <strong><Icon className="inline-flex display-inline" size="16"/> Presence Penalty</strong>
+        </div>
+        <p className="text-muted-foreground font-normal text-xs my-1">Penalizes new topic introduction to keep the response focused.</p>
       </label>
       <div className="flex items-center space-x-4">
         <Slider

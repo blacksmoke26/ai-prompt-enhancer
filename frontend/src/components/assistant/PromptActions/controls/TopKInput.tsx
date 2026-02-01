@@ -6,14 +6,15 @@
 
 import React, {useState, useEffect, useCallback} from 'react';
 
-// store
+// hooks
+import useDebounce from '~/hooks/useDebounce';
 import {useAppStore} from '~/stores/appStore';
+
+// utils
+import {providerIcons} from '~/components/assistant/utils';
 
 // ui components
 import Slider from '~/components/ui/Slider';
-
-// hooks
-import useDebounce from '~/hooks/useDebounce';
 
 /**
  * Top-K input component for AI configuration
@@ -22,6 +23,7 @@ import useDebounce from '~/hooks/useDebounce';
 const TopKInput: React.FC = () => {
   const {config, setConfig} = useAppStore();
   const [topK, setTopK] = useState<number>(config?.topK || 40);
+  const Icon = providerIcons['topK'];
 
   useEffect(() => {
     setTopK(config?.topK || 40);
@@ -42,8 +44,12 @@ const TopKInput: React.FC = () => {
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Top-K Sampling
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <div className="flex items-center justify-between">
+          <strong><Icon className="inline-flex display-inline" size="16"/> Top-K Sampling</strong>
+        </div>
+        <p className="text-muted-foreground font-normal text-xs my-1">Controls the diversity of the generated text based on token probabilities.</p>
       </label>
       <div className="flex items-center space-x-4">
         <Slider

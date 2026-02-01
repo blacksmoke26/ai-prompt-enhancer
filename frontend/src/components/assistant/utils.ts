@@ -9,6 +9,7 @@ import {
   ArrowRightLeft,
   ArrowUpCircle,
   Atom,
+  AudioLines,
   Award,
   BadgeCheck,
   BarChart2,
@@ -74,7 +75,6 @@ import {
   Puzzle,
   Quote,
   Radar,
-  Ruler,
   Scale,
   Scroll,
   SearchCheck,
@@ -225,7 +225,7 @@ export const providerIcons: Record<string, LucideIcon> = {
   // 3. Output Constraints & Formatting
   // ==========================================
   format: LayoutTemplate,
-  responseLength: Ruler,
+  responseLength: AudioLines,
   language: Languages,
   encoding: Braces,
   strictness: Scale,

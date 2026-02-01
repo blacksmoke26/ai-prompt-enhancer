@@ -9,6 +9,9 @@ import React, {useEffect, useState} from 'react';
 // store
 import {useAppStore} from '~/stores/appStore';
 
+// utils
+import {providerIcons} from '~/components/assistant/utils';
+
 // ui components
 import {AdvancedTextarea} from '~/components/ui/AdvancedTextarea';
 
@@ -22,6 +25,7 @@ import useDebounce from '~/hooks/useDebounce';
 const EnhancementParametersInput: React.FC = () => {
   const { config } = useAppStore();
   const [enhancementParameters, setEnhancementParameters] = useState<string>(config?.enhancementParameters ? JSON.stringify(config.enhancementParameters) : '');
+  const Icon = providerIcons['enhancementParameters'];
 
   useEffect(() => {
     setEnhancementParameters(config?.enhancementParameters ? JSON.stringify(config.enhancementParameters) : '');
@@ -52,8 +56,12 @@ const EnhancementParametersInput: React.FC = () => {
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Enhancement Parameters
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <div className="flex items-center justify-between">
+          <strong><Icon className="inline-flex display-inline" size="16"/> Enhancement Parameters</strong>
+        </div>
+        <p className="text-muted-foreground font-normal text-xs my-1">Custom parameters for the enhancement process. This allows passing arbitrary metadata or configuration.</p>
       </label>
       <AdvancedTextarea jsonMode={true} enableAutoClosing={true}
         value={enhancementParameters}

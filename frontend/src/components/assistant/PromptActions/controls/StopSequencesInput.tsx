@@ -6,14 +6,15 @@
 
 import React, { useState, useEffect } from 'react';
 
-// store
+// hooks
+import useDebounce from '~/hooks/useDebounce';
 import { useAppStore } from '~/stores/appStore';
+
+// utils
+import {providerIcons} from '~/components/assistant/utils';
 
 // ui components
 import { Textarea } from '~/components/ui/Textarea';
-
-// hooks
-import useDebounce from '~/hooks/useDebounce';
 
 /**
  * Stop sequences input component for AI configuration
@@ -22,6 +23,7 @@ import useDebounce from '~/hooks/useDebounce';
 const StopSequencesInput: React.FC = () => {
   const { config } = useAppStore();
   const [stopSequences, setStopSequences] = useState<string>(config?.stopSequences?.join?.('\n') || '');
+  const Icon = providerIcons['stopSequences'];
 
   useEffect(() => {
     setStopSequences(config?.stopSequences?.join?.('\n') || '');
@@ -46,8 +48,12 @@ const StopSequencesInput: React.FC = () => {
 
   return (
     <div className="space-y-2">
-      <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-        Stop Sequences
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <div className="flex items-center justify-between">
+          <strong><Icon className="inline-flex display-inline" size="16"/> Stop Sequences</strong>
+        </div>
+        <p className="text-muted-foreground font-normal text-xs my-1">Sequences to stop token generation at.</p>
       </label>
       <Textarea
         value={stopSequences}
@@ -56,7 +62,7 @@ const StopSequencesInput: React.FC = () => {
         className="w-full"
         rows={3}
       />
-      <p className="text-xs text-gray-500">Enter one stop sequence per line</p>
+      <p className="text-xs text-gray-500">e.g., for starting, use <code>{'<START>'}</code>. For stopping <code>{'<END>'}</code> per line</p>
     </div>
   );
 };

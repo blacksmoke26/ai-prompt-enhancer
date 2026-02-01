@@ -5,11 +5,13 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {Thermometer} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
 import useDebounce from '~/hooks/useDebounce';
+
+// utils
+import {providerIcons} from '~/components/assistant/utils';
 
 // ui components
 import Slider from '~/components/ui/Slider';
@@ -42,6 +44,7 @@ export interface TemperatureSliderProps {
  */
 const TemperatureSlider: React.FC<TemperatureSliderProps> = ({className = ''}) => {
   const {config, setConfig} = useAppStore();
+  const Icon = providerIcons['temperature'];
 
   const [localTemperature, setLocalTemperature] = useState(config.temperature ?? 0.7);
   const debouncedTemperature = useDebounce(localTemperature, 300);
@@ -54,7 +57,13 @@ const TemperatureSlider: React.FC<TemperatureSliderProps> = ({className = ''}) =
 
   return (
     <div className={className}>
-      <label className="text-sm font-medium"><Thermometer size="16" className="display-inline"/> Temperature</label>
+      <label
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
+        <div className="flex items-center justify-between">
+          <strong><Icon className="inline-flex display-inline" size="16"/> Temperature</strong>
+        </div>
+        <p className="text-muted-foreground font-normal text-xs my-1">Controls the randomness of the output. Lower values make the output more deterministic.</p>
+      </label>
       <div className="flex items-center justify-between space-x-3 pt-1">
         <Slider
           min={0}

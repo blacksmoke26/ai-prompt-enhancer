@@ -7,17 +7,18 @@
 import React, {useMemo, useRef, useState} from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import {Flex, ScrollArea, Separator, Text} from '@radix-ui/themes';
-import {Check, Download, Eye, EyeOff, Layers, RotateCcw, Search, Settings, Upload} from 'lucide-react';
+import {Check, Download, Eye, EyeOff, Layers, RotateCcw, Search, TextSearch, Upload} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
 
 // utils
 import {
-  providerIcons,
   CATEGORIZED_COMPONENTS,
   COMPONENT_CATEGORIES,
-  VISIBILITY_PROFILES, componentsMaps,
+  componentsMaps,
+  providerIcons,
+  VISIBILITY_PROFILES,
 } from '~/components/assistant/utils';
 
 // ui components
@@ -203,7 +204,7 @@ const PromptActions: React.FC = () => {
       <Dialog.Root open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
         <Dialog.Trigger asChild>
           <Button
-            leftIcon={<Settings size={16}/>} variant="plain" size="xs"
+            leftIcon={<Search size={16}/>} variant="plain" size="xs"
             className="text-muted-foreground hover:text-foreground">{''}
           </Button>
         </Dialog.Trigger>
@@ -215,7 +216,7 @@ const PromptActions: React.FC = () => {
             aria-describedby={undefined}
             className="fixed left-[50%] top-[50%] z-50 grid w-full max-w-2xl translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg">
             <Dialog.Title className="flex items-center gap-2 text-lg font-semibold">
-              <Settings size={18}/> Interface Configuration
+              <TextSearch size={18}/> Interface Configuration
             </Dialog.Title>
 
             {/* Top Actions Bar */}
