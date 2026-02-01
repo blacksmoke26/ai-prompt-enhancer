@@ -25,11 +25,11 @@ import {Input} from '~/components/ui/Input';
 import {Button} from '~/components/ui/Button';
 import {Switch} from '~/components/ui/Switch';
 import Popover from '~/components/ui/Popover';
+import ItemsNavigator from '~/components/ui/ItemsNavigator';
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '~/components/ui/Accordion';
 
 // types
 import type {VisibleComponents} from '~/types';
-import EconomicDetailInput from '~/components/assistant/PromptActions/controls/EconomicDetailInput.tsx';
 
 const PromptActions: React.FC = () => {
   const {visibleComponents, setVisibleComponents, config} = useAppStore();
@@ -150,7 +150,7 @@ const PromptActions: React.FC = () => {
         triggerIconSize={17}
         triggerClassName={config[componentId] ? 'text-muted-foreground' : 'text-muted-foreground opacity-50'}
       >
-        <div className="px-3 py-4 min-w-[200px]">
+        <div className="px-3 py-4 min-w-[300px]">
           {component}
         </div>
       </Popover>
@@ -166,14 +166,12 @@ const PromptActions: React.FC = () => {
       if (!item?.component) return null;
 
       const Component = item.component as React.FC;
-      return renderPopover(<Component/>, componentId, item.title)
+      return renderPopover(<Component/>, componentId, item.title);
     }).filter(Boolean);
   };
 
   return (
-    <Flex align="center" gap="2">
-
-      {/* Visibility Profiles Selector */}
+    <Flex align="center" gap="1">
       <Popover
         triggerIcon={Layers}
         triggerTooltip="Visibility Profiles"
@@ -187,7 +185,7 @@ const PromptActions: React.FC = () => {
             <button
               key={key}
               onClick={() => handleApplyProfile(key)}
-              className={`w-full text-left px-3 py-2 text-sm rounded-md flex flex-col gap-1 transition-colors ${
+              className={`w-full text-left px-3 py-2 text-xs rounded-md flex flex-col gap-1 transition-colors ${
                 selectedProfile === key ? 'bg-accent text-accent-foreground' : 'hover:bg-muted'
               }`}
             >
@@ -200,17 +198,13 @@ const PromptActions: React.FC = () => {
           ))}
         </div>
       </Popover>
-
-      {/* Render Active Component Triggers */}
-      {renderActivePopovers()}
-
-      <Separator orientation="vertical" className="h-4 mx-1"/>
-
+      <div className="w-[7px]">{''}</div>
       {/* Main Settings Dialog */}
       <Dialog.Root open={isSettingsOpen} onOpenChange={setIsSettingsOpen}>
         <Dialog.Trigger asChild>
-          <Button leftIcon={<Settings size={16}/>} variant="plain" size="xs"
-                  className="text-muted-foreground hover:text-foreground">{''}
+          <Button
+            leftIcon={<Settings size={16}/>} variant="plain" size="xs"
+            className="text-muted-foreground hover:text-foreground">{''}
           </Button>
         </Dialog.Trigger>
 
@@ -260,7 +254,7 @@ const PromptActions: React.FC = () => {
 
             {/* Categorized List using Standalone Accordion */}
             <ScrollArea className="h-[400px] mt-2 pr-4">
-              <Accordion type="multiple" defaultValue={['core', 'style', 'model', 'advanced']} className="w-full">
+              <Accordion type="multiple" defaultValue={Object.keys(filteredCategories)} className="w-full">
                 {Object.entries(filteredCategories).map(([catId, componentIds]) => {
                   const categoryInfo = COMPONENT_CATEGORIES[catId];
                   if (!categoryInfo || componentIds.length === 0) return null;
@@ -277,7 +271,7 @@ const PromptActions: React.FC = () => {
                       <AccordionContent className="pb-4 pt-1">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {componentIds.map((componentId) => {
-                            const Icon = providerIcons[componentId]
+                            const Icon = providerIcons[componentId];
                             return (
                               <Flex key={componentId} align="center" justify="between"
                                     className="p-2 rounded hover:bg-muted/50 transition-colors">
@@ -318,6 +312,19 @@ const PromptActions: React.FC = () => {
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+
+      <Separator orientation="vertical" className="h-4 ml-1 mx-1"/>
+
+      <div className="max-w-[800px]">
+        <ItemsNavigator hideScrollbar={true}
+                        showTitle={false} size="sm"
+                        bgTransparent={true} showProgress={false}>
+          {/* Visibility Profiles Selector */}
+
+          {/* Render Active Component Triggers */}
+          {renderActivePopovers()}
+        </ItemsNavigator>
+      </div>
     </Flex>
   );
 };
