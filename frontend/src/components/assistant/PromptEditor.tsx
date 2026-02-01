@@ -27,7 +27,6 @@ import PromptActions from './PromptActions';
 
 // types
 import type {WordAnalysisConfig} from '~/utils/advanced-word-analysis';
-import ItemsNavigator from '~/components/ui/ItemsNavigator.tsx';
 
 export interface PromptEditorProps {
   /** Callback function when the user sends a prompt */
