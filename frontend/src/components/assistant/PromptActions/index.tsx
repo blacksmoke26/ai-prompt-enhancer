@@ -175,6 +175,7 @@ const PromptActions: React.FC = () => {
     <Flex align="center" gap="1">
       <Popover
         triggerIcon={Layers}
+        triggerIconSize={16}
         triggerTooltip="Visibility Profiles"
         side="bottom"
         align="start"
