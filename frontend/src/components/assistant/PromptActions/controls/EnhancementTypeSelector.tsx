@@ -5,54 +5,58 @@
  */
 
 import React from 'react';
-import {Type} from 'lucide-react';
+import {OctagonX} from 'lucide-react';
 
 // hooks
 import {useAppStore} from '~/stores/appStore';
 import {useDataStore} from '~/stores/dataStore';
 
-// ui components
-import {Badge} from '~/components/ui/Badge';
-import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
-
 // utils
-import {toSelectGroupedOptions} from '~/utils/helpers';
+import {providerIcons} from '~/components/assistant/utils';
+
+// ui components
+import SmartSelector, {SmartSelectorOption} from '~/components/ui/SmartSelector';
 
 export interface EnhancementTypeSelectorProps {
-  className?: string;
 }
 
-const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = ({className = ''}) => {
+const EnhancementTypeSelector: React.FC<EnhancementTypeSelectorProps> = () => {
   const {enhancementTypes} = useDataStore();
   const {config, setConfig} = useAppStore();
+  const Icon = providerIcons['enhancementType'];
+
+  const options: SmartSelectorOption[] = enhancementTypes.map(x => ({
+    group: x.category,
+    description: x.shortDescription,
+    value: x.key,
+    label: x.name,
+  }));
 
   return (
-    <div className={`space-y-2 ${className || ''}`}>
+    <div className="space-y-2">
       <label
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
-        {<strong><Type className="inline-flex display-inline" size="16"/> Enhancement Type</strong>}
+        <div className="flex items-center justify-between">
+          <strong><Icon className="inline-flex display-inline" size="16"/> Enhancement Type</strong>
+        </div>
+        <p className="text-muted-foreground font-normal text-xs my-1">The type of enhancement or transformation to apply to the input text.</p>
+        <p className="text-muted-foreground font-normal text-xs my-1">This could include summarization, translation, formatting, etc.</p>
       </label>
-      <SelectAdvanced
-        searchable
-        clearable
-        triggerWidth="w-full"
-        value={config.enhancementType as string}
-        onChange={(e) => setConfig({enhancementType: e as string}, true)}
-        options={toSelectGroupedOptions(enhancementTypes.filter(x => !x.hidden))}
-        formatLabel={option => (
-          <div><Type className="inline-flex" size="16"/> {option.label}
-            <p
-              className="text-xs pl-5 mt-1">{option.shortDescription}</p>
-          </div>
-        )}
-        selectedOption={(_, option) => (
-          <div>{option?.label ?? 'Select enhancement'}
-            {option?.label && (
-              <Badge
-                variant="outline"
-                className="text-xs">{option?.category ?? 'N/A'}</Badge>
-            )}</div>
-        )}
+      <SmartSelector
+        visibleItems={10}
+        size="md"
+        iconSize="xs"
+        iconGap="xs"
+        variant="tiny"
+        value={config?.enhancementType}
+        options={[
+          {label: '(unset)', value: '', icon: OctagonX, description: 'Not specified'},
+          ...options
+        ]}
+        onChange={(value) => {
+          setConfig({enhancementType: value}, true);
+        }}
+        showEndingMargin={false}
       />
     </div>
   );

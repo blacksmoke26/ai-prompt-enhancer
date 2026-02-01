@@ -34,6 +34,7 @@ const TemporalScope: React.FC<TemporalScopeProps> = () => {
       </label>
       <SmartSelector
         visibleItems={5}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"

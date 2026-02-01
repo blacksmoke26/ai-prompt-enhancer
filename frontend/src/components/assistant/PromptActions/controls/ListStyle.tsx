@@ -34,6 +34,7 @@ const ListStyle: React.FC<ListStyleProps> = () => {
       </label>
       <SmartSelector
         visibleItems={5}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"

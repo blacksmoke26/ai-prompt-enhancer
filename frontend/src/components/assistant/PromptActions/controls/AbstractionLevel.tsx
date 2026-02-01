@@ -33,6 +33,7 @@ const AbstractionLevel: React.FC<AbstractionLevelProps> = () => {
         <p className="text-muted-foreground font-normal text-xs my-1">The level of abstraction in the content.</p>
       </label>
       <SmartSelector
+        showSearch={false}
         visibleItems={5}
         size="md"
         iconSize="xs"

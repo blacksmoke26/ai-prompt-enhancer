@@ -34,6 +34,7 @@ const EnvironmentalDetail: React.FC<environmentalDetailProps> = () => {
       </label>
       <SmartSelector
         visibleItems={5}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"

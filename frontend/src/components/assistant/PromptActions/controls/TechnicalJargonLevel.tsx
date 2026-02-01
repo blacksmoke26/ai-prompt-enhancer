@@ -34,6 +34,7 @@ const TechnicalJargonLevel: React.FC<TechnicalJargonLevelProps> = () => {
       </label>
       <SmartSelector
         visibleItems={5}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"

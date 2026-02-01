@@ -5,51 +5,54 @@
  */
 
 import React from 'react';
-import {BookOpenCheck} from 'lucide-react';
+import {OctagonX} from 'lucide-react';
 
-// store
+// hooks
 import {useAppStore} from '~/stores/appStore';
 
+// utils
+import {providerIcons} from '~/components/assistant/utils';
+
 // ui components
-import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
+import SmartSelector from '~/components/ui/SmartSelector';
 
 // types
 import type {ResponseOutputFormat} from '~/types';
 
-/**
- * Format input component for AI configuration
- * @component
- */
-const FormatInput: React.FC = () => {
-  const {config, setConfig} = useAppStore();
+export interface FormatInputProps {
+}
 
-  const handleChange = (value: ResponseOutputFormat) => {
-    // Update the config in store
-    setConfig({format: value}, true);
-  };
+const FormatInput: React.FC<FormatInputProps> = () => {
+  const {config, setConfig} = useAppStore();
+  const Icon = providerIcons['format'];
 
   return (
     <div className="space-y-2">
       <label
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
-        <strong><BookOpenCheck className="inline-flex display-inline" size="16"/> Output Format</strong>
+        <div className="flex items-center justify-between">
+          <strong><Icon className="inline-flex display-inline" size="16"/> Detail Level</strong>
+        </div>
+        <p className="text-muted-foreground font-normal text-xs my-1">The level of detail in explanations.</p>
       </label>
-      <SelectAdvanced
-        searchable
-        placeholder="Select output format"
-        triggerWidth="w-full"
-        value={config?.format ?? 'markdown'}
-        onChange={v => handleChange(v as ResponseOutputFormat)}
+      <SmartSelector
+        visibleItems={5}
+        size="md"
+        showSearch={false}
+        iconSize="xs"
+        iconGap="xs"
+        variant="tiny"
+        value={config?.format}
         options={[
-          {value: 'markdown', label: 'Markdown'},
-          {value: 'html', label: 'HTML'},
-          {value: 'json', label: 'JSON'},
-          {value: 'text', label: 'Text'},
+          {label: 'Markdown', value: 'markdown', icon: Icon, description: 'Rich text with formatting'},
+          {label: 'HTML', value: 'html', icon: Icon, description: 'Web markup language'},
+          {label: 'JSON', value: 'json', icon: Icon, description: 'Structured data format'},
+          {label: 'Text', value: 'text', icon: Icon, description: 'Plain text without formatting'},
         ]}
-        formatLabel={option => (
-          <div><BookOpenCheck className="inline-flex" size="16"/> {option.label}
-          </div>
-        )}
+        onChange={(value) => {
+          setConfig({format: value as ResponseOutputFormat}, true);
+        }}
+        showEndingMargin={false}
       />
     </div>
   );

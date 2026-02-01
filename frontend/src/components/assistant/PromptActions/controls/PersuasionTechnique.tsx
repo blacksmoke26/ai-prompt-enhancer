@@ -34,6 +34,7 @@ const PersuasionTechnique: React.FC<PersuasionTechniqueProps> = () => {
       </label>
       <SmartSelector
         visibleItems={5}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"

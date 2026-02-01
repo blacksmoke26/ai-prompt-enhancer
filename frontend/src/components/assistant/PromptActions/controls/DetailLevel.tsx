@@ -34,6 +34,7 @@ const DetailLevel: React.FC<DetailLevelProps> = () => {
       </label>
       <SmartSelector
         visibleItems={5}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"

@@ -5,54 +5,57 @@
  */
 
 import React from 'react';
-import {AudioLines} from 'lucide-react';
+import {OctagonX} from 'lucide-react';
 
-// store
+// hooks
 import {useAppStore} from '~/stores/appStore';
 import {useDataStore} from '~/stores/dataStore';
 
 // utils
-import {toSelectGroupedOptionsPlain} from '~/utils/helpers';
+import {providerIcons} from '~/components/assistant/utils';
 
 // ui components
-import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
-import {Badge} from '~/components/ui/Badge.tsx';
+import SmartSelector, {SmartSelectorOption} from '~/components/ui/SmartSelector';
 
-/**
- * Tone input component for AI configuration
- * @component
- */
-const ResponseLengthInput: React.FC = () => {
+export interface ResponseLengthInputProps {
+}
+
+const ResponseLengthInput: React.FC<ResponseLengthInputProps> = () => {
   const {responseLengths} = useDataStore();
   const {config, setConfig} = useAppStore();
+  const Icon = providerIcons['responseLength'];
 
-  const handleChange = (value: string) => {
-    // Update the config in store
-    setConfig({responseLength: value}, true);
-  };
+  const options: SmartSelectorOption[] = responseLengths.map(x => ({
+    group: x.category,
+    description: x.shortDescription,
+    value: x.key,
+    label: x.name,
+  }));
 
   return (
     <div className="space-y-2">
       <label
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
-        <strong><AudioLines className="inline-flex display-inline" size="16"/> Response Length</strong>
+        <div className="flex items-center justify-between">
+          <strong><Icon className="inline-flex display-inline" size="16"/> Response Length</strong>
+        </div>
+        <p className="text-muted-foreground font-normal text-xs my-1">The desired length of the output response.</p>
       </label>
-      <SelectAdvanced
-        placeholder="Select output format"
-        searchable
-        triggerWidth="w-full"
-        value={config?.responseLength as string}
-        onChange={v => handleChange(v as string)}
-        options={toSelectGroupedOptionsPlain(responseLengths.filter(x => !x.hidden))}
-        formatLabel={option => (
-          <div><AudioLines className="inline-flex" size="16"/> {option.label}<p
-            className="text-xs pl-5 mt-1">{option.summary}</p>
-          </div>
-        )}
-        selectedOption={(_, option) => (
-          <div>{option?.name ?? 'Select response length'} {option?.name && <Badge variant="outline"
-                                                                  className="text-xs">{option?.category ?? 'N/A'}</Badge>}</div>
-        )}
+      <SmartSelector
+        visibleItems={10}
+        size="md"
+        iconSize="xs"
+        iconGap="xs"
+        variant="tiny"
+        value={config?.responseLength}
+        options={[
+          {label: '(unset)', value: '', icon: OctagonX, description: 'Not specified'},
+          ...options
+        ]}
+        onChange={(value) => {
+          setConfig({responseLength: value}, true);
+        }}
+        showEndingMargin={false}
       />
     </div>
   );

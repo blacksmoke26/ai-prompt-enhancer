@@ -34,6 +34,7 @@ const TechnicalDepth: React.FC<TechnicalDepthProps> = () => {
       </label>
       <SmartSelector
         visibleItems={5}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"

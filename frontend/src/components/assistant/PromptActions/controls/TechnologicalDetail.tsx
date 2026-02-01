@@ -34,6 +34,7 @@ const TechnologicalDetail: React.FC<TechnologicalDetailProps> = () => {
       </label>
       <SmartSelector
         visibleItems={5}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"

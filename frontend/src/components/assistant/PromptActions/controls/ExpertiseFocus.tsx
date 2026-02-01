@@ -34,6 +34,7 @@ const ExpertiseFocus: React.FC<ExpertiseFocusProps> = () => {
       </label>
       <SmartSelector
         visibleItems={5}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"

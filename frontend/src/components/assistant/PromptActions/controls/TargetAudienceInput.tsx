@@ -5,61 +5,57 @@
  */
 
 import React from 'react';
-import {UsersRound} from 'lucide-react';
+import {OctagonX} from 'lucide-react';
 
-// store
+// hooks
 import {useAppStore} from '~/stores/appStore';
-import {useDataStore} from '~/stores/dataStore.ts';
+import {useDataStore} from '~/stores/dataStore';
 
 // utils
-import {toSelectGroupedOptionsPlain} from '~/utils/helpers';
+import {providerIcons} from '~/components/assistant/utils';
 
 // ui components
-import {Badge} from '~/components/ui/Badge';
-import {SelectAdvanced} from '~/components/ui/SelectAdvanced';
+import SmartSelector, {SmartSelectorOption} from '~/components/ui/SmartSelector';
 
-/**
- * Target audience input component for AI configuration
- * @component
- */
-const TargetAudienceInput: React.FC = () => {
-  const {config, setConfig} = useAppStore();
+export interface TargetAudienceInputProps {
+}
+
+const TargetAudienceInput: React.FC<TargetAudienceInputProps> = () => {
   const {targetAudiences} = useDataStore();
+  const {config, setConfig} = useAppStore();
+  const Icon = providerIcons['targetAudience'];
 
-  const handleChange = (value: string) => {
-    // Update the config in store
-    setConfig({targetAudience: value}, true);
-  };
+  const options: SmartSelectorOption[] = targetAudiences.map(x => ({
+    group: x.category,
+    description: x.description,
+    value: x.key,
+    label: x.label,
+  }));
 
   return (
     <div className="space-y-2">
       <label
         className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground">
-        <strong><UsersRound className="inline-flex display-inline" size="16"/> Target Audience</strong>
+        <div className="flex items-center justify-between">
+          <strong><Icon className="inline-flex display-inline" size="16"/> Target Audience</strong>
+        </div>
+        <p className="text-muted-foreground font-normal text-xs my-1">The target audience for the output content. This influences tone, complexity, and language choices.</p>
       </label>
-      <SelectAdvanced
-        placeholder="Select target audience"
-        searchable
-        triggerWidth="w-full"
-        value={config.targetAudience as string}
-        onChange={value => handleChange(value as string)}
-        formatLabel={option => (
-          <div><UsersRound className="inline-flex" size="16"/> {option.label}
-            <p className="text-xs pl-5 mt-1">{option.description}</p>
-          </div>
-        )}
-        options={toSelectGroupedOptionsPlain(targetAudiences.filter(x => !x.hidden).map(x => ({
-          ...x,
-          name: x.label,
-        })))}
-        selectedOption={(_, option) => (
-          <div>{option?.label ?? 'Select audience'}
-            {option?.label && (
-              <Badge
-                variant="outline"
-                className="text-xs">{option?.category ?? 'N/A'}</Badge>
-            )}</div>
-        )}
+      <SmartSelector
+        visibleItems={10}
+        size="md"
+        iconSize="xs"
+        iconGap="xs"
+        variant="tiny"
+        value={config?.targetAudience}
+        options={[
+          {label: '(unset)', value: '', icon: OctagonX, description: 'Not specified'},
+          ...options
+        ]}
+        onChange={(value) => {
+          setConfig({targetAudience: value}, true);
+        }}
+        showEndingMargin={false}
       />
     </div>
   );

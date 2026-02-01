@@ -33,7 +33,8 @@ const ArgumentationStyle: React.FC<ArgumentationStyleProps> = () => {
         <p className="text-muted-foreground font-normal text-xs my-1">The style of argumentation.</p>
       </label>
       <SmartSelector
-        visibleItems={5}
+        visibleItems={8}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"

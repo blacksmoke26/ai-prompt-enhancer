@@ -34,6 +34,7 @@ const Encoding: React.FC<EncodingProps> = () => {
       </label>
       <SmartSelector
         visibleItems={5}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"

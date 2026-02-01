@@ -34,6 +34,7 @@ const NarrativePerspective: React.FC<NarrativePerspectiveProps> = () => {
       </label>
       <SmartSelector
         visibleItems={5}
+        showSearch={false}
         size="md"
         iconSize="xs"
         iconGap="xs"
