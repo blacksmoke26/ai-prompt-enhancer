@@ -13,6 +13,8 @@ import ResponseLength from './ResponseLength';
 import TargetAudience from './TargetAudience';
 import EnhancementType from './EnhancementType';
 import HistoryResponse from './HistoryResponse';
+import PromptTemplate from './PromptTemplate';
+import PromptTemplateCategory from './PromptTemplateCategory';
 
 /**
  * Export all models for use elsewhere in the application.
@@ -26,6 +28,8 @@ export * from './TargetAudience';
 export * from './ResponseLength';
 export * from './EnhancementType';
 export * from './HistoryResponse';
+export * from './PromptTemplate';
+export * from './PromptTemplateCategory';
 
 let isInitialized = false;
 
@@ -38,7 +42,10 @@ if (!isInitialized) {
     as: 'provider',
     foreignKey: 'providerId',
   });
-  History.belongsTo(PromptUserRole, { as: 'promptUserRole', foreignKey: 'userRole' });
+  History.belongsTo(PromptUserRole, {
+    as: 'promptUserRole',
+    foreignKey: 'userRole',
+  });
   History.hasOne(HistoryResponse, {
     as: 'response',
     foreignKey: 'historyId',
@@ -47,6 +54,11 @@ if (!isInitialized) {
   HistoryResponse.belongsTo(History, {
     as: 'history',
     foreignKey: 'historyId',
+    targetKey: 'id',
+  });
+  PromptTemplate.belongsTo(PromptTemplateCategory, {
+    as: 'category',
+    foreignKey: 'categoryId',
     targetKey: 'id',
   });
   isInitialized = true;
@@ -62,4 +74,6 @@ export {
   TargetAudience,
   EnhancementType,
   HistoryResponse,
+  PromptTemplate,
+  PromptTemplateCategory,
 };
