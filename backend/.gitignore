@@ -1,5 +1,7 @@
 database/*
 !database/.gitkeep
 coverage
-src/sandbox.ts
+src/sandbox*.ts
 *.log
+*.*bak*
+.trash
