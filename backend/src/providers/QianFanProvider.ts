@@ -4,17 +4,25 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
+import axios from 'axios';
+import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
+
+// db
+import { ConfigMeta, History, HistoryAttributes } from '~/database/models';
 
 // classes
 import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
 import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
+import StreamEnded from '~/classes/StreamEnded';
 
 // types
-import type {AIModel} from '~/types';
-import type {ConfigMeta} from '~/database/models';
-import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type { AIModel } from '~/types';
+import type { ProviderConfig } from '~/types/providers';
+import type {
+  PromptRequest,
+  PromptResponse,
+  StreamResponse,
+} from '~/types/prompt';
 
 /**
  * QianFan (Alibaba DashScope) provider for AI-powered prompt enhancement.
@@ -63,7 +71,8 @@ export default class QianFanProvider extends BaseAIProvider {
    * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
    */
   public static readonly DefaultPrompts: ProviderDefaultPrompt = {
-    system: 'You are a Qianfan AI assistant by Baidu. Refine prompts to be natural, contextually appropriate, and aligned with Chinese and global best practices.',
+    system:
+      'You are a Qianfan AI assistant by Baidu. Refine prompts to be natural, contextually appropriate, and aligned with Chinese and global best practices.',
     role: 'You specialize in multilingual prompt enhancement. Improve clarity and cultural appropriateness while preserving intent.',
   };
 
@@ -91,8 +100,11 @@ export default class QianFanProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super(QianFanProvider.ProviderKey, {baseUrl: config?.baseUrl || QianFanProvider.ProviderConfig.baseUrl});
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
+    super(QianFanProvider.ProviderKey, {
+      baseUrl: config?.baseUrl || QianFanProvider.ProviderConfig.baseUrl,
+    });
+    this.client.defaults.headers.common['Authorization'] =
+      `Bearer ${config?.apiKey}`;
   }
 
   /**
@@ -144,8 +156,8 @@ export default class QianFanProvider extends BaseAIProvider {
         '/api/v1/services/aigc/text-generation/v1',
         {
           model: request.model,
-          input: `SYSTEM: ${promptRequest.systemPrompt}`
-            + `\n\nUSER: ${aiPrompt}`,
+          input:
+            `SYSTEM: ${promptRequest.systemPrompt}` + `\n\nUSER: ${aiPrompt}`,
           parameters: {
             temperature: request.temperature ?? 0.7,
             top_p: 1.0,
@@ -155,7 +167,10 @@ export default class QianFanProvider extends BaseAIProvider {
       );
 
       const enhanced = await this.toPromptResponse(
-        response.data.output?.choices?.[0]?.content, request.text, QianFanProvider, request?.format || 'markdown',
+        response.data.output?.choices?.[0]?.content,
+        request.text,
+        QianFanProvider,
+        request?.format || 'markdown',
       );
 
       return {
@@ -174,6 +189,107 @@ export default class QianFanProvider extends BaseAIProvider {
   }
 
   /**
+   * Generates a streaming response from QianFan's AI capabilities.
+   * @param request - The prompt request
+   * @param history - Optional conversation history
+   * @yields StreamResponse chunks and StreamEnded signal
+   * @example
+   * ```typescript
+   * for await (const chunk of provider.generateStream(request)) {
+   *   if (chunk.done) {
+   *     // Stream completed
+   *     console.log(`Used ${chunk.tokensUsed} tokens`);
+   *   } else {
+   *     console.log(chunk.message.content);
+   *   }
+   * }
+   * ```
+   */
+  public async *generateStream(
+    request?: PromptRequest,
+    history?: History | HistoryAttributes,
+  ): AsyncGenerator<StreamResponse | StreamEnded, void, unknown> {
+    const startTime = Date.now();
+
+    let aiPrompt: string = '';
+
+    if (request) {
+      const promptRequest = await PromptRequestNormalizer.normalize(request);
+      aiPrompt = UniversalPromptComposer.generate(promptRequest);
+    } else if (history) {
+      aiPrompt = history.aiPrompt || '';
+    } else {
+      throw new Error('One of the request or history param is required');
+    }
+
+    try {
+      const response = await this.client.post(
+        '/api/v1/services/aigc/text-generation/v1',
+        {
+          model: history?.model ?? request?.model ?? 'qwen-1.5-1.8b-chat',
+          input: `SYSTEM: ${history?.systemPrompt ?? request?.systemPrompt}\n\nUSER: ${aiPrompt}`,
+          parameters: {
+            temperature: request?.temperature ?? 0.7,
+            top_p: 1.0,
+            max_tokens: request?.maxTokens ?? 2000,
+            stream: true,
+          },
+        },
+      );
+
+      const stream = response.data as AsyncIterable<any>;
+
+      for await (const chunk of stream) {
+        if (chunk.output?.choices?.[0]?.message?.content) {
+          yield {
+            model: history?.model ?? request?.model ?? 'qwen-1.5-1.8b-chat',
+            created_at: new Date().toISOString(),
+            message: {
+              role: 'assistant',
+              content: chunk.output.choices[0].message.content,
+            },
+            done: false,
+          };
+        } else if (chunk.output?.choices?.[0]?.finish_reason) {
+          const tokensUsed = chunk.usage?.total_tokens || 0;
+
+          yield new StreamEnded({
+            model: history?.model ?? request?.model ?? 'qwen-1.5-1.8b-chat',
+            aiPrompt,
+            tokensUsed,
+            processingTime: this.calculateProcessingTime(startTime),
+          });
+          return;
+        }
+      }
+
+      // If stream completes without explicit finish_reason, yield StreamEnded
+      yield new StreamEnded({
+        model: history?.model ?? request?.model ?? 'qwen-1.5-1.8b-chat',
+        aiPrompt,
+        tokensUsed: 0,
+        processingTime: this.calculateProcessingTime(startTime),
+      });
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.error?.message || error.message;
+        console.error(
+          `${QianFanProvider.ProviderName} streaming error:`,
+          errorMessage,
+        );
+        throw new Error(
+          `${QianFanProvider.ProviderName} API error: ${errorMessage}`,
+        );
+      }
+      console.error('Unexpected streaming error:', error);
+      throw new Error(
+        `Failed to stream response from ${QianFanProvider.ProviderName}`,
+      );
+    }
+  }
+
+  /**
    * Check QianFan service availability with a minimal test request.
    *
    * @returns True if the service responds with valid model output
@@ -185,7 +301,7 @@ export default class QianFanProvider extends BaseAIProvider {
         {
           model: 'qwen-1.5-1.8b-chat',
           input: 'test',
-          parameters: {max_tokens: 1},
+          parameters: { max_tokens: 1 },
         },
       );
       return !!resp.data.output?.choices;

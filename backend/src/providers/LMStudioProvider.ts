@@ -4,17 +4,25 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
+import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
+import axios from 'axios';
+
+// db
+import { ConfigMeta, History, HistoryAttributes } from '~/database/models';
 
 // classes
 import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
 import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
+import StreamEnded from '~/classes/StreamEnded';
 
 // types
-import type {AIModel} from '~/types';
-import type {ConfigMeta} from '~/database/models';
-import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse} from '~/types/prompt';
+import type { AIModel } from '~/types';
+import type { ProviderConfig } from '~/types/providers';
+import type {
+  PromptRequest,
+  PromptResponse,
+  StreamResponse,
+} from '~/types/prompt';
 
 /**
  * Represents a model from LM Studio, containing metadata such as ID, type, publisher, and configuration details.
@@ -91,7 +99,8 @@ export default class LMStudioProvider extends BaseAIProvider {
    * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
    */
   public static readonly DefaultPrompts: ProviderDefaultPrompt = {
-    system: 'You are an AI assistant running locally via LM Studio. Optimize prompts for local inference: be clear, concise, and avoid unnecessary complexity.',
+    system:
+      'You are an AI assistant running locally via LM Studio. Optimize prompts for local inference: be clear, concise, and avoid unnecessary complexity.',
     role: 'You are a prompt refiner for local LLMs. Ensure prompts are well-scoped, efficient, and compatible with on-device models.',
   };
 
@@ -119,7 +128,9 @@ export default class LMStudioProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super(LMStudioProvider.ProviderKey, {baseUrl: config?.baseUrl ?? LMStudioProvider.ProviderConfig.baseUrl});
+    super(LMStudioProvider.ProviderKey, {
+      baseUrl: config?.baseUrl ?? LMStudioProvider.ProviderConfig.baseUrl,
+    });
   }
 
   /**
@@ -139,25 +150,29 @@ export default class LMStudioProvider extends BaseAIProvider {
    */
   async getModels(): Promise<AIModel[]> {
     try {
-      const response = await this.client.get<{ data: LMStudioModel[] }>('/api/v0/models');
+      const response = await this.client.get<{ data: LMStudioModel[] }>(
+        '/api/v0/models',
+      );
       const models = response.data.data || [];
 
-      return models.map((model) => {
-        const [, size = '?b'] = model.id.match(/-(\d+b)/) ?? [];
-        const items = model.id.split('-');
-        let name = (String(items[0]).split('/')[1] ?? '');
-        if (name.trim()) {
-          name += '-' + items[1];
-        }
-        return ({
-          id: model.id,
-          name,
-          size,
-          provider: LMStudioProvider.ProviderID,
-          description: `${size} • ${model.type} • ${model.compatibility_type}`,
-          contextLength: model?.max_context_length || 4096,
-        });
-      }).sort((a, b) => a.name.localeCompare(b.name));
+      return models
+        .map((model) => {
+          const [, size = '?b'] = model.id.match(/-(\d+b)/) ?? [];
+          const items = model.id.split('-');
+          let name = String(items[0]).split('/')[1] ?? '';
+          if (name.trim()) {
+            name += '-' + items[1];
+          }
+          return {
+            id: model.id,
+            name,
+            size,
+            provider: LMStudioProvider.ProviderID,
+            description: `${size} • ${model.type} • ${model.compatibility_type}`,
+            contextLength: model?.max_context_length || 4096,
+          };
+        })
+        .sort((a, b) => a.name.localeCompare(b.name));
     } catch (error: any) {
       console.error('Failed to fetch LM Studio models:', error);
       return [];
@@ -195,8 +210,7 @@ export default class LMStudioProvider extends BaseAIProvider {
     const aiPrompt = UniversalPromptComposer.generate(promptRequest);
 
     try {
-      const fullPrompt = `${promptRequest.systemPrompt}\n\n`
-        + aiPrompt;
+      const fullPrompt = `${promptRequest.systemPrompt}\n\n` + aiPrompt;
 
       const response = await this.client.post('/api/v0/completions', {
         model: request.model,
@@ -207,7 +221,10 @@ export default class LMStudioProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.choices?.[0]?.text, request.text, LMStudioProvider, request?.format || 'markdown'
+        response.data.choices?.[0]?.text,
+        request.text,
+        LMStudioProvider,
+        request?.format || 'markdown',
       );
 
       return {
@@ -222,6 +239,103 @@ export default class LMStudioProvider extends BaseAIProvider {
     } catch (error: any) {
       console.error('LM Studio enhancement failed:', error);
       throw new Error(`Failed to enhance prompt with LM Studio: ${error}`);
+    }
+  }
+
+  /**
+   * Generates a streaming response from LM Studio's API.
+   * @param request - The prompt request
+   * @param history - Optional conversation history
+   * @yields StreamResponse chunks and StreamEnded signal
+   * @example
+   * ```typescript
+   * for await (const chunk of provider.generateStream(request)) {
+   *   if (chunk.done) {
+   *     // Stream completed
+   *     console.log(`Used ${chunk.tokensUsed} tokens`);
+   *   } else {
+   *     console.log(chunk.message.content);
+   *   }
+   * }
+   * ```
+   */
+  public async *generateStream(
+    request?: PromptRequest,
+    history?: History | HistoryAttributes,
+  ): AsyncGenerator<StreamResponse | StreamEnded, void, unknown> {
+    const startTime = Date.now();
+
+    let aiPrompt: string = '';
+
+    if (request) {
+      const promptRequest = await PromptRequestNormalizer.normalize(request);
+      aiPrompt = UniversalPromptComposer.generate(promptRequest);
+    } else if (history) {
+      aiPrompt = history.aiPrompt || '';
+    } else {
+      throw new Error('One of the request or history param is required');
+    }
+
+    try {
+      const fullPrompt =
+        `${history?.systemPrompt ?? request?.systemPrompt}\n\n` + aiPrompt;
+
+      const response = await this.client.post('/api/v0/completions', {
+        model: history?.model ?? request?.model ?? 'llama2',
+        prompt: fullPrompt,
+        stream: true,
+        temperature: request?.temperature || 0.7,
+        max_tokens: request?.maxTokens || 2000,
+      });
+
+      const stream = response.data as AsyncIterable<any>;
+
+      for await (const chunk of stream) {
+        if (chunk.choices && chunk.choices[0]?.text) {
+          yield {
+            model: history?.model ?? request?.model ?? 'llama2',
+            created_at: new Date().toISOString(),
+            message: {
+              role: 'assistant',
+              content: chunk.choices[0].text,
+            },
+            done: false,
+          };
+        } else if (chunk.choices && chunk.choices[0]?.finish_reason) {
+          const tokensUsed = chunk.usage?.prompt_tokens || 0;
+
+          yield new StreamEnded({
+            model: history?.model ?? request?.model ?? 'llama2',
+            aiPrompt,
+            tokensUsed,
+            processingTime: this.calculateProcessingTime(startTime),
+          });
+          return;
+        }
+      }
+
+      // If stream completes without explicit finish_reason, yield StreamEnded
+      yield new StreamEnded({
+        model: history?.model ?? request?.model ?? 'llama2',
+        aiPrompt,
+        tokensUsed: 0,
+        processingTime: this.calculateProcessingTime(startTime),
+      });
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.error || error.message;
+        console.error(
+          `${LMStudioProvider.ProviderName} streaming error:`,
+          errorMessage,
+        );
+        throw new Error(
+          `${LMStudioProvider.ProviderName} API error: ${errorMessage}`,
+        );
+      }
+      console.error('Unexpected streaming error:', error);
+      throw new Error(
+        `Failed to stream response from ${LMStudioProvider.ProviderName}`,
+      );
     }
   }
 

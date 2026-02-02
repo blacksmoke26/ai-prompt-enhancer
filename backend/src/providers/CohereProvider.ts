@@ -4,17 +4,25 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
+import axios from 'axios';
+import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
+
+// db
+import { ConfigMeta, History, HistoryAttributes } from '~/database/models';
 
 // classes
 import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
 import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
+import StreamEnded from '~/classes/StreamEnded';
 
 // types
-import type {AIModel} from '~/types';
-import type {ConfigMeta} from '~/database/models';
-import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse} from '~/types/prompt';
+import type { AIModel } from '~/types';
+import type { ProviderConfig } from '~/types/providers';
+import type {
+  PromptRequest,
+  PromptResponse,
+  StreamResponse,
+} from '~/types/prompt';
 
 /**
  * Cohere AI provider for prompt enhancement and text generation.
@@ -62,7 +70,8 @@ export default class CohereProvider extends BaseAIProvider {
    * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
    */
   public static readonly DefaultPrompts: ProviderDefaultPrompt = {
-    system: 'You are a language AI developed by Cohere. Optimize prompts for clarity, coherence, and conciseness while preserving original meaning.',
+    system:
+      'You are a language AI developed by Cohere. Optimize prompts for clarity, coherence, and conciseness while preserving original meaning.',
     role: 'You are a prompt refinement expert. Enhance the structure and expressiveness of user prompts without altering their intent.',
   };
 
@@ -90,8 +99,11 @@ export default class CohereProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super(CohereProvider.ProviderKey, {baseUrl: config?.baseUrl || CohereProvider.ProviderConfig.baseUrl});
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
+    super(CohereProvider.ProviderKey, {
+      baseUrl: config?.baseUrl || CohereProvider.ProviderConfig.baseUrl,
+    });
+    this.client.defaults.headers.common['Authorization'] =
+      `Bearer ${config?.apiKey}`;
   }
 
   /**
@@ -158,7 +170,7 @@ export default class CohereProvider extends BaseAIProvider {
       const response = await this.client.post('/chat', {
         model: request.model,
         messages: [
-          {role: 'system', content: promptRequest.systemPrompt},
+          { role: 'system', content: promptRequest.systemPrompt },
           {
             role: 'user',
             content: aiPrompt,
@@ -169,7 +181,10 @@ export default class CohereProvider extends BaseAIProvider {
       });
 
       const enhancedPrompt = await this.toPromptResponse(
-        response.data.generations?.[0]?.text, request.text, CohereProvider, request?.format || 'markdown'
+        response.data.generations?.[0]?.text,
+        request.text,
+        CohereProvider,
+        request?.format || 'markdown',
       );
 
       return {
@@ -188,6 +203,110 @@ export default class CohereProvider extends BaseAIProvider {
   }
 
   /**
+   * Generates a streaming response from Cohere's API.
+   * @param request - The prompt request
+   * @param history - Optional conversation history
+   * @yields StreamResponse chunks and StreamEnded signal
+   * @example
+   * ```typescript
+   * for await (const chunk of provider.generateStream(request)) {
+   *   if (chunk.done) {
+   *     // Stream completed
+   *     console.log(`Used ${chunk.tokensUsed} tokens`);
+   *   } else {
+   *     console.log(chunk.message.content);
+   *   }
+   * }
+   * ```
+   */
+  public async *generateStream(
+    request?: PromptRequest,
+    history?: History | HistoryAttributes,
+  ): AsyncGenerator<StreamResponse | StreamEnded, void, unknown> {
+    const startTime = Date.now();
+
+    let aiPrompt: string = '';
+
+    if (request) {
+      const promptRequest = await PromptRequestNormalizer.normalize(request);
+      aiPrompt = UniversalPromptComposer.generate(promptRequest);
+    } else if (history) {
+      aiPrompt = history.aiPrompt || '';
+    } else {
+      throw new Error('One of the request or history param is required');
+    }
+
+    try {
+      const response = await this.client.post('/chat', {
+        model: history?.model ?? request?.model ?? 'command-nightly',
+        messages: [
+          {
+            role: 'system',
+            content: history?.systemPrompt ?? request?.systemPrompt,
+          },
+          {
+            role: 'user',
+            content: aiPrompt,
+          },
+        ],
+        temperature: request?.temperature ?? 0.7,
+        max_tokens: request?.maxTokens ?? 2000,
+        stream: true,
+      });
+
+      const stream = response.data as AsyncIterable<any>;
+
+      for await (const chunk of stream) {
+        if (chunk.message && chunk.message.content) {
+          yield {
+            model: history?.model ?? request?.model ?? 'command-nightly',
+            created_at: new Date().toISOString(),
+            message: {
+              role: 'assistant',
+              content: chunk.message.content,
+            },
+            done: false,
+          };
+        } else if (chunk.stop_reason) {
+          const tokensUsed =
+            chunk.usage?.total_input_tokens || chunk.usage?.total_tokens || 0;
+
+          yield new StreamEnded({
+            model: history?.model ?? request?.model ?? 'command-nightly',
+            aiPrompt,
+            tokensUsed,
+            processingTime: this.calculateProcessingTime(startTime),
+          });
+          return;
+        }
+      }
+
+      // If stream completes without explicit stop_reason, yield StreamEnded
+      yield new StreamEnded({
+        model: history?.model ?? request?.model ?? 'command-nightly',
+        aiPrompt,
+        tokensUsed: 0,
+        processingTime: this.calculateProcessingTime(startTime),
+      });
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage = error.response?.data?.message || error.message;
+        console.error(
+          `${CohereProvider.ProviderName} streaming error:`,
+          errorMessage,
+        );
+        throw new Error(
+          `${CohereProvider.ProviderName} API error: ${errorMessage}`,
+        );
+      }
+      console.error('Unexpected streaming error:', error);
+      throw new Error(
+        `Failed to stream response from ${CohereProvider.ProviderName}`,
+      );
+    }
+  }
+
+  /**
    * Checks if the Cohere API is accessible and working.
    *
    * @returns True if API is available, false otherwise
@@ -200,7 +319,7 @@ export default class CohereProvider extends BaseAIProvider {
     try {
       const resp = await this.client.post('/chat', {
         model: 'command-nightly',
-        messages: [{role: 'user', content: 'test'}],
+        messages: [{ role: 'user', content: 'test' }],
         max_tokens: 1,
       });
       return !!resp.data.generations;

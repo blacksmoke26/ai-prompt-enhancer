@@ -4,17 +4,25 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
+import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
+import axios from 'axios';
+
+// db
+import { ConfigMeta, History, HistoryAttributes } from '~/database/models';
 
 // classes
 import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
 import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
+import StreamEnded from '~/classes/StreamEnded';
 
 // types
-import type {AIModel} from '~/types';
-import type {ConfigMeta} from '~/database/models';
-import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type { AIModel } from '~/types';
+import type { ProviderConfig } from '~/types/providers';
+import type {
+  PromptRequest,
+  PromptResponse,
+  StreamResponse,
+} from '~/types/prompt';
 
 /**
  * Hugging Face provider for prompt enhancement.
@@ -60,7 +68,8 @@ export default class HuggingFaceProvider extends BaseAIProvider {
    * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
    */
   public static readonly DefaultPrompts: ProviderDefaultPrompt = {
-    system: 'You are a Hugging Face AI assistant. Improve prompts with attention to open-model best practices, clarity, and technical nuance.',
+    system:
+      'You are a Hugging Face AI assistant. Improve prompts with attention to open-model best practices, clarity, and technical nuance.',
     role: 'You are a community-focused prompt optimizer. Enhance prompts to work well across diverse open-source models.',
   };
 
@@ -88,8 +97,11 @@ export default class HuggingFaceProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super(HuggingFaceProvider.ProviderKey, {baseUrl: config?.baseUrl || HuggingFaceProvider.ProviderConfig.baseUrl});
-    this.client.defaults.headers.common['Authorization'] = `Bearer ${config?.apiKey}`;
+    super(HuggingFaceProvider.ProviderKey, {
+      baseUrl: config?.baseUrl || HuggingFaceProvider.ProviderConfig.baseUrl,
+    });
+    this.client.defaults.headers.common['Authorization'] =
+      `Bearer ${config?.apiKey}`;
   }
 
   /**
@@ -148,8 +160,7 @@ export default class HuggingFaceProvider extends BaseAIProvider {
 
     try {
       const payload = {
-        inputs: promptRequest.systemPrompt
-          + `\n\n` + aiPrompt,
+        inputs: promptRequest.systemPrompt + `\n\n` + aiPrompt,
         parameters: {
           max_length: request.maxTokens ?? 2000,
           temperature: request.temperature ?? 0.7,
@@ -159,7 +170,10 @@ export default class HuggingFaceProvider extends BaseAIProvider {
       const response = await this.client.post(`/${request.model}`, payload);
 
       const enhanced = await this.toPromptResponse(
-        response.data?.[0].generated_text, request.text, HuggingFaceProvider, request?.format || 'markdown'
+        response.data?.[0].generated_text,
+        request.text,
+        HuggingFaceProvider,
+        request?.format || 'markdown',
       );
 
       return {
@@ -177,6 +191,107 @@ export default class HuggingFaceProvider extends BaseAIProvider {
   }
 
   /**
+   * Generates a streaming response from Hugging Face models.
+   * @param request - The prompt request
+   * @param history - Optional conversation history
+   * @yields StreamResponse chunks and StreamEnded signal
+   * @example
+   * ```typescript
+   * for await (const chunk of provider.generateStream(request)) {
+   *   if (chunk.done) {
+   *     // Stream completed
+   *     console.log(`Used ${chunk.tokensUsed} tokens`);
+   *   } else {
+   *     console.log(chunk.message.content);
+   *   }
+   * }
+   * ```
+   */
+  public async *generateStream(
+    request?: PromptRequest,
+    history?: History | HistoryAttributes,
+  ): AsyncGenerator<StreamResponse | StreamEnded, void, unknown> {
+    const startTime = Date.now();
+
+    let aiPrompt: string = '';
+
+    if (request) {
+      const promptRequest = await PromptRequestNormalizer.normalize(request);
+      aiPrompt = UniversalPromptComposer.generate(promptRequest);
+    } else if (history) {
+      aiPrompt = history.aiPrompt || '';
+    } else {
+      throw new Error('One of the request or history param is required');
+    }
+
+    try {
+      const payload = {
+        inputs: `${history?.systemPrompt ?? request?.systemPrompt}\n\n${aiPrompt}`,
+        parameters: {
+          max_length: request?.maxTokens ?? 2000,
+          temperature: request?.temperature ?? 0.7,
+          stream: true,
+        },
+      };
+
+      const response = await this.client.post(
+        `/${history?.model ?? request?.model ?? 'gpt2'}`,
+        payload,
+      );
+
+      const stream = response.data as AsyncIterable<any>;
+
+      for await (const chunk of stream) {
+        if (chunk[0]?.generated_text) {
+          yield {
+            model: history?.model ?? request?.model ?? 'gpt2',
+            created_at: new Date().toISOString(),
+            message: {
+              role: 'assistant',
+              content: chunk[0].generated_text,
+            },
+            done: false,
+          };
+        } else if (chunk[0]?.finish_reason) {
+          const tokensUsed = chunk[0]?.usage?.total_tokens || 0;
+
+          yield new StreamEnded({
+            model: history?.model ?? request?.model ?? 'gpt2',
+            aiPrompt,
+            tokensUsed,
+            processingTime: this.calculateProcessingTime(startTime),
+          });
+          return;
+        }
+      }
+
+      // If stream completes without explicit finish_reason, yield StreamEnded
+      yield new StreamEnded({
+        model: history?.model ?? request?.model ?? 'gpt2',
+        aiPrompt,
+        tokensUsed: 0,
+        processingTime: this.calculateProcessingTime(startTime),
+      });
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.error?.message || error.message;
+        console.error(
+          `${HuggingFaceProvider.ProviderName} streaming error:`,
+          errorMessage,
+        );
+        throw new Error(
+          `${HuggingFaceProvider.ProviderName} API error: ${errorMessage}`,
+        );
+      }
+      console.error('Unexpected streaming error:', error);
+      throw new Error(
+        `Failed to stream response from ${HuggingFaceProvider.ProviderName}`,
+      );
+    }
+  }
+
+  /**
    * Checks if the Hugging Face service is available.
    * @returns Promise resolving to boolean indicating availability
    * @developerNotes
@@ -187,7 +302,7 @@ export default class HuggingFaceProvider extends BaseAIProvider {
     try {
       const resp = await this.client.post('/gpt2', {
         inputs: 'test',
-        parameters: {max_length: 1},
+        parameters: { max_length: 1 },
       });
       return Array.isArray(resp.data) && resp.data.length > 0;
     } catch {

@@ -4,21 +4,26 @@
  * @see https://github.com/blacksmoke26
  */
 
+import axios from 'axios';
 import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
+
+// db
+import { ConfigMeta, History, HistoryAttributes } from '~/database/models';
 
 // classes
 import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
 import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
+import StreamEnded from '~/classes/StreamEnded';
 
 // types
 import type { AIModel } from '~/types';
-import type { ConfigMeta } from '~/database/models';
 import type { ProviderConfig } from '~/types/providers';
 import type {
   FunctionCallResult,
   FunctionDefinition,
   PromptRequest,
   PromptResponse,
+  StreamResponse,
 } from '~/types/prompt';
 
 /**
@@ -263,6 +268,114 @@ export default class AnthropicProvider extends BaseAIProvider {
       console.error('Anthropic function calling failed:', error);
       throw new Error(
         `Failed to call function with Anthropic: ${error.message}`,
+      );
+    }
+  }
+
+  /**
+   * Generates a streaming response from Anthropic's API.
+   * @param request - The prompt request
+   * @param history - Optional conversation history
+   * @yields StreamResponse chunks and StreamEnded signal
+   * @example
+   * ```typescript
+   * for await (const chunk of provider.generateStream(request)) {
+   *   if (chunk.done) {
+   *     // Stream completed
+   *     console.log(`Used ${chunk.tokensUsed} tokens`);
+   *   } else {
+   *     console.log(chunk.message.content);
+   *   }
+   * }
+   * ```
+   */
+  public async *generateStream(
+    request?: PromptRequest,
+    history?: History | HistoryAttributes,
+  ): AsyncGenerator<StreamResponse | StreamEnded, void, unknown> {
+    const startTime = Date.now();
+
+    let aiPrompt: string = '';
+
+    if (request) {
+      const promptRequest = await PromptRequestNormalizer.normalize(request);
+      aiPrompt = UniversalPromptComposer.generate(promptRequest);
+    } else if (history) {
+      aiPrompt = history.aiPrompt || '';
+    } else {
+      throw new Error('One of the request or history param is required');
+    }
+
+    try {
+      const response = await this.client.post('/messages', {
+        model: history?.model ?? request?.model ?? 'claude-3-5-sonnet-20240620',
+        max_tokens: request?.maxTokens ?? 2000,
+        temperature: request?.temperature ?? 0.7,
+        system: history?.systemPrompt ?? request?.systemPrompt,
+        stream: true,
+        messages: [
+          {
+            role: 'user',
+            content: [
+              {
+                type: 'text',
+                text: aiPrompt,
+              },
+            ],
+          },
+        ],
+      });
+
+      const stream = response.data as AsyncIterable<any>;
+
+      for await (const chunk of stream) {
+        // Anthropic streams as delta objects with type and text content
+        if (chunk.type === 'content_block_delta' && chunk.delta?.text) {
+          yield {
+            model:
+              history?.model ?? request?.model ?? 'claude-3-5-sonnet-20240620',
+            created_at: new Date().toISOString(),
+            message: {
+              role: 'assistant',
+              content: chunk.delta.text,
+            },
+            done: false,
+          };
+        } else if (chunk.type === 'message_stop') {
+          yield new StreamEnded({
+            model:
+              history?.model ?? request?.model ?? 'claude-3-5-sonnet-20240620',
+            aiPrompt,
+            tokensUsed:
+              chunk.usage?.input_tokens || chunk.usage?.output_tokens || 0,
+            processingTime: this.calculateProcessingTime(startTime),
+          });
+          return;
+        }
+      }
+
+      // If stream completes without explicit stop signal, yield StreamEnded
+      yield new StreamEnded({
+        model: history?.model ?? request?.model ?? 'claude-3-5-sonnet-20240620',
+        aiPrompt,
+        tokensUsed: 0,
+        processingTime: this.calculateProcessingTime(startTime),
+      });
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.error?.message || error.message;
+        console.error(
+          `${AnthropicProvider.ProviderName} streaming error:`,
+          errorMessage,
+        );
+        throw new Error(
+          `${AnthropicProvider.ProviderName} API error: ${errorMessage}`,
+        );
+      }
+      console.error('Unexpected streaming error:', error);
+      throw new Error(
+        `Failed to stream response from ${AnthropicProvider.ProviderName}`,
       );
     }
   }

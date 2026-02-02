@@ -5,20 +5,25 @@
  */
 
 import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
+import axios from 'axios';
+
+// db
+import { ConfigMeta, History, HistoryAttributes } from '~/database/models';
 
 // classes
 import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
 import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
+import StreamEnded from '~/classes/StreamEnded';
 
 // types
 import type { AIModel } from '~/types';
-import type { ConfigMeta } from '~/database/models';
 import type { ProviderConfig } from '~/types/providers';
 import type {
   FunctionCallResult,
   FunctionDefinition,
   PromptRequest,
   PromptResponse,
+  StreamResponse,
 } from '~/types/prompt';
 
 /**
@@ -203,6 +208,110 @@ export default class CodyProvider extends BaseAIProvider {
     } catch (error: any) {
       console.error('Cody enhancement failed:', error);
       throw new Error(`Failed to enhance prompt with Cody: ${error}`);
+    }
+  }
+
+  /**
+   * Generates a streaming response from Cody AI's API.
+   * @param request - The prompt request
+   * @param history - Optional conversation history
+   * @yields StreamResponse chunks and StreamEnded signal
+   * @example
+   * ```typescript
+   * for await (const chunk of provider.generateStream(request)) {
+   *   if (chunk.done) {
+   *     // Stream completed
+   *     console.log(`Used ${chunk.tokensUsed} tokens`);
+   *   } else {
+   *     console.log(chunk.message.content);
+   *   }
+   * }
+   * ```
+   */
+  public async *generateStream(
+    request?: PromptRequest,
+    history?: History | HistoryAttributes,
+  ): AsyncGenerator<StreamResponse | StreamEnded, void, unknown> {
+    const startTime = Date.now();
+
+    let aiPrompt: string = '';
+
+    if (request) {
+      const promptRequest = await PromptRequestNormalizer.normalize(request);
+      aiPrompt = UniversalPromptComposer.generate(promptRequest);
+    } else if (history) {
+      aiPrompt = history.aiPrompt || '';
+    } else {
+      throw new Error('One of the request or history param is required');
+    }
+
+    try {
+      const response = await this.client.post('/chat', {
+        model: history?.model ?? request?.model ?? 'cody-general',
+        messages: [
+          {
+            role: 'system',
+            content: history?.systemPrompt ?? request?.systemPrompt,
+          },
+          {
+            role: 'user',
+            content: aiPrompt,
+          },
+        ],
+        temperature: request?.temperature ?? 0.7,
+        max_tokens: request?.maxTokens ?? 2000,
+        stream: true,
+      });
+
+      const stream = response.data as AsyncIterable<any>;
+
+      for await (const chunk of stream) {
+        if (chunk.choices && chunk.choices[0]?.delta?.content) {
+          yield {
+            model: history?.model ?? request?.model ?? 'cody-general',
+            created_at: new Date().toISOString(),
+            message: {
+              role: 'assistant',
+              content: chunk.choices[0].delta.content,
+            },
+            done: false,
+          };
+        } else if (chunk.choices && chunk.choices[0]?.finish_reason) {
+          const tokensUsed = chunk.usage?.total_tokens || 0;
+
+          yield new StreamEnded({
+            model: history?.model ?? request?.model ?? 'cody-general',
+            aiPrompt,
+            tokensUsed,
+            processingTime: this.calculateProcessingTime(startTime),
+          });
+          return;
+        }
+      }
+
+      // If stream completes without explicit finish_reason, yield StreamEnded
+      yield new StreamEnded({
+        model: history?.model ?? request?.model ?? 'cody-general',
+        aiPrompt,
+        tokensUsed: 0,
+        processingTime: this.calculateProcessingTime(startTime),
+      });
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.error?.message || error.message;
+        console.error(
+          `${CodyProvider.ProviderName} streaming error:`,
+          errorMessage,
+        );
+        throw new Error(
+          `${CodyProvider.ProviderName} API error: ${errorMessage}`,
+        );
+      }
+      console.error('Unexpected streaming error:', error);
+      throw new Error(
+        `Failed to stream response from ${CodyProvider.ProviderName}`,
+      );
     }
   }
 

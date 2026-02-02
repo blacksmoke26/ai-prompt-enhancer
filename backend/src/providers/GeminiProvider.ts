@@ -4,17 +4,25 @@
  * @see https://github.com/blacksmoke26
  */
 
-import BaseAIProvider, {ProviderDefaultPrompt} from '~/base/BaseAIProvider';
+import axios from 'axios';
+import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
+
+// db
+import { ConfigMeta, History, HistoryAttributes } from '~/database/models';
 
 // classes
 import UniversalPromptComposer from '~/classes/composer/UniversalPromptComposer';
 import PromptRequestNormalizer from '~/classes/composer/PromptRequestNormalizer';
+import StreamEnded from '~/classes/StreamEnded';
 
 // types
-import type {AIModel} from '~/types';
-import type {ConfigMeta} from '~/database/models';
-import type {ProviderConfig} from '~/types/providers';
-import type {PromptRequest, PromptResponse, ProviderCapabilities} from '~/types/prompt';
+import type { AIModel } from '~/types';
+import type { ProviderConfig } from '~/types/providers';
+import type {
+  PromptRequest,
+  PromptResponse,
+  StreamResponse,
+} from '~/types/prompt';
 
 /**
  * Represents a Gemini model configuration and metadata from the Gemini API.
@@ -116,8 +124,9 @@ export default class GeminiProvider extends BaseAIProvider {
    * @developerNotes These prompts should be tailored to the specific needs of the provider and should be updated as needed.
    */
   public static readonly DefaultPrompts: ProviderDefaultPrompt = {
-    system: 'You are a prompt optimization specialist. Improve clarity, structure, and effectiveness while preserving intent.',
-    role: 'You are Gemini, Google\'s AI assistant. Provide helpful, accurate, and well-structured responses to enhance prompts.',
+    system:
+      'You are a prompt optimization specialist. Improve clarity, structure, and effectiveness while preserving intent.',
+    role: "You are Gemini, Google's AI assistant. Provide helpful, accurate, and well-structured responses to enhance prompts.",
   };
 
   /**
@@ -144,9 +153,111 @@ export default class GeminiProvider extends BaseAIProvider {
    * @param config - Configuration object
    */
   constructor(config: ConfigMeta) {
-    super(GeminiProvider.ProviderKey, {baseUrl: config?.baseUrl || GeminiProvider.ProviderConfig.baseUrl});
+    super(GeminiProvider.ProviderKey, {
+      baseUrl: config?.baseUrl || GeminiProvider.ProviderConfig.baseUrl,
+    });
     this.client.defaults.params ??= {};
     this.client.defaults.params['key'] = config?.apiKey;
+  }
+
+  /**
+   * Generates a streaming response from Gemini's API.
+   * @param request - The prompt request
+   * @param history - Optional conversation history
+   * @yields StreamResponse chunks and StreamEnded signal
+   */
+  public async *generateStream(
+    request?: PromptRequest,
+    history?: History | HistoryAttributes,
+  ): AsyncGenerator<StreamResponse | StreamEnded, void, unknown> {
+    const startTime = Date.now();
+
+    let aiPrompt: string = '';
+
+    if (request) {
+      const promptRequest = await PromptRequestNormalizer.normalize(request);
+      aiPrompt = UniversalPromptComposer.generate(promptRequest);
+    } else if (history) {
+      aiPrompt = history.aiPrompt || '';
+    } else {
+      throw new Error('One of the request or history param is required');
+    }
+
+    try {
+      const body = {
+        contents: [
+          {
+            role: 'system',
+            parts: [{ text: history?.systemPrompt ?? request?.systemPrompt }],
+          },
+          { role: 'user', parts: [{ text: aiPrompt }] },
+        ],
+        temperature: request?.temperature ?? 0.7,
+        topK: 64,
+        topP: 0.95,
+        candidateCount: 1,
+        safeSearch: { category: 'NONE' },
+        generationConfig: { maxOutputTokens: request?.maxTokens ?? 2048 },
+        stream: true,
+      };
+
+      const endpoint = `/models/${history?.model ?? request?.model ?? 'gemini-2.0-flash'}/streamGenerateContent`;
+
+      const response = await this.client.post(endpoint, body);
+
+      const stream = response.data as AsyncIterable<any>;
+
+      for await (const chunk of stream) {
+        if (
+          chunk.candidates &&
+          chunk.candidates[0]?.content?.parts?.[0]?.text
+        ) {
+          yield {
+            model: history?.model ?? request?.model ?? 'gemini-2.0-flash',
+            created_at: new Date().toISOString(),
+            message: {
+              role: 'assistant',
+              content: chunk.candidates[0].content.parts[0].text,
+            },
+            done: false,
+          };
+        } else if (chunk.candidates && chunk.candidates[0]?.finishReason) {
+          const tokensUsed = chunk.usageMetadata?.totalTokenCount || 0;
+
+          yield new StreamEnded({
+            model: history?.model ?? request?.model ?? 'gemini-2.0-flash',
+            aiPrompt,
+            tokensUsed,
+            processingTime: this.calculateProcessingTime(startTime),
+          });
+          return;
+        }
+      }
+
+      // If stream completes without explicit finish_reason, yield StreamEnded
+      yield new StreamEnded({
+        model: history?.model ?? request?.model ?? 'gemini-2.0-flash',
+        aiPrompt,
+        tokensUsed: 0,
+        processingTime: this.calculateProcessingTime(startTime),
+      });
+    } catch (error: any) {
+      if (axios.isAxiosError(error)) {
+        const errorMessage =
+          error.response?.data?.error?.message || error.message;
+        console.error(
+          `${GeminiProvider.ProviderName} streaming error:`,
+          errorMessage,
+        );
+        throw new Error(
+          `${GeminiProvider.ProviderName} API error: ${errorMessage}`,
+        );
+      }
+      console.error('Unexpected streaming error:', error);
+      throw new Error(
+        `Failed to stream response from ${GeminiProvider.ProviderName}`,
+      );
+    }
   }
 
   /**
@@ -156,22 +267,26 @@ export default class GeminiProvider extends BaseAIProvider {
    */
   async getModels(): Promise<AIModel[]> {
     try {
-      const response = await this.client.get<{ models: GeminiModel[] }>('/models');
+      const response = await this.client.get<{ models: GeminiModel[] }>(
+        '/models',
+      );
       const models = response.data.models || [];
 
-      return models.map((model) => {
-        const [, size = '?b'] = model.name.match(/-(\d+(b|n))/) ?? [];
-        const name = model.name.split('/');
+      return models
+        .map((model) => {
+          const [, size = '?b'] = model.name.match(/-(\d+(b|n))/) ?? [];
+          const name = model.name.split('/');
 
-        return ({
-          id: model.name,
-          name: (name.length > 1 ? name[1] : name[0]).replace(/-\d+b/g, ''),
-          provider: GeminiProvider.ProviderID,
-          size,
-          description: model.description,
-          contextLength: model?.outputTokenLimit || 4096,
-        });
-      }).sort((a, b) => a.name.localeCompare(b.name));
+          return {
+            id: model.name,
+            name: (name.length > 1 ? name[1] : name[0]).replace(/-\d+b/g, ''),
+            provider: GeminiProvider.ProviderID,
+            size,
+            description: model.description,
+            contextLength: model?.outputTokenLimit || 4096,
+          };
+        })
+        .sort((a, b) => a.name.localeCompare(b.name));
     } catch (error: any) {
       console.error('Failed to fetch Gemini models:', error);
       return [];
@@ -195,15 +310,15 @@ export default class GeminiProvider extends BaseAIProvider {
 
     const body = {
       contents: [
-        {role: 'system', parts: [{text: promptRequest.systemPrompt}]},
-        {role: 'user', parts: [{text: aiPrompt}]},
+        { role: 'system', parts: [{ text: promptRequest.systemPrompt }] },
+        { role: 'user', parts: [{ text: aiPrompt }] },
       ],
       temperature: request.temperature ?? 0.7,
       topK: 64,
       topP: 0.95,
       candidateCount: 1,
-      safeSearch: {category: 'NONE'},
-      generationConfig: {maxOutputTokens: request.maxTokens ?? 2048},
+      safeSearch: { category: 'NONE' },
+      generationConfig: { maxOutputTokens: request.maxTokens ?? 2048 },
     };
 
     const endpoint = `/models/${request.model}/generateContent`;
@@ -211,7 +326,10 @@ export default class GeminiProvider extends BaseAIProvider {
     const response = await this.client.post(endpoint, body);
 
     const enhancedPrompt = await this.toPromptResponse(
-      response.data?.candidates?.[0]?.content?.parts?.[0]?.text, request.text, GeminiProvider, request?.format || 'markdown'
+      response.data?.candidates?.[0]?.content?.parts?.[0]?.text,
+      request.text,
+      GeminiProvider,
+      request?.format || 'markdown',
     );
 
     return {
@@ -235,7 +353,7 @@ export default class GeminiProvider extends BaseAIProvider {
       const response = await this.client.post(
         `/models/gemini-2.0-flash:generateContent`,
         {
-          contents: [{parts: [{text: 'test'}]}],
+          contents: [{ parts: [{ text: 'test' }] }],
         },
       );
 
