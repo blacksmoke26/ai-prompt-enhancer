@@ -67,6 +67,7 @@ import type {PromptHistoryByRole, UserRole} from '~/types';
 export interface ChatMessage extends PromptHistoryByRole {
   /** The role of the message sender. */
   role: 'user' | 'assistant' | 'system';
+  internalPrompt?: string;
   /** Optional index for message variants. */
   variantIndex?: number;
 }

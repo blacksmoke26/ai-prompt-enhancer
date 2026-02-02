@@ -138,6 +138,7 @@ const Assistant: React.FC<AssistantProps> = (props) => {
         ...rawMessage,
         id: `${rawMessage.id}_user`,
         aiPrompt: decodeHtml(rawMessage.originalPrompt),
+        internalPrompt: rawMessage.aiPrompt,
       });
 
       messages.push({
@@ -145,6 +146,7 @@ const Assistant: React.FC<AssistantProps> = (props) => {
         ...rawMessage,
         id: `${rawMessage.id}_assistant`,
         aiPrompt: decodeHtml(rawMessage.enhancedPrompt),
+        internalPrompt: rawMessage.aiPrompt,
       });
     }
 

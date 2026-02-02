@@ -5,7 +5,7 @@
  */
 
 import React, {memo} from 'react';
-import {BarChart3, Check, Copy, CopyCheck, Download, Edit2, RefreshCw, Trash2} from 'lucide-react';
+import {BarChart3, Check, ClipboardCopy, Copy, CopyCheck, Download, Edit2, RefreshCw, Trash2} from 'lucide-react';
 import {removeMarkdown} from '@excalidraw/markdown-to-text';
 
 // utils
@@ -76,6 +76,8 @@ const MessageActions: React.FC<MessageActionsProps> = memo((props) => {
     onPinMessage,
   } = props;
 
+  console.log('msg:', msg);
+
   return (
     <div
       className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-1 group-hover:translate-y-0 px-1.5"
@@ -121,6 +123,19 @@ const MessageActions: React.FC<MessageActionsProps> = memo((props) => {
         >
           <TooltipMini title="Copy plain text">
             <CopyCheck size={12}/>
+          </TooltipMini>
+        </Button>
+      )}
+
+      {msg?.internalPrompt?.trim?.() && msg.role === 'assistant' && (
+        <Button
+          size="xs"
+          variant="ghost"
+          onClick={() => handleCopy(msg.id, removeMarkdown(msg?.internalPrompt ?? ''))}
+          className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground"
+        >
+          <TooltipMini title="Copy AI Prompt">
+            <ClipboardCopy size={12}/>
           </TooltipMini>
         </Button>
       )}
