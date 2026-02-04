@@ -559,6 +559,72 @@ const promptCategories = [
     label: 'Web-Dev',
     description: 'Website and web application creation',
   },
+  { key: 'backend', label: 'Backend', description: 'Server-side development' },
+  {
+    key: 'career-development',
+    label: 'Career Development',
+    description: 'Professional growth and advancement',
+  },
+  {
+    key: 'cloud-architecture',
+    label: 'Cloud Architecture',
+    description: 'Designing cloud-based systems',
+  },
+  {
+    key: 'documentation',
+    label: 'Documentation',
+    description: 'Creating clear and useful written materials',
+  },
+  {
+    key: 'frontend',
+    label: 'Frontend',
+    description: 'Client-side development',
+  },
+  {
+    key: 'machine-learning',
+    label: 'Machine Learning',
+    description: 'AI and data analysis',
+  },
+  {
+    key: 'mobile-development',
+    label: 'Mobile Development',
+    description: 'App creation for mobile devices',
+  },
+  {
+    key: 'product-management',
+    label: 'Product Management',
+    description: 'Planning and managing products',
+  },
+  {
+    key: 'quality-assurance',
+    label: 'Quality Assurance',
+    description: 'Testing and verification',
+  },
+  {
+    key: 'security-engineering',
+    label: 'Security Engineering',
+    description: 'Designing secure systems',
+  },
+  {
+    key: 'site-reliability',
+    label: 'Site Reliability',
+    description: 'Maintaining reliable infrastructure',
+  },
+  {
+    key: 'system-design',
+    label: 'System Design',
+    description: 'Designing scalable systems',
+  },
+  {
+    key: 'technical-writing',
+    label: 'Technical Writing',
+    description: 'Creating clear and useful written materials',
+  },
+  {
+    key: 'ux-research',
+    label: 'UX Research',
+    description: 'User experience investigation',
+  },
 ];
 
 export default promptCategories;
