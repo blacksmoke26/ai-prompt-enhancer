@@ -1,0 +1,198 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
+import BaseAIProvider, { ProviderDefaultPrompt } from '~/base/BaseAIProvider';
+
+// classes
+import StreamEnded from '~/classes/StreamEnded';
+import AIRequestHandler, { ProviderStrategy } from '~/classes/AIRequestHandler';
+
+// db
+import { ConfigMeta, History, HistoryAttributes } from '~/database/models';
+
+// types
+import type { AIModel } from '~/types';
+import type { ProviderConfig } from '~/types/providers';
+import type {
+  PromptRequest,
+  PromptResponse,
+  StreamResponse,
+} from '~/types/prompt';
+
+export default class CozeProvider extends BaseAIProvider {
+  /**
+   * @inheritDoc
+   */
+  public static readonly ProviderID: string = 'coze';
+
+  /**
+   * @inheritDoc
+   */
+  public static readonly ProviderKey: string = 'Coze';
+
+  /**
+   * @inheritDoc
+   */
+  public static readonly ProviderName: string = 'Coze';
+
+  /**
+   * @inheritDoc
+   */
+  public static readonly DefaultPrompts: ProviderDefaultPrompt = {
+    system:
+      'You are an AI assistant on the Coze platform. Improve prompts to be more effective, natural, and aligned with conversational best practices.',
+    role: 'You specialize in prompt enhancement for chatbots and agents. Make prompts clearer, more engaging, and better scoped.',
+  };
+
+  /**
+   * @inheritDoc
+   */
+  public static readonly ProviderConfig: ProviderConfig = {
+    caption: CozeProvider.ProviderName,
+    name: CozeProvider.ProviderID,
+    baseUrl: 'https://api.coze.cn',
+    apiKey: '',
+    timeout: 30000,
+  };
+
+  /**
+   * Creates a new provider instance.
+   * @inheritDoc
+   */
+  constructor(config: ConfigMeta) {
+    super(CozeProvider.ProviderKey, {
+      baseUrl: config?.baseUrl || CozeProvider.ProviderConfig.baseUrl,
+    });
+    this.client.defaults.headers.common['Authorization'] =
+      `Bearer ${config?.apiKey}`;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async getModels(): Promise<AIModel[]> {
+    return [
+      {
+        id: 'coze-llama3',
+        name: 'Coze LLaMA 3',
+        provider: CozeProvider.ProviderID,
+        description: "Coze's LLaMA 3 based model",
+        contextLength: 32768,
+        maxTokens: 4096,
+      },
+      {
+        id: 'coze-dolly',
+        name: 'Coze Dolly',
+        provider: CozeProvider.ProviderID,
+        description: "Coze's Dolly model for general usage",
+        contextLength: 2048,
+        maxTokens: 1024,
+      },
+      {
+        id: 'coze-gpt4',
+        name: 'Coze GPT-4',
+        provider: CozeProvider.ProviderID,
+        description: "Coze's GPT-4 compatible model",
+        contextLength: 8192,
+        maxTokens: 2048,
+      },
+    ];
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public async generate(
+    request: PromptRequest,
+    options?: { stream?: boolean; history?: History | HistoryAttributes },
+  ): Promise<PromptResponse | AsyncGenerator<StreamResponse | StreamEnded>> {
+    const strategy: ProviderStrategy = {
+      endpoint: '/v1/chat/completions',
+
+      buildPayload: (aiPrompt, sysPrompt, req, hist) => ({
+        model: hist?.model ?? req?.model ?? 'coze-llama3',
+        messages: [
+          { role: 'system', content: sysPrompt },
+          { role: 'user', content: aiPrompt },
+        ],
+        temperature: req?.temperature ?? 0.7,
+        max_tokens: req?.maxTokens ?? 2000,
+      }),
+
+      parseSyncResponse: async (data, originalText, provider, format) => {
+        const content = data.choices?.[0]?.message?.content || '';
+        return {
+          aiPrompt: originalText,
+          enhancedPrompt: await provider.toPromptResponse(
+            content,
+            originalText,
+            CozeProvider,
+            format,
+          ),
+          originalPrompt: originalText,
+          model: data.model,
+          timestamp: new Date(),
+          tokensUsed: data.usage?.total_tokens,
+          processingTime: 0,
+        };
+      },
+
+      stream: {
+        hasText: (chunk) => !!chunk.choices?.[0]?.delta?.content,
+        getText: (chunk) => chunk.choices[0].delta.content,
+        isEnd: (chunk) => !!chunk.choices?.[0]?.finish_reason,
+        getUsage: (chunk) => chunk.usage?.total_tokens || 0,
+      },
+    };
+
+    return AIRequestHandler.generate({
+      client: this.client,
+      request,
+      history: options?.history,
+      stream: options?.stream ?? false,
+      strategy,
+      providerInstance: this,
+    });
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public async generateSync(request: PromptRequest): Promise<PromptResponse> {
+    return (await this.generate(request, { stream: false })) as PromptResponse;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public async *generateStream(
+    request: PromptRequest,
+    history?: History | HistoryAttributes,
+  ): AsyncGenerator<StreamResponse | StreamEnded, void, unknown> {
+    if (!request && !history) throw new Error('Request or history required');
+    const gen = await this.generate(
+      request,
+      { stream: true, history },
+    );
+    yield* gen as AsyncGenerator<StreamResponse | StreamEnded>;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  async isAvailable(): Promise<boolean> {
+    try {
+      const response = await this.client.post('/v1/chat/completions', {
+        model: 'coze-llama3',
+        messages: [{ role: 'user', content: 'test' }],
+        max_tokens: 1,
+      });
+      return !!response.data.choices;
+    } catch {
+      return false;
+    }
+  }
+}
