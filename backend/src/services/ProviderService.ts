@@ -11,7 +11,7 @@ import BaseAIProvider from '~/base/BaseAIProvider';
 import {ConfigMeta, Provider} from '~/database/models';
 
 // constants
-import {providersClasses} from '~/providers';
+import {providersClasses} from '~/providers/v2';
 
 // utils
 import {toProviderName} from '~/utils/provider';
