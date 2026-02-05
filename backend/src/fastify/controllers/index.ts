@@ -14,6 +14,7 @@ import enhancementTypeController from './enhancement-type.controller';
 import advancedEnhancementController from './advanced-enhancement.controller';
 import responseLengthsController from './response-lengths.controller';
 import targetAudiencesController from './target-audiences.controller';
+import promptCategoriesController from './prompt-categories.controller';
 
 // helpers
 import env from '@junaidatari/env-binder';
@@ -38,6 +39,7 @@ export default async (fastify: FastifyInstance) => {
     fastify.register(advancedEnhancementController, {prefix: '/api/advanced-enhancement-types'}),
     fastify.register(responseLengthsController, {prefix: '/api/response-lengths'}),
     fastify.register(targetAudiencesController, {prefix: '/api/target-audiences'}),
+    fastify.register(promptCategoriesController, {prefix: '/api/prompt-categories'}),
   ]);
 
   //<editor-fold desc="Development specific controllers">
