@@ -17,6 +17,9 @@ import {
 import { getInstance } from '~/database';
 import PromptTemplateCategory from '~/database/models/PromptTemplateCategory';
 
+// public types
+export type PromptTemplateAttributes = InferAttributes<PromptTemplate>;
+
 export interface TemplateVariable {
   /** The name of the variable */
   name: string;

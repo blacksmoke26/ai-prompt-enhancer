@@ -15,6 +15,9 @@ import {
 // db
 import { getInstance } from '~/database';
 
+// public types
+export type PromptTemplateCategoryAttributes = InferAttributes<PromptTemplateCategory>;
+
 /**
  * Prompt template category model
  */
