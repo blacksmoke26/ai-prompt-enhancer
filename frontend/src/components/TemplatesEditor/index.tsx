@@ -885,7 +885,7 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
       {/* Modal Drawer */}
       {variableSidebar === 'drawer' && isDrawerOpen && (
         <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm flex items-center justify-center sm:justify-end p-0 sm:p-4 pointer-events-none">
+          className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm flex items-center justify-center sm:justify-end p-0 sm:p-4 pointer-events-none">
           <div
             className="pointer-events-auto bg-card w-full h-full sm:h-auto sm:max-h-[85vh] sm:rounded-2xl shadow-2xl border border-border flex flex-col overflow-hidden sm:w-[400px] animate-in slide-in-from-right-10 duration-300">
             <Drawer

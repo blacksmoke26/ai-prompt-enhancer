@@ -114,7 +114,7 @@ const Drawer: React.FC<DrawerProps> = (props) => {
 
   return (
     <>
-      {mode === 'drawer' && <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm transition-opacity"
+      {mode === 'drawer' && <div className="fixed inset-0 z-50 bg-background/10  transition-opacity"
                                  onClick={onClose}></div>}
       <div className={cn(
         'flex flex-col bg-card shadow-2xl border-l border-border z-50 transition-all duration-300 ease-in-out',

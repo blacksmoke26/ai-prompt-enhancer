@@ -97,7 +97,7 @@ const EditorArea: React.FC<EditorAreaProps> = (props) => {
 
   return (
     <section className={cn(
-      'flex-1 flex flex-col min-w-0 bg-card border border-border rounded-2xl shadow-sm overflow-hidden ring-1 ring-black/5',
+      'flex-1 h-full flex flex-col min-w-0 bg-card border border-border rounded-2xl shadow-sm overflow-hidden ring-1 ring-black/5',
       // Zen Mode Overrides: Remove border, shadow, radius for full immersion
       layout === 'zen' && 'bg-background border-none rounded-none shadow-none ring-0',
       editorProps.className || '',
@@ -119,12 +119,12 @@ const EditorArea: React.FC<EditorAreaProps> = (props) => {
         </div>
       </div>
       <div
-        className={cn('flex-1 relative group min-h-0', layout === 'presentation' && 'flex items-center justify-center bg-background')}>
+        className={cn('flex-1 h-full relative group', layout === 'presentation' && 'flex items-center justify-center bg-background')}>
         <AdvancedTextarea
           showCopyButton={false}
+          autoResize={false}
           showClearButton={false}
           enableAutoClosing={true}
-
           value={content}
           onChange={value => onChange(value)}
           onKeyDown={handleKeyDown}
@@ -136,22 +136,11 @@ const EditorArea: React.FC<EditorAreaProps> = (props) => {
             layout === 'zen' && 'p-8 md:p-12 text-base md:text-lg',
             isOverLimit && 'text-destructive',
           )}
-          style={{
-            fontSize: layout === 'presentation' ? undefined : `${editorProps.fontSize || 14}px`,
-            fontFamily: layout === 'presentation' ? 'serif' : (editorProps.fontFamily || 'monospace'),
-          }}
           spellCheck={layout !== 'presentation'}
           placeholder={editorProps.placeholder || 'Start typing your prompt...'}
           maxLength={editorProps.maxCharCount}
-        ></AdvancedTextarea>
+        />
       </div>
-      {layout !== 'presentation' && layout !== 'zen' && (
-        <div
-          className="h-8 border-t border-border bg-background/30 flex items-center justify-between px-4 text-[10px] text-muted-foreground shrink-0">
-          <span>{editorProps.footerText || `Length: ${content.length}${editorProps.maxCharCount ? ` / ${editorProps.maxCharCount}` : ''}`}</span>
-          <span className="flex items-center gap-1"><Code size={10}/> Markdown Supported</span>
-        </div>
-      )}
     </section>
   );
 };
