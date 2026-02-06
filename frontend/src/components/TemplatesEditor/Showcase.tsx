@@ -417,18 +417,56 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
           }}
           onDrawerOpen={() => addLog('info', 'Drawer Opened')}
           onSelectorOpen={() => addLog('info', 'Selector Opened')}
-          onTemplateChoose={(t) => {
-            if(status === 'draft') setStatus('active');
-            addLog('success', `Template: ${t.title}`, { id: t.id });
+          onCategoryClick={(cat) => {
+            addLog('info', `Category clicked: ${cat}`);
           }}
-          onFormSubmit={() => addLog('warning', 'Form Validating...')}
-          onExecuteClick={(content) => {
-            addLog('success', 'Execution triggered');
+          onCategoryChange={(cat) => {
+            addLog('info', `Category changed to: ${cat}`);
+          }}
+          onCategoryFilter={(cat) => {
+            addLog('info', `Category filter applied: ${cat}`);
+          }}
+          onTemplateSearch={(q, cat) => {
+            addLog('info', `Search query: ${q}, category: ${cat}`);
+          }}
+          onTagClick={(tag) => {
+            addLog('info', `Tag clicked: ${tag}`);
+          }}
+          onCopy={() => {
+            addLog('success', 'Content copied to clipboard');
+          }}
+          onTagValidate={(name, val, schema) => {
+            // Placeholder for validation logic
+            return true;
+          }}
+          onErrors={(errs) => {
+            if (Object.keys(errs).length > 0) {
+              addLog('warning', `Validation errors: ${JSON.stringify(errs)}`);
+            }
+          }}
+          onValidate={(data) => {
+            addLog('debug', `Form validated: ${JSON.stringify(data)}`);
+          }}
+          onFormSubmit={(data) => {
+            addLog('success', `Form submitted with data: ${JSON.stringify(data)}`);
+          }}
+          onExecuteClick={(content, variables) => {
+            addLog('success', 'Execution triggered', { content: content.substring(0, 50) + '...' });
+          }}
+          onPresetSelect={(id) => {
+            addLog('info', `Preset selected: ${id}`);
+          }}
+          onExport={(format) => {
+            addLog('success', `Exported as ${format}`);
           }}
           onTagValueChange={(name, val) => {
             if (Math.random() > 0.9) addLog('debug', `Var Update: ${name} = ${val}`);
           }}
           onOutputChange={setOutput}
+          onStreamUpdate={(chunk) => {
+            if (Math.random() > 0.8) addLog('debug', `Stream update: ${chunk.length} chars`);
+          }}
+          outputContent={output}
 
           // --- CUSTOMIZATION ---
           config={runnerProps.config}
@@ -443,6 +481,12 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
           }}
           editorProps={runnerProps.editorProps}
           drawerProps={{submitText: 'Generate Prompt'}}
+          selectorProps={{}}
+          renderTag={(tag, onClick) => (
+            <span key={tag} className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-primary/10 text-primary hover:bg-primary/20 cursor-pointer transition-colors" onClick={(e) => { e.stopPropagation(); onClick(tag); }}>
+              {tag}
+            </span>
+          )}
         />
       </div>
 
