@@ -5,18 +5,12 @@
  */
 
 import React, {useCallback, useEffect, useState} from 'react';
-import {BarChart, Eye, History, type LucideIcon, Settings2, Sparkles} from 'lucide-react';
-
-// utils
-import {cn} from '~/utils/helpers';
-import {simpleMarkdownToHtml} from './utils';
+import {History, type LucideIcon, Settings2, Sparkles} from 'lucide-react';
 
 // relative components
 import Drawer from './Drawer';
 import Header from './Header';
-import StatsPanel from './StatsPanel';
 import EditorArea from './EditorArea';
-import PreviewPanel from './PreviewPanel';
 import CommandPalette from './CommandPalette';
 import TemplateSelector from './TemplateSelector';
 
@@ -24,32 +18,6 @@ import TemplateSelector from './TemplateSelector';
  * Represents the lifecycle status of a prompt.
  */
 export type PromptStatus = 'draft' | 'active' | 'archived';
-
-/**
- * Defines the various layout modes available for the prompt runner interface.
- * These modes control how the editor, preview, and sidebars are arranged.
- */
-export type LayoutMode =
-  | 'editor-only'
-  | 'split-horizontal'
-  | 'split-vertical'
-  | 'focus'
-  | 'zen'
-  | 'dual-sidebar'
-  | 'presentation'
-  | 'layout-top'
-  | 'layout-bottom'
-  | 'sidebar-left'
-  | 'sidebar-right'
-  | 'preview-right'
-  | 'preview-left'
-  | 'triple-column'
-  | 'bento-grid';
-
-/**
- * Defines the display mode for the variables sidebar.
- */
-export type SidebarMode = 'drawer' | 'sidebar-left' | 'sidebar-right';
 
 /**
  * Represents a single variable definition within a prompt template.
@@ -140,10 +108,10 @@ export interface PromptRunnerProps {
   templates: PromptTemplate[];
 
   // UI Events
-  /** Callback fired when the variables drawer/sidebar is requested to open. */
+  /** Callback fired when the variables drawer is requested to open. */
   onDrawerOpen?(): void;
 
-  /** Callback fired when the variables drawer/sidebar is requested to close. */
+  /** Callback fired when the variables drawer is requested to close. */
   onDrawerClose?(): void;
 
   /** Callback fired when the template selector modal is requested to open. */
@@ -177,12 +145,6 @@ export interface PromptRunnerProps {
   /** Callback fired when the "Copy to Clipboard" action is triggered. */
   onCopy?(): void;
 
-  /** Callback fired when the Zen Mode toggle is activated/deactivated. */
-  onToggleZenMode?(): void;
-
-  /** Flag indicating whether Zen Mode is currently active. */
-  isZenMode?: boolean;
-
   // Form Events
   /** Callback fired when a specific variable input value changes. */
   onTagValueChange?(name: string, val: any, schema: Variable): void;
@@ -206,18 +168,6 @@ export interface PromptRunnerProps {
   onPresetSelect?(presetId: string): void;
 
   // Layouts & Features
-  /** Determines the current layout arrangement of the runner UI. */
-  layout?: LayoutMode;
-
-  /** Determines how the variables sidebar is displayed (drawer or persistent). */
-  variableSidebar?: SidebarMode;
-
-  /** Flag to show/hide the analytics/stats panel. */
-  showAnalytics?: boolean;
-
-  /** Flag to show/hide the markdown preview panel. */
-  showPreview?: boolean;
-
   /** Flag to enable/disable the keyboard command palette. */
   enableCommandPalette?: boolean;
 
@@ -273,7 +223,7 @@ export interface PromptRunnerProps {
   /** Global configuration object for the runner. */
   config?: {
     [key: string]: any;
-    simulationSpeed?: number; // New: ms per char for streaming (0 = instant)
+    simulationSpeed?: number; // ms per char for streaming (0 = instant)
   };
 
   /** Specific props for the Header component. */
@@ -282,95 +232,12 @@ export interface PromptRunnerProps {
   /** Specific props for the EditorArea component. */
   editorProps?: Record<string, any>;
 
-  /** Specific props for the Drawer (Variables Sidebar) component. */
+  /** Specific props for the Drawer (Variables) component. */
   drawerProps?: Record<string, any>;
 
   /** Specific props for the TemplateSelector component. */
   selectorProps?: Record<string, any>;
 
-  // --- REDUNDANT/DUPLICATE PROPS FROM ORIGINAL SOURCE (Preserved for safety) ---
-  /** @deprecated Duplicate of onDrawerOpen */
-  onDrawerOpen?(): void;
-
-  /** @deprecated Duplicate of onDrawerClose */
-  onDrawerClose?(): void;
-
-  /** @deprecated Duplicate of onSelectorOpen */
-  onSelectorOpen?(): void;
-
-  /** @deprecated Duplicate of onSelectorClose */
-  onSelectorClose?(): void;
-
-  /** @deprecated Duplicate of onCategoryClick */
-  onCategoryClick?(cat: string): void;
-
-  /** @deprecated Duplicate of onCategoryChange */
-  onCategoryChange?(cat: string): void;
-
-  /** @deprecated Duplicate of onCategoryFilter */
-  onCategoryFilter?(cat: string): void;
-
-  /** @deprecated Duplicate of onTemplateSearch */
-  onTemplateSearch?(q: string, cat: string): void;
-
-  /** @deprecated Duplicate of onTemplateChoose */
-  onTemplateChoose?(t: PromptTemplate): void;
-
-  /** @deprecated Duplicate of onChange */
-  onChange?(c: string): void;
-
-  /** @deprecated Duplicate of onTagClick */
-  onTagClick?(tag: string): void;
-
-  /** @deprecated Duplicate of onCopy */
-  onCopy?(): void;
-
-  /** @deprecated Duplicate of onToggleZenMode */
-  onToggleZenMode?(): void;
-
-  /** @deprecated Duplicate of onTagValueChange */
-  onTagValueChange?(name: string, val: any, schema: Variable): void;
-
-  /** @deprecated Duplicate of onTagValidate */
-  onTagValidate?(name: string, val: any, schema: Variable): boolean;
-
-  /** @deprecated Duplicate of onErrors */
-  onErrors?(errs: Record<string, any>): void;
-
-  /** @deprecated Duplicate of onValidate */
-  onValidate?(data: Record<string, any>): void;
-
-  /** @deprecated Duplicate of onFormSubmit */
-  onFormSubmit?(data: Record<string, any>): void;
-
-  /** @deprecated Duplicate of onExecuteClick */
-  onExecuteClick?(content: string, variables: Record<string, any>): void;
-
-  /** @deprecated Duplicate of onPresetSelect */
-  onPresetSelect?(presetId: string): void;
-
-  /** @deprecated Duplicate of onCommandAction */
-  onCommandAction?(action: string): void;
-
-  /** @deprecated Duplicate of onStatusChange */
-  onStatusChange?(status: PromptStatus): void;
-
-  /** @deprecated Duplicate of onSaveSnapshot */
-  onSaveSnapshot?(): void;
-
-  /** @deprecated Duplicate of onRestoreHistory */
-  onRestoreHistory?(id: string): void;
-
-  /** @deprecated Duplicate of onExport */
-  onExport?(format: 'json' | 'md'): void;
-
-  /** @deprecated Duplicate of onOutputChange */
-  onOutputChange?(val: string): void;
-
-  /** @deprecated Duplicate of onToggleFavorite */
-  onToggleFavorite?(id: number): void;
-
-  // --- NEW ADVANCED PROPS ---
   /** Debounce delay in milliseconds for editor content changes. */
   debounceMs?: number;
 }
@@ -378,13 +245,9 @@ export interface PromptRunnerProps {
 export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
   const {
     templates = [],
-    layout = 'editor-only',
-    variableSidebar = 'drawer',
-    showAnalytics = false,
-    showPreview = false,
     enableCommandPalette = false,
-    debounceMs = 300, // Advanced Prop default
-    // ... (Destructure all other props as per your snippet) ...
+    debounceMs = 300,
+    // ... (Destructure all other props) ...
     onDrawerOpen, onDrawerClose, onSelectorOpen, onSelectorClose,
     onCategoryClick, onCategoryChange, onCategoryFilter = () => {
     },
@@ -394,7 +257,7 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
     status, onStatusChange, history = [], onSaveSnapshot, onRestoreHistory, onExport,
     outputContent = '', onOutputChange,
     config = {}, headerProps = {}, editorProps = {}, drawerProps = {}, selectorProps = {},
-    onCommandAction, onToggleZenMode, isZenMode,
+    onCommandAction,
     onStreamUpdate,
   } = allProps;
 
@@ -407,7 +270,7 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
   const [formData, setFormData] = useState<Record<string, any>>(() => initializeFormData(activeTemplate.variables));
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false); // Advanced Feature
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
 
   // Streaming State
   const [isStreaming, setIsStreaming] = useState(false);
@@ -434,7 +297,7 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
     [onChange, debounceMs],
   );
 
-  // ... (Keep existing useEffect for Keyboard shortcuts) ...
+  // Keyboard shortcuts
   useEffect(() => {
     if (!enableCommandPalette) return;
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -443,15 +306,14 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
         setCommandPaletteOpen(prev => !prev);
       }
       if (e.key === 'Escape' && commandPaletteOpen) setCommandPaletteOpen(false);
-      if (e.key === 'Escape' && isZenMode && onToggleZenMode) onToggleZenMode();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [enableCommandPalette, commandPaletteOpen, isZenMode, onToggleZenMode]);
+  }, [enableCommandPalette, commandPaletteOpen]);
 
   const handleContentChange = (val: string) => {
     setContent(val);
-    debouncedOnChange(val); // Use advanced debounced handler
+    debouncedOnChange(val);
   };
 
   const handleSelectTemplate = (template: PromptTemplate) => {
@@ -487,13 +349,11 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
     }
   };
 
-  // Advanced: History Restore Logic
   const handleRestoreHistory = (id: string) => {
     if (onRestoreHistory) onRestoreHistory(id);
     const item = history.find(h => h.id === id);
     if (item) {
       setContent(item.content);
-      //setFormData(item.variables);
       setIsHistoryOpen(false);
     }
   };
@@ -503,10 +363,8 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
     setIsStreaming(true);
     setStreamContent('');
 
-    // USE PROP OR DEFAULT 10
     const speed = config.simulationSpeed ?? 10;
 
-    // If speed is 0, instant
     if (speed === 0) {
       setStreamContent(fullText);
       setIsStreaming(false);
@@ -523,7 +381,6 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
         setIsStreaming(false);
         if (onOutputChange) onOutputChange(fullText);
       } else {
-        // Fire stream update
         if (onStreamUpdate) onStreamUpdate(fullText.substring(0, i));
       }
     }, speed);
@@ -580,17 +437,14 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
     setIsGenerating(false);
 
     if (onExecuteClick) {
-      // If onExecuteClick is provided, assume parent handles streaming or final output
       onExecuteClick(newContent, formData);
     } else {
-      // Otherwise, simulate local streaming into the output box
       simulateStream(newContent);
     }
   };
 
   const handleCommandSelect = (action: string) => {
     setCommandPaletteOpen(false);
-    if (action === 'zen' && onToggleZenMode) onToggleZenMode();
     if (action === 'save' && onSaveSnapshot) onSaveSnapshot();
     if (action === 'export' && onExport) onExport('md');
     if (action === 'reset') handleReset();
@@ -600,13 +454,11 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
 
   // --- RENDER ---
   const ButtonIcon: LucideIcon = drawerProps.buttonIcon ?? Settings2;
-
-  // Determine Output to show (Stream or Static)
   const displayOutput = isStreaming ? streamContent : (outputContent || streamContent);
 
   return (
     <div
-      className={cn('flex flex-col h-full w-full bg-background text-foreground overflow-hidden font-sans transition-colors duration-300', isZenMode && 'bg-zinc-950')}>
+      className="flex flex-col h-full w-full bg-background text-foreground overflow-hidden font-sans transition-colors duration-300">
 
       {/* COMMAND PALETTE */}
       {enableCommandPalette && (
@@ -617,7 +469,7 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
         />
       )}
 
-      {/* HEADER (Assuming Header component is imported) */}
+      {/* HEADER */}
       <Header
         currentTemplate={activeTemplate}
         onOpenSelector={() => {
@@ -630,260 +482,90 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
         onExport={onExport}
         headerProps={headerProps}
         config={config}
-        onToggleZenMode={onToggleZenMode}
-        isZenMode={isZenMode}
       />
 
-      <main className={cn(
-        'flex-1 flex overflow-hidden relative p-4 sm:p-6 lg:p-8 transition-all duration-300',
-        // Zen Mode Overrides
-        isZenMode && 'p-0 m-0 flex items-center justify-center',
+      {/* MAIN LAYOUT: SPLIT VERTICAL */}
+      <main className="flex-1 flex flex-col overflow-hidden relative p-4 sm:p-6 lg:p-8 gap-6">
 
-        // Layout Variants
-        layout === 'split-vertical' && 'flex-col gap-6',
-        layout === 'split-horizontal' && 'flex-row gap-6',
-        layout === 'dual-sidebar' && '!grid !grid-cols-[300px_1fr_300px] gap-6',
-        layout === 'bento-grid' && '!grid !grid-cols-[280px_1fr_280px_240px] !grid-rows-2 gap-4 h-full',
-        (layout === 'presentation' || isZenMode) && 'p-0',
-      )}>
+        {/* TOP: EDITOR AREA */}
+        <div className="flex-1 flex flex-col min-w-0 relative transition-all duration-300">
+          <EditorArea
+            content={content}
+            onChange={handleContentChange}
+            metadata={activeTemplate}
+            onTagClick={onTagClick}
+            renderTag={renderTag}
+            editorProps={{
+              ...editorProps,
+              fontSize: editorProps.fontSize || 14,
+              className: editorProps.className,
+            }}
+            config={config}
+            onCopy={handleCopy}
+            layout="split-vertical"
+          />
 
-        {/* --- ZEN MODE SPECIAL CASE --- */}
-        {isZenMode ? (
-          <div className="w-full h-full flex items-center justify-center max-w-5xl mx-auto">
-            <EditorArea
-              content={content}
-              onChange={handleContentChange}
-              metadata={activeTemplate}
-              onTagClick={onTagClick}
-              renderTag={renderTag}
-              editorProps={{
-                ...editorProps,
-                fontSize: 18,
-                className: 'h-full w-full rounded-none shadow-none border-none',
-              }}
-              config={config}
-              onCopy={handleCopy}
-              layout="zen"
-            />
-          </div>
-        ) : (
-          /* --- LAYOUT SYSTEM --- */
-          <>
-            {/* 1. DUAL SIDEBAR (LEFT: Variables) */}
-            {layout === 'dual-sidebar' && (
-              <div className="hidden lg:flex flex-col min-w-0 bg-card border border-border rounded-2xl overflow-hidden">
-                <Drawer
-                  variables={activeTemplate.variables}
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                  onToggleBoolean={(name) => handleInputChange(name, !formData[name], activeTemplate.variables.find(v => v.name === name)!)}
-                  onApply={applyVariables}
-                  errors={errors}
-                  presets={presets}
-                  mode="sidebar"
-                  drawerProps={{...drawerProps, title: 'Config', submitText: 'Run'}}
-                  config={{isLoading: isGenerating}}
-                  onPresetSelect={handlePresetSelect}
-                />
-              </div>
-            )}
-
-            {/* 2. SIDEBAR LEFT */}
-            {(layout === 'sidebar-left' || layout === 'triple-column' || layout === 'bento-grid') && variableSidebar !== 'drawer' && (
-              <div
-                className={cn('flex flex-col min-w-0 bg-card border border-border rounded-2xl overflow-hidden', layout === 'bento-grid' ? 'col-span-1 row-span-2' : 'w-80')}>
-                <Drawer
-                  variables={activeTemplate.variables}
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                  onToggleBoolean={(name) => handleInputChange(name, !formData[name], activeTemplate.variables.find(v => v.name === name)!)}
-                  onApply={applyVariables}
-                  errors={errors}
-                  presets={presets}
-                  mode="sidebar"
-                  drawerProps={{...drawerProps, title: 'Config', submitText: 'Run'}}
-                  config={{isLoading: isGenerating}}
-                  onPresetSelect={handlePresetSelect}
-                />
-              </div>
-            )}
-
-            {/* 3. SIDEBAR RIGHT */}
-            {layout === 'sidebar-right' && variableSidebar !== 'drawer' && (
-              <div
-                className={cn('flex flex-col min-w-0 bg-card border border-border rounded-2xl overflow-hidden', 'w-80 order-last')}>
-                <Drawer
-                  variables={activeTemplate.variables}
-                  formData={formData}
-                  onInputChange={handleInputChange}
-                  onToggleBoolean={(name) => handleInputChange(name, !formData[name], activeTemplate.variables.find(v => v.name === name)!)}
-                  onApply={applyVariables}
-                  errors={errors}
-                  presets={presets}
-                  mode="sidebar"
-                  drawerProps={{...drawerProps, title: 'Config', submitText: 'Run'}}
-                  config={{isLoading: isGenerating}}
-                  onPresetSelect={handlePresetSelect}
-                />
-              </div>
-            )}
-
-            {/* 4. CENTER / EDITOR AREA */}
-            <div className={cn('flex flex-col min-w-0 transition-all duration-300',
-              layout === 'editor-only' ? 'w-full' : 'flex-1',
-              // Special sizes for Bento/Grid
-              layout === 'bento-grid' ? 'col-span-2 row-span-2' : '',
-              layout === 'preview-left' ? 'flex-1' : '',
-              layout === 'preview-right' ? 'flex-1' : '',
-            )}>
-              <EditorArea
-                content={content}
-                onChange={handleContentChange}
-                metadata={activeTemplate}
-                onTagClick={onTagClick}
-                renderTag={renderTag}
-                editorProps={{
-                  ...editorProps,
-                  fontSize: isZenMode ? 18 : (editorProps.fontSize || 14),
-                  className: isZenMode ? 'h-full rounded-none border-none shadow-none' : editorProps.className,
+          {/* Floating Action Button for Variables */}
+          {!isDrawerOpen && (
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+              <button
+                onClick={() => {
+                  setIsDrawerOpen(true);
+                  if (onDrawerOpen) onDrawerOpen();
                 }}
-                config={config}
-                onCopy={handleCopy}
-                layout={layout}
-              />
-
-              {/* Floating Action Button (Only in Editor-Only mode with Drawer) */}
-              {layout === 'editor-only' && variableSidebar === 'drawer' && (
-                <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-                  <button
-                    onClick={() => {
-                      setIsDrawerOpen(true);
-                      if (onDrawerOpen) onDrawerOpen();
-                    }}
-                    className="group inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 shadow-2xl hover:scale-105 transition-all duration-300 border border-white/10"
-                  >
-                    <ButtonIcon size={16}/>
-                    {drawerProps.buttonText || 'Configure Variables'}
-                  </button>
-                </div>
-              )}
-
-              {/* DRAWER TOP MODE */}
-              {layout === 'layout-top' && variableSidebar === 'drawer' && (
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-10">
-                  <button onClick={() => setIsDrawerOpen(true)}
-                          className="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg text-xs font-medium">Variables
-                  </button>
-                </div>
-              )}
+                className="group inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 shadow-2xl hover:scale-105 transition-all duration-300 border border-white/10"
+              >
+                <ButtonIcon size={16}/>
+                {drawerProps.buttonText || 'Configure Variables'}
+              </button>
             </div>
+          )}
+        </div>
 
-            {/* 5. PREVIEW RIGHT */}
-            {layout === 'preview-right' && (
-              <div
-                className="hidden md:flex flex-col w-1/2 min-w-0 bg-card border border-border rounded-2xl overflow-hidden">
-                <PreviewPanel content={content} fontSize={editorProps?.fontSize || 14}/>
-              </div>
+        {/* BOTTOM: OUTPUT PANEL */}
+        <div className="flex flex-col bg-card border border-border rounded-2xl overflow-hidden min-w-0 h-1/2">
+          <div className="h-10 border-b border-border flex items-center justify-between px-4 bg-muted/20">
+            <div className="flex items-center gap-2 text-xs font-bold uppercase text-foreground">
+              <Sparkles size={14}/> Output
+            </div>
+            {history.length > 0 && (
+              <button onClick={() => setIsHistoryOpen(!isHistoryOpen)}
+                      className="text-xs flex items-center gap-1 text-muted-foreground hover:text-foreground">
+                <History size={12}/> History ({history.length})
+              </button>
             )}
+          </div>
 
-            {/* 6. PREVIEW LEFT */}
-            {layout === 'preview-left' && (
-              <div
-                className="hidden md:flex flex-col w-1/2 min-w-0 bg-card border border-border rounded-2xl overflow-hidden order-first">
-                <PreviewPanel content={content} fontSize={editorProps?.fontSize || 14}/>
-              </div>
-            )}
-
-            {/* 7. BENTO GRID PREVIEW (Middle Right) */}
-            {layout === 'bento-grid' && (
-              <div
-                className="hidden lg:flex flex-col col-span-1 row-span-1 bg-card border border-border rounded-2xl overflow-hidden">
-                <div className="h-10 border-b border-border flex items-center justify-between px-4 bg-muted/20">
-                  <div className="flex items-center gap-2"><Eye size={12}/><span
-                    className="text-xs font-bold uppercase">Preview</span></div>
-                </div>
-                <div className="flex-1 p-4 overflow-y-auto text-sm text-foreground leading-relaxed"
-                     dangerouslySetInnerHTML={{__html: simpleMarkdownToHtml(content)}}></div>
-              </div>
-            )}
-
-            {/* 8. BENTO GRID ANALYTICS (Bottom Right) */}
-            {layout === 'bento-grid' && (
-              <div
-                className="hidden lg:flex flex-col col-span-1 row-span-1 bg-card border border-border rounded-2xl overflow-hidden">
-                <div className="h-10 border-b border-border flex items-center justify-between px-4 bg-muted/20">
-                  <div className="flex items-center gap-2"><BarChart size={12}/><span
-                    className="text-xs font-bold uppercase">Stats</span></div>
-                </div>
-                <StatsPanel content={content} variables={activeTemplate.variables} status={status}/>
-              </div>
-            )}
-
-            {/* 9. TRIPLE COLUMN PREVIEW (Right) */}
-            {layout === 'triple-column' && (
-              <div
-                className="hidden md:flex flex-col w-80 min-w-0 bg-card border border-border rounded-2xl overflow-hidden">
-                <PreviewPanel content={content} fontSize={editorProps?.fontSize || 14}/>
-              </div>
-            )}
-
-            {/* DRAWER BOTTOM MODE */}
-            {(layout === 'layout-bottom' || layout === 'split-vertical') && variableSidebar === 'drawer' && !isDrawerOpen && (
-              <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-                <button onClick={() => setIsDrawerOpen(true)}
-                        className="bg-primary text-primary-foreground px-4 py-2 rounded-lg shadow-lg text-xs font-medium">Variables
+          {/* History Dropdown */}
+          {isHistoryOpen && (
+            <div className="max-h-48 overflow-y-auto border-b border-border bg-muted/10 p-2">
+              {history.map(h => (
+                <button key={h.id} onClick={() => handleRestoreHistory(h.id)}
+                        className="w-full text-left text-xs p-2 hover:bg-accent rounded truncate mb-1">
+                  {new Date(h.timestamp).toLocaleTimeString()} - {activeTemplate.title}
                 </button>
-              </div>
-            )}
+              ))}
+            </div>
+          )}
 
-            {/* 10. OUTPUT PANEL (Only for non-Preview modes) */}
-            {(layout === 'split-horizontal' || layout === 'split-vertical' || layout === 'editor-only') && (
-              <div
-                className={cn('flex flex-col bg-card border border-border rounded-2xl overflow-hidden min-w-0', layout === 'split-vertical' ? 'h-1/2' : 'flex-1')}>
-                <div className="h-10 border-b border-border flex items-center justify-between px-4 bg-muted/20">
-                  <div className="flex items-center gap-2 text-xs font-bold uppercase text-foreground"><Sparkles
-                    size={14}/> Output
-                  </div>
-                  {history.length > 0 && (
-                    <button onClick={() => setIsHistoryOpen(!isHistoryOpen)}
-                            className="text-xs flex items-center gap-1 text-muted-foreground hover:text-foreground">
-                      <History size={12}/> History ({history.length})
-                    </button>
-                  )}
-                </div>
+          <div className="flex-1 relative min-h-0 p-0">
+            <textarea
+              value={displayOutput}
+              onChange={(e) => onOutputChange && onOutputChange(e.target.value)}
+              readOnly={!onOutputChange || isStreaming}
+              className="absolute inset-0 w-full h-full resize-none bg-transparent p-4 font-mono text-sm leading-relaxed outline-none text-foreground"
+              placeholder={isStreaming ? 'Streaming...' : 'AI response will appear here...'}
+            />
+            {/* Streaming Cursor */}
+            {isStreaming &&
+              <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1 align-middle"></span>}
+          </div>
+        </div>
 
-                {/* History Dropdown */}
-                {isHistoryOpen && (
-                  <div className="max-h-48 overflow-y-auto border-b border-border bg-muted/10 p-2">
-                    {history.map(h => (
-                      <button key={h.id} onClick={() => handleRestoreHistory(h.id)}
-                              className="w-full text-left text-xs p-2 hover:bg-accent rounded truncate mb-1">
-                        {new Date(h.timestamp).toLocaleTimeString()} - {activeTemplate.title}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                <div className="flex-1 relative min-h-0 p-0">
-                    <textarea
-                      value={displayOutput}
-                      onChange={(e) => onOutputChange && onOutputChange(e.target.value)}
-                      readOnly={!onOutputChange || isStreaming}
-                      className="absolute inset-0 w-full h-full resize-none bg-transparent p-4 font-mono text-sm leading-relaxed outline-none text-foreground"
-                      placeholder={isStreaming ? 'Streaming...' : 'AI response will appear here...'}
-                    />
-                  {/* Streaming Cursor */}
-                  {isStreaming &&
-                    <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1 align-middle"></span>}
-                </div>
-              </div>
-            )}
-          </>
-        )}
       </main>
 
       {/* Modal Drawer */}
-      {variableSidebar === 'drawer' && isDrawerOpen && (
+      {isDrawerOpen && (
         <div
           className="fixed inset-0 z-40 bg-background/60 backdrop-blur-sm flex items-center justify-center sm:justify-end p-0 sm:p-4 pointer-events-none">
           <div

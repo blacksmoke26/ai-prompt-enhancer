@@ -5,14 +5,7 @@
  */
 
 import React, {useMemo, useState} from 'react';
-import PromptRunner, {
-  HistoryItem,
-  LayoutMode,
-  PromptStatus,
-  PromptTemplate,
-  SidebarMode,
-  Variable,
-} from './index';
+import PromptRunner, {HistoryItem, PromptStatus, PromptTemplate, Variable} from './index';
 import {
   Aperture,
   Bug,
@@ -23,12 +16,9 @@ import {
   Gauge,
   Hash,
   Layers,
-  LayoutTemplate,
   Lock,
   type LucideIcon,
-  Monitor,
   RefreshCw,
-  Settings2,
   SlidersHorizontal,
   Star,
   Terminal,
@@ -210,15 +200,12 @@ interface LogEntry {
   details?: any;
 }
 
-// --- SHOWCASE COMPONENT V4 (FIXED) ---
+// --- SHOWCASE COMPONENT V5 (UPDATED FOR SIMPLIFIED RUNNER) ---
 
 export const PromptRunnerShowcaseV4: React.FC = () => {
   // --- STATE ---
 
-  // Core App State
-  const [layout, setLayout] = useState<LayoutMode>('editor-only');
-  const [sidebar, setSidebar] = useState<SidebarMode>('drawer');
-  const [isZenMode, setIsZenMode] = useState(false);
+  // Core App State (Layout is now fixed: Split Vertical + Drawer)
   const [output, setOutput] = useState('');
 
   // Data State
@@ -234,14 +221,10 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
   const [tweaks, setTweaks] = useState({
     fontSize: 14,
     debounceMs: 300,
-    simSpeed: 10, // Simulation speed in ms
+    simSpeed: 10,
     manualEdit: true,
-    maxChars: 0, // 0 = unlimited
+    maxChars: 0,
   });
-
-  // Explicitly define UI toggle states to pass to PromptRunner
-  const [showPreview, setShowPreview] = useState(true);
-  const [showAnalytics, setShowAnalytics] = useState(false);
 
   // UI State
   const [activeTab, setActiveTab] = useState<RightPanelTab>('logs');
@@ -256,18 +239,7 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
       message,
       details,
     };
-    // Limit logs to 100 for performance
     setLogs(prev => [entry, ...prev].slice(0, 100));
-  };
-
-  const handleLayoutChange = (newLayout: LayoutMode) => {
-    setLayout(newLayout);
-    addLog('info', `Layout changed to ${newLayout}`, { layout: newLayout });
-  };
-
-  const handleSidebarChange = (newMode: SidebarMode) => {
-    setSidebar(newMode);
-    addLog('info', `Sidebar changed to ${newMode}`);
   };
 
   const handleTweakChange = (key: keyof typeof tweaks, value: any) => {
@@ -276,23 +248,16 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
   };
 
   const handleHardReset = () => {
-    setLayout('editor-only');
-    setSidebar('drawer');
-    setIsZenMode(false);
     setOutput('');
     setLogs([]);
     setStatus('active');
     setFavorites([101]);
-    setShowPreview(true);
-    setShowAnalytics(false);
+    setFilterCat('all');
     addLog('warning', 'Hard Reset performed');
   };
 
   const handleExportState = () => {
     const state = {
-      layout,
-      sidebar,
-      isZenMode,
       tweaks,
       logsCount: logs.length,
     };
@@ -308,11 +273,6 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
 
   // --- CALCULATED PROPS FOR RUNNER ---
   const runnerProps = useMemo(() => ({
-    layout,
-    variableSidebar: sidebar,
-    isZenMode,
-    showPreview: showPreview, // Explicit state
-    showAnalytics: showAnalytics, // Explicit state
     enableCommandPalette: true,
     config: {
       enableManualEdit: tweaks.manualEdit,
@@ -324,82 +284,25 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
       showCopyButton: true,
     },
     debounceMs: tweaks.debounceMs,
-    // ... (other props like templates, handlers would go here)
-  }), [layout, sidebar, isZenMode, showPreview, showAnalytics, tweaks]);
+  }), [tweaks]);
 
   return (
     <div className="flex h-screen w-full bg-background text-foreground overflow-hidden font-sans">
 
-      {/* LEFT PANEL: LAYOUT CONTROLS & LIBRARY */}
-      <div className={cn(
-        'w-80 border-r border-border bg-muted/5 flex flex-col shrink-0 transition-all duration-300',
-        isZenMode && '-translate-x-full opacity-0 absolute',
-      )}>
+      {/* LEFT PANEL: LIBRARY & INFO */}
+      <div className="w-80 border-r border-border bg-muted/5 flex flex-col shrink-0 transition-all duration-300">
         {/* Header */}
         <div className="h-14 border-b border-border flex items-center px-4 bg-muted/20 shrink-0">
           <div className="flex items-center gap-2">
-            <Terminal className="w-4 h-4 text-primary"/><span className="font-bold text-sm">IDE v4</span>
+            <Terminal className="w-4 h-4 text-primary"/><span className="font-bold text-sm">IDE v5 (Fixed)</span>
           </div>
-          <button onClick={() => setLogs([])} className="text-muted-foreground hover:text-foreground"><RefreshCw
-            size={14}/></button>
+          <button onClick={() => setLogs([])} className="text-muted-foreground hover:text-foreground ml-auto"><RefreshCw size={14}/></button>
         </div>
 
-        {/* Layout & Sidebar Controls */}
+        {/* Controls Area */}
         <div className="flex-1 overflow-y-auto p-4 space-y-6 custom-scroll">
 
-          {/* 1. Layout Mode */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <h4 className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-2"><LayoutTemplate size={12}/> Layout</h4>
-              <div className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-mono">{layout}</div>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              {['editor-only', 'split-horizontal', 'split-vertical', 'dual-sidebar', 'preview-left', 'preview-right', 'bento-grid', 'sidebar-left', 'sidebar-right', 'layout-top', 'layout-bottom', 'triple-column', 'focus', 'presentation', 'zen'].map(l => (
-                <button key={l} onClick={() => handleLayoutChange(l as LayoutMode)}
-                        className={cn('text-[9px] p-1.5 rounded border border-border hover:bg-accent text-left flex flex-col items-center gap-0.5 transition-colors', layout === l && 'bg-primary/10 border-primary text-primary')}>
-                  <Monitor size={14}/> <span className="capitalize text-center">{l.replace('-', ' ')}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 2. Variable Panel */}
-          <div className="space-y-2">
-            <h4 className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-2"><Layers size={12}/> Variables</h4>
-            <div className="grid grid-cols-3 gap-2">
-              {(['drawer' as const, 'sidebar-left' as const, 'sidebar-right' as const]).map(m => (
-                <button key={m} onClick={() => handleSidebarChange(m)}
-                        className={cn('text-[10px] p-2 rounded border border-border hover:bg-accent text-center flex flex-col items-center gap-1', sidebar === m && 'bg-primary/10 border-primary text-primary')}>
-                  <Settings2 size={14}/> <span className="capitalize">{m.replace('-', ' ')}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* 3. Toggles */}
-          <div className="space-y-2">
-            <h4 className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-2"><Zap size={12}/> Features</h4>
-            <div className="flex items-center justify-between px-3 py-2 bg-muted/30 rounded border border-border">
-              <span className="text-xs font-medium">Zen Mode</span>
-              <button onClick={() => setIsZenMode(!isZenMode)} className={cn('w-10 h-5 rounded-full relative transition-colors', isZenMode ? 'bg-primary' : 'bg-input')}>
-                <div className={cn('absolute top-1 left-1 w-3.5 h-3.5 rounded-full bg-white transition-transform', isZenMode ? 'translate-x-5' : 'translate-x-0')}></div>
-              </button>
-            </div>
-            <div className="flex items-center justify-between px-3 py-2 bg-muted/30 rounded border border-border">
-              <span className="text-xs font-medium">Live Preview</span>
-              <button onClick={() => setShowPreview(!showPreview)} className={cn('w-10 h-5 rounded-full relative transition-colors', showPreview ? 'bg-primary' : 'bg-input')}>
-                <div className={cn('absolute top-1 left-1 w-3.5 h-3.5 rounded-full bg-white transition-transform', showPreview ? 'translate-x-5' : 'translate-x-0')}></div>
-              </button>
-            </div>
-            <div className="flex items-center justify-between px-3 py-2 bg-muted/30 rounded border border-border">
-              <span className="text-xs font-medium">Analytics</span>
-              <button onClick={() => setShowAnalytics(!showAnalytics)} className={cn('w-10 h-5 rounded-full relative transition-colors', showAnalytics ? 'bg-primary' : 'bg-input')}>
-                <div className={cn('absolute top-1 left-1 w-3.5 h-3.5 rounded-full bg-white transition-transform', showAnalytics ? 'translate-x-5' : 'translate-x-0')}></div>
-              </button>
-            </div>
-          </div>
-
-          {/* 4. Data Generation Info */}
+          {/* Info Box */}
           <div className="mt-auto p-3 bg-muted/10 rounded border border-border/50 text-[10px] text-muted-foreground">
             <div className="flex justify-between mb-1"><span>Templates:</span> <span className="font-mono text-foreground">{demoTemplates.length}</span></div>
             <div className="flex justify-between mb-1"><span>Favorites:</span> <span className="font-mono text-foreground">{favorites.length}</span></div>
@@ -408,16 +311,14 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
         </div>
 
         {/* TEMPLATE LIBRARY */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div className="flex-1 flex flex-col overflow-hidden border-t border-border">
           <div className="h-10 border-b border-border flex items-center px-4 justify-between bg-muted/10 shrink-0">
             <div className="flex items-center gap-2">
               <Layers size={12} className="text-muted-foreground"/>
-              <span
-                className="text-[10px] font-bold uppercase text-muted-foreground">Library ({demoTemplates.length})</span>
+              <span className="text-[10px] font-bold uppercase text-muted-foreground">Library ({demoTemplates.length})</span>
             </div>
             {filterCat !== 'all' && (
-              <span
-                className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold ml-2">{filterCat}</span>
+              <span className="text-[9px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold ml-2">{filterCat}</span>
             )}
           </div>
 
@@ -454,10 +355,8 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <h3 className="font-bold text-foreground group-hover:text-primary line-clamp-1">{t.title}</h3>
-                          {t.isDeprecated && <span
-                            className="ml-2 text-[8px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded border border-destructive/20">DEPRECATED</span>}
-                          {t.badges && t.badges.map(b => <span key={b}
-                                                               className="ml-1 text-[8px] bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-primary/20 font-bold uppercase tracking-wider">{b}</span>)}
+                          {t.isDeprecated && <span className="ml-2 text-[8px] bg-destructive/10 text-destructive px-1.5 py-0.5 rounded border border-destructive/20">DEPRECATED</span>}
+                          {t.badges && t.badges.map(b => <span key={b} className="ml-1 text-[8px] bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-primary/20 font-bold uppercase tracking-wider">{b}</span>)}
                         </div>
                         <div className="flex items-center gap-1">
                           {t.variables.some(v => v.locked) && <Lock size={10} className="text-orange-500"/>}
@@ -479,18 +378,11 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
         </div>
       </div>
 
-      {/* CENTER: PROMPT RUNNER (Fully Featured) */}
+      {/* CENTER: PROMPT RUNNER (Simplified Interface) */}
       <div className="flex-1 flex flex-col min-w-0 bg-black/5 dark:bg-white/5 relative">
         <PromptRunner
-          // --- LAYOUT & FEATURES ---
+          // --- DATA ---
           templates={demoTemplates}
-          layout={layout}
-          variableSidebar={sidebar}
-          showAnalytics={showAnalytics}
-          showPreview={showPreview}
-          enableCommandPalette={true}
-
-          // --- DATA STATE ---
           favorites={favorites}
           onToggleFavorite={(id) => {
             setFavorites(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -520,12 +412,8 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
           categoryIcons={showcaseCategoryIcons}
 
           // --- EVENTS ---
-          onToggleZenMode={() => setIsZenMode(!isZenMode)}
           onCommandAction={(action) => {
             addLog('info', `Command executed: ${action}`);
-            if (['editor-only', 'split-horizontal', 'dual-sidebar', 'bento-grid', 'zen'].includes(action)) {
-              handleLayoutChange(action as LayoutMode);
-            }
           }}
           onDrawerOpen={() => addLog('info', 'Drawer Opened')}
           onSelectorOpen={() => addLog('info', 'Selector Opened')}
@@ -559,10 +447,7 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
       </div>
 
       {/* RIGHT PANEL: TWEAKS, DEBUG, ACTIONS */}
-      <div className={cn(
-        'w-80 border-l border-border bg-card flex flex-col shrink-0 transition-all duration-300',
-        isZenMode && 'w-0 opacity-0 overflow-hidden',
-      )}>
+      <div className="w-80 border-l border-border bg-card flex flex-col shrink-0 transition-all duration-300">
 
         {/* Tabs Header */}
         <div className="h-12 border-b border-border flex items-center bg-muted/20 px-2 gap-1 shrink-0 overflow-x-auto">
@@ -682,9 +567,8 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
               <div className="p-4 space-y-4">
                 {/* Debug Tree */}
                 <div className="space-y-1 font-mono text-xs">
-                  <div className="text-muted-foreground">layout: <span className="text-primary">"{layout}"</span></div>
-                  <div className="text-muted-foreground">sidebar: <span className="text-primary">"{sidebar}"</span></div>
-                  <div className="text-muted-foreground">isZen: <span className="text-primary">{isZenMode.toString()}</span></div>
+                  <div className="text-muted-foreground">layout: <span className="text-primary">"split-vertical" (fixed)</span></div>
+                  <div className="text-muted-foreground">sidebar: <span className="text-primary">"drawer" (fixed)</span></div>
                   <div className="text-muted-foreground">status: <span className="text-primary">"{status}"</span></div>
                   <div className="text-muted-foreground">outputLen: <span className="text-primary">{output.length}</span></div>
                   <div className="text-muted-foreground">logs: <span className="text-primary">{logs.length}</span></div>
@@ -694,7 +578,7 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
                 <div>
                   <button onClick={() => {
                     try {
-                      navigator.clipboard.writeText(JSON.stringify({layout, sidebar, tweaks, status, showPreview, showAnalytics}, null, 2));
+                      navigator.clipboard.writeText(JSON.stringify({tweaks, status, filterCat}, null, 2));
                       addLog('success', 'State copied to clipboard');
                     } catch(e) {
                       // nothing
@@ -757,7 +641,7 @@ export const PromptRunnerShowcaseV4: React.FC = () => {
             <Gauge size={10} className={cn('text-primary', tweaks.simSpeed > 50 && 'text-destructive')}/>
             <span>{tweaks.simSpeed}ms/tick</span>
           </div>
-          <span className="font-mono">v4.0 TWEAKS</span>
+          <span className="font-mono">v5.0 FIXED</span>
         </div>
       </div>
     </div>
