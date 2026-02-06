@@ -5,7 +5,7 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {BarChart3, History, Settings, Sparkles} from 'lucide-react';
+import {BarChart3, History, Settings, Sparkles, WandSparkles} from 'lucide-react';
 
 // hooks
 import {useAppData} from '~/hooks/useAppData';
@@ -21,25 +21,26 @@ import {Card, CardContent} from '~/components/ui/Card';
 
 // components
 import Header from '~/layout/Header';
-import Sidebar from '~/components/Sidebar';
 import Assistant from '~/layout/Assistant';
+import Composer from '~/components/Composer';
 import StatsPanel from '~/components/StatsPanel';
 import HistoryPanel from '~/components/HistoryPanel';
 import SettingsPanel from '~/components/SettingsPanel';
+import Sidebar, {SidebarGroup, SidebarItem} from '~/components/Sidebar';
 
 /**
  * Represents the available dashboard tabs
  * @example 'assistant' - Main prompt enhancement interface
  * @developer notes: Use these exact values when referencing tab states
  */
-export type TabType = 'assistant' | 'history' | 'stats' | 'settings';
+export type TabType = 'assistant' | 'composer' | 'history' | 'stats' | 'settings';
 
 /**
  * Main dashboard component managing tab navigation and layout
  * @example <Dashboard />
  * @developer notes: Handles global state management and responsive layout
  */
-export const Dashboard: React.FC = () => {
+const Dashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabType>('assistant');
   const {loading: appLoading, error, refreshData} = useAppData();
   const {history, loadStats, loadHistory} = useHistory();
@@ -73,6 +74,7 @@ export const Dashboard: React.FC = () => {
    */
   const tabs = [
     {id: 'assistant' as TabType, label: 'Assistant', icon: Sparkles},
+    {id: 'composer' as TabType, label: 'Composer', icon: WandSparkles},
     {id: 'history' as TabType, label: 'History', icon: History},
     {id: 'stats' as TabType, label: 'Statistics', icon: BarChart3},
     {id: 'settings' as TabType, label: 'Settings', icon: Settings},
@@ -118,29 +120,23 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="h-screen bg-background flex">
-      <Sidebar>
-        <div className="space-y-4">
-          {/* Navigation Tabs */}
-          <div className="space-y-1">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <Button
-                  leftIcon={<Icon className="h-4 w-4"/>}
-                  key={tab.id}
-                  variant={activeTab === tab.id ? 'default' : 'ghost'}
-                  className={cn(
-                    'w-full justify-start',
-                    activeTab === tab.id && 'bg-primary text-primary-foreground',
-                  )}
-                  onClick={() => setActiveTab(tab.id)}
-                >
-                  {tab.label}
-                </Button>
-              );
-            })}
-          </div>
-        </div>
+      <Sidebar
+        title="Synapse"
+        resizable
+      >
+        {/* Group 1 */}
+        <SidebarGroup title="General">
+          {tabs.map(item => (
+            <SidebarItem
+              key={item.id}
+              id={item.id}
+              label={item.label}
+              icon={item.icon}
+              active={activeTab === item.id}
+              onClick={() => setActiveTab(item.id)}
+            />
+          ))}
+        </SidebarGroup>
       </Sidebar>
 
       {/* Main Content - Fixed Layout */}
@@ -160,6 +156,10 @@ export const Dashboard: React.FC = () => {
             <div className="mx-auto">
               {activeTab === 'assistant' && (
                 <Assistant/>
+              )}
+
+              {activeTab === 'composer' && (
+                <Composer/>
               )}
 
               {activeTab === 'history' && (
@@ -182,3 +182,5 @@ export const Dashboard: React.FC = () => {
     </div>
   );
 };
+
+export default Dashboard;
