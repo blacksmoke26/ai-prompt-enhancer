@@ -1,8 +1,18 @@
+/**
+ * @author Junaid Atari <mj.atari@gmail.com>
+ * @copyright 2025 Junaid Atari
+ * @see https://github.com/blacksmoke26
+ */
+
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from 'react-hot-toast';
+
+// providers
 import { ThemeProvider } from '~/components/ThemeProvider';
-import { Dashboard } from '~/pages/Dashboard';
+
+// components
+import Dashboard from '~/pages/Dashboard';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -20,7 +30,7 @@ export const App: React.FC = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <div className="h-screen bg-background text-foreground">
-          <Dashboard />
+          <Dashboard/>
           <Toaster
             position="top-right"
             toastOptions={{
