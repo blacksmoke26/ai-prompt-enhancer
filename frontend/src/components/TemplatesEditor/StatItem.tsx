@@ -5,6 +5,7 @@
  */
 
 import React from 'react';
+import {cn} from '~/utils/helpers.ts';
 
 export interface StatItemProps {
   /** The icon to display alongside the label */
@@ -13,19 +14,20 @@ export interface StatItemProps {
   label: string;
   /** The numerical or string value to display */
   value: string | number;
+  warning?: boolean;
 }
 
 /**
  * A component that displays a stat with an icon, label, and value.
  */
-const StatItem: React.FC<StatItemProps> = ({icon, label, value}) => {
+const StatItem: React.FC<StatItemProps> = (props) => {
+  const {icon, label, value, warning} = props;
+
   return (
-    <div className="flex items-center justify-between text-xs">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <span className="shrink-0">{icon}</span>
-        <span>{label}</span>
-      </div>
-      <span className="font-medium text-foreground">{value}</span>
+    <div className={cn('flex items-center gap-2 text-xs transition-colors', warning ? 'text-destructive font-bold' : 'text-muted-foreground')}>
+      {icon}
+      <span className="hidden sm:inline">{label}:</span>
+      <span>{value}</span>
     </div>
   );
 };

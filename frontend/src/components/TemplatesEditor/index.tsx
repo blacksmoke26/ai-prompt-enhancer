@@ -52,6 +52,13 @@ export interface Variable {
   tooltip?: string;
   /** If true, the variable cannot be edited by the user. */
   locked?: boolean;
+  unit?: string;
+  rows?: number;
+  step?: number;
+  inputType?: 'text' | 'number' | 'color' | 'date' | 'textarea' | 'slider';
+  inputIcon?: LucideIcon;
+  collapsible?: boolean;
+  disableKeyboardEvents?: boolean;
 }
 
 /**
@@ -311,7 +318,7 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [enableCommandPalette, commandPaletteOpen]);
 
-  const handleContentChange = (val: string) => {
+  const handleContentChange = (val: string): void => {
     setContent(val);
     debouncedOnChange(val);
   };
@@ -341,11 +348,11 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
     if (errors[name]) setErrors(prev => ({...prev, [name]: false}));
   };
 
-  const handlePresetSelect = (presetId: string) => {
-    const preset = presets.find(p => p.id === presetId);
+  const handlePresetSelect = ({id}): void => {
+    const preset = presets.find(p => p.id === id);
     if (preset) {
       setFormData(prev => ({...prev, ...preset.values}));
-      if (onPresetSelect) onPresetSelect(presetId);
+      if (onPresetSelect) onPresetSelect(id);
     }
   };
 
@@ -490,7 +497,7 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
         {/* TOP: EDITOR AREA */}
         <div className="flex-1 flex flex-col min-w-0 relative transition-all duration-300">
           <EditorArea
-            content={content}
+            value={content}
             onChange={handleContentChange}
             metadata={activeTemplate}
             onTagClick={onTagClick}
@@ -502,7 +509,6 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
             }}
             config={config}
             onCopy={handleCopy}
-            layout="split-vertical"
           />
 
           {/* Floating Action Button for Variables */}
@@ -583,7 +589,7 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
               errors={errors}
               presets={presets}
               mode="drawer"
-              drawerProps={drawerProps}
+              {...drawerProps}
               config={{...config, isLoading: isGenerating}}
               onPresetSelect={handlePresetSelect}
             />
