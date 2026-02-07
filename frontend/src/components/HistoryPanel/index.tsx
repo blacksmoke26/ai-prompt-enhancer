@@ -194,12 +194,12 @@ const HistoryPanel: React.FC<HistoryPanelProps> = (props) => {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50/50 dark:bg-gray-950 pb-10 transition-colors duration-200">
+    <div className="w-full px-3 py-4 min-h-screen bg-gray-50/50 dark:bg-gray-950 transition-colors duration-200">
       {/* Toast */}
       {toast && (
         <div
           className={cn('fixed top-4 right-4 z-[100] flex items-center ',
-            'gap-2 px-4 py-3 rounded-lg shadow-lg animate-in slide-in-from-right-5',
+            'gap-2 px-4 py-2 rounded-lg shadow-lg animate-in slide-in-from-right-5',
             toast.type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white')}>
           <span className="font-medium text-sm">{toast.message}</span>
         </div>

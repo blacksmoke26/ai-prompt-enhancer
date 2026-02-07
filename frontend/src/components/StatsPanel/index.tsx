@@ -234,265 +234,229 @@ const StatsPanel: React.FC<StatsPanelProps> = () => {
   }
 
   return (
-    <>
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-2xl font-bold">Statistics</h1>
-          <p className="text-muted-foreground">Configure your Synapse</p>
+    <div className="p-4">
+      {/* Tabs for different views */}
+      <RadixTabs.Root
+        value={activeTab}
+        onValueChange={(value) => setActiveTab(value as any)}
+        className="w-full"
+      >
+        <RadixTabs.List
+          className="flex flex-wrap border-b border-gray-200 dark:border-gray-700 gap-2"
+          aria-label="Statistics tabs"
+        >
+          <RadixTabs.Trigger
+            className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
+            value="overview"
+          >
+            <div className="flex items-center gap-2">
+              <Activity className="h-4 w-4"/>
+              Overview
+            </div>
+          </RadixTabs.Trigger>
+          <RadixTabs.Trigger
+            className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
+            value="usage"
+          >
+            <div className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4"/>
+              Usage Patterns
+            </div>
+          </RadixTabs.Trigger>
+          <RadixTabs.Trigger
+            className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
+            value="performance"
+          >
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4"/>
+              Performance
+            </div>
+          </RadixTabs.Trigger>
+          <RadixTabs.Trigger
+            className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
+            value="distribution"
+          >
+            <div className="flex items-center gap-2">
+              <PieChart className="h-4 w-4"/>
+              Distribution
+            </div>
+          </RadixTabs.Trigger>
+          <RadixTabs.Trigger
+            className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
+            value="cost"
+          >
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4"/>
+              Cost Analysis
+            </div>
+          </RadixTabs.Trigger>
+          <RadixTabs.Trigger
+            className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
+            value="advanced"
+          >
+            <div className="flex items-center gap-2">
+              <Settings className="h-4 w-4"/>
+              Advanced
+            </div>
+          </RadixTabs.Trigger>
+        </RadixTabs.List>
+
+        <RadixTabs.Content value="overview" className="mt-4">
+          <OverviewTab
+            stats={stats as HistoryStatistics}
+            totalItems={totalItems}
+            totalTokens={totalTokens}
+            avgProcessing={avgProcessing}
+            mostUsedModel={mostUsedModel}
+            mostUsedEnhancement={mostUsedEnhancement}
+            avgTokensPerPrompt={avgTokensPerPrompt}
+            totalProcessingSeconds={totalProcessingSeconds}
+            tokensPerSecond={tokensPerSecond}
+            avgRating={avgRating}
+            topRatedEntries={topRatedEntries}
+            avgTemperature={avgTemperature}
+            promptEnhancementRatio={promptEnhancementRatio}
+            systemPromptUsage={systemPromptUsage}
+            providerUsageData={providerUsageData}
+            mostUsedRolesData={mostUsedRolesData}
+            temperatureDistributionData={temperatureDistributionData}
+            enhancementFrequencyData={enhancementFrequencyData}
+            modelPerformanceData={modelPerformanceData}
+            monthlyUsageData={monthlyUsageData}
+            ratingDistributionData={ratingDistributionData}
+            preferredTimeSlotsData={preferredTimeSlotsData}
+            COLORS={COLORS}
+            maxTokens={maxTokens}
+            usagePercent={usagePercent}
+            dateRange={dateRange as any}
+            dateRangeString={dateRangeString}
+            topPerformingModels={topPerformingModels}
+            costAnalysis={costAnalysis}
+            enhancementTypeEfficiencyData={enhancementTypeEfficiencyData}
+          />
+        </RadixTabs.Content>
+
+        <RadixTabs.Content value="usage" className="mt-4">
+          <UsageTab
+            stats={stats as HistoryStatistics}
+            providerUsageData={providerUsageData}
+            mostUsedRolesData={mostUsedRolesData}
+            monthlyUsageData={monthlyUsageData}
+            preferredTimeSlotsData={preferredTimeSlotsData}
+            roleModelDistributionData={roleModelDistributionData}
+            totalItems={totalItems}
+            COLORS={COLORS}
+            targetAudienceUsageData={targetAudienceUsageData}
+            toneUsageData={toneUsageData}
+            responseLengthUsageData={responseLengthUsageData}
+            formatUsageData={formatUsageData}
+          />
+        </RadixTabs.Content>
+
+        <RadixTabs.Content value="performance" className="mt-4">
+          <PerformanceTab
+            stats={stats as HistoryStatistics}
+            modelPerformanceData={modelPerformanceData}
+            enhancementFrequencyData={enhancementFrequencyData}
+            enhancementTypeEfficiencyData={enhancementTypeEfficiencyData}
+            topPerformingModels={topPerformingModels}
+            COLORS={COLORS}
+            modelMetricsData={modelMetricsData as any}
+            contentComplexity={contentComplexity as any}
+            seasonalPatterns={seasonalPatterns as any}
+            performanceTrends={performanceTrends as any}
+            processingTimePercentiles={processingTimePercentiles as any}
+            tokenUsagePercentiles={tokenUsagePercentiles as any}
+            systemHealth={systemHealth as any}
+            errorStatistics={errorStatistics as any}
+            userActivity={userActivity as any}
+          />
+        </RadixTabs.Content>
+
+        <RadixTabs.Content value="distribution" className="mt-4">
+          <DistributionTab
+            stats={stats as HistoryStatistics}
+            temperatureDistributionData={temperatureDistributionData}
+            ratingDistributionData={ratingDistributionData}
+            enhancementFrequencyData={enhancementFrequencyData}
+            COLORS={COLORS}
+            topKUsageData={topKUsageData}
+            topPUsageData={topPUsageData}
+            frequencyPenaltyUsageData={frequencyPenaltyUsageData}
+            presencePenaltyUsageData={presencePenaltyUsageData}
+            conversationIdUsageData={conversationIdUsageData}
+          />
+        </RadixTabs.Content>
+
+        <RadixTabs.Content value="cost" className="mt-4">
+          <CostAnalysisTab
+            stats={stats as HistoryStatistics}
+            costBreakdownData={costBreakdownData as any}
+            costAnalysis={costAnalysis}
+            COLORS={COLORS}
+          />
+        </RadixTabs.Content>
+
+        <RadixTabs.Content value="advanced" className="mt-4">
+          <AdvancedTab
+            geographicDistribution={geographicDistribution}
+            stats={stats as HistoryStatistics}
+            totalItems={totalItems}
+            totalTokens={totalTokens}
+            avgProcessing={avgProcessing}
+            mostUsedModel={mostUsedModel}
+            mostUsedEnhancement={mostUsedEnhancement}
+            avgTokensPerPrompt={avgTokensPerPrompt}
+            totalProcessingSeconds={totalProcessingSeconds}
+            tokensPerSecond={tokensPerSecond}
+            avgRating={avgRating}
+            topRatedEntries={topRatedEntries}
+            avgTemperature={avgTemperature}
+            promptEnhancementRatio={promptEnhancementRatio}
+            systemPromptUsage={systemPromptUsage}
+            providerUsageData={providerUsageData}
+            mostUsedRolesData={mostUsedRolesData}
+            temperatureDistributionData={temperatureDistributionData}
+            enhancementFrequencyData={enhancementFrequencyData}
+            modelPerformanceData={modelPerformanceData}
+            monthlyUsageData={monthlyUsageData}
+            ratingDistributionData={ratingDistributionData}
+            preferredTimeSlotsData={preferredTimeSlotsData}
+            COLORS={COLORS}
+            maxTokens={maxTokens}
+            usagePercent={usagePercent}
+            dateRange={dateRange as any}
+            dateRangeString={dateRangeString}
+            topPerformingModels={topPerformingModels}
+            costAnalysis={costAnalysis}
+            showAdvancedMetrics={showAdvancedMetrics}
+            setShowAdvancedMetrics={setShowAdvancedMetrics}
+          />
+        </RadixTabs.Content>
+      </RadixTabs.Root>
+
+      {/* System Prompt Usage */}
+      <div className="p-4 bg-muted/50 rounded-lg">
+        <h3 className="text-lg font-medium mb-4">System Prompt Usage</h3>
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-sm">
+            <span className="font-medium">Used:</span> {systemPromptUsage.used || 0}
+          </div>
+          <div className="text-sm">
+            <span className="font-medium">Not Used:</span> {systemPromptUsage.notUsed || 0}
+          </div>
+          <div className="text-sm">
+            <span className="font-medium">Percentage:</span> {formatPercentage(systemPromptUsage.percentage)}
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Badge variant="secondary" className="text-xs">
-            {totalItems} prompts
-          </Badge>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={loading}
-            aria-label="Refresh stats"
-            title="Refresh stats"
-          >
-            {loading ? (
-              <RefreshCw className="h-4 w-4 animate-spin"/>
-            ) : (
-              <RefreshCw className="h-4 w-4"/>
-            )}
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            title="Export data as JSON"
-            onClick={() => handleExport('json')}
-            aria-label="Export data"
-          >
-            <Download className="h-4 w-4"/>
-          </Button>
+        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded h-4">
+          <div
+            className="bg-blue-500 h-full rounded transition-all duration-500"
+            style={{width: `${usagePercent}%`}}
+          />
         </div>
       </div>
-      <>
-        {/* Tabs for different views */}
-        <RadixTabs.Root
-          value={activeTab}
-          onValueChange={(value) => setActiveTab(value as any)}
-          className="w-full"
-        >
-          <RadixTabs.List
-            className="flex flex-wrap border-b border-gray-200 dark:border-gray-700 gap-2"
-            aria-label="Statistics tabs"
-          >
-            <RadixTabs.Trigger
-              className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
-              value="overview"
-            >
-              <div className="flex items-center gap-2">
-                <Activity className="h-4 w-4"/>
-                Overview
-              </div>
-            </RadixTabs.Trigger>
-            <RadixTabs.Trigger
-              className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
-              value="usage"
-            >
-              <div className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4"/>
-                Usage Patterns
-              </div>
-            </RadixTabs.Trigger>
-            <RadixTabs.Trigger
-              className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
-              value="performance"
-            >
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-4 w-4"/>
-                Performance
-              </div>
-            </RadixTabs.Trigger>
-            <RadixTabs.Trigger
-              className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
-              value="distribution"
-            >
-              <div className="flex items-center gap-2">
-                <PieChart className="h-4 w-4"/>
-                Distribution
-              </div>
-            </RadixTabs.Trigger>
-            <RadixTabs.Trigger
-              className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
-              value="cost"
-            >
-              <div className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4"/>
-                Cost Analysis
-              </div>
-            </RadixTabs.Trigger>
-            <RadixTabs.Trigger
-              className="px-4 py-2 text-sm font-medium data-[state=active]:text-primary data-[state=active]:border-b-2 data-[state=active]:border-primary text-muted-foreground hover:text-primary transition-colors"
-              value="advanced"
-            >
-              <div className="flex items-center gap-2">
-                <Settings className="h-4 w-4"/>
-                Advanced
-              </div>
-            </RadixTabs.Trigger>
-          </RadixTabs.List>
-
-          <RadixTabs.Content value="overview" className="mt-4">
-            <OverviewTab
-              stats={stats as HistoryStatistics}
-              totalItems={totalItems}
-              totalTokens={totalTokens}
-              avgProcessing={avgProcessing}
-              mostUsedModel={mostUsedModel}
-              mostUsedEnhancement={mostUsedEnhancement}
-              avgTokensPerPrompt={avgTokensPerPrompt}
-              totalProcessingSeconds={totalProcessingSeconds}
-              tokensPerSecond={tokensPerSecond}
-              avgRating={avgRating}
-              topRatedEntries={topRatedEntries}
-              avgTemperature={avgTemperature}
-              promptEnhancementRatio={promptEnhancementRatio}
-              systemPromptUsage={systemPromptUsage}
-              providerUsageData={providerUsageData}
-              mostUsedRolesData={mostUsedRolesData}
-              temperatureDistributionData={temperatureDistributionData}
-              enhancementFrequencyData={enhancementFrequencyData}
-              modelPerformanceData={modelPerformanceData}
-              monthlyUsageData={monthlyUsageData}
-              ratingDistributionData={ratingDistributionData}
-              preferredTimeSlotsData={preferredTimeSlotsData}
-              COLORS={COLORS}
-              maxTokens={maxTokens}
-              usagePercent={usagePercent}
-              dateRange={dateRange as any}
-              dateRangeString={dateRangeString}
-              topPerformingModels={topPerformingModels}
-              costAnalysis={costAnalysis}
-              enhancementTypeEfficiencyData={enhancementTypeEfficiencyData}
-            />
-          </RadixTabs.Content>
-
-          <RadixTabs.Content value="usage" className="mt-4">
-            <UsageTab
-              stats={stats as HistoryStatistics}
-              providerUsageData={providerUsageData}
-              mostUsedRolesData={mostUsedRolesData}
-              monthlyUsageData={monthlyUsageData}
-              preferredTimeSlotsData={preferredTimeSlotsData}
-              roleModelDistributionData={roleModelDistributionData}
-              totalItems={totalItems}
-              COLORS={COLORS}
-              targetAudienceUsageData={targetAudienceUsageData}
-              toneUsageData={toneUsageData}
-              responseLengthUsageData={responseLengthUsageData}
-              formatUsageData={formatUsageData}
-            />
-          </RadixTabs.Content>
-
-          <RadixTabs.Content value="performance" className="mt-4">
-            <PerformanceTab
-              stats={stats as HistoryStatistics}
-              modelPerformanceData={modelPerformanceData}
-              enhancementFrequencyData={enhancementFrequencyData}
-              enhancementTypeEfficiencyData={enhancementTypeEfficiencyData}
-              topPerformingModels={topPerformingModels}
-              COLORS={COLORS}
-              modelMetricsData={modelMetricsData as any}
-              contentComplexity={contentComplexity as any}
-              seasonalPatterns={seasonalPatterns as any}
-              performanceTrends={performanceTrends as any}
-              processingTimePercentiles={processingTimePercentiles as any}
-              tokenUsagePercentiles={tokenUsagePercentiles as any}
-              systemHealth={systemHealth as any}
-              errorStatistics={errorStatistics as any}
-              userActivity={userActivity as any}
-            />
-          </RadixTabs.Content>
-
-          <RadixTabs.Content value="distribution" className="mt-4">
-            <DistributionTab
-              stats={stats as HistoryStatistics}
-              temperatureDistributionData={temperatureDistributionData}
-              ratingDistributionData={ratingDistributionData}
-              enhancementFrequencyData={enhancementFrequencyData}
-              COLORS={COLORS}
-              topKUsageData={topKUsageData}
-              topPUsageData={topPUsageData}
-              frequencyPenaltyUsageData={frequencyPenaltyUsageData}
-              presencePenaltyUsageData={presencePenaltyUsageData}
-              conversationIdUsageData={conversationIdUsageData}
-            />
-          </RadixTabs.Content>
-
-          <RadixTabs.Content value="cost" className="mt-4">
-            <CostAnalysisTab
-              stats={stats as HistoryStatistics}
-              costBreakdownData={costBreakdownData as any}
-              costAnalysis={costAnalysis}
-              COLORS={COLORS}
-            />
-          </RadixTabs.Content>
-
-          <RadixTabs.Content value="advanced" className="mt-4">
-            <AdvancedTab
-              geographicDistribution={geographicDistribution}
-              stats={stats as HistoryStatistics}
-              totalItems={totalItems}
-              totalTokens={totalTokens}
-              avgProcessing={avgProcessing}
-              mostUsedModel={mostUsedModel}
-              mostUsedEnhancement={mostUsedEnhancement}
-              avgTokensPerPrompt={avgTokensPerPrompt}
-              totalProcessingSeconds={totalProcessingSeconds}
-              tokensPerSecond={tokensPerSecond}
-              avgRating={avgRating}
-              topRatedEntries={topRatedEntries}
-              avgTemperature={avgTemperature}
-              promptEnhancementRatio={promptEnhancementRatio}
-              systemPromptUsage={systemPromptUsage}
-              providerUsageData={providerUsageData}
-              mostUsedRolesData={mostUsedRolesData}
-              temperatureDistributionData={temperatureDistributionData}
-              enhancementFrequencyData={enhancementFrequencyData}
-              modelPerformanceData={modelPerformanceData}
-              monthlyUsageData={monthlyUsageData}
-              ratingDistributionData={ratingDistributionData}
-              preferredTimeSlotsData={preferredTimeSlotsData}
-              COLORS={COLORS}
-              maxTokens={maxTokens}
-              usagePercent={usagePercent}
-              dateRange={dateRange as any}
-              dateRangeString={dateRangeString}
-              topPerformingModels={topPerformingModels}
-              costAnalysis={costAnalysis}
-              showAdvancedMetrics={showAdvancedMetrics}
-              setShowAdvancedMetrics={setShowAdvancedMetrics}
-            />
-          </RadixTabs.Content>
-        </RadixTabs.Root>
-
-        {/* System Prompt Usage */}
-        <div className="p-4 bg-muted/50 rounded-lg">
-          <h3 className="text-lg font-medium mb-4">System Prompt Usage</h3>
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-sm">
-              <span className="font-medium">Used:</span> {systemPromptUsage.used || 0}
-            </div>
-            <div className="text-sm">
-              <span className="font-medium">Not Used:</span> {systemPromptUsage.notUsed || 0}
-            </div>
-            <div className="text-sm">
-              <span className="font-medium">Percentage:</span> {formatPercentage(systemPromptUsage.percentage)}
-            </div>
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded h-4">
-            <div
-              className="bg-blue-500 h-full rounded transition-all duration-500"
-              style={{width: `${usagePercent}%`}}
-            />
-          </div>
-        </div>
-      </>
-    </>
+    </div>
   );
 };
 

@@ -27,6 +27,7 @@ import PromptActions from './PromptActions';
 
 // types
 import type {WordAnalysisConfig} from '~/utils/advanced-word-analysis';
+import {Separator} from '@radix-ui/themes';
 
 export interface PromptEditorProps {
   /** Callback function when the user sends a prompt */
@@ -128,12 +129,14 @@ const PromptEditor: React.FC<PromptEditorProps> = (props) => {
 
           {/* Toolbar */}
           <div className="flex items-center justify-between border-b border-border px-3 bg-card">
-            <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="flex items-center gap-3 text-muted-foreground">
               <Button size="sm" className="px-1" variant="plain" onClick={toggleFullScreen}>
                 <TooltipMini title={isFullScreen ? 'Exit Full Screen (Esc)' : 'Full Screen Editor'}>
                   {isFullScreen ? <Minimize2 size={16}/> : <Maximize2 size={16}/>}
                 </TooltipMini>
               </Button>
+
+              <Separator orientation="vertical" className="h-4 ml-1 mx-1"/>
 
               <TextStatsTrigger disabled={isLoading || !prompt.trim()} prompt={prompt}/>
 
@@ -162,7 +165,7 @@ const PromptEditor: React.FC<PromptEditorProps> = (props) => {
             enableAutoClosing={true}
             autoClosingPairs={[{open: '{', close: '}'}]}
             autoResize={false}
-            wrapperClassName={isFullScreen ? 'h-full' : ''}
+            wrapperClassName={isFullScreen ? 'h-full' : 'h-[110px]'}
             ref={textareaRef}
             value={prompt}
             onChange={(value) => setPrompt(value)}

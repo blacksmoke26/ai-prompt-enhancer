@@ -6,15 +6,15 @@
 
 import React from 'react';
 
-export interface ComposerProps {
+export interface TranslatorTabProps {
 }
 
-const Composer: React.FC<ComposerProps> = () => {
+const TranslatorTab: React.FC<TranslatorTabProps> = () => {
   return (
     <div className="p-4">
-      <h3>Add contents here</h3>
+      Add translation component here
     </div>
   );
 };
 
-export default Composer;
+export default TranslatorTab;

@@ -75,7 +75,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = (props) => {
 
   return (
     <div
-      className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6 px-1 animate-in fade-in slide-in-from-top-4 duration-500">
+      className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4 px-1 animate-in fade-in slide-in-from-top-4 duration-500">
       <div
         className="col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
         <div className="flex items-center justify-between mb-4">
@@ -107,7 +107,7 @@ const AnalyticsCharts: React.FC<AnalyticsChartsProps> = (props) => {
         </AreaChart>
         </ResponsiveContainer>
       </div>
-      <div className="space-y-6">
+      <div className="space-y-4">
         <div
           className="bg-white p-6 rounded-xl shadow-sm border border-gray-200 dark:bg-gray-800 dark:border-gray-700 h-[272px] flex flex-col">
           <h3 className="text-sm font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2 mb-2"><BarChart3

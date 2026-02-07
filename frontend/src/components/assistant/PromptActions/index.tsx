@@ -148,7 +148,7 @@ const PromptActions: React.FC = () => {
         triggerTooltip={title}
         confirmDisabled={true}
         triggerIcon={Icon}
-        triggerIconSize={17}
+        triggerIconSize={15}
         triggerClassName={config[componentId] ? 'text-muted-foreground' : 'text-muted-foreground opacity-50'}
       >
         <div className="px-3 py-4 min-w-[300px]">
@@ -175,7 +175,7 @@ const PromptActions: React.FC = () => {
     <Flex align="center" gap="1">
       <Popover
         triggerIcon={Layers}
-        triggerIconSize={16}
+        triggerIconSize={15}
         triggerTooltip="Visibility Profiles"
         side="bottom"
         align="start"
@@ -318,9 +318,10 @@ const PromptActions: React.FC = () => {
       <Separator orientation="vertical" className="h-4 ml-1 mx-1"/>
 
       <div className="max-w-[800px]">
-        <ItemsNavigator hideScrollbar={true}
-                        showTitle={false} size="sm"
-                        bgTransparent={true} showProgress={false}>
+        <ItemsNavigator
+          hideScrollbar={true}
+          showTitle={false} size="sm"
+          bgTransparent={true} showProgress={false}>
           {/* Visibility Profiles Selector */}
 
           {/* Render Active Component Triggers */}
