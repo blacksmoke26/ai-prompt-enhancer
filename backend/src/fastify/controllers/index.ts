@@ -41,7 +41,7 @@ export default async (fastify: FastifyInstance) => {
     fastify.register(responseLengthsController, {prefix: '/api/response-lengths'}),
     fastify.register(targetAudiencesController, {prefix: '/api/target-audiences'}),
     fastify.register(promptCategoriesController, {prefix: '/api/prompt-categories'}),
-    fastify.register(promptTemplatesController, {prefix: '/prompt-templates'}),
+    fastify.register(promptTemplatesController, {prefix: '/api/prompt-templates'}),
   ]);
 
   //<editor-fold desc="Development specific controllers">
