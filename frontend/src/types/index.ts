@@ -1253,6 +1253,57 @@ export interface ProviderConfig {
   timeout?: number;
 }
 
+export interface PromptTemplateCategories {
+  /** Unique identifier for the setting record */
+  id: number;
+  /** The setting key/name (max 128 characters) */
+  key: string;
+  /** Display name of the category */
+  label: string;
+  /** Description of the category */
+  description?: string;
+}
+
+export interface TemplateVariable {
+  /** The name of the variable */
+  name: string;
+  /** The description of the variable */
+  description: string;
+  /** The type of the variable */
+  type: 'string' | 'select' | 'number' | 'boolean' | 'code' | string;
+  /** Whether the variable is required */
+  required?: boolean;
+  /** The minimum value for the variable */
+  min?: number;
+  /** The maximum value for the variable */
+  max?: number;
+  /** Options for select type */
+  options?: string[];
+  /** The default value for the variable */
+  defaultValue?: string | number | boolean | null;
+  /** The placeholder for the variable */
+  placeholder?: string;
+}
+
+export interface PromptTemplateResponse {
+  /** Unique identifier */
+  id: number;
+  /** The category of the prompt */
+  categoryId: number;
+  /** The title of the prompt */
+  title: string;
+  /** The description of the prompt */
+  description: string;
+  /** The tags associated with the prompt */
+  tags: string[];
+  /** The tools associated with the prompt */
+  tools: string[];
+  /** The content of the prompt */
+  content: string;
+  /** The variables used in the prompt */
+  variables: TemplateVariable[];
+}
+
 /**
  * Interface representing the visibility state of UI components in a configuration panel.
  * Controls which settings or controls are shown to the user based on their role or needs.
