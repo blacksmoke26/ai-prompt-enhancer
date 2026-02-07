@@ -589,7 +589,7 @@ export const AdvancedTextarea = forwardRef<HTMLTextAreaElement, AdvancedTextarea
     return (
       <div
         className={cn(
-          'w-full space-y-2 relative font-sans transition-all duration-300',
+          'w-full h-full space-y-2 relative font-sans transition-all duration-300',
           isFullscreen && 'fixed inset-0 z-[100] bg-background p-4 overflow-hidden',
           wrapperClassName
         )}
@@ -633,7 +633,7 @@ export const AdvancedTextarea = forwardRef<HTMLTextAreaElement, AdvancedTextarea
           )}
 
           {/* Editor Area */}
-          <div className={cn('relative flex-1 flex min-h-0', layout === 'split' ? 'w-1/2 border-r' : 'w-full')}>
+          <div className={cn('relative flex-1 h-full flex min-h-0', layout === 'split' ? 'w-1/2 border-r' : 'w-full')}>
 
             {jsonMode && toolbarPosition !== 'top' && (
               <div className="absolute top-2 right-2 z-10 pointer-events-none">
@@ -674,7 +674,7 @@ export const AdvancedTextarea = forwardRef<HTMLTextAreaElement, AdvancedTextarea
                 textareaClassName
               )}
               spellCheck="false"
-              style={{minHeight: isFullscreen ? '100%' : '150px'}}
+              style={{minHeight: isFullscreen ? '100%' : ''}}
               {...props}
             />
 
