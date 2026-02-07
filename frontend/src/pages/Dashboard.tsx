@@ -5,7 +5,7 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import {BarChart3, History, Settings, Sparkles, WandSparkles} from 'lucide-react';
+import {BarChart3, History, Languages, Settings, Sparkles, WandSparkles} from 'lucide-react';
 
 // hooks
 import {useAppData} from '~/hooks/useAppData';
@@ -26,6 +26,7 @@ import Composer from '~/components/Composer';
 import StatsPanel from '~/components/StatsPanel';
 import HistoryPanel from '~/components/HistoryPanel';
 import SettingsPanel from '~/components/SettingsPanel';
+import TranslatorTab from '~/components/Translator/TranslatorTab';
 import Sidebar, {SidebarGroup, SidebarItem} from '~/components/Sidebar';
 
 /**
@@ -33,7 +34,7 @@ import Sidebar, {SidebarGroup, SidebarItem} from '~/components/Sidebar';
  * @example 'assistant' - Main prompt enhancement interface
  * @developer notes: Use these exact values when referencing tab states
  */
-export type TabType = 'assistant' | 'composer' | 'history' | 'stats' | 'settings';
+export type TabType = 'assistant' | 'composer' | 'translator' | 'history' | 'stats' | 'settings';
 
 /**
  * Main dashboard component managing tab navigation and layout
@@ -75,6 +76,7 @@ const Dashboard: React.FC = () => {
   const tabs = [
     {id: 'assistant' as TabType, label: 'Assistant', icon: Sparkles},
     {id: 'composer' as TabType, label: 'Composer', icon: WandSparkles},
+    {id: 'translator' as TabType, label: 'Translator', icon: Languages},
     {id: 'history' as TabType, label: 'History', icon: History},
     {id: 'stats' as TabType, label: 'Statistics', icon: BarChart3},
     {id: 'settings' as TabType, label: 'Settings', icon: Settings},
@@ -152,30 +154,32 @@ const Dashboard: React.FC = () => {
         {/*<ModelSelector/>*/}
         {/* Content Area */}
         <div className={cn('flex-1 overflow-auto', {'overflow-hidden': activeTab === 'assistant'})}>
-          <div className={cn({'container mx-auto px-4 py-6 lg:py-8': activeTab !== 'assistant'})}>
-            <div className="mx-auto">
-              {activeTab === 'assistant' && (
-                <Assistant/>
-              )}
+          <div className={cn({' mx-auto': activeTab !== 'assistant'}, {'': activeTab !== 'translator'})}>
+            {activeTab === 'assistant' && (
+              <Assistant/>
+            )}
 
-              {activeTab === 'composer' && (
-                <Composer/>
-              )}
+            {activeTab === 'composer' && (
+              <Composer/>
+            )}
 
-              {activeTab === 'history' && (
-                <HistoryPanel
-                  history={history}
-                  config={{allowBulkDelete: true, allowCompare: true, allowExport: true}}
-                />
-              )}
+            {activeTab === 'translator' && (
+              <TranslatorTab/>
+            )}
 
-              {activeTab === 'stats' && (
-                <StatsPanel/>
-              )}
-              {activeTab === 'settings' && (
-                <SettingsPanel/>
-              )}
-            </div>
+            {activeTab === 'history' && (
+              <HistoryPanel
+                history={history}
+                config={{allowBulkDelete: true, allowCompare: true, allowExport: true}}
+              />
+            )}
+
+            {activeTab === 'stats' && (
+              <StatsPanel/>
+            )}
+            {activeTab === 'settings' && (
+              <SettingsPanel/>
+            )}
           </div>
         </div>
       </div>
