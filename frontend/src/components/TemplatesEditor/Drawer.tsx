@@ -31,43 +31,221 @@ import {AdvancedInput} from '~/components/ui/AdvancedInput';
 // types
 import type {Variable} from './index';
 
-
+/**
+ * Props for the Drawer V2 (Variables Sidebar) component.
+ */
 /**
  * Props for the Drawer V2 (Variables Sidebar) component.
  */
 export interface DrawerProps {
+  /**
+   * Array of variable definitions to be rendered.
+   */
   variables: Variable[];
+
+  /**
+   * Current values of the form, mapped by variable name.
+   */
   formData: Record<string, any>;
+
+  /**
+   * Validation errors, mapped by variable name.
+   */
   errors: Record<string, any>;
+
+  /**
+   * Optional list of presets for quick configuration.
+   */
   presets?: Array<{ id: string; label: string; description?: string; values: Record<string, any> }>;
 
+  /**
+   * Display mode: 'drawer' (fixed overlay) or 'sidebar' (inline).
+   * @default 'drawer'
+   */
   mode?: 'drawer' | 'sidebar';
+
+  /**
+   * Position of the drawer/sidebar.
+   * @default 'right'
+   */
   position?: 'left' | 'right';
+
+  /**
+   * Whether the component is resizable by the user.
+   * @default false
+   */
   resizable?: boolean;
+
+  /**
+   * Whether to show the search bar.
+   * @default true
+   */
   searchable?: boolean;
+
+  /**
+   * Placeholder text for the search input.
+   */
   searchPlaceholder?: string;
+
+  /**
+   * Visual style variant of the container.
+   * @default 'default'
+   */
   variant?: 'default' | 'glass' | 'minimal' | 'filled';
+
+  /**
+   * Border radius style.
+   * @default 'lg'
+   */
   radius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
+
+  /**
+   * Custom width (CSS string).
+   */
   width?: string;
+
+  /**
+   * Custom height (CSS string).
+   */
   height?: string;
+
+  /**
+   * Configuration for the header section.
+   */
   header?: {
-    title?: string; subtitle?: string; icon?: LucideIcon; hideClose?: boolean; className?: string;
-  };
-  footer?: {
-    submitText?: string; submitIcon?: LucideIcon; resetText?: string; showReset?: boolean;
-    align?: 'left' | 'center' | 'right' | 'spread'; sticky?: boolean;
-  };
-  renderConfig?: {
-    defaultCollapsed?: boolean; showTypeBadge?: boolean; showLockIcon?: boolean; truncateNames?: boolean;
-  };
-  config?: {
-    isLoading?: boolean; disabled?: boolean; className?: string;
+    /**
+     * Title text displayed in the header section.
+     * @default 'Configuration'
+     */
+    title?: string;
+
+    /**
+     * Subtitle text displayed beneath the title in the header section.
+     */
+    subtitle?: string;
+
+    /**
+     * Icon component displayed alongside the title in the header section.
+     */
+    icon?: LucideIcon;
+
+    /**
+     * Whether to hide the close button in the header.
+     * @default false
+     */
+    hideClose?: boolean;
+
+    /**
+     * Custom CSS class names applied to the header container.
+     */
+    className?: string;
   };
 
+  /**
+   * Configuration for the footer section.
+   */
+  footer?: {
+    /**
+     * Text to display on the submit button.
+     * @default 'Apply Changes'
+     */
+    submitText?: string;
+
+    /**
+     * Icon component to display on the submit button.
+     * Defaults to the header icon or Sparkles.
+     */
+    submitIcon?: LucideIcon;
+
+    /**
+     * Text to display on the reset button.
+     * @default 'Reset'
+     */
+    resetText?: string;
+
+    /**
+     * Whether to show the reset button.
+     * @default false
+     */
+    showReset?: boolean;
+
+    /**
+     * Alignment of the footer content.
+     * @default 'spread'
+     */
+    align?: 'left' | 'center' | 'right' | 'spread';
+
+    /**
+     * Whether the footer is sticky at the bottom.
+     * @default false
+     */
+    sticky?: boolean;
+  };
+
+  /**
+   * Configuration for rendering behavior.
+   */
+  renderConfig?: {
+    /**
+     * Whether groups are collapsed by default.
+     * @default false
+     */
+    defaultCollapsed?: boolean;
+
+    /**
+     * Whether to show the type badge next to variable names.
+     * @default true
+     */
+    showTypeBadge?: boolean;
+
+    /**
+     * Whether to show the lock icon on locked variables.
+     * @default true
+     */
+    showLockIcon?: boolean;
+
+    /**
+     * Whether to truncate long variable names.
+     * @default false
+     */
+    truncateNames?: boolean;
+  };
+
+  /**
+   * Global configuration for state and styling.
+   */
+  config?: {
+    /**
+     * Whether the drawer is in a loading state.
+     * @default false
+     */
+    isLoading?: boolean;
+
+    /**
+     * Whether the drawer and its inputs are disabled.
+     * @default false
+     */
+    disabled?: boolean;
+
+    /**
+     * Custom CSS class names applied to the root container.
+     */
+    className?: string;
+  };
+
+  /**
+   * Custom render function for the header. Overrides default header rendering.
+   */
   renderHeader?(): React.ReactNode;
 
+  /**
+   * Custom render function for the footer. Overrides default footer rendering.
+   */
   renderFooter?(): React.ReactNode;
 
+  /**
+   * Custom render function for a specific variable input.
+   */
   renderVariableInput?(variable: Variable, value: any, error: any, onChange: (val: any) => void): React.ReactNode;
 
   /**
@@ -88,34 +266,79 @@ export interface DrawerProps {
    */
   onToggleBoolean?(name: string): void;
 
+  /**
+   * Triggered when the component mounts.
+   */
   onMount?(): void;
 
+  /**
+   * Hook before closing. Return false to prevent closing.
+   */
   onBeforeClose?(): boolean | Promise<boolean> | void;
 
+  /**
+   * Hook after closing.
+   */
   onAfterClose?(): void;
 
+  /**
+   * Triggered when the submit button is clicked.
+   */
   onSubmitValues?(data: Record<string, any>): void | Promise<void>;
 
+  /**
+   * Alternative or additional action when applying changes.
+   */
   onApply?(): void;
 
+  /**
+   * Triggered when the reset button is clicked.
+   */
   onReset?(): void;
 
+  /**
+   * Triggered when a preset is selected.
+   */
   onPresetSelect?(preset: { id: string; label: string; values: Record<string, any> }): void;
 
+  /**
+   * Triggered when the search query changes.
+   */
   onSearchChange?(query: string): void;
 
+  /**
+   * Hook before a value changes. Return false to prevent the change.
+   */
   onBeforeChange?(name: string, value: any, variable: Variable): boolean | void;
 
+  /**
+   * Hook after a value changes.
+   */
   onAfterChange?(name: string, value: any, variable: Variable): void;
 
+  /**
+   * Triggered when an input receives focus.
+   */
   onFocus?(name: string, variable: Variable): void;
 
+  /**
+   * Triggered when an input loses focus.
+   */
   onBlur?(name: string, value: any, variable: Variable): void;
 
+  /**
+   * Triggered when the Enter key is pressed in an input.
+   */
   onInputEnter?(name: string, value: any, event: React.KeyboardEvent): void;
 
+  /**
+   * Triggered when the Escape key is pressed globally.
+   */
   onEscape?(): void;
 
+  /**
+   * Triggered when a variable group is collapsed or expanded.
+   */
   onGroupToggle?(groupName: string, isCollapsed: boolean): void;
 }
 
@@ -207,64 +430,79 @@ const Drawer: React.FC<DrawerProps> = (props) => {
    * Handles generic input changes.
    * Order: onBeforeChange (check) -> onInputChange (action) -> onAfterChange (side effect)
    */
-  const handleChange = useCallback(async (name: string, value: any, v: Variable) => {
-    let canChange = true;
+  const handleChange = useCallback(
+    async (name: string, value: any, v: Variable) => {
+      let canChange = true;
 
-    if (onBeforeChange) {
-      const result = onBeforeChange(name, value, v);
-      if (result === false) canChange = false;
-    }
+      if (onBeforeChange) {
+        const result = onBeforeChange(name, value, v);
+        if (result === false) canChange = false;
+      }
 
-    if (canChange) {
-      if (onInputChange) onInputChange(name, value, v); // The original prop
-      if (onAfterChange) onAfterChange(name, value, v);
-    }
-  }, [onInputChange, onBeforeChange, onAfterChange]);
+      if (canChange) {
+        if (onInputChange) onInputChange(name, value, v); // The original prop
+        if (onAfterChange) onAfterChange(name, value, v);
+      }
+    },
+    [onInputChange, onBeforeChange, onAfterChange],
+  );
 
   /**
    * Handles boolean toggle specifically.
    * Order: onBeforeChange -> onToggleBoolean -> onInputChange -> onAfterChange
    */
-  const handleToggle = useCallback(async (name: string, currentValue: boolean, v: Variable) => {
-    const newValue = !currentValue;
+  const handleToggle = useCallback(
+    async (name: string, currentValue: boolean, v: Variable) => {
+      const newValue = !currentValue;
 
-    // Validation check
-    if (onBeforeChange) {
-      const result = onBeforeChange(name, newValue, v);
-      if (result === false) return;
-    }
+      // Validation check
+      if (onBeforeChange) {
+        const result = onBeforeChange(name, newValue, v);
+        if (result === false) return;
+      }
 
-    // Specific Boolean Event
-    if (onToggleBoolean) onToggleBoolean(name);
+      // Specific Boolean Event
+      if (onToggleBoolean) onToggleBoolean(name);
 
-    // Generic Input Event (for state sync)
-    if (onInputChange) onInputChange(name, newValue, v);
+      // Generic Input Event (for state sync)
+      if (onInputChange) onInputChange(name, newValue, v);
 
-    // Post Event
-    if (onAfterChange) onAfterChange(name, newValue, v);
-  }, [onToggleBoolean, onInputChange, onBeforeChange, onAfterChange]);
+      // Post Event
+      if (onAfterChange) onAfterChange(name, newValue, v);
+    },
+    [onToggleBoolean, onInputChange, onBeforeChange, onAfterChange],
+  );
 
-  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    setSearchQuery(val);
-    if (onSearchChange) onSearchChange(val);
-  }, [onSearchChange]);
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const val = e.target.value;
+      setSearchQuery(val);
+      if (onSearchChange) onSearchChange(val);
+    },
+    [onSearchChange],
+  );
 
-  const handleGroupToggle = useCallback((groupName: string) => {
-    setCollapsedGroups(prev => {
-      const newState = !prev[groupName];
-      if (onGroupToggle) onGroupToggle(groupName, newState);
-      return {...prev, [groupName]: newState};
-    });
-  }, [onGroupToggle]);
+  const handleGroupToggle = useCallback(
+    (groupName: string) => {
+      setCollapsedGroups((prev) => {
+        const newState = !prev[groupName];
+        if (onGroupToggle) onGroupToggle(groupName, newState);
+        return {...prev, [groupName]: newState};
+      });
+    },
+    [onGroupToggle],
+  );
 
   const handleReset = useCallback(() => {
     if (onReset) onReset();
   }, [onReset]);
 
-  const handlePresetClick = useCallback((preset: typeof presets[0]) => {
-    if (onPresetSelect) onPresetSelect(preset);
-  }, [onPresetSelect]);
+  const handlePresetClick = useCallback(
+    (preset: (typeof presets)[0]) => {
+      if (onPresetSelect) onPresetSelect(preset);
+    },
+    [onPresetSelect],
+  );
 
   const handleSubmit = useCallback(async () => {
     if (onSubmitValues) {
@@ -275,34 +513,46 @@ const Drawer: React.FC<DrawerProps> = (props) => {
     }
   }, [formData, onSubmitValues, onApply]);
 
-  const handleInputKeyDown = useCallback((e: React.KeyboardEvent, v: Variable) => {
-    if (v.disableKeyboardEvents) return;
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent, v: Variable) => {
+      if (v.disableKeyboardEvents) return;
 
-    if (e.key === 'Enter') {
-      if (v.inputType !== 'textarea') {
-        if (onInputEnter) onInputEnter(v.name, formData[v.name], e);
+      if (e.key === 'Enter') {
+        if (v.inputType !== 'textarea') {
+          if (onInputEnter) onInputEnter(v.name, formData[v.name], e);
+        }
       }
-    }
-  }, [formData, onInputEnter]);
+    },
+    [formData, onInputEnter],
+  );
 
-  const handleKeyDownGlobal = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      if (onEscape) onEscape();
-      else handleClose();
-    }
-  }, [handleClose, onEscape]);
+  const handleKeyDownGlobal = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (onEscape) onEscape();
+        else handleClose();
+      }
+    },
+    [handleClose, onEscape],
+  );
 
-  const handleFocus = useCallback((v: Variable) => {
-    if (onFocus) onFocus(v.name, v);
-  }, [onFocus]);
+  const handleFocus = useCallback(
+    (v: Variable) => {
+      if (onFocus) onFocus(v.name, v);
+    },
+    [onFocus],
+  );
 
-  const handleBlur = useCallback((v: Variable) => {
-    if (onBlur) onBlur(v.name, formData[v.name], v);
-  }, [formData, onBlur]);
+  const handleBlur = useCallback(
+    (v: Variable) => {
+      if (onBlur) onBlur(v.name, formData[v.name], v);
+    },
+    [formData, onBlur],
+  );
 
   // --- Derived State ---
   const HeaderIcon = header.icon ?? Sparkles;
-  const SubmitIcon = footer.submitIcon ?? (header.icon ?? Sparkles);
+  const SubmitIcon = footer.submitIcon ?? header.icon ?? Sparkles;
   const isLoading = config.isLoading ?? false;
   const isDisabled = config.disabled ?? false;
   const isDrawer = mode === 'drawer';
@@ -312,19 +562,21 @@ const Drawer: React.FC<DrawerProps> = (props) => {
     let matchCount = 0;
     const normalizedQuery = searchQuery.toLowerCase().trim();
 
-    const visibleVars = variables.filter(v => {
+    const visibleVars = variables?.filter?.((v) => {
       const isVisible = v.showIf ? v.showIf(formData) : true;
       if (!isVisible) return false;
       if (searchQuery) {
-        return v.name.toLowerCase().includes(normalizedQuery) ||
+        return (
+          v.name.toLowerCase().includes(normalizedQuery) ||
           v.description?.toLowerCase().includes(normalizedQuery) ||
-          (v.group || 'General').toLowerCase().includes(normalizedQuery);
+          (v.group || 'General').toLowerCase().includes(normalizedQuery)
+        );
       }
       return true;
-    });
+    }) ?? [];
 
     matchCount = visibleVars.length;
-    visibleVars.forEach(v => {
+    visibleVars.forEach((v) => {
       const key = v.group || 'General';
       if (!groups[key]) groups[key] = [];
       groups[key].push(v);
@@ -375,17 +627,17 @@ const Drawer: React.FC<DrawerProps> = (props) => {
 
     if (v.type === 'boolean') {
       return (
-        <div className={cn(
-          'flex items-center justify-between p-3 rounded-lg border transition-colors',
-          variant === 'glass' ? 'bg-background/50 border-white/10' : 'bg-input/50 border-input',
-          isLocked && 'opacity-50 cursor-not-allowed',
-          'hover:border-primary/50',
-        )}>
+        <div
+          className={cn(
+            'flex items-center justify-between p-3 rounded-lg border transition-colors',
+            variant === 'glass' ? 'bg-background/50 border-white/10' : 'bg-input/50 border-input',
+            isLocked && 'opacity-50 cursor-not-allowed',
+            'hover:border-primary/50',
+          )}
+        >
           <span className="text-sm font-medium">{formData[v.name] ? 'Enabled' : 'Disabled'}</span>
-          <Switch
-            checked={formData[v.name]}
-            onCheckedChange={() => !isLocked && handleToggle(v.name, formData[v.name], v)}
-          />
+          <Switch checked={formData[v.name]}
+                  onCheckedChange={() => !isLocked && handleToggle(v.name, formData[v.name], v)}/>
         </div>
       );
     }
@@ -403,9 +655,13 @@ const Drawer: React.FC<DrawerProps> = (props) => {
               variant === 'glass' && 'bg-black/20',
             )}
           >
-            <option value="" disabled>{v.placeholder || `Select ${v.name}...`}</option>
+            <option value="" disabled>
+              {v.placeholder || `Select ${v.name}...`}
+            </option>
             {v.options?.map((opt) => (
-              <option key={opt} value={opt}>{opt}</option>
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
             ))}
           </select>
           <ChevronDown size={14} className="absolute right-3 top-3.5 pointer-events-none text-muted-foreground"/>
@@ -496,56 +752,42 @@ const Drawer: React.FC<DrawerProps> = (props) => {
           onBlur={commonProps.onBlur}
           onKeyDown={commonProps.onKeyDown}
         />
-        {v.unit && (
-          <span className="absolute right-3 top-2.5 text-xs text-muted-foreground pointer-events-none font-medium">
-            {v.unit}
-          </span>
-        )}
+        {v.unit && <span
+          className="absolute right-3 top-2.5 text-xs text-muted-foreground pointer-events-none font-medium">{v.unit}</span>}
       </div>
     );
   };
 
   return (
     <>
-      {isDrawer && (
-        <div
-          className={overlayClasses}
-          onClick={handleClose}
-          aria-hidden="true"
-        />
-      )}
+      {isDrawer && <div className={overlayClasses} onClick={handleClose} aria-hidden="true"/>}
 
-      <div
-        className={containerClasses}
-        role="dialog"
-        aria-modal={isDrawer}
-        onKeyDown={handleKeyDownGlobal}
-        tabIndex={-1}
-      >
+      <div className={containerClasses} role="dialog" aria-modal={isDrawer} onKeyDown={handleKeyDownGlobal}
+           tabIndex={-1}>
         {/* --- Header --- */}
-        {renderHeader ? renderHeader() : (
-          <div className={cn(
-            'flex items-center justify-between px-6 py-5 border-b shrink-0',
-            variant === 'glass' ? 'bg-background/40 border-white/10' : 'bg-background/50 border-border',
-            header.className,
-          )}>
+        {renderHeader ? (
+          renderHeader()
+        ) : (
+          <div
+            className={cn(
+              'flex items-center justify-between px-6 py-5 border-b shrink-0',
+              variant === 'glass' ? 'bg-background/40 border-white/10' : 'bg-background/50 border-border',
+              header.className,
+            )}
+          >
             <div className="flex items-start gap-3">
               {header?.icon && (
-                <div className={cn(
-                  'p-2 rounded-lg',
-                  variant === 'glass' ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary',
-                )}>
+                <div
+                  className={cn('p-2 rounded-lg', variant === 'glass' ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary')}>
                   <HeaderIcon size={18}/>
                 </div>
               )}
               <div>
-                <h2 className="text-lg font-bold tracking-tight text-foreground leading-tight">
-                  {header.title || 'Configuration'}
-                </h2>
+                <h2
+                  className="text-lg font-bold tracking-tight text-foreground leading-tight">{header.title || 'Configuration'}</h2>
                 {header.subtitle && (
-                  <p className="text-xs text-muted-foreground mt-0.5 leading-snug max-w-[200px] sm:max-w-xs">
-                    {header.subtitle}
-                  </p>
+                  <p
+                    className="text-xs text-muted-foreground mt-0.5 leading-snug max-w-[200px] sm:max-w-xs">{header.subtitle}</p>
                 )}
               </div>
             </div>
@@ -564,12 +806,14 @@ const Drawer: React.FC<DrawerProps> = (props) => {
 
         {/* --- Presets --- */}
         {presets.length > 0 && (
-          <div className={cn(
-            'px-6 py-3 border-b shrink-0 overflow-x-auto',
-            variant === 'glass' ? 'bg-background/30 border-white/5' : 'bg-muted/30 border-border',
-          )}>
+          <div
+            className={cn(
+              'px-6 py-3 border-b shrink-0 overflow-x-auto',
+              variant === 'glass' ? 'bg-background/30 border-white/5' : 'bg-muted/30 border-border',
+            )}
+          >
             <div className="flex gap-2">
-              {presets.map(p => (
+              {presets.map((p) => (
                 <button
                   key={p.id}
                   onClick={() => handlePresetClick(p)}
@@ -623,24 +867,24 @@ const Drawer: React.FC<DrawerProps> = (props) => {
         {/* --- Main Content --- */}
         <div className="flex-1 overflow-y-auto custom-scroll p-6 space-y-6">
           {Object.entries(groupedVariables).map(([groupName, vars]) => {
-            const isCollapsed = collapsedGroups[groupName] ?? (renderConfig.defaultCollapsed ?? false);
+            const isCollapsed = collapsedGroups[groupName] ?? renderConfig.defaultCollapsed ?? false;
 
             return (
               <div key={groupName} className="space-y-3 animate-in fade-in zoom-in-95 duration-200">
-                <button
-                  onClick={() => handleGroupToggle(groupName)}
-                  className="flex items-center gap-2 w-full group transition-colors"
-                >
-                  {isCollapsed ? <ChevronRight size={14} className="text-muted-foreground"/> :
-                    <ChevronDown size={14} className="text-muted-foreground"/>}
+                <button onClick={() => handleGroupToggle(groupName)}
+                        className="flex items-center gap-2 w-full group transition-colors">
+                  {isCollapsed ? (
+                    <ChevronRight size={14} className="text-muted-foreground"/>
+                  ) : (
+                    <ChevronDown size={14} className="text-muted-foreground"/>
+                  )}
                   <h3
                     className="text-xs font-bold uppercase tracking-wider text-foreground group-hover:text-primary transition-colors">
                     {groupName}
                   </h3>
                   <div className="h-px bg-border flex-1 opacity-50"></div>
-                  <span className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 rounded-full">
-                    {vars.length}
-                  </span>
+                  <span
+                    className="text-[10px] text-muted-foreground font-mono bg-muted px-1.5 rounded-full">{vars.length}</span>
                 </button>
 
                 {!isCollapsed && (
@@ -650,20 +894,18 @@ const Drawer: React.FC<DrawerProps> = (props) => {
                         <div className="flex justify-between items-start gap-2">
                           <div className="flex-1 min-w-0">
                             <Label
-                              className={cn(
-                                'text-sm flex items-center gap-1.5',
-                                renderConfig.truncateNames && 'truncate',
-                              )}
+                              className={cn('text-sm flex items-center gap-1.5', renderConfig.truncateNames && 'truncate')}
                               title={renderConfig.truncateNames ? v.name : undefined}
                             >
                               {v.name}
-                              {v.required && <span
-                                className="text-[10px] px-1.5 py-0 rounded bg-destructive/10 text-destructive font-bold">Req</span>}
+                              {v.required && (
+                                <span
+                                  className="text-[10px] px-1.5 py-0 rounded bg-destructive/10 text-destructive font-bold">Req</span>
+                              )}
                             </Label>
                             {v.description && (
-                              <p className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
-                                {v.description}
-                              </p>
+                              <p
+                                className="text-[11px] text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">{v.description}</p>
                             )}
                           </div>
 
@@ -717,20 +959,26 @@ const Drawer: React.FC<DrawerProps> = (props) => {
         </div>
 
         {/* --- Footer --- */}
-        {renderFooter ? renderFooter() : (
-          <div className={cn(
-            'p-6 border-t shrink-0',
-            variant === 'glass' ? 'bg-background/60 border-white/10' : 'bg-background/95 border-border',
-            footer.sticky && 'sticky bottom-0 z-10',
-          )}>
-            <div className={cn(
-              'flex items-center gap-3',
-              footer.align === 'left' && 'justify-start',
-              footer.align === 'center' && 'justify-center',
-              footer.align === 'right' && 'justify-end',
-              footer.align === 'spread' && 'justify-between',
-              !footer.align && 'justify-between',
-            )}>
+        {renderFooter ? (
+          renderFooter()
+        ) : (
+          <div
+            className={cn(
+              'p-6 border-t shrink-0',
+              variant === 'glass' ? 'bg-background/60 border-white/10' : 'bg-background/95 border-border',
+              footer.sticky && 'sticky bottom-0 z-10',
+            )}
+          >
+            <div
+              className={cn(
+                'flex items-center gap-3',
+                footer.align === 'left' && 'justify-start',
+                footer.align === 'center' && 'justify-center',
+                footer.align === 'right' && 'justify-end',
+                footer.align === 'spread' && 'justify-between',
+                !footer.align && 'justify-between',
+              )}
+            >
               {footer.showReset && onReset && (
                 <button
                   onClick={handleReset}
@@ -759,11 +1007,8 @@ const Drawer: React.FC<DrawerProps> = (props) => {
                   'disabled:opacity-70 disabled:cursor-wait disabled:shadow-none',
                 )}
               >
-                {isLoading ? (
-                  <Loader2 size={16} className="mr-2 animate-spin"/>
-                ) : (
-                  <SubmitIcon size={16} className="mr-2"/>
-                )}
+                {isLoading ? <Loader2 size={16} className="mr-2 animate-spin"/> :
+                  <SubmitIcon size={16} className="mr-2"/>}
                 {footer.submitText || 'Apply Changes'}
               </button>
             </div>

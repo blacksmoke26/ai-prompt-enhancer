@@ -14,6 +14,7 @@ export interface StatItemProps {
   label: string;
   /** The numerical or string value to display */
   value: string | number;
+  /** Whether to display the stat in a warning style */
   warning?: boolean;
 }
 

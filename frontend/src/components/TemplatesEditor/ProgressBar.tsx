@@ -9,12 +9,21 @@ import React from 'react';
 // utils
 import {cn} from '~/utils/helpers';
 
+/**
+ * ProgressBar component props
+ */
 export interface ProgressBarProps {
+  /** Current progress value */
   value: number;
+  /** Maximum value for progress calculation */
   max: number;
+  /** Optional CSS class for the progress bar color */
   colorClass?: string;
 }
 
+/**
+ * ProgressBar component that displays a visual progress bar.
+ */
 const ProgressBar: React.FC<ProgressBarProps> = (props) => {
   const {value, max, colorClass} = props;
 
