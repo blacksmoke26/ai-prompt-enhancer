@@ -761,7 +761,7 @@ export const AdvancedInput = forwardRef<HTMLInputElement, AdvancedInputProps>(
 
           {/* Right Actions */}
           <div className={cn(
-            'absolute inset-y-0 right-0 flex items-center pr-2 gap-1 z-10',
+            'absolute bottom-2 inset-y-0 right-0 flex items-center pr-2 gap-1 z-10',
             variant === 'otp' && 'hidden',
             isTagsMode && 'items-start pt-1.5',
           )}>
@@ -789,7 +789,7 @@ export const AdvancedInput = forwardRef<HTMLInputElement, AdvancedInputProps>(
             {!loading && allowClear && hasValue && (
               <button
                 type="button" onClick={handleClear}
-                className={cn('relative top-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50', 'opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all', hasValue && 'opacity-100')}
+                className={cn('relative rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50', 'opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all', hasValue && 'opacity-100')}
                 tabIndex={-1}>
                 <X className="h-4 w-4"/>
               </button>
