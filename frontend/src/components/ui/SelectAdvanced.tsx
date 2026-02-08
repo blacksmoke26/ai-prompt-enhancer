@@ -531,7 +531,7 @@ export const SelectAdvanced: React.FC<SelectAdvancedProps> = (props) => {
                 );
               }
               return (
-                <Select.Item key={opt.value} value={opt.value} disabled={opt.disabled}>
+                <Select.Item key={opt.value} value={opt?.value ?? ''} disabled={opt.disabled}>
                   {formatLabel ? formatLabel(opt as SelectOption) : opt.label}
                 </Select.Item>
               );
