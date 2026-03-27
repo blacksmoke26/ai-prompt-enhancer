@@ -324,7 +324,7 @@ const promptTemplates: PromptTemplate[] = [
     description: 'Control caching, purging, and invalidation.',
     content:
       'Create a CDN Management Interface.\n\n**Core Architecture:**\n1. Connect to {{provider}} API.\n2. Purge specific URLs or Wildcard.\n3. Cache rule management (QueryString args, Headers).\n4. WAF (Web App Firewall) configuration via CDN.\n5. Tokenized URL generation for private content.',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['cdn', 'caching', 'performance', 'security'],
     variables: [
       {
@@ -673,7 +673,7 @@ const promptTemplates: PromptTemplate[] = [
     description: 'Traffic routing, splitting, and telemetry (Envoy/Istio).',
     content:
       'Implement Service Mesh configuration.\n\n**Core Architecture:**\n1. VirtualServices for versioning.\n2. Destination Rules.\n3. Traffic Splitting (90/10 for Canary).\n4. Circuit Breaking in Mesh.\n5. Observability (Traces/Metrics).',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['service-mesh', 'istio', 'envoy', 'traffic'],
     variables: [
       {

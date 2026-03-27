@@ -3608,7 +3608,7 @@ const promptTemplates: PromptTemplate[] = [
     title: 'Log Management (Splunk clone)',
     description: 'Centralized log aggregation and search.',
     category: 'Technology & SaaS',
-    tags: ['logs', 'search', 'elasticsearch', 'devops'],
+    tags: ['logs', 'search', 'elasticsearch', 'Dev Ops'],
     content:
       'Develop a Log Management Tool (Splunk).\n\n**Features:**\n1. **Ship:** Ship logs (Logstash/Fluentd style).\n2. **Search:** Search bar (Query language `level=error AND service=auth`).\n3. **Table:** Table of log entries.\n4. **Parse:** Parse JSON logs automatically.',
     variables: [
@@ -4466,7 +4466,7 @@ const promptTemplates: PromptTemplate[] = [
     title: 'CDN Management Dashboard',
     description: 'Manage caching, purging, and analytics for a CDN.',
     category: 'File Sharing & Storage',
-    tags: ['cdn', 'cache', 'analytics', 'devops'],
+    tags: ['cdn', 'cache', 'analytics', 'Dev Ops'],
     content:
       'Develop a CDN Manager.\n\n**Features:**\n1. **Origin:** Add Origin Server (IP/Domain).\n2. **Purge:** Purge Cache (Single file or Wildcard).\n3. **BW:** Bandwidth usage chart.\n4. **SSL:** SSL Certificate management.',
     variables: [

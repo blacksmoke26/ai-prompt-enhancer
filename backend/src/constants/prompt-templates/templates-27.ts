@@ -2672,7 +2672,7 @@ const promptTemplates: PromptTemplate[] = [
     title: 'Environment Variable Manager',
     description: 'Securely manage .env files for projects.',
     category: 'Technology & SaaS',
-    tags: ['env', 'security', 'config', 'devops'],
+    tags: ['env', 'security', 'config', 'Dev Ops'],
     content:
       'Create an Env Manager.\n\n**Features:**\n1. List projects.\n2. Edit Key-Value pairs.\n3. Encrypt values in DB.\n4. Copy to clipboard (.env format).\n5. Share with team (Permissions).',
     variables: [
@@ -3365,7 +3365,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Htaccess Generator',
     description: 'Generate Apache .htaccess for redirects/ssl.',
-    category: 'DevOps & Infrastructure',
+    category: 'Dev Ops & Infrastructure',
     tags: ['apache', 'htaccess', 'redirects', 'server'],
     content:
       'Build an Htaccess Generator.\n\n**Features:**\n1. Force HTTPS (SSL).\n2. Custom Error Pages (404, 500).\n3. URL Redirects (301, 302).\n4. Block IPs.\n5. Gzip compression toggle.',
@@ -3382,7 +3382,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Nginx Config Generator',
     description: 'Generate Nginx server blocks.',
-    category: 'DevOps & Infrastructure',
+    category: 'Dev Ops & Infrastructure',
     tags: ['nginx', 'config', 'server', 'proxy'],
     content:
       'Create an Nginx Config Generator.\n\n**Features:**\n1. Server Name/Port.\n2. Root directory.\n3. Reverse Proxy settings (Pass to Node/Python).\n4. SSL Cert paths.\n5. Security headers.',
@@ -3399,7 +3399,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Apache VirtualHost',
     description: 'Generate Apache VirtualHost config.',
-    category: 'DevOps & Infrastructure',
+    category: 'Dev Ops & Infrastructure',
     tags: ['apache', 'virtualhost', 'server', 'config'],
     content:
       'Create an Apache VirtualHost Generator.\n\n**Features:**\n1. ServerName and ServerAlias.\n2. DocumentRoot.\n3. Directory Permissions (AllowOverride All).\n4. SSL Certificate paths.\n5. Log paths.',
@@ -3416,8 +3416,8 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Docker Compose Generator',
     description: 'Create docker-compose.yml for services.',
-    category: 'DevOps & Infrastructure',
-    tags: ['docker', 'compose', 'yaml', 'devops'],
+    category: 'Dev Ops & Infrastructure',
+    tags: ['docker', 'compose', 'yaml', 'Dev Ops'],
     content:
       'Build a Docker Compose Generator.\n\n**Features:**\n1. Add Services (Web, DB, Redis).\n2. Expose Ports.\n3. Volume Mounts.\n4. Environment Variables.\n5. Network configuration.',
     variables: [
@@ -3433,7 +3433,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Kubernetes Deployment',
     description: 'Generate K8s Deployment and Service yaml.',
-    category: 'DevOps & Infrastructure',
+    category: 'Dev Ops & Infrastructure',
     tags: ['kubernetes', 'k8s', 'yaml', 'deployment'],
     content:
       'Create a K8s Generator.\n\n**Features:**\n1. Deployment: Image, Replicas, Env Vars.\n2. Service: NodePort, ClusterIP, LoadBalancer.\n3. ConfigMap generator.\n4. Ingress resource.',
@@ -3450,7 +3450,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Helm Chart Values',
     description: 'Create values.yaml for Helm charts.',
-    category: 'DevOps & Infrastructure',
+    category: 'Dev Ops & Infrastructure',
     tags: ['helm', 'kubernetes', 'yaml', 'chart'],
     content:
       'Build a Helm Values Generator.\n\n**Features:**\n1. Define Image repository and tag.\n2. Service types.\n3. Ingress hosts.\n4. Resource limits/requests.\n5. HPA (Horizontal Pod Autoscaler) settings.',
@@ -3466,7 +3466,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Terraform Resource',
     description: 'Generate Terraform HCL for AWS/Azure.',
-    category: 'DevOps & Infrastructure',
+    category: 'Dev Ops & Infrastructure',
     tags: ['terraform', 'iac', 'aws', 'hcl'],
     content:
       'Create a Terraform Resource Generator.\n\n**Provider:** {{provider}}.\n**Features:**\n1. Resource Type (e.g., EC2 Instance, S3 Bucket).\n2. Variable interpolation.\n3. Output definitions.\n4. Provider configuration.',
@@ -3490,7 +3490,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Ansible Playbook',
     description: 'Generate YAML for server automation.',
-    category: 'DevOps & Infrastructure',
+    category: 'Dev Ops & Infrastructure',
     tags: ['ansible', 'automation', 'yaml', 'server'],
     content:
       'Create an Ansible Playbook Generator.\n\n**Features:**\n1. Define Target Hosts.\n2. Become (Sudo) toggle.\n3. Tasks list (Install package, Copy file, Restart Service).\n4. Variables section.',
@@ -3507,7 +3507,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Jenkinsfile Generator',
     description: 'Create Declarative Pipeline scripts.',
-    category: 'DevOps & Infrastructure',
+    category: 'Dev Ops & Infrastructure',
     tags: ['jenkins', 'ci-cd', 'groovy', 'pipeline'],
     content:
       'Build a Jenkinsfile Generator.\n\n**Tech:** Pipeline DSL.\n**Features:**\n1. Triggers (Push, PR, PollSCM).\n2. Stages (Build, Test, Deploy).\n3. Agent label.\n4. Post actions (Email notifications).',
@@ -3524,7 +3524,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'GitLab CI YAML',
     description: 'Generate .gitlab-ci.yml for pipelines.',
-    category: 'DevOps & Infrastructure',
+    category: 'Dev Ops & Infrastructure',
     tags: ['gitlab', 'ci-cd', 'yaml', 'pipeline'],
     content:
       'Create a GitLab CI Generator.\n\n**Features:**\n1. Stages (Build, Test, Deploy).\n2. Before/After scripts.\n3. Artifacts definition.\n4. Rules (Only on master, tags).\n5. Cache configuration.',
@@ -3541,7 +3541,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'GitHub Actions Workflow',
     description: 'Generate workflow YAML for GitHub.',
-    category: 'DevOps & Infrastructure',
+    category: 'Dev Ops & Infrastructure',
     tags: ['github', 'actions', 'yaml', 'ci-cd'],
     content:
       'Create a GitHub Actions Generator.\n\n**Features:**\n1. Triggers (Push, Pull Request, Schedule).\n2. Jobs (Build/Test/Deploy).\n3. Runs-on (Ubuntu, Mac, Windows).\n4. Secrets usage logic.',
@@ -5709,7 +5709,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'GitHub Actions Workflow (CI/CD)',
     description: 'Build, Test, Deploy automation.',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['github-actions', 'ci-cd', 'yaml', 'automation'],
     content:
       'Create a GitHub Action Workflow.\n\n**Core Features:**\n1. Trigger on Push/PR.\n2. Checkout code.\n3. Setup {{lang}}.\n4. Run Tests (Jest/PyTest).\n5. Build Docker image.\n6. Deploy to {{provider}}.',
@@ -5733,7 +5733,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'GitLab CI Pipeline (.gitlab-ci.yml)',
     description: 'Multi-stage pipelines for GitLab.',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['gitlab', 'ci-cd', 'yaml', 'pipeline'],
     content:
       'Create a GitLab CI Pipeline.\n\n**Core Features:**\n1. Define Stages (Build, Test, Deploy).\n2. Cache node_modules/venv.\n3. Docker Image definition.\n4. Script execution.\n5. Artifacts.',
@@ -5748,10 +5748,10 @@ const promptTemplates: PromptTemplate[] = [
     ],
   },
   {
-    title: 'Azure DevOps Pipeline',
+    title: 'Azure Dev Ops Pipeline',
     description: 'YAML for Azure Pipelines.',
-    category: 'DevOps',
-    tags: ['azure', 'devops', 'yaml', 'build'],
+    category: 'Dev Ops',
+    tags: ['azure', 'Dev Ops', 'yaml', 'build'],
     content:
       'Create an Azure Pipeline.\n\n**Core Features:**\n1. Triggers (branches, paths).\n2. Pool (Windows vs Linux).\n3. Variables.\n4. Jobs and Steps.\n5. Deployment to Azure App Service.',
     variables: [
@@ -5767,7 +5767,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'CircleCI Config',
     description: 'Orbs and workflows config.',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['circleci', 'ci-cd', 'yaml', 'orbs'],
     content:
       'Create a CircleCI Config.\n\n**Core Features:**\n1. Version: 2.1.\n2. Workflows.\n3. Reusable commands.\n4. Docker layer caching.\n5. Filters (Branch).\n6. Contexts (API Keys).',
@@ -5784,7 +5784,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'ArgoCD Application (GitOps)',
     description: 'Kubernetes Continuous Deployment.',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['argocd', 'gitops', 'kubernetes', 'yaml'],
     content:
       'Create an ArgoCD Application.\n\n**Core Features:**\n1. Project.\n2. Source (Git Repository).\n3. Destination (Cluster/ Namespace).\n4. Sync Policy (Auto vs Manual).\n5. Sync Waves.',
@@ -5800,7 +5800,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Docker Compose Production',
     description: 'Multi-container production setup.',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['docker', 'compose', 'production', 'volumes'],
     content:
       'Create a Production Compose.\n\n**Core Features:**\n1. Services: App, DB, Redis, Nginx Proxy.\n2. Networks (Backend only).\n3. Volumes (Persistence).\n4. Healthchecks.\n5. Restart Policy (Always).\n6. Secrets (Swarm) or Envs.',
@@ -6158,7 +6158,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Hetzner Server Manager',
     description: 'Deploy/Manage servers on Hetzner Cloud.',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['hetzner', 'cloud', 'api', 'management'],
     content:
       'Create a Hetzner CLI/Dashboard.\n\n**Core Features:**\n1. SSH Key management.\n2. Create Server (Select {{serverType}}).\n3. Create Floating IPs.\n4. Power On/Off.\n5. ISO rescue system.',
@@ -6175,7 +6175,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'DigitalOcean Droplet Manager',
     description: 'Manage Droplets via API.',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['digitalocean', 'cloud', 'api', 'droplet'],
     content:
       'Create a DO Manager.\n\n**Core Features:**\n1. List Droplets.\n2. Create Droplet (Size/Region/Image).\n3. Take Snapshot.\n4. Enable Monitoring.\n5. List Project Resources.',
@@ -6192,7 +6192,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'AWS S3 File Manager',
     description: 'Web-based file browser for S3 buckets.',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['s3', 'aws', 'storage', 'manager'],
     content:
       'Create an S3 Manager.\n\n**Core Features:**\n1. List Buckets.\n2. List Objects ({{pattern}} prefix).\n3. Upload File (Multipart upload for large files).\n4. Generate Presigned URL (TTL).\n5. Delete object.',
@@ -6209,7 +6209,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Google Cloud Scheduler Job',
     description: 'Create scheduled Cloud Run/Functions jobs.',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['gcp', 'scheduler', 'cron', 'cloud-run'],
     content:
       'Create a GCP Scheduler.\n\n**Core Features:**\n1. Target Service (Cloud Run, Pub/Sub, HTTP).\n2. Schedule (Cron format).\n3. Timezone.\n4. Retry Config.\n5. Output gcloud CLI commands.',
@@ -6294,7 +6294,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Log Aggregator (Graylog/ELK)',
     description: 'Dashboard for application logs.',
-    category: 'DevOps',
+    category: 'Dev Ops',
     tags: ['logging', 'elk', 'graylog', 'dashboard'],
     content:
       'Create a Log Dashboard.\n\n**Source:** {{input}}.\n**Core Features:**\n1. Grep/Filter logs.\n2. Time range picker.\n3. Bar chart of log levels (Info, Warn, Error).\n4. Click line to inspect JSON payload.\n5. Live tail mode.',
@@ -6856,7 +6856,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'MediaPipe Hands',
     description: 'Hand tracking and gestures.',
-    category: 'AI & Vision',
+    category: 'AI / Vision',
     tags: ['mediapipe', 'vision', 'hands', 'gesture'],
     content:
       'Create a Hand Tracker.\n\n**Core Features:**\n1. Camera Input (Webcam).\n2. Hands Solution (Landmarks).\n3. Gesture Recognizer (Pinch, Point, Thumbs Up).\n4. Canvas Overlay (Draw skeleton).\n5. Mouse emulation (Click with pinch).',
@@ -6873,7 +6873,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'OpenCV.js Face Detect',
     description: 'Detect faces using OpenCV WASM.',
-    category: 'AI & Vision',
+    category: 'AI / Vision',
     tags: ['opencv', 'wasm', 'face', 'detection'],
     content:
       'Create an OpenCV Face Detector.\n\n**Core Features:**\n1. Load Haar Cascade XML ({{cascade}}).\n2. Video stream processing.\n3. Draw rectangles around faces.\n4. Confidence threshold.\n5. Performance optimization.',
@@ -6890,7 +6890,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Pose Estimation (MoveNet)',
     description: 'Body posture detection.',
-    category: 'AI & Vision',
+    category: 'AI / Vision',
     tags: ['movenet', 'pose', 'skeleton', 'fitness'],
     content:
       'Create a Pose Estimator.\n\n**Core Features:**\n1. Camera stream.\n2. PoseNet (MoveNet Lightning/Thunder).\n3. Keypoints overlay (Nose, Eyes, Shoulders...).\n4. Confidence score.\n5. Calculate angles (Elbow bend, Squat depth).',
@@ -6907,7 +6907,7 @@ const promptTemplates: PromptTemplate[] = [
   {
     title: 'Object Detection (CocoSsd)',
     description: 'Detect 80 object types.',
-    category: 'AI & Vision',
+    category: 'AI / Vision',
     tags: ['coco-ssd', 'object', 'tensorflow', 'wasm'],
     content:
       'Create an Object Detector.\n\n**Core Features:**\n1. Load COCO-SSD Model.\n2. Camera stream.\n3. Detect objects (Person, Cup, Car...).\n4. Draw boxes with labels.\n5. Count objects.',
