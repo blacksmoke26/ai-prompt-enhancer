@@ -16,40 +16,209 @@ import React, {
   ReactNode,
 } from 'react';
 
+/**
+ * Represents the size options for the `TagsInput` component.
+ * Use this type to define the visual scale of the input (e.g., small, medium, large).
+ *
+ * @example
+ * <TagsInput size="sm" />
+ *
+ * @developerNotes
+ * - Choose sizes that match the overall UI scale and context.
+ * - Ensure consistency across the application when using different sizes.
+ */
 export type TagsInputSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
+/**
+ * Represents the border radius options for the `TagsInput` component.
+ * This controls the corner rounding of the input container.
+ *
+ * @example
+ * <TagsInput radius="lg" />
+ *
+ * @developerNotes
+ * - Use 'full' for circular inputs or 'none' for sharp corners.
+ * - Ensure the radius aligns with the design system's visual language.
+ */
 export type TagsInputRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
+
+/**
+ * Represents the visual style variants for the `TagsInput` component.
+ * This determines the appearance of the input (e.g., outlined, filled, ghost).
+ *
+ * @example
+ * <TagsInput variant="filled" />
+ *
+ * @developerNotes
+ * - 'outline' is suitable for forms with minimal emphasis.
+ * - 'filled' is ideal for inputs that need to stand out visually.
+ * - 'ghost' and 'plain' are useful for subtle or minimalist UIs.
+ */
 export type TagsInputVariant = 'outline' | 'filled' | 'ghost' | 'plain';
 
+/**
+ * Props for the `TagsInput` component, allowing customization of tags, suggestions, and appearance.
+ * This component is designed for handling multiple tags with optional validation, suggestions, and accessibility support.
+ *
+ * @example
+ * <TagsInput
+ *   value={tags}
+ *   onChange={setTags}
+ *   suggestions={['apple', 'banana', 'cherry']}
+ *   placeholder="Add a tag"
+ *   maxItems={5}
+ *   onValidate={(tag) => tag.length <= 20}
+ * />
+ *
+ * @developerNotes
+ * - Ensure `onChange` updates state correctly for reactivity.
+ * - Use `onValidate` to enforce custom validation rules.
+ * - `onAddTag` and `onRemoveTag` are optional but useful for custom logic.
+ * - Accessibility is prioritized; ensure labels and error messages are used for form integration.
+ */
 export interface TagsInputProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, 'onChange' | 'size'> {
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange' | 'size'> {
+  /**
+   * The current list of tags.
+   */
   value: string[];
-  onChange: (tags: string[]) => void;
+
+  /**
+   * Handler for tag changes, receives an updated array of tags.
+   */
+  onChange(tags: string[]): void;
+
+  /**
+   * Optional list of suggested tags for auto-complete functionality.
+   */
   suggestions?: string[];
+
+  /**
+   * Placeholder text displayed when no tags are selected.
+   */
   placeholder?: string;
+
+  /**
+   * Size variant of the input (e.g., 'small', 'medium', 'large').
+   */
   size?: TagsInputSize;
+
+  /**
+   * Visual style variant (e.g., 'outlined', 'filled').
+   */
   variant?: TagsInputVariant;
+
+  /**
+   * Border radius style (e.g., 'default', 'circular').
+   */
   radius?: TagsInputRadius;
+
+  /**
+   * Maximum number of tags allowed.
+   */
   maxItems?: number;
+
+  /**
+   * Maximum length for each individual tag.
+   */
   maxLength?: number;
+
+  /**
+   * Whether duplicate tags are allowed.
+   */
   allowDuplicates?: boolean;
+
+  /**
+   * Whether tags can be edited after being added.
+   */
   allowEdit?: boolean;
+
+  /**
+   * Whether the input is disabled.
+   */
   disabled?: boolean;
+
+  /**
+   * Whether the input is in a loading state.
+   */
   loading?: boolean;
+
+  /**
+   * Whether the input is required for form validation.
+   */
   required?: boolean;
+
+  /**
+   * Whether to clear the input when it loses focus.
+   */
   clearOnBlur?: boolean;
+
+  /**
+   * Whether to auto-focus the input on mount.
+   */
   autoFocus?: boolean;
+
+  /**
+   * Whether the input should take full width.
+   */
   full?: boolean;
+
+  /**
+   * HTML `id` attribute for the input.
+   */
   id?: string;
+
+  /**
+   * HTML `name` attribute for form submission.
+   */
   name?: string;
+
+  /**
+   * Form label associated with the input.
+   */
   label?: string;
+
+  /**
+   * Additional description text below the label.
+   */
   description?: string;
+
+  /**
+   * Helper text displayed below the input.
+   */
   helperText?: string;
+
+  /**
+   * Error message for validation purposes.
+   */
   error?: string;
-  icon?: ReactNode;
+
+  /**
+   * Icon to display alongside the input.
+   */
+  icon?: React.ReactNode;
+
+  /**
+   * Position of the icon ('left' or 'right').
+   */
   iconPosition?: 'left' | 'right';
-  onValidate?: (tag: string) => boolean;
-  onAddTag?: (tag: string) => void;
-  onRemoveTag?: (tag: string, index: number) => void;
+
+  /**
+   * Custom validation function for tags.
+   * @param tag The tag to validate.
+   * @returns `true` if valid, `false` otherwise.
+   */
+  onValidate?(tag: string): boolean;
+
+  /**
+   * Callback triggered when a tag is added.
+   */
+  onAddTag?(tag: string): void;
+
+  /**
+   * Callback triggered when a tag is removed.
+   */
+  onRemoveTag?(tag: string, index: number): void;
 }
 
 const Icon = ({
