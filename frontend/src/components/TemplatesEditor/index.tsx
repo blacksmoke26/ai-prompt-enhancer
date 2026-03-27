@@ -4,15 +4,16 @@
  * @see https://github.com/blacksmoke26
  */
 
+
 import React, {useCallback, useEffect, useState} from 'react';
-import {History, type LucideIcon, Settings2, Sparkles} from 'lucide-react';
+import {Streamdown} from 'streamdown';
+import {History, LayoutTemplate, type LucideIcon, Settings2, Sparkles} from 'lucide-react';
 
 // relative components
 import Drawer from './Drawer';
-import Header from './Header';
 import EditorArea from './EditorArea';
 import CommandPalette from './CommandPalette';
-import TemplateSelector from './TemplateSelector';
+import TemplateSelector, {TemplateSelectorProps} from './TemplateSelector';
 
 /**
  * Represents the lifecycle status of a prompt.
@@ -105,14 +106,14 @@ export interface HistoryItem {
   label?: string;
 }
 
-// --- PROPS ---
-
 /**
  * Props for the main PromptRunner component.
  */
 export interface PromptRunnerProps {
   /** List of available prompt templates to choose from. */
   templates: PromptTemplate[];
+  /** Maximum length of the content string allowed in the editor. */
+  maxLength?: number;
 
   // UI Events
   /** Callback fired when the variables drawer is requested to open. */
@@ -126,15 +127,6 @@ export interface PromptRunnerProps {
 
   /** Callback fired when the template selector modal is requested to close. */
   onSelectorClose?(): void;
-
-  /** Callback fired when a category link is clicked in the sidebar or UI. */
-  onCategoryClick?(cat: string): void;
-
-  /** Callback fired when the active category selection changes. */
-  onCategoryChange?(cat: string): void;
-
-  /** Callback fired when a category filter is applied to the template list. */
-  onCategoryFilter?(cat: string): void;
 
   /** Callback fired when a search query is performed on templates. */
   onTemplateSearch?(q: string, cat: string): void;
@@ -151,6 +143,9 @@ export interface PromptRunnerProps {
 
   /** Callback fired when the "Copy to Clipboard" action is triggered. */
   onCopy?(): void;
+
+  /** Specific props for the TemplateSelector component. */
+  templateSelector: Omit<TemplateSelectorProps, 'templates' | 'onSelectTemplate' | 'onClose'>;
 
   // Form Events
   /** Callback fired when a specific variable input value changes. */
@@ -180,6 +175,9 @@ export interface PromptRunnerProps {
 
   /** Callback fired when a command is selected from the command palette. */
   onCommandAction?(action: string): void;
+
+  /** Callback fired when a validation is passed */
+  onValidSubmit?(content: string, variables: Record<string, any>): void;
 
   // Workflow & History
   /** The current lifecycle status of the prompt being edited. */
@@ -221,9 +219,6 @@ export interface PromptRunnerProps {
   /** List of available presets for the variables sidebar. */
   presets?: Array<{ id: string; label: string; values: Record<string, any> }>;
 
-  /** Custom mapping of category slugs to icons and display names. */
-  categoryIcons?: Record<string, { name: string; icon: LucideIcon }>;
-
   /** Custom renderer for tags within the editor or UI. */
   renderTag?(tag: string, onClick: (tag: string) => void): React.ReactNode;
 
@@ -242,9 +237,6 @@ export interface PromptRunnerProps {
   /** Specific props for the Drawer (Variables) component. */
   drawerProps?: Record<string, any>;
 
-  /** Specific props for the TemplateSelector component. */
-  selectorProps?: Record<string, any>;
-
   /** Debounce delay in milliseconds for editor content changes. */
   debounceMs?: number;
 }
@@ -252,19 +244,18 @@ export interface PromptRunnerProps {
 export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
   const {
     templates = [],
+    maxLength = 0,
     enableCommandPalette = false,
     debounceMs = 300,
-    // ... (Destructure all other props) ...
     onDrawerOpen, onDrawerClose, onSelectorOpen, onSelectorClose,
-    onCategoryClick, onCategoryChange, onCategoryFilter = () => {
-    },
     onTemplateSearch, onTemplateChoose, onChange, onTagClick, onCopy,
     onTagValueChange, onTagValidate, onErrors, onValidate, onFormSubmit, onExecuteClick, onPresetSelect,
-    categoryIcons, renderTag, favorites, onToggleFavorite, presets = [],
+    renderTag, favorites, onToggleFavorite, presets = [],
     status, onStatusChange, history = [], onSaveSnapshot, onRestoreHistory, onExport,
     outputContent = '', onOutputChange,
-    config = {}, headerProps = {}, editorProps = {}, drawerProps = {}, selectorProps = {},
+    config = {}, headerProps = {}, editorProps = {}, drawerProps = {},
     onCommandAction,
+    onValidSubmit,
     onStreamUpdate,
   } = allProps;
 
@@ -396,7 +387,6 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
   };
 
   const applyVariables = async () => {
-    setIsGenerating(true);
     if (onValidate) onValidate(formData);
     const newErrors: Record<string, any> = {};
     let hasErrors = false;
@@ -424,13 +414,16 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
     if (onErrors) onErrors(newErrors);
 
     if (hasErrors) {
-      setIsGenerating(false);
       return;
     }
 
     if (onFormSubmit) await onFormSubmit(formData);
 
-    let newContent = content.replace(/\{\{(.*?)}}/g, (match, key) => {
+    setIsDrawerOpen(false);
+
+    onValidSubmit?.(content, formData);
+
+    /*let newContent = content.replace(/\{\{(.*?)}}/g, (match, key) => {
       const cleanKey = key.trim();
       if (cleanKey in formData) {
         const val = formData[cleanKey];
@@ -440,14 +433,13 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
     });
 
     setContent(newContent);
-    setIsDrawerOpen(false);
     setIsGenerating(false);
 
     if (onExecuteClick) {
       onExecuteClick(newContent, formData);
     } else {
       simulateStream(newContent);
-    }
+    }*/
   };
 
   const handleCommandSelect = (action: string) => {
@@ -477,7 +469,7 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
       )}
 
       {/* HEADER */}
-      <Header
+      {/*<Header
         currentTemplate={activeTemplate}
         onOpenSelector={() => {
           setIsSelectorOpen(true);
@@ -489,14 +481,15 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
         onExport={onExport}
         headerProps={headerProps}
         config={config}
-      />
+      />*/}
 
       {/* MAIN LAYOUT: SPLIT VERTICAL */}
-      <main className="flex-1 flex flex-col overflow-hidden relative p-4 sm:p-6 lg:p-8 gap-6">
+      <main className="flex-1 flex flex-col overflow-hidden relative gap-4">
 
         {/* TOP: EDITOR AREA */}
         <div className="flex-1 flex flex-col min-w-0 relative transition-all duration-300">
           <EditorArea
+            maxLength={maxLength}
             value={content}
             onChange={handleContentChange}
             metadata={activeTemplate}
@@ -512,24 +505,36 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
           />
 
           {/* Floating Action Button for Variables */}
-          {!isDrawerOpen && (
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
+          <div
+            className="absolute bottom-5 left-1/2 transform -translate-x-1/2 z-10 inline-flex items-center justify-center gap-5">
+            {!isDrawerOpen && (
               <button
                 onClick={() => {
-                  setIsDrawerOpen(true);
-                  if (onDrawerOpen) onDrawerOpen();
+                  setIsSelectorOpen(true);
+                  if (onSelectorOpen) onSelectorOpen();
                 }}
                 className="group inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 shadow-2xl hover:scale-105 transition-all duration-300 border border-white/10"
               >
-                <ButtonIcon size={16}/>
-                {drawerProps.buttonText || 'Configure Variables'}
+                <LayoutTemplate size={16}/>
+                Templates
               </button>
-            </div>
-          )}
+            )}
+
+            <button
+              onClick={() => {
+                setIsDrawerOpen(true);
+                if (onDrawerOpen) onDrawerOpen();
+              }}
+              className="group inline-flex items-center justify-center gap-2 rounded-full text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 shadow-2xl hover:scale-105 transition-all duration-300 border border-white/10"
+            >
+              <ButtonIcon size={16}/>
+              {drawerProps.buttonText || 'Configure'}
+            </button>
+          </div>
         </div>
 
         {/* BOTTOM: OUTPUT PANEL */}
-        <div className="flex flex-col bg-card border border-border rounded-2xl overflow-hidden min-w-0 h-1/2">
+        <div className="flex flex-col bg-card border border-border rounded-2xl overflow-hidden m-h-[500px]">
           <div className="h-10 border-b border-border flex items-center justify-between px-4 bg-muted/20">
             <div className="flex items-center gap-2 text-xs font-bold uppercase text-foreground">
               <Sparkles size={14}/> Output
@@ -554,14 +559,9 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
             </div>
           )}
 
-          <div className="flex-1 relative min-h-0 p-0">
-            <textarea
-              value={displayOutput}
-              onChange={(e) => onOutputChange && onOutputChange(e.target.value)}
-              readOnly={!onOutputChange || isStreaming}
-              className="absolute inset-0 w-full h-full resize-none bg-transparent p-4 font-mono text-sm leading-relaxed outline-none text-foreground"
-              placeholder={isStreaming ? 'Streaming...' : 'AI response will appear here...'}
-            />
+          <div className="flex-1 relative min-h-0 p-3">
+            <Streamdown className="h-[400px]">{displayOutput}</Streamdown>
+
             {/* Streaming Cursor */}
             {isStreaming &&
               <span className="inline-block w-2 h-4 bg-primary animate-pulse ml-1 align-middle"></span>}
@@ -600,21 +600,15 @@ export const PromptRunner: React.FC<PromptRunnerProps> = (allProps) => {
       {/* Template Selector Modal */}
       {isSelectorOpen && (
         <TemplateSelector
+          {...allProps.templateSelector}
+          onTagClick={onTagClick}
+          favorites={favorites}
           templates={templates}
           onSelectTemplate={handleSelectTemplate}
           onClose={() => {
             setIsSelectorOpen(false);
             if (onSelectorClose) onSelectorClose();
           }}
-          onCategoryFilter={onCategoryFilter}
-          onTagClick={onTagClick}
-          onTemplateSearch={onTemplateSearch}
-          favorites={favorites}
-          onToggleFavorite={onToggleFavorite}
-          selectorProps={selectorProps}
-          categoryIcons={categoryIcons}
-          onCategoryClick={onCategoryClick}
-          onCategoryChange={onCategoryChange}
         />
       )}
     </div>
