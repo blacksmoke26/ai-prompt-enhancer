@@ -38,6 +38,9 @@ import templatesList22 from '~/constants/prompt-templates/templates-22';
 import templatesList23 from '~/constants/prompt-templates/templates-23';
 import templatesList24 from '~/constants/prompt-templates/templates-24';
 import templatesList25 from '~/constants/prompt-templates/templates-25';
+import templatesList26 from '~/constants/prompt-templates/templates-26';
+import templatesList27 from '~/constants/prompt-templates/templates-27';
+import templatesList28 from '~/constants/prompt-templates/templates-28';
 
 const fullList = [
   ...templatesList01,
@@ -65,6 +68,9 @@ const fullList = [
   ...templatesList23,
   ...templatesList24,
   ...templatesList25,
+  ...templatesList26,
+  ...templatesList27,
+  ...templatesList28,
 ];
 
 /** @type {import('sequelize-cli').Migration} */
@@ -97,6 +103,7 @@ export default {
             title: template.title,
             categoryId: categoryIds[template.category],
             tools: template?.tools ?? [],
+            // @ts-ignore
             variables: template?.variables ?? [],
             description: template.description,
             tags: template.tags,
