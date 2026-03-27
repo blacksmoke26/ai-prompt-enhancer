@@ -357,8 +357,9 @@ const EditorArea: React.FC<EditorAreaProps> = (props) => {
           onChange={onChange}
           onKeyDown={handleKeyDown}
           onPaste={onPaste}
-          showCopyButton={false}
-          showClearButton={false}
+          showCopyButton
+          showFormatButton
+          showClearButton
           autoResize={false}
           enableAutoClosing={true}
           disabled={disabled}
@@ -367,8 +368,9 @@ const EditorArea: React.FC<EditorAreaProps> = (props) => {
           autoFocus={autoFocus}
           placeholder={placeholder}
           maxLength={maxLength}
+          style={!isFullscreen ? {height: 400} : {}}
           className={cn(
-            'w-full h-full resize-none bg-transparent outline-none p-6 overflow-y-auto',
+            'w-full resize-none bg-transparent outline-none p-6 overflow-y-auto',
             'placeholder:text-muted-foreground/50 disabled:opacity-50',
             effectiveReadOnly && 'cursor-default',
             textareaClassName
@@ -385,7 +387,7 @@ const EditorArea: React.FC<EditorAreaProps> = (props) => {
 
       {/* --- Footer --- */}
       {showFooter && (
-        <div className="bg-background/80 border-t border-border px-4 py-2 flex flex-col gap-2 shrink-0">
+        <div className="bg-background/80 px-4 py-2 flex flex-col gap-2 shrink-0">
 
           {/* Progress Bar Area */}
           {maxLength && limitIndicator !== 'none' && (limitIndicator === 'progress' || limitIndicator === 'both') && (
