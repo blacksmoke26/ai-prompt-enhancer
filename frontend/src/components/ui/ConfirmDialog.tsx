@@ -58,7 +58,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = (props) => {
   return (
     <AlertDialog.Root>
       <AlertDialog.Trigger>
-        {props.triggerElement ?? <Button color="red">Confirm</Button>}
+        {props.triggerElement ?? <Button variant="destructive">Confirm</Button>}
       </AlertDialog.Trigger>
       <AlertDialog.Content maxWidth="450px">
         <AlertDialog.Title>{props?.title ?? 'Confirm'}</AlertDialog.Title>
@@ -83,14 +83,26 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = (props) => {
   );
 };
 
+/**
+ * Props for the ConfirmDialogAdvanced component, defining the state and behavior of an advanced confirmation dialog.
+ */
 export interface ConfirmDialogAdvancedProps {
+  /** Controls whether the dialog is currently open or closed */
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  /** The title text displayed in the dialog header */
   title: string;
+  /** The descriptive message or body text of the dialog */
   description: string;
+  /** Optional. The label for the confirm button. Defaults to "Confirm" */
   confirmCaption?: string;
+  /** Optional. The label for the cancel button. Defaults to "Cancel" */
   cancelCaption?: string;
-  onConfirmClick: () => void;
+
+  /** The callback function to execute when the confirm button is clicked */
+  onConfirmClick(): void;
+
+  /** The callback function to execute when the open state of the dialog changes */
+  onOpenChange(open: boolean): void;
 }
 
 // Confirm Dialog
@@ -102,7 +114,7 @@ export const ConfirmDialogAdvanced: React.FC<ConfirmDialogAdvancedProps> = (prop
     description,
     confirmCaption = 'Confirm',
     cancelCaption = 'Cancel',
-    onConfirmClick
+    onConfirmClick,
   } = props;
 
   return (
