@@ -4,7 +4,7 @@
  * @see https://github.com/blacksmoke26
  */
 
-import { QueryInterface } from 'sequelize';
+import { QueryInterface, Op } from 'sequelize';
 
 // db
 import {
@@ -88,12 +88,17 @@ export default {
           if (!(template.category in categoryIds)) {
             const category = await PromptTemplateCategory.findOne({
               attributes: ['id'],
-              where: { key: template.category },
+              where: {
+                [Op.or]: [
+                  { key: template.category },
+                  { label: template.category },
+                ],
+              },
               raw: true,
             });
 
             if (!category) {
-              throw new Error('Category does not exist');
+              throw new Error(`Category '${template.category}' does not exist`);
             }
 
             categoryIds[template.category] = +category.id;
