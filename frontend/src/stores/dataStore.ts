@@ -8,19 +8,25 @@ import axios from 'axios';
 import {create} from 'zustand';
 import {createJSONStorage, persist} from 'zustand/middleware';
 
+// classes
+import ToneService from '~/services/ToneService';
+import ResponseLengthService from '~/services/ResponseLengthService';
+
 // types
 import {
   AIModel,
   AIProvider,
   AppConfig,
-  EnhancementType, PromptHistory,
-  ResponseLength, TargetAudience, Tone,
+  EnhancementType,
+  PromptHistory,
+  PromptTemplateCategories,
+  PromptTemplateResponse,
+  ResponseLength,
+  TargetAudience,
+  Tone,
   UserRole,
-  VisibleComponents,
 } from '~/types';
-import ToneService from '~/services/ToneService.ts';
-import ResponseLengthService from '~/services/ResponseLengthService.ts';
-import {ListRoleItem} from '~/types/history-service.ts';
+import type {ListRoleItem} from '~/types/history-service';
 
 /**
  * Represents a single item in a dashboard layout, defining its position, size, and behavior.
@@ -117,8 +123,16 @@ export interface DataState {
   /** Tones for prompt context */
   tones: Tone[];
 
+  /** Categories for organizing prompt templates */
+  promptCategories: PromptTemplateCategories[];
+
+  /** Available prompt templates with content */
+  promptTemplates: PromptTemplateResponse[];
+
+  /** List of user roles for history filtering */
   listRoles: ListRoleItem[];
 
+  /** Prompt history grouped by user roles */
   listByRoles: Record<string, PromptHistory[]>;
 
   /** Sets the response lengths */
@@ -127,11 +141,19 @@ export interface DataState {
   /** Sets the target audience */
   setTargetAudience(list: TargetAudience[]): void;
 
+  /** Sets the prompt categories */
+  setPromptCategories(list: PromptTemplateCategories[]): void;
+
+  /** Sets the prompt templates */
+  setPromptTemplates(list: PromptTemplateResponse[]): void;
+
   /** Sets the tones */
   setTones(roles: Tone[]): void;
 
+  /** Sets the list roles */
   setListRoles(rows: ListRoleItem[]): void;
 
+  /** Sets the list by roles */
   setListByRoles(role: string, rows: PromptHistory[]): void;
 
   /** Toggles a user role */
@@ -268,6 +290,19 @@ export const useDataStore = create<DataState>()(
           state.listByRoles[role] = rows;
           return state;
         });
+      },
+
+      promptCategories: [],
+      setPromptCategories: promptCategories => set({promptCategories}),
+
+      promptTemplates: [],
+      setPromptTemplates: promptTemplates => {
+        const templates = promptTemplates.map(x => {
+          x.content = x.content.replace(/\n+/g, `\n`);
+          return x;
+        });
+
+        set({promptTemplates: templates});
       },
     }),
     {
