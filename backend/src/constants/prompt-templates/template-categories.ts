@@ -625,6 +625,641 @@ const promptCategories = [
     label: 'UX Research',
     description: 'User experience investigation',
   },
+  {
+    key: 'ecommerce-shopping',
+    label: 'E-commerce & Shopping',
+    description: 'Online retail platforms and shopping experiences',
+  },
+  {
+    key: 'business-corporate',
+    label: 'Business & Corporate',
+    description: 'Enterprise and professional business solutions',
+  },
+  {
+    key: 'social-media-networking',
+    label: 'Social Media & Networking',
+    description: 'Platforms for social interaction and networking',
+  },
+  {
+    key: 'news-media-publishers',
+    label: 'News & Media Publishers',
+    description: 'News outlets and media publishing houses',
+  },
+  {
+    key: 'educational-academic',
+    label: 'Educational & Academic',
+    description: 'Learning platforms and academic resources',
+  },
+  {
+    key: 'portfolio-creative',
+    label: 'Portfolio & Creative',
+    description: 'Showcasing creative work and personal portfolios',
+  },
+  {
+    key: 'streaming-entertainment',
+    label: 'Streaming & Entertainment',
+    description: 'Video streaming and entertainment services',
+  },
+  {
+    key: 'financial-services-crypto',
+    label: 'Financial Services & Crypto',
+    description: 'Banking, finance, and cryptocurrency platforms',
+  },
+  {
+    key: 'job-boards-recruitment',
+    label: 'Job Boards & Recruitment',
+    description: 'Employment platforms and hiring services',
+  },
+  {
+    key: 'real-estate-travel',
+    label: 'Real Estate & Travel',
+    description: 'Property listings and travel booking',
+  },
+  {
+    key: 'forums-communities',
+    label: 'Forums & Communities',
+    description: 'Discussion boards and community platforms',
+  },
+  {
+    key: 'file-sharing-torrents',
+    label: 'File Sharing/Torrents',
+    description: 'Peer-to-peer file sharing and distribution',
+  },
+  {
+    key: 'search-engines-portals',
+    label: 'Search Engines & Portals',
+    description: 'Web search and directory portals',
+  },
+  {
+    key: 'mobile-app',
+    label: 'Mobile App',
+    description: 'Applications for mobile devices',
+  },
+  {
+    key: 'desktop-app',
+    label: 'Desktop App',
+    description: 'Applications for desktop computers',
+  },
+  {
+    key: 'government-non-profit',
+    label: 'Government & Non-Profit',
+    description: 'Public sector and non-profit organization services',
+  },
+  {
+    key: 'boilerplates',
+    label: 'Boilerplates',
+    description: 'Starter templates and code scaffolding',
+  },
+  {
+    key: 'technology-saas',
+    label: 'Technology & SaaS',
+    description: 'Software as a Service and tech solutions',
+  },
+  {
+    key: 'blog-personal',
+    label: 'Blog & Personal',
+    description: 'Personal blogs and websites',
+  },
+  {
+    key: 'file-sharing-storage',
+    label: 'File Sharing & Storage',
+    description: 'Cloud storage and file management',
+  },
+  {
+    key: 'mobile-app-specific',
+    label: 'Mobile App Specific',
+    description: 'Specialized mobile application features',
+  },
+  {
+    key: 'desktop-app-specific',
+    label: 'Desktop App Specific',
+    description: 'Specialized desktop application features',
+  },
+  {
+    key: 'boilerplates-dev-tools',
+    label: 'Boilerplates & Dev Tools',
+    description: 'Development templates and utilities',
+  },
+  {
+    key: 'design-creative',
+    label: 'Design & Creative',
+    description: 'Creative design tools and resources',
+  },
+  {
+    key: 'game-development',
+    label: 'Game Development',
+    description: 'Video game creation and design',
+  },
+  {
+    key: 'construction-engineering',
+    label: 'Construction & Engineering',
+    description: 'Building and structural engineering',
+  },
+  {
+    key: 'logistics-transport',
+    label: 'Logistics & Transport',
+    description: 'Supply chain and transportation management',
+  },
+  {
+    key: 'health-telemedicine',
+    label: 'Health & Telemedicine',
+    description: 'Healthcare services and remote medical care',
+  },
+  {
+    key: 'web-filtering-security',
+    label: 'Web Filtering / Security',
+    description: 'Content filtering and security services',
+  },
+  {
+    key: 'seo-marketing',
+    label: 'SEO & Marketing',
+    description: 'Search engine optimization and marketing tools',
+  },
+  {
+    key: 'devops-infrastructure',
+    label: 'DevOps & Infrastructure',
+    description: 'Development operations and infrastructure management',
+  },
+  {
+    key: 'git-version-control',
+    label: 'Git & Version Control',
+    description: 'Version control systems and collaboration',
+  },
+  {
+    key: 'development-tools',
+    label: 'Development Tools',
+    description: 'Software development utilities',
+  },
+  {
+    key: 'data-converters',
+    label: 'Data & Converters',
+    description: 'Data transformation and conversion tools',
+  },
+  {
+    key: 'database-tools',
+    label: 'Database Tools',
+    description: 'Database management and utilities',
+  },
+  {
+    key: 'backend-tools',
+    label: 'Backend Tools',
+    description: 'Server-side development tools',
+  },
+  {
+    key: 'web-apis',
+    label: 'Web APIs',
+    description: 'Application Programming Interfaces for web',
+  },
+  {
+    key: 'pwa-mobile',
+    label: 'PWA & Mobile',
+    description: 'Progressive Web Apps and mobile solutions',
+  },
+  {
+    key: 'design-tools',
+    label: 'Design Tools',
+    description: 'UI/UX design and prototyping tools',
+  },
+  {
+    key: 'web-templates',
+    label: 'Web Templates',
+    description: 'Website themes and templates',
+  },
+  {
+    key: 'security-tools',
+    label: 'Security Tools',
+    description: 'Cybersecurity and protection utilities',
+  },
+  {
+    key: 'web-graphics',
+    label: 'Web Graphics',
+    description: 'Graphics and visualization for the web',
+  },
+  {
+    key: 'web-performance',
+    label: 'Web Performance',
+    description: 'Optimization tools for web speed and efficiency',
+  },
+  {
+    key: 'storage',
+    label: 'Storage',
+    description: 'Data storage solutions',
+  },
+  {
+    key: 'audio',
+    label: 'Audio',
+    description: 'Audio processing and management',
+  },
+  {
+    key: 'ai-llms',
+    label: 'AI & LLMs',
+    description: 'Artificial Intelligence and Large Language Models',
+  },
+  {
+    key: 'backend-performance',
+    label: 'Backend Performance',
+    description: 'Server-side optimization and monitoring',
+  },
+  {
+    key: 'realtime',
+    label: 'Realtime',
+    description: 'Real-time data and communication',
+  },
+  {
+    key: 'backend-architecture',
+    label: 'Backend Architecture',
+    description: 'Server-side system design',
+  },
+  {
+    key: 'frontend-architecture',
+    label: 'Frontend Architecture',
+    description: 'Client-side system design',
+  },
+  {
+    key: 'mobile-notifications',
+    label: 'Mobile & Notifications',
+    description: 'Mobile development and push notifications',
+  },
+  {
+    key: 'web-security',
+    label: 'Web Security',
+    description: 'Security for web applications',
+  },
+  {
+    key: 'devops',
+    label: 'DevOps',
+    description: 'Development and operations practices',
+  },
+  {
+    key: 'infrastructure-code',
+    label: 'Infrastructure as Code',
+    description: 'Automated infrastructure management',
+  },
+  {
+    key: 'edge-computing',
+    label: 'Edge Computing',
+    description: 'Distributed computing at the network edge',
+  },
+  {
+    key: 'developer-tools',
+    label: 'Developer Tools',
+    description: 'Utilities for software developers',
+  },
+  {
+    key: 'web-accessibility',
+    label: 'Web Accessibility',
+    description: 'Making the web usable for all',
+  },
+  {
+    key: 'ui-components',
+    label: 'UI Components',
+    description: 'Reusable user interface elements',
+  },
+  {
+    key: 'documents',
+    label: 'Documents',
+    description: 'Document processing and management',
+  },
+  {
+    key: 'editor',
+    label: 'Editor',
+    description: 'Text and code editors',
+  },
+  {
+    key: 'media',
+    label: 'Media',
+    description: 'Multimedia handling and streaming',
+  },
+  {
+    key: 'iot-internet-things',
+    label: 'IoT (Internet of Things)',
+    description: 'Connected devices and smart technology',
+  },
+  {
+    key: 'iot',
+    label: 'IoT',
+    description: 'Internet of Things connectivity',
+  },
+  {
+    key: 'monitoring',
+    label: 'Monitoring',
+    description: 'System monitoring and observability',
+  },
+  {
+    key: 'data-engineering',
+    label: 'Data Engineering',
+    description: 'Data pipeline construction and management',
+  },
+  {
+    key: 'data-visualization',
+    label: 'Data Visualization',
+    description: 'Graphical representation of data',
+  },
+  {
+    key: 'maps-geo',
+    label: 'Maps & Geo',
+    description: 'Mapping and geolocation services',
+  },
+  {
+    key: '3d-graphics',
+    label: '3D Graphics',
+    description: 'Three-dimensional rendering and modeling',
+  },
+  {
+    key: 'mobile-ui',
+    label: 'Mobile UI',
+    description: 'User interfaces for mobile applications',
+  },
+  {
+    key: 'desktop-architecture',
+    label: 'Desktop Architecture',
+    description: 'Desktop application structural design',
+  },
+  {
+    key: 'bots',
+    label: 'Bots',
+    description: 'Automated software agents',
+  },
+  {
+    key: 'voip-communications',
+    label: 'VoIP & Communications',
+    description: 'Voice over IP and messaging',
+  },
+  {
+    key: 'audio-speech',
+    label: 'Audio & Speech',
+    description: 'Sound processing and speech recognition',
+  },
+  {
+    key: 'ai-vision',
+    label: 'AI / Vision',
+    description: 'Computer vision and image recognition',
+  },
+  {
+    key: 'ui-tools',
+    label: 'UI Tools',
+    description: 'User interface development utilities',
+  },
+  {
+    key: 'forms',
+    label: 'Forms',
+    description: 'Form creation and validation',
+  },
+  {
+    key: 'performance',
+    label: 'Performance',
+    description: 'System speed and efficiency optimization',
+  },
+  {
+    key: 'mobile-tools',
+    label: 'Mobile & Tools',
+    description: 'Mobile development utilities',
+  },
+  {
+    key: 'web-mobile',
+    label: 'Web & Mobile',
+    description: 'Cross-platform web and mobile solutions',
+  },
+  {
+    key: 'data-analytics',
+    label: 'Data & Analytics',
+    description: 'Data analysis and business intelligence',
+  },
+  {
+    key: 'frontend',
+    label: 'Frontend',
+    description: 'Client-side web development',
+  },
+  {
+    key: 'security',
+    label: 'Security',
+    description: 'System and network security',
+  },
+  {
+    key: 'backend-storage',
+    label: 'Backend & Storage',
+    description: 'Server-side logic and data storage',
+  },
+  {
+    key: 'mobile',
+    label: 'Mobile',
+    description: 'Mobile application development',
+  },
+  {
+    key: 'fintech-saas',
+    label: 'FinTech & SaaS',
+    description: 'Financial technology and software services',
+  },
+  {
+    key: 'communication',
+    label: 'Communication',
+    description: 'Messaging and communication tools',
+  },
+  {
+    key: 'audio-voice',
+    label: 'Audio & Voice',
+    description: 'Voice and audio technology',
+  },
+  {
+    key: 'graphics-ar',
+    label: 'Graphics & AR',
+    description: 'Computer graphics and augmented reality',
+  },
+  {
+    key: 'graphics-physics',
+    label: 'Graphics & Physics',
+    description: 'Visuals and physics simulation',
+  },
+  {
+    key: 'database',
+    label: 'Database',
+    description: 'Data management systems',
+  },
+  {
+    key: 'security-compliance',
+    label: 'Security & Compliance',
+    description: 'Security standards and regulatory compliance',
+  },
+  {
+    key: 'devops-architecture',
+    label: 'DevOps & Architecture',
+    description: 'Infrastructure and system architecture',
+  },
+  {
+    key: 'resilience-monitoring',
+    label: 'Resilience & Monitoring',
+    description: 'System reliability and oversight',
+  },
+  {
+    key: 'distributed-systems',
+    label: 'Distributed Systems',
+    description: 'Computing across multiple networked computers',
+  },
+  {
+    key: 'api-design',
+    label: 'API Design',
+    description: 'Designing effective interfaces',
+  },
+  {
+    key: 'messaging',
+    label: 'Messaging',
+    description: 'Message queues and event streaming',
+  },
+  {
+    key: 'microservices',
+    label: 'Microservices',
+    description: 'Architectural style for structuring applications',
+  },
+  {
+    key: 'security-performance',
+    label: 'Security & Performance',
+    description: 'Balancing system protection and speed',
+  },
+  {
+    key: 'infrastructure',
+    label: 'Infrastructure',
+    description: 'Foundational IT resources and services',
+  },
+  {
+    key: 'logging',
+    label: 'Logging',
+    description: 'System event recording and analysis',
+  },
+  {
+    key: 'devtools',
+    label: 'DevTools',
+    description: 'Tools for software development',
+  },
+  {
+    key: 'marketing-tools',
+    label: 'Marketing & Tools',
+    description: 'Digital marketing utilities',
+  },
+  {
+    key: 'web-scraping',
+    label: 'Web Scraping',
+    description: 'Data extraction from websites',
+  },
+  {
+    key: 'seo',
+    label: 'SEO',
+    description: 'Search engine optimization',
+  },
+  {
+    key: 'apis',
+    label: 'APIs',
+    description: 'Application Programming Interfaces',
+  },
+  {
+    key: 'seo-social',
+    label: 'SEO & Social',
+    description: 'Search and social media optimization',
+  },
+  {
+    key: 'networking',
+    label: 'Networking',
+    description: 'Network configuration and management',
+  },
+  {
+    key: 'mobile-sensors',
+    label: 'Mobile / Sensors',
+    description: 'Mobile device hardware integration',
+  },
+  {
+    key: 'desktop',
+    label: 'Desktop',
+    description: 'Desktop computing environments',
+  },
+  {
+    key: 'hardware',
+    label: 'Hardware',
+    description: 'Physical computing components',
+  },
+  {
+    key: 'desktop-backend',
+    label: 'Desktop / Backend',
+    description: 'Desktop and server-side integration',
+  },
+  {
+    key: 'desktop-storage',
+    label: 'Desktop / Storage',
+    description: 'Local data storage on desktops',
+  },
+  {
+    key: 'edge',
+    label: 'Edge',
+    description: 'Edge computing solutions',
+  },
+  {
+    key: 'edge-storage',
+    label: 'Edge / Storage',
+    description: 'Data storage at the edge',
+  },
+  {
+    key: 'edge-caching',
+    label: 'Edge / Caching',
+    description: 'Content caching at the edge',
+  },
+  {
+    key: 'edge-middleware',
+    label: 'Edge / Middleware',
+    description: 'Middleware for edge applications',
+  },
+  {
+    key: 'edge-routing',
+    label: 'Edge / Routing',
+    description: 'Network routing at the edge',
+  },
+  {
+    key: 'edge-rendering',
+    label: 'Edge / Rendering',
+    description: 'Content rendering at the edge',
+  },
+  {
+    key: 'edge-automation',
+    label: 'Edge / Automation',
+    description: 'Automating edge workflows',
+  },
+  {
+    key: 'security-edge',
+    label: 'Security / Edge',
+    description: 'Security for edge computing',
+  },
+  {
+    key: 'network-devops',
+    label: 'Network / DevOps',
+    description: 'Network operations and development',
+  },
+  {
+    key: 'wasm-webassembly',
+    label: 'WASM / WebAssembly',
+    description: 'Binary instruction format for the web',
+  },
+  {
+    key: 'wasm-webassembly-alt',
+    label: 'Wasm / WebAssembly',
+    description: 'WebAssembly technologies',
+  },
+  {
+    key: 'graphics-shader',
+    label: 'Graphics / Shader',
+    description: 'Shader programming and graphics',
+  },
+  {
+    key: 'ai-vision',
+    label: 'AI / Vision',
+    description: 'Artificial intelligence for visual data',
+  },
+  {
+    key: 'ai-deep-learning',
+    label: 'AI / Deep Learning',
+    description: 'Advanced neural network techniques',
+  },
+  {
+    key: 'ai-inference',
+    label: 'AI / Inference',
+    description: 'Running AI models for prediction',
+  },
 ];
 
 export default promptCategories;
