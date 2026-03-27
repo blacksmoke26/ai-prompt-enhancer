@@ -19,6 +19,7 @@ import ResponseLengthService from '~/services/ResponseLengthService';
 import EnhancementTypeService from '~/services/EnhancementTypeService';
 import TargetAudienceService from '~/services/TargetAudienceService';
 import HistoryService from '~/services/HistoryService';
+import PromptTemplateService from '~/services/PromptTemplateService.ts';
 
 /**
  * Custom hook for managing application data loading and state.
@@ -48,6 +49,8 @@ export const useAppData = () => {
     setEnhancementTypes,
     setListRoles,
     setListByRoles,
+    setPromptTemplates,
+    setPromptCategories,
 
   } = useDataStore();
 
@@ -88,6 +91,8 @@ export const useAppData = () => {
         PromptService.getProviders().then(setProviders),
         TargetAudienceService.getAll().then(setTargetAudience),
         ResponseLengthService.getAll().then(setResponseLengths),
+        PromptTemplateService.getCategories().then(setPromptCategories),
+        PromptTemplateService.getTemplates().then(setPromptTemplates),
         EnhancementTypeService.getAll().then(setEnhancementTypes),
       ]);
 
