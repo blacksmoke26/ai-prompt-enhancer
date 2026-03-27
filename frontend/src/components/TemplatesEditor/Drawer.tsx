@@ -24,9 +24,12 @@ import {
 import {cn} from '~/utils/helpers';
 
 // ui components
+import Slider from '~/components/ui/Slider';
 import {Label} from '~/components/ui/Label';
 import {Switch} from '~/components/ui/Switch';
 import {AdvancedInput} from '~/components/ui/AdvancedInput';
+import {AdvancedTextarea} from '~/components/ui/AdvancedTextarea';
+import {SelectAdvanced, SelectOption} from '~/components/ui/SelectAdvanced.tsx';
 
 // types
 import type {Variable} from './index';
@@ -562,7 +565,7 @@ const Drawer: React.FC<DrawerProps> = (props) => {
     let matchCount = 0;
     const normalizedQuery = searchQuery.toLowerCase().trim();
 
-    const visibleVars = variables?.filter?.((v) => {
+    const visibleVars = variables?.filter((v) => {
       const isVisible = v.showIf ? v.showIf(formData) : true;
       if (!isVisible) return false;
       if (searchQuery) {
@@ -643,27 +646,20 @@ const Drawer: React.FC<DrawerProps> = (props) => {
     }
 
     if (v.type === 'select') {
+      const options = v.options?.map?.(opt => ({
+        label: opt[0].toUpperCase() + opt.slice(1),
+        value: opt,
+      })) as SelectOption[] ?? [];
+
       return (
         <div className="relative">
-          <select
+          <SelectAdvanced
+            clearable={false}
             value={formData[v.name]}
-            onChange={(e) => handleChange(v.name, e.target.value, v)}
+            onChange={value => handleChange(v.name, value.trim(), v)}
             {...commonProps}
-            className={cn(
-              'w-full h-10 rounded-md border bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
-              'appearance-none cursor-pointer',
-              variant === 'glass' && 'bg-black/20',
-            )}
-          >
-            <option value="" disabled>
-              {v.placeholder || `Select ${v.name}...`}
-            </option>
-            {v.options?.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
+            options={options}
+          />
           <ChevronDown size={14} className="absolute right-3 top-3.5 pointer-events-none text-muted-foreground"/>
         </div>
       );
@@ -671,9 +667,9 @@ const Drawer: React.FC<DrawerProps> = (props) => {
 
     if (v.inputType === 'textarea') {
       return (
-        <textarea
+        <AdvancedTextarea
           value={formData[v.name] || ''}
-          onChange={(e) => handleChange(v.name, e.target.value, v)}
+          onChange={value => handleChange(v.name, value, v)}
           placeholder={v.placeholder || `Enter ${v.name}...`}
           rows={v.rows || 3}
           {...commonProps}
@@ -692,13 +688,12 @@ const Drawer: React.FC<DrawerProps> = (props) => {
             <span className="font-medium text-foreground">{formData[v.name]}</span>
             <span>{v.max}</span>
           </div>
-          <input
-            type="range"
+          <Slider
             min={v.min}
             max={v.max}
             step={v.step || 1}
             value={formData[v.name] || 0}
-            onChange={(e) => handleChange(v.name, Number(e.target.value), v)}
+            onValueChange={([value]) => handleChange(v.name, Number(value), v)}
             disabled={isLocked}
             className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-primary"
           />
@@ -709,7 +704,7 @@ const Drawer: React.FC<DrawerProps> = (props) => {
     if (v.inputType === 'color') {
       return (
         <div className="flex items-center gap-2">
-          <input
+          <AdvancedInput
             type="color"
             value={formData[v.name] || '#000000'}
             onChange={(e) => handleChange(v.name, e.target.value, v)}
@@ -745,6 +740,8 @@ const Drawer: React.FC<DrawerProps> = (props) => {
           placeholder={v.placeholder}
           error={errors[v.name]}
           min={v.min}
+          allowClear
+          onClearClick={() => handleChange(v.name, '', v)}
           max={v.max}
           disabled={isLocked}
           className={v.inputIcon ? 'pl-9' : ''}
@@ -838,16 +835,11 @@ const Drawer: React.FC<DrawerProps> = (props) => {
           <div className="px-6 py-3 border-b shrink-0">
             <div className="relative">
               <Search size={14} className="absolute left-3 top-2.5 text-muted-foreground"/>
-              <input
+              <AdvancedInput
                 type="text"
                 placeholder={props.searchPlaceholder || 'Search variables...'}
                 value={searchQuery}
                 onChange={handleSearchChange}
-                className={cn(
-                  'w-full h-9 pl-9 pr-3 rounded-md text-sm bg-background border border-input',
-                  'focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring',
-                  'placeholder:text-muted-foreground',
-                )}
               />
               {searchQuery && (
                 <button
@@ -865,7 +857,7 @@ const Drawer: React.FC<DrawerProps> = (props) => {
         )}
 
         {/* --- Main Content --- */}
-        <div className="flex-1 overflow-y-auto custom-scroll p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto custom-scroll p-4 space-y-6">
           {Object.entries(groupedVariables).map(([groupName, vars]) => {
             const isCollapsed = collapsedGroups[groupName] ?? renderConfig.defaultCollapsed ?? false;
 
@@ -888,7 +880,7 @@ const Drawer: React.FC<DrawerProps> = (props) => {
                 </button>
 
                 {!isCollapsed && (
-                  <div className="space-y-5 pl-6 pt-1 border-l-2 border-border/50 ml-1.5">
+                  <div className="space-y-5 pl-4 pt-1 border-l-2 border-border/50 ml-1.5">
                     {vars.map((v) => (
                       <div key={v.name} className="space-y-2.5 relative">
                         <div className="flex justify-between items-start gap-2">
@@ -897,10 +889,10 @@ const Drawer: React.FC<DrawerProps> = (props) => {
                               className={cn('text-sm flex items-center gap-1.5', renderConfig.truncateNames && 'truncate')}
                               title={renderConfig.truncateNames ? v.name : undefined}
                             >
-                              {v.name}
+                              {v.name[0].toUpperCase()+v.name.slice(1).toLowerCase()}
                               {v.required && (
                                 <span
-                                  className="text-[10px] px-1.5 py-0 rounded bg-destructive/10 text-destructive font-bold">Req</span>
+                                  className="text-[10px] py-0 rounded bg-destructive/10 text-destructive font-bold">*</span>
                               )}
                             </Label>
                             {v.description && (
